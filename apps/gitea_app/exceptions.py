@@ -10,6 +10,7 @@ Custom exceptions for Gitea integration
 
 class GiteaAPIError(Exception):
     """Base exception for Gitea API errors"""
+
     pass
 
 
@@ -37,5 +38,6 @@ class GiteaConnectionError(GiteaAPIError):
     def __init__(self, reason: str):
         self.reason = reason
         super().__init__(f"Cannot connect to Gitea server: {reason}")
+
 
 # EOF

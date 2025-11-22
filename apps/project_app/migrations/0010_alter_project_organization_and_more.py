@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("organizations_app", "0001_initial"),
         ("project_app", "0009_project_gitea_clone_url_project_gitea_repo_url_and_more"),

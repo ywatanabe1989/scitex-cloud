@@ -5,8 +5,7 @@ Handles manuscript creation, retrieval, updates, and section management.
 This service focuses on document-level operations.
 """
 
-from typing import Optional, Dict, Any, List
-from django.core.exceptions import ValidationError, PermissionDenied
+from typing import Optional, List
 from django.db import transaction
 from django.contrib.auth.models import User
 
@@ -45,7 +44,7 @@ class DocumentService:
         project,
         title: str,
         description: str = "",
-        template: Optional[str] = None
+        template: Optional[str] = None,
     ) -> Manuscript:
         """
         Create a new manuscript.
@@ -75,7 +74,7 @@ class DocumentService:
         manuscript: Manuscript,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        abstract: Optional[str] = None
+        abstract: Optional[str] = None,
     ) -> Manuscript:
         """
         Update manuscript metadata.
@@ -123,7 +122,7 @@ class DocumentService:
         Returns:
             List of ManuscriptSection objects ordered by order field
         """
-        return list(manuscript.sections.order_by('order'))
+        return list(manuscript.sections.order_by("order"))
 
     @staticmethod
     @transaction.atomic
@@ -132,7 +131,7 @@ class DocumentService:
         title: str,
         content: str = "",
         order: Optional[int] = None,
-        section_type: str = 'section'
+        section_type: str = "section",
     ) -> ManuscriptSection:
         """
         Create a new section in manuscript.
@@ -156,7 +155,7 @@ class DocumentService:
         section: ManuscriptSection,
         title: Optional[str] = None,
         content: Optional[str] = None,
-        order: Optional[int] = None
+        order: Optional[int] = None,
     ) -> ManuscriptSection:
         """
         Update a manuscript section.
@@ -193,8 +192,7 @@ class DocumentService:
     @staticmethod
     @transaction.atomic
     def reorder_sections(
-        manuscript: Manuscript,
-        section_order: List[int]
+        manuscript: Manuscript, section_order: List[int]
     ) -> List[ManuscriptSection]:
         """
         Reorder manuscript sections.

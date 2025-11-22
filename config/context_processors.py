@@ -51,3 +51,23 @@ def cache_buster(request):
     return {
         'build_id': build_id
     }
+
+
+def debug_mode(request):
+    """
+    Always expose DEBUG setting to templates.
+    Unlike django.template.context_processors.debug, this doesn't check INTERNAL_IPS.
+    """
+    return {
+        'DEBUG': settings.DEBUG
+    }
+
+
+def scitex_version(request):
+    """
+    Expose SciTeX Cloud version to all templates.
+    Single source of truth from settings.SCITEX_CLOUD_VERSION
+    """
+    return {
+        'SCITEX_CLOUD_VERSION': getattr(settings, 'SCITEX_CLOUD_VERSION', '0.0.0')
+    }

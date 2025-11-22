@@ -3,22 +3,28 @@
     <!-- File Tree -->
     <div class="sidebar-section">
         <!-- Static tree root - shows project path -->
-        <div class="sidebar-title" style="margin-bottom: 12px; padding: 6px 8px;">
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-fg-default); text-decoration: none; font-weight: 600; font-size: 14px;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" style="fill: var(--color-accent-fg);"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>
+        <div class="sidebar-title sidebar-title-header">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+               class="sidebar-title-link">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 16 16"
+                     width="16"
+                     height="16"
+                     class="sidebar-title-icon">
+                    <path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z">
+                    </path>
+                </svg>
                 <span>{{ project.owner.username }}/{{ project.slug }}/</span>
             </a>
         </div>
-
         <!-- Dynamic file tree - rendered by JavaScript (see _project_scripts.html) -->
-        <div id="file-tree" style="font-size: 14px; margin-top: 4px;">
+        <div id="file-tree" class="file-tree-container">
             <!-- Placeholder: File tree will be dynamically loaded by loadFileTree() -->
-            <div class="tree-loading" style="color: var(--color-fg-muted); padding: 0.75rem; font-size: 14px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 14px;"></i> Loading file tree...
+            <div class="tree-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading file tree...
             </div>
         </div>
     </div>
-
     <!-- About Section - Hidden by default to match GitHub style -->
     <!-- Metadata can be accessed via project settings or a collapsible section if needed -->
 </aside>

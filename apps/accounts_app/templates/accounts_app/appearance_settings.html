@@ -1,126 +1,174 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Appearance - Settings - SciTeX{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/layouts/settings-layout.css' %}">
-<link rel="stylesheet" href="{% static 'shared/css/components/theme-cards.css' %}">
-<link rel="stylesheet" href="{% static 'accounts_app/css/account-modals.css' %}">
-<link rel="stylesheet" href="{% static 'accounts_app/css/appearance.css' %}">
-
-<!-- Highlight.js themes for code preview -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css" data-code-theme="tokyo-night-dark" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/dracula.min.css" data-code-theme="dracula" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css" data-code-theme="monokai" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/nord.min.css" data-code-theme="nord" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" data-code-theme="atom-one-dark" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" data-code-theme="github-dark" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css" data-code-theme="vs2015" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-light.min.css" data-code-theme="tokyo-night-light" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" data-code-theme="atom-one-light" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" data-code-theme="github" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-light.min.css" data-code-theme="stackoverflow-light" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" data-code-theme="default" class="hljs-code-theme" disabled>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/xcode.min.css" data-code-theme="xcode" class="hljs-code-theme" disabled>
+{% block title %}
+    Appearance -
+    Settings - SciTeX
 {% endblock %}
-
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'shared/css/layouts/settings-layout.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'shared/css/components/theme-cards.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'accounts_app/css/account-modals.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'accounts_app/css/appearance.css' %}" />
+    <!-- Highlight.js themes for code preview -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css"
+          data-code-theme="tokyo-night-dark"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/dracula.min.css"
+          data-code-theme="dracula"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css"
+          data-code-theme="monokai"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/nord.min.css"
+          data-code-theme="nord"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+          data-code-theme="atom-one-dark"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+          data-code-theme="github-dark"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css"
+          data-code-theme="vs2015"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-light.min.css"
+          data-code-theme="tokyo-night-light"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css"
+          data-code-theme="atom-one-light"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+          data-code-theme="github"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/stackoverflow-light.min.css"
+          data-code-theme="stackoverflow-light"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css"
+          data-code-theme="default"
+          class="hljs-code-theme"
+          disabled />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/xcode.min.css"
+          data-code-theme="xcode"
+          class="hljs-code-theme"
+          disabled />
+{% endblock %}
 {% block content %}
-<div class="settings-page">
-    <div class="settings-layout">
-        <!-- Left Navigation -->
-        <aside class="settings-nav">
-            {% include 'accounts_app/partials/settings_nav.html' with active='appearance' %}
-        </aside>
-
-        <!-- Right Content -->
-        <main class="settings-content">
-            <div class="settings-header">
-                <h1 class="settings-title">Appearance</h1>
-                <p class="settings-subtitle">
-                    Customize how SciTeX looks and feels for you
-                </p>
-            </div>
-
-            <div class="theme-options">
-                <h2 class="theme-section-title">Theme mode</h2>
-                <p class="appearance-description">
-                    Choose how SciTeX looks to you. Select between light and dark themes.
-                </p>
-
-                <div class="theme-modes">
-                    <div class="theme-mode-card" id="mode-light" onclick="window.SciTeX.theme.set('light')">
-                        <div class="theme-mode-icon">☀️</div>
-                        <div class="theme-mode-title">Light</div>
-                        <div class="theme-mode-desc">Use light theme</div>
-                    </div>
-
-                    <div class="theme-mode-card" id="mode-dark" onclick="window.SciTeX.theme.set('dark')">
-                        <div class="theme-mode-icon">🌙</div>
-                        <div class="theme-mode-title">Dark</div>
-                        <div class="theme-mode-desc">Use dark theme</div>
-                    </div>
+    <div class="settings-page">
+        <div class="settings-layout">
+            <!-- Left Navigation -->
+            <aside class="settings-nav">
+                {% include 'accounts_app/partials/settings_nav.html' with active='appearance' %}
+            </aside>
+            <!-- Right Content -->
+            <main class="settings-content">
+                <div class="settings-header">
+                    <h1 class="settings-title">Appearance</h1>
+                    <p class="settings-subtitle">Customize how SciTeX looks and feels for you</p>
                 </div>
-
-                <div class="theme-preview">
-                    <h3 class="preview-title">Preview</h3>
-                    <div class="preview-box">
-                        <h3>Sample Content</h3>
-                        <p>This is how text and content will appear with your selected theme. Links look like <a href="#">this</a> and buttons look like this:</p>
-                        <button>Example Button</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Code Highlighting Themes Section -->
-            <div class="theme-options code-theme-section">
-                <h2 class="theme-section-title">Code highlighting themes</h2>
-                <p class="appearance-description">
-                    Choose syntax highlighting themes for code viewing. You can select different themes for light and dark modes.
-                </p>
-
-                <!-- Dark Mode Code Theme -->
-                <div class="code-theme-section">
-                    <label for="code-theme-dark-selector" class="code-theme-label">
-                        Dark mode code theme
-                    </label>
-                    <select id="code-theme-dark-selector" class="form-select code-theme-selector">
-                        <option value="nord">Nord (Default)</option>
-                        <option value="tokyo-night-dark">Tokyo Night Dark</option>
-                        <option value="dracula">Dracula</option>
-                        <option value="monokai">Monokai</option>
-                        <option value="atom-one-dark">Atom One Dark</option>
-                        <option value="github-dark">GitHub Dark</option>
-                        <option value="vs2015">VS2015</option>
-                    </select>
-                </div>
-
-                <!-- Light Mode Code Theme -->
-                <div>
-                    <label for="code-theme-light-selector" class="code-theme-label">
-                        Light mode code theme
-                    </label>
-                    <select id="code-theme-light-selector" class="form-select code-theme-selector">
-                        <option value="tokyo-night-light">Tokyo Night Light</option>
-                        <option value="atom-one-light">Atom One Light</option>
-                        <option value="github">GitHub Light</option>
-                        <option value="stackoverflow-light">StackOverflow Light</option>
-                        <option value="default">Default</option>
-                        <option value="xcode">Xcode</option>
-                    </select>
-                </div>
-
-                <!-- Code Preview -->
-                <div class="code-theme-section">
-                    <h3 class="code-preview-header">Preview</h3>
-                    <p class="code-preview-description">
-                        This preview shows how code will appear with your selected theme. Try changing themes to see the difference.
-                    </p>
-                    <div class="code-preview-container">
-                        <div class="code-preview-lang-bar">
-                            <span class="code-preview-lang">Python</span>
+                <div class="theme-options">
+                    <h2 class="theme-section-title">Theme mode</h2>
+                    <p class="appearance-description">Choose how SciTeX looks to you. Select between light and dark themes.</p>
+                    <div class="theme-modes">
+                        <div class="theme-mode-card"
+                             id="mode-light"
+                             onclick="window.SciTeX.theme.set('light')">
+                            <div class="theme-mode-icon">☀️</div>
+                            <div class="theme-mode-title">Light</div>
+                            <div class="theme-mode-desc">Use light theme</div>
                         </div>
-                        <pre class="code-preview-pre"><code id="code-preview" class="language-python code-preview-code">def calculate_statistics(data):
+                        <div class="theme-mode-card"
+                             id="mode-dark"
+                             onclick="window.SciTeX.theme.set('dark')">
+                            <div class="theme-mode-icon">🌙</div>
+                            <div class="theme-mode-title">Dark</div>
+                            <div class="theme-mode-desc">Use dark theme</div>
+                        </div>
+                    </div>
+                    <div class="theme-preview">
+                        <h3 class="preview-title">Preview</h3>
+                        <div class="preview-box">
+                            <h3>Sample Content</h3>
+                            <p>
+                                This is how text and content will appear with your selected theme.
+                                Links look like <a href="#">this</a> and buttons look like this:
+                            </p>
+                            <button>Example Button</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Code Highlighting Themes Section -->
+                <div class="theme-options code-theme-section">
+                    <h2 class="theme-section-title">Code highlighting themes</h2>
+                    <p class="appearance-description">
+                        Choose syntax highlighting themes for code viewing. You can select
+                        different themes for light and dark modes.
+                    </p>
+                    <!-- Dark Mode Code Theme -->
+                    <div class="code-theme-section">
+                        <label for="code-theme-dark-selector" class="code-theme-label">Dark mode code theme</label>
+                        <select id="code-theme-dark-selector" class="form-select code-theme-selector">
+                            <option value="nord">Nord (Default)</option>
+                            <option value="tokyo-night-dark">Tokyo Night Dark</option>
+                            <option value="dracula">Dracula</option>
+                            <option value="monokai">Monokai</option>
+                            <option value="atom-one-dark">Atom One Dark</option>
+                            <option value="github-dark">GitHub Dark</option>
+                            <option value="vs2015">VS2015</option>
+                        </select>
+                    </div>
+                    <!-- Light Mode Code Theme -->
+                    <div>
+                        <label for="code-theme-light-selector" class="code-theme-label">Light mode code theme</label>
+                        <select id="code-theme-light-selector"
+                                class="form-select code-theme-selector">
+                            <option value="tokyo-night-light">Tokyo Night Light</option>
+                            <option value="atom-one-light">Atom One Light</option>
+                            <option value="github">GitHub Light</option>
+                            <option value="stackoverflow-light">StackOverflow Light</option>
+                            <option value="default">Default</option>
+                            <option value="xcode">Xcode</option>
+                        </select>
+                    </div>
+                    <!-- Code Preview -->
+                    <div class="code-theme-section">
+                        <h3 class="code-preview-header">Preview</h3>
+                        <p class="code-preview-description">
+                            This preview shows how code will appear with your selected theme.
+                            Try changing themes to see the difference.
+                        </p>
+                        <div class="code-preview-container">
+                            <div class="code-preview-lang-bar">
+                                <span class="code-preview-lang">Python</span>
+                            </div>
+                            <pre class="code-preview-pre"><code id="code-preview" class="language-python code-preview-code">def calculate_statistics(data):
     """Calculate mean and variance from dataset."""
     n = len(data)
     mean = sum(data) / n
@@ -136,123 +184,126 @@
 dataset = [1.2, 2.5, 3.7, 4.1, 5.9]
 stats = calculate_statistics(dataset)
 print(f"Mean: {stats['mean']:.2f}")</code></pre>
-                    </div>
-
-                    <div class="code-preview-status">
-                        <span id="save-status" class="code-save-status"></span>
+                        </div>
+                        <div class="code-preview-status">
+                            <span id="save-status" class="code-save-status"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
-</div>
-
-<!-- Load highlight.js for code preview -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-<script>
-// Helper function to get CSRF token
-function getCookie(name) {
+    <!-- Load highlight.js for code preview -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+  // Helper function to get CSRF token
+  function getCookie(name) {
     let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
+      }
     }
     return cookieValue;
-}
+  }
 
-// Update active card based on current preference
-document.addEventListener('DOMContentLoaded', function() {
+  // Update active card based on current preference
+  document.addEventListener("DOMContentLoaded", function () {
     function updateActiveCard() {
-        const preference = window.SciTeX.theme.get();
+      const preference = window.SciTeX.theme.get();
 
-        // Remove active from all cards
-        document.querySelectorAll('.theme-mode-card').forEach(card => {
-            card.classList.remove('active');
-        });
+      // Remove active from all cards
+      document.querySelectorAll(".theme-mode-card").forEach((card) => {
+        card.classList.remove("active");
+      });
 
-        // Add active to current preference
-        const activeCard = document.getElementById(`mode-${preference}`);
-        if (activeCard) {
-            activeCard.classList.add('active');
-        }
+      // Add active to current preference
+      const activeCard = document.getElementById(`mode-${preference}`);
+      if (activeCard) {
+        activeCard.classList.add("active");
+      }
     }
 
     // Update immediately
     updateActiveCard();
 
     // Update when theme changes
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.theme-mode-card')) {
-            setTimeout(updateActiveCard, 100);
-        }
+    document.addEventListener("click", function (e) {
+      if (e.target.closest(".theme-mode-card")) {
+        setTimeout(updateActiveCard, 100);
+      }
     });
 
     // Load code theme preferences
     async function loadCodeThemePreferences() {
-        try {
-            const response = await fetch('/auth/api/get-theme/');
-            const data = await response.json();
+      try {
+        const response = await fetch("/auth/api/get-theme/");
+        const data = await response.json();
 
-            if (data.code_theme_dark) {
-                document.getElementById('code-theme-dark-selector').value = data.code_theme_dark;
-            }
-            if (data.code_theme_light) {
-                document.getElementById('code-theme-light-selector').value = data.code_theme_light;
-            }
-        } catch (error) {
-            console.warn('Failed to load code theme preferences:', error);
+        if (data.code_theme_dark) {
+          document.getElementById("code-theme-dark-selector").value =
+            data.code_theme_dark;
         }
+        if (data.code_theme_light) {
+          document.getElementById("code-theme-light-selector").value =
+            data.code_theme_light;
+        }
+      } catch (error) {
+        console.warn("Failed to load code theme preferences:", error);
+      }
     }
 
     // Save code theme preferences
     async function saveCodeThemePreferences() {
-        const darkTheme = document.getElementById('code-theme-dark-selector').value;
-        const lightTheme = document.getElementById('code-theme-light-selector').value;
-        const statusEl = document.getElementById('save-status');
+      const darkTheme = document.getElementById(
+        "code-theme-dark-selector",
+      ).value;
+      const lightTheme = document.getElementById(
+        "code-theme-light-selector",
+      ).value;
+      const statusEl = document.getElementById("save-status");
 
-        try {
-            const response = await fetch('/auth/api/save-theme/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    code_theme_dark: darkTheme,
-                    code_theme_light: lightTheme
-                })
-            });
+      try {
+        const response = await fetch("/auth/api/save-theme/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({
+            code_theme_dark: darkTheme,
+            code_theme_light: lightTheme,
+          }),
+        });
 
-            const data = await response.json();
+        const data = await response.json();
 
-            if (data.success) {
-                statusEl.textContent = '✓ Preferences saved';
-                statusEl.style.color = 'var(--color-success-fg)';
-                setTimeout(() => {
-                    statusEl.textContent = '';
-                }, 2000);
-            } else {
-                statusEl.textContent = '✗ Failed to save';
-                statusEl.style.color = 'var(--color-danger-fg)';
-                setTimeout(() => {
-                    statusEl.textContent = '';
-                }, 3000);
-            }
-        } catch (error) {
-            console.error('Failed to save code theme preferences:', error);
-            statusEl.textContent = '✗ Error saving';
-            statusEl.style.color = 'var(--color-danger-fg)';
-            setTimeout(() => {
-                statusEl.textContent = '';
-            }, 3000);
+        if (data.success) {
+          statusEl.textContent = "✓ Preferences saved";
+          statusEl.style.color = "var(--color-success-fg)";
+          setTimeout(() => {
+            statusEl.textContent = "";
+          }, 2000);
+        } else {
+          statusEl.textContent = "✗ Failed to save";
+          statusEl.style.color = "var(--color-danger-fg)";
+          setTimeout(() => {
+            statusEl.textContent = "";
+          }, 3000);
         }
+      } catch (error) {
+        console.error("Failed to save code theme preferences:", error);
+        statusEl.textContent = "✗ Error saving";
+        statusEl.style.color = "var(--color-danger-fg)";
+        setTimeout(() => {
+          statusEl.textContent = "";
+        }, 3000);
+      }
     }
 
     // Load preferences on page load
@@ -263,134 +314,165 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Switch code theme preview
     function switchCodeThemePreview(themeName) {
-        // Disable all themes
-        document.querySelectorAll('.hljs-code-theme').forEach(link => {
-            link.disabled = true;
-        });
+      // Disable all themes
+      document.querySelectorAll(".hljs-code-theme").forEach((link) => {
+        link.disabled = true;
+      });
 
-        // Enable selected theme
-        const themeLink = document.querySelector(`.hljs-code-theme[data-code-theme="${themeName}"]`);
-        if (themeLink) {
-            themeLink.disabled = false;
+      // Enable selected theme
+      const themeLink = document.querySelector(
+        `.hljs-code-theme[data-code-theme="${themeName}"]`,
+      );
+      if (themeLink) {
+        themeLink.disabled = false;
 
-            // Re-highlight code
-            if (originalCodeContent) {
-                const codeBlock = document.getElementById('code-preview');
-                if (codeBlock) {
-                    // Restore original and re-highlight
-                    codeBlock.textContent = originalCodeContent;
-                    if (typeof hljs !== 'undefined') {
-                        hljs.highlightElement(codeBlock);
-                    }
-                }
+        // Re-highlight code
+        if (originalCodeContent) {
+          const codeBlock = document.getElementById("code-preview");
+          if (codeBlock) {
+            // Restore original and re-highlight
+            codeBlock.textContent = originalCodeContent;
+            if (typeof hljs !== "undefined") {
+              hljs.highlightElement(codeBlock);
             }
+          }
         }
+      }
     }
 
     // Update preview based on current site theme
     function updateCodePreview() {
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const selector = currentSiteTheme === 'dark' ?
-            document.getElementById('code-theme-dark-selector') :
-            document.getElementById('code-theme-light-selector');
+      const currentSiteTheme =
+        document.documentElement.getAttribute("data-theme") || "dark";
+      const selector =
+        currentSiteTheme === "dark"
+          ? document.getElementById("code-theme-dark-selector")
+          : document.getElementById("code-theme-light-selector");
 
-        if (selector) {
-            switchCodeThemePreview(selector.value);
-        }
+      if (selector) {
+        switchCodeThemePreview(selector.value);
+      }
     }
 
     // Initialize code preview
-    const codePreview = document.getElementById('code-preview');
-    console.log('Looking for code-preview element...');
-    console.log('codePreview:', codePreview);
+    const codePreview = document.getElementById("code-preview");
+    console.log("Looking for code-preview element...");
+    console.log("codePreview:", codePreview);
 
     if (codePreview) {
-        originalCodeContent = codePreview.textContent;
-        console.log('✓ Code preview found, content length:', originalCodeContent.length);
+      originalCodeContent = codePreview.textContent;
+      console.log(
+        "✓ Code preview found, content length:",
+        originalCodeContent.length,
+      );
 
-        // Wait for highlight.js to be ready
-        let retryCount = 0;
-        function initializeHighlighting() {
-            console.log(`Attempt ${retryCount + 1} to initialize highlighting...`);
+      // Wait for highlight.js to be ready
+      let retryCount = 0;
+      function initializeHighlighting() {
+        console.log(`Attempt ${retryCount + 1} to initialize highlighting...`);
 
-            if (typeof hljs !== 'undefined') {
-                console.log('✓ highlight.js loaded successfully');
+        if (typeof hljs !== "undefined") {
+          console.log("✓ highlight.js loaded successfully");
 
-                // First, enable the correct theme for current site mode
-                const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-                console.log('Current site theme:', currentSiteTheme);
+          // First, enable the correct theme for current site mode
+          const currentSiteTheme =
+            document.documentElement.getAttribute("data-theme") || "dark";
+          console.log("Current site theme:", currentSiteTheme);
 
-                const selector = currentSiteTheme === 'dark' ?
-                    document.getElementById('code-theme-dark-selector') :
-                    document.getElementById('code-theme-light-selector');
+          const selector =
+            currentSiteTheme === "dark"
+              ? document.getElementById("code-theme-dark-selector")
+              : document.getElementById("code-theme-light-selector");
 
-                console.log('Theme selector:', selector, 'value:', selector ? selector.value : 'N/A');
+          console.log(
+            "Theme selector:",
+            selector,
+            "value:",
+            selector ? selector.value : "N/A",
+          );
 
-                if (selector && selector.value) {
-                    // Enable the theme CSS
-                    const themeLink = document.querySelector(`.hljs-code-theme[data-code-theme="${selector.value}"]`);
-                    console.log('Theme link for', selector.value, ':', themeLink);
-                    if (themeLink) {
-                        themeLink.disabled = false;
-                        console.log('✓ Enabled theme:', selector.value);
-                    } else {
-                        console.error('✗ Theme link not found for:', selector.value);
-                    }
-                }
-
-                // Apply highlighting to code preview
-                try {
-                    hljs.highlightElement(codePreview);
-                    console.log('✓ Highlighting applied successfully');
-                } catch (e) {
-                    console.error('✗ Error applying highlighting:', e);
-                }
+          if (selector && selector.value) {
+            // Enable the theme CSS
+            const themeLink = document.querySelector(
+              `.hljs-code-theme[data-code-theme="${selector.value}"]`,
+            );
+            console.log("Theme link for", selector.value, ":", themeLink);
+            if (themeLink) {
+              themeLink.disabled = false;
+              console.log("✓ Enabled theme:", selector.value);
             } else {
-                retryCount++;
-                if (retryCount < 20) {
-                    console.log(`Waiting for highlight.js (attempt ${retryCount}/20)...`);
-                    setTimeout(initializeHighlighting, 100);
-                } else {
-                    console.error('✗ highlight.js failed to load after 20 attempts (2 seconds)');
-                }
+              console.error("✗ Theme link not found for:", selector.value);
             }
-        }
+          }
 
-        initializeHighlighting();
+          // Apply highlighting to code preview
+          try {
+            hljs.highlightElement(codePreview);
+            console.log("✓ Highlighting applied successfully");
+          } catch (e) {
+            console.error("✗ Error applying highlighting:", e);
+          }
+        } else {
+          retryCount++;
+          if (retryCount < 20) {
+            console.log(
+              `Waiting for highlight.js (attempt ${retryCount}/20)...`,
+            );
+            setTimeout(initializeHighlighting, 100);
+          } else {
+            console.error(
+              "✗ highlight.js failed to load after 20 attempts (2 seconds)",
+            );
+          }
+        }
+      }
+
+      initializeHighlighting();
     } else {
-        console.error('✗ Code preview element not found! Check if id="code-preview" exists in HTML');
+      console.error(
+        '✗ Code preview element not found! Check if id="code-preview" exists in HTML',
+      );
     }
 
     // Handle theme selector changes - update preview immediately
-    document.getElementById('code-theme-dark-selector').addEventListener('change', function() {
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        if (currentSiteTheme === 'dark') {
-            switchCodeThemePreview(this.value);
+    document
+      .getElementById("code-theme-dark-selector")
+      .addEventListener("change", function () {
+        const currentSiteTheme =
+          document.documentElement.getAttribute("data-theme") || "dark";
+        if (currentSiteTheme === "dark") {
+          switchCodeThemePreview(this.value);
         }
         saveCodeThemePreferences();
-    });
+      });
 
-    document.getElementById('code-theme-light-selector').addEventListener('change', function() {
-        const currentSiteTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        if (currentSiteTheme === 'light') {
-            switchCodeThemePreview(this.value);
+    document
+      .getElementById("code-theme-light-selector")
+      .addEventListener("change", function () {
+        const currentSiteTheme =
+          document.documentElement.getAttribute("data-theme") || "dark";
+        if (currentSiteTheme === "light") {
+          switchCodeThemePreview(this.value);
         }
         saveCodeThemePreferences();
-    });
+      });
 
     // Watch for site theme changes (light/dark toggle)
-    const themeObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-                updateCodePreview();
-            }
-        });
+    const themeObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "data-theme"
+        ) {
+          updateCodePreview();
+        }
+      });
     });
 
     themeObserver.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['data-theme']
+      attributes: true,
+      attributeFilter: ["data-theme"],
     });
-});
-</script>
+  });
+    </script>
 {% endblock %}

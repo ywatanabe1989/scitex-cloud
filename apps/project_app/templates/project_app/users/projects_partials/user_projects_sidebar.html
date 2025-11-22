@@ -1,82 +1,82 @@
 <!-- Profile Sidebar Component -->
 <aside class="profile-sidebar">
-    <div class="profile-avatar">
-        {% if profile_user.profile.avatar %}
-            <img src="{{ profile_user.profile.avatar.url }}" alt="{{ profile_user.username }}">
-        {% else %}
-            {{ profile_user.username|slice:":1"|upper }}
-        {% endif %}
-    </div>
-
-    <div class="profile-names">
-        <div class="profile-fullname">
-            {{ profile_user.get_full_name|default:profile_user.username }}
-        </div>
-        <div class="profile-username">{{ profile_user.username }}</div>
-    </div>
-
     {% if user.is_authenticated and user == profile_user %}
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <a href="{% url 'accounts_app:profile_edit' %}" class="btn btn-sm">
-            <i class="fas fa-cog"></i>
-            Edit profile
-        </a>
-        <a href="{% url 'user_projects:repository_maintenance' username=profile_user.username %}" class="btn btn-sm" style="background-color: var(--color-accent-muted); color: var(--color-fg-default);">
-            <i class="fas fa-tools"></i>
-            Repository Maintenance
-        </a>
-    </div>
-    {% elif user.is_authenticated %}
-    <button id="follow-btn" class="btn btn-primary w-full" onclick="toggleFollow()">
-        {% if is_following %}
-            <i class="fas fa-user-check"></i>
-            Following
+        <a href="{% url 'accounts_app:profile_edit' %}"
+           class="profile-avatar"
+           style="cursor: pointer;
+                  text-decoration: none;
+                  color: inherit"
+           title="Edit your profile">
         {% else %}
-            <i class="fas fa-user-plus"></i>
-            Follow
+            <a href="/{{ profile_user.username }}/"
+               class="profile-avatar"
+               style="cursor: pointer;
+                      text-decoration: none;
+                      color: inherit"
+               title="Go to {{ profile_user.username }}'s repositories">
+            {% endif %}
+            {% if profile_user.profile.avatar %}
+                <img src="{{ profile_user.profile.avatar.url }}"
+                     alt="{{ profile_user.username }}">
+            {% else %}
+                {{ profile_user.username|slice:":1"|upper }}
+            {% endif %}
+        </a>
+        <div class="profile-names">
+            <div class="profile-fullname">{{ profile_user.get_full_name|default:profile_user.username }}</div>
+            <div class="profile-username">{{ profile_user.username }}</div>
+        </div>
+        {% if user.is_authenticated and user != profile_user %}
+            <button id="follow-btn"
+                    class="btn btn-primary w-full"
+                    onclick="toggleFollow()">
+                {% if is_following %}
+                    <i class="fas fa-user-check"></i>
+                    Following
+                {% else %}
+                    <i class="fas fa-user-plus"></i>
+                    Follow
+                {% endif %}
+            </button>
         {% endif %}
-    </button>
-    {% endif %}
-
-    {% if profile_user.profile.bio %}
-    <div class="profile-bio">
-        {{ profile_user.profile.bio }}
-    </div>
-    {% endif %}
-
-    <div class="profile-meta" style="color: var(--text-secondary);">
-        {% if profile_user.profile.institution %}
-        <div class="profile-meta-item">
-            <i class="fas fa-university"></i>
-            <span>{{ profile_user.profile.institution }}</span>
+        {% if profile_user.profile.bio %}<div class="profile-bio">{{ profile_user.profile.bio }}</div>{% endif %}
+        <div class="profile-meta" style="color: var(--text-secondary);">
+            {% if profile_user.profile.institution %}
+                <div class="profile-meta-item">
+                    <i class="fas fa-university"></i>
+                    <span>{{ profile_user.profile.institution }}</span>
+                </div>
+            {% endif %}
+            {% if profile_user.profile.location %}
+                <div class="profile-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ profile_user.profile.location }}</span>
+                </div>
+            {% endif %}
+            {% if profile_user.email %}
+                <div class="profile-meta-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ profile_user.email }}</span>
+                </div>
+            {% endif %}
+            <div class="profile-meta-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Joined {{ profile_user.date_joined|date:"M Y" }}</span>
+            </div>
         </div>
-        {% endif %}
-        {% if profile_user.profile.location %}
-        <div class="profile-meta-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <span>{{ profile_user.profile.location }}</span>
+        <div class="profile-stats" style="color: var(--text-secondary);">
+            <div class="profile-stat">
+                <strong>{{ followers_count }}</strong> <a href="#" style="color: var(--text-secondary); text-decoration: none;">followers</a>
+            </div>
+            <div class="profile-stat">
+                <strong>{{ following_count }}</strong> <a href="#" style="color: var(--text-secondary); text-decoration: none;">following</a>
+            </div>
         </div>
-        {% endif %}
-        {% if profile_user.email %}
-        <div class="profile-meta-item">
-            <i class="fas fa-envelope"></i>
-            <span>{{ profile_user.email }}</span>
+        <div class="profile-stats"
+             style="margin-top: 8px;
+                    color: var(--text-secondary)">
+            <div class="profile-stat">
+                <strong>{{ projects.paginator.count }}</strong> repositories
+            </div>
         </div>
-        {% endif %}
-    </div>
-
-    <div class="profile-stats" style="color: var(--text-secondary);">
-        <div class="profile-stat">
-            <strong>{{ followers_count }}</strong> <a href="#" style="color: var(--text-secondary); text-decoration: none;">followers</a>
-        </div>
-        <div class="profile-stat">
-            <strong>{{ following_count }}</strong> <a href="#" style="color: var(--text-secondary); text-decoration: none;">following</a>
-        </div>
-    </div>
-
-    <div class="profile-stats" style="margin-top: 8px; color: var(--text-secondary);">
-        <div class="profile-stat">
-            <strong>{{ projects.paginator.count }}</strong> repositories
-        </div>
-    </div>
-</aside>
+    </aside>

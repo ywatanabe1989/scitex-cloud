@@ -1,14 +1,22 @@
 {% extends "global_base.html" %}
 {% load static %}
-
-{% block title %}Contributors - SciTeX{% endblock %}
-
-{% block meta_description %}Meet the team and contributors behind the SciTeX scientific research platform{% endblock %}
-
+{% block title %}
+    Contributors
+    - SciTeX
+{% endblock %}
+{% block meta_description %}
+    Meet the team and
+    contributors behind the SciTeX scientific research platform
+{% endblock %}
 {% block extra_css %}
 <style>
   .contributors-hero {
-    background: linear-gradient(135deg, var(--scitex-color-01) 0%, var(--scitex-color-02) 50%, var(--scitex-color-03) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--scitex-color-01) 0%,
+      var(--scitex-color-02) 50%,
+      var(--scitex-color-03) 100%
+    );
     color: white;
     padding: 4rem 0;
     text-align: center;
@@ -95,154 +103,164 @@
   }
 </style>
 {% endblock %}
-
 {% block content %}
-<!-- Hero Section -->
-<section class="contributors-hero">
-  <div class="container">
-    <h1 class="display-4 mb-3">
-      <i class="fas fa-users"></i> Contributors
-    </h1>
-    <p class="lead">The people behind SciTeX</p>
-  </div>
-</section>
-
-<!-- Contributors Content -->
-<div class="container py-5">
-  <!-- Core Team -->
-  <section class="mb-5">
-    <h2 style="color: var(--color-fg-default); margin-bottom: 2rem;">
-      Core Team
-    </h2>
-
-    {% for member in core_team %}
-    <div class="contributor-card">
-      <div class="contributor-avatar">
-        {% if member.avatar_url %}
-          <img src="{{ member.avatar_url }}" alt="{{ member.name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+    <!-- Hero Section -->
+    <section class="contributors-hero">
+        <div class="container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-users"></i> Contributors
+            </h1>
+            <p class="lead">The people behind SciTeX</p>
+        </div>
+    </section>
+    <!-- Contributors Content -->
+    <div class="container py-5">
+        <!-- Core Team -->
+        <section class="mb-5">
+            <h2 style="color: var(--color-fg-default); margin-bottom: 2rem">Core Team</h2>
+            {% for member in core_team %}
+                <div class="contributor-card">
+                    <div class="contributor-avatar">
+                        {% if member.avatar_url %}
+                            <img src="{{ member.avatar_url }}"
+                                 alt="{{ member.name }}"
+                                 style="width: 100%;
+                                        height: 100%;
+                                        border-radius: 50%;
+                                        object-fit: cover" />
+                        {% else %}
+                            {{ member.name|slice:":1" }}
+                        {% endif %}
+                    </div>
+                    <div class="contributor-info">
+                        <div class="contributor-name">{{ member.name }}</div>
+                        <div class="contributor-role">{{ member.role }}</div>
+                        <div class="contributor-username">@{{ member.username }}</div>
+                        <div class="contributor-contributions">{{ member.contributions }}</div>
+                        <a href="{{ member.github_url }}" target="_blank" class="github-link">
+                            <i class="fab fa-github"></i> View on GitHub
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+        <!-- Community Contributors -->
+        {% if contributors %}
+            <section class="mb-5">
+                <h2 style="color: var(--color-fg-default); margin-bottom: 2rem">Community Contributors</h2>
+                {% for contributor in contributors %}
+                    <div class="contributor-card">
+                        <div class="contributor-avatar">
+                            {% if contributor.avatar_url %}
+                                <img src="{{ contributor.avatar_url }}"
+                                     alt="{{ contributor.name }}"
+                                     style="width: 100%;
+                                            height: 100%;
+                                            border-radius: 50%;
+                                            object-fit: cover" />
+                            {% else %}
+                                {{ contributor.name|slice:":1" }}
+                            {% endif %}
+                        </div>
+                        <div class="contributor-info">
+                            <div class="contributor-name">{{ contributor.name }}</div>
+                            {% if contributor.role %}<div class="contributor-role">{{ contributor.role }}</div>{% endif %}
+                            <div class="contributor-username">@{{ contributor.username }}</div>
+                            <div class="contributor-contributions">{{ contributor.contributions }}</div>
+                            {% if contributor.github_url %}
+                                <a href="{{ contributor.github_url }}"
+                                   target="_blank"
+                                   class="github-link">
+                                    <i class="fab fa-github"></i> View on GitHub
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </section>
         {% else %}
-          {{ member.name|slice:":1" }}
+            <section class="mb-5">
+                <div style="background: var(--color-canvas-subtle);
+                            border-radius: 12px;
+                            padding: 3rem;
+                            text-align: center">
+                    <h3 style="color: var(--color-fg-default); margin-bottom: 1rem">
+                        <i class="fas fa-code-branch"></i> Join Us!
+                    </h3>
+                    <p style="color: var(--color-fg-muted); margin-bottom: 2rem">
+                        SciTeX is an open-source project and we welcome contributions from the
+                        community.
+                    </p>
+                    <div style="display: flex;
+                                gap: 1rem;
+                                justify-content: center;
+                                flex-wrap: wrap">
+                        <a href="https://github.com/SciTeX-AI"
+                           target="_blank"
+                           class="btn btn-primary">
+                            <i class="fab fa-github"></i> Contribute on GitHub
+                        </a>
+                        <a href="/contact/" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope"></i> Get in Touch
+                        </a>
+                    </div>
+                </div>
+            </section>
         {% endif %}
-      </div>
-
-      <div class="contributor-info">
-        <div class="contributor-name">{{ member.name }}</div>
-        <div class="contributor-role">{{ member.role }}</div>
-        <div class="contributor-username">@{{ member.username }}</div>
-        <div class="contributor-contributions">{{ member.contributions }}</div>
-
-        <a href="{{ member.github_url }}" target="_blank" class="github-link">
-          <i class="fab fa-github"></i> View on GitHub
-        </a>
-      </div>
+        <!-- How to Contribute -->
+        <section>
+            <h2 style="color: var(--color-fg-default); margin-bottom: 2rem">How to Contribute</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div style="background: var(--color-canvas-subtle);
+                                border-radius: 8px;
+                                padding: 1.5rem;
+                                height: 100%">
+                        <h4 style="color: var(--color-fg-default); margin-bottom: 1rem">
+                            <i class="fas fa-code"></i> Code
+                        </h4>
+                        <p style="color: var(--color-fg-muted); margin-bottom: 1rem">
+                            Submit pull requests, fix bugs, or add new features to any of the
+                            SciTeX modules.
+                        </p>
+                        <a href="https://github.com/SciTeX-AI"
+                           target="_blank"
+                           style="color: var(--color-accent-fg)">Browse repositories →</a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div style="background: var(--color-canvas-subtle);
+                                border-radius: 8px;
+                                padding: 1.5rem;
+                                height: 100%">
+                        <h4 style="color: var(--color-fg-default); margin-bottom: 1rem">
+                            <i class="fas fa-book"></i> Documentation
+                        </h4>
+                        <p style="color: var(--color-fg-muted); margin-bottom: 1rem">
+                            Improve docs, write tutorials, or translate content to make SciTeX
+                            more accessible.
+                        </p>
+                        <a href="https://github.com/SciTeX-AI/SciTeX-Cloud/issues"
+                           target="_blank"
+                           style="color: var(--color-accent-fg)">Report issues →</a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div style="background: var(--color-canvas-subtle);
+                                border-radius: 8px;
+                                padding: 1.5rem;
+                                height: 100%">
+                        <h4 style="color: var(--color-fg-default); margin-bottom: 1rem">
+                            <i class="fas fa-heart"></i> Support
+                        </h4>
+                        <p style="color: var(--color-fg-muted); margin-bottom: 1rem">
+                            Support the project through donations, spreading the word, or
+                            providing feedback.
+                        </p>
+                        <a href="/donate/" style="color: var(--color-accent-fg)">Support SciTeX →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-    {% endfor %}
-  </section>
-
-  <!-- Community Contributors -->
-  {% if contributors %}
-  <section class="mb-5">
-    <h2 style="color: var(--color-fg-default); margin-bottom: 2rem;">
-      Community Contributors
-    </h2>
-
-    {% for contributor in contributors %}
-    <div class="contributor-card">
-      <div class="contributor-avatar">
-        {% if contributor.avatar_url %}
-          <img src="{{ contributor.avatar_url }}" alt="{{ contributor.name }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-        {% else %}
-          {{ contributor.name|slice:":1" }}
-        {% endif %}
-      </div>
-
-      <div class="contributor-info">
-        <div class="contributor-name">{{ contributor.name }}</div>
-        {% if contributor.role %}
-        <div class="contributor-role">{{ contributor.role }}</div>
-        {% endif %}
-        <div class="contributor-username">@{{ contributor.username }}</div>
-        <div class="contributor-contributions">{{ contributor.contributions }}</div>
-
-        {% if contributor.github_url %}
-        <a href="{{ contributor.github_url }}" target="_blank" class="github-link">
-          <i class="fab fa-github"></i> View on GitHub
-        </a>
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %}
-  </section>
-  {% else %}
-  <section class="mb-5">
-    <div style="background: var(--color-canvas-subtle); border-radius: 12px; padding: 3rem; text-align: center;">
-      <h3 style="color: var(--color-fg-default); margin-bottom: 1rem;">
-        <i class="fas fa-code-branch"></i> Join Us!
-      </h3>
-      <p style="color: var(--color-fg-muted); margin-bottom: 2rem;">
-        SciTeX is an open-source project and we welcome contributions from the community.
-      </p>
-      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <a href="https://github.com/SciTeX-AI" target="_blank" class="btn btn-primary">
-          <i class="fab fa-github"></i> Contribute on GitHub
-        </a>
-        <a href="/contact/" class="btn btn-outline-primary">
-          <i class="fas fa-envelope"></i> Get in Touch
-        </a>
-      </div>
-    </div>
-  </section>
-  {% endif %}
-
-  <!-- How to Contribute -->
-  <section>
-    <h2 style="color: var(--color-fg-default); margin-bottom: 2rem;">
-      How to Contribute
-    </h2>
-
-    <div class="row">
-      <div class="col-md-4 mb-4">
-        <div style="background: var(--color-canvas-subtle); border-radius: 8px; padding: 1.5rem; height: 100%;">
-          <h4 style="color: var(--color-fg-default); margin-bottom: 1rem;">
-            <i class="fas fa-code"></i> Code
-          </h4>
-          <p style="color: var(--color-fg-muted); margin-bottom: 1rem;">
-            Submit pull requests, fix bugs, or add new features to any of the SciTeX modules.
-          </p>
-          <a href="https://github.com/SciTeX-AI" target="_blank" style="color: var(--color-accent-fg);">
-            Browse repositories →
-          </a>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div style="background: var(--color-canvas-subtle); border-radius: 8px; padding: 1.5rem; height: 100%;">
-          <h4 style="color: var(--color-fg-default); margin-bottom: 1rem;">
-            <i class="fas fa-book"></i> Documentation
-          </h4>
-          <p style="color: var(--color-fg-muted); margin-bottom: 1rem;">
-            Improve docs, write tutorials, or translate content to make SciTeX more accessible.
-          </p>
-          <a href="https://github.com/SciTeX-AI/SciTeX-Cloud/issues" target="_blank" style="color: var(--color-accent-fg);">
-            Report issues →
-          </a>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div style="background: var(--color-canvas-subtle); border-radius: 8px; padding: 1.5rem; height: 100%;">
-          <h4 style="color: var(--color-fg-default); margin-bottom: 1rem;">
-            <i class="fas fa-heart"></i> Support
-          </h4>
-          <p style="color: var(--color-fg-muted); margin-bottom: 1rem;">
-            Support the project through donations, spreading the word, or providing feedback.
-          </p>
-          <a href="/donate/" style="color: var(--color-accent-fg);">
-            Support SciTeX →
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
 {% endblock %}

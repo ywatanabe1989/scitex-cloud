@@ -6,7 +6,6 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from pathlib import Path
 import subprocess
-import sys
 
 
 class Command(BaseCommand):
@@ -43,7 +42,9 @@ class Command(BaseCommand):
             modules = {module: modules_to_build[module]}
 
         self.stdout.write(
-            self.style.SUCCESS(f"Building documentation for: {', '.join(modules.keys())}")
+            self.style.SUCCESS(
+                f"Building documentation for: {', '.join(modules.keys())}"
+            )
         )
 
         for module_name, doc_path in modules.items():

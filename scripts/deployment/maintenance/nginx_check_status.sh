@@ -1,1 +1,0 @@
-../../../deployment/nginx/maintenance/nginx_check_status.sh

@@ -40,11 +40,11 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--env)
+            -e | --env)
                 ENV="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)
@@ -96,9 +96,9 @@ check_service_status() {
 
     # 1. Check systemd service
     echo_info "1. Systemd Service Status:"
-    if systemctl is-active --quiet ${SERVICE_NAME} 2>/dev/null; then
+    if systemctl is-active --quiet ${SERVICE_NAME} 2> /dev/null; then
         echo_success "   ✓ ${SERVICE_NAME} is running"
-        systemctl status ${SERVICE_NAME} --no-pager -l 2>/dev/null | head -10 | sed 's/^/   /'
+        systemctl status ${SERVICE_NAME} --no-pager -l 2> /dev/null | head -10 | sed 's/^/   /'
     else
         echo_error "   ✗ ${SERVICE_NAME} is NOT running"
         echo_warning "   Run: sudo systemctl start ${SERVICE_NAME}"
@@ -121,17 +121,17 @@ check_service_status() {
     echo_info "3. Network Ports:"
 
     # HTTP port
-    if ss -tlnp 2>/dev/null | grep -q ":${HTTP_PORT}" || netstat -tlnp 2>/dev/null | grep -q ":${HTTP_PORT}"; then
+    if ss -tlnp 2> /dev/null | grep -q ":${HTTP_PORT}" || netstat -tlnp 2> /dev/null | grep -q ":${HTTP_PORT}"; then
         echo_success "   ✓ HTTP port ${HTTP_PORT} is listening"
-        (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | grep ":${HTTP_PORT}" | sed 's/^/   /'
+        (ss -tlnp 2> /dev/null || netstat -tlnp 2> /dev/null) | grep ":${HTTP_PORT}" | sed 's/^/   /'
     else
         echo_error "   ✗ HTTP port ${HTTP_PORT} is NOT listening"
     fi
 
     # SSH port
-    if ss -tlnp 2>/dev/null | grep -q ":${SSH_PORT}" || netstat -tlnp 2>/dev/null | grep -q ":${SSH_PORT}"; then
+    if ss -tlnp 2> /dev/null | grep -q ":${SSH_PORT}" || netstat -tlnp 2> /dev/null | grep -q ":${SSH_PORT}"; then
         echo_success "   ✓ SSH port ${SSH_PORT} is listening"
-        (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | grep ":${SSH_PORT}" | sed 's/^/   /'
+        (ss -tlnp 2> /dev/null || netstat -tlnp 2> /dev/null) | grep ":${SSH_PORT}" | sed 's/^/   /'
     else
         echo_error "   ✗ SSH port ${SSH_PORT} is NOT listening"
     fi
@@ -139,7 +139,7 @@ check_service_status() {
 
     # 4. Test HTTP endpoint
     echo_info "4. HTTP Endpoint Test:"
-    HTTP_CODE=$(curl -f -s -o /dev/null -w "%{http_code}" http://${DOMAIN}:${HTTP_PORT} 2>/dev/null || echo "000")
+    HTTP_CODE=$(curl -f -s -o /dev/null -w "%{http_code}" http://${DOMAIN}:${HTTP_PORT} 2> /dev/null || echo "000")
     if [ "$HTTP_CODE" = "200" ]; then
         echo_success "   ✓ HTTP endpoint is responding (http://${DOMAIN}:${HTTP_PORT})"
         echo_info "     HTTP Status: $HTTP_CODE"
@@ -150,7 +150,7 @@ check_service_status() {
 
     # 5. Test SSH endpoint
     echo_info "5. SSH Endpoint Test:"
-    if timeout 2 bash -c "echo > /dev/tcp/${DOMAIN}/${SSH_PORT}" 2>/dev/null; then
+    if timeout 2 bash -c "echo > /dev/tcp/${DOMAIN}/${SSH_PORT}" 2> /dev/null; then
         echo_success "   ✓ SSH port is accessible (${DOMAIN}:${SSH_PORT})"
     else
         echo_warning "   ⚠ SSH port connection test failed"
@@ -162,7 +162,7 @@ check_service_status() {
     if [ -f "$CONFIG_FILE" ]; then
         echo_success "   ✓ Config file exists: $CONFIG_FILE"
         echo_info "   Key settings:"
-        sudo grep -E "^(APP_NAME|HTTP_PORT|HTTP_ADDR|SSH_PORT|ROOT_URL|DOMAIN)" "$CONFIG_FILE" 2>/dev/null | sed 's/^/     /' || echo "     (Could not read config)"
+        sudo grep -E "^(APP_NAME|HTTP_PORT|HTTP_ADDR|SSH_PORT|ROOT_URL|DOMAIN)" "$CONFIG_FILE" 2> /dev/null | sed 's/^/     /' || echo "     (Could not read config)"
     else
         echo_error "   ✗ Config file not found: $CONFIG_FILE"
     fi
@@ -170,12 +170,12 @@ check_service_status() {
 
     # 7. Database connection
     echo_info "7. Database Connection:"
-    if sudo -u postgres psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw "$GITEA_DB_NAME"; then
+    if sudo -u postgres psql -lqt 2> /dev/null | cut -d \| -f 1 | grep -qw "$GITEA_DB_NAME"; then
         echo_success "   ✓ Database exists: $GITEA_DB_NAME"
 
         # Count repositories and users
-        REPO_COUNT=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository;" 2>/dev/null || echo "0")
-        USER_COUNT=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM \"user\";" 2>/dev/null || echo "0")
+        REPO_COUNT=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM repository;" 2> /dev/null || echo "0")
+        USER_COUNT=$(sudo -u postgres psql -d "$GITEA_DB_NAME" -tAc "SELECT COUNT(*) FROM \"user\";" 2> /dev/null || echo "0")
 
         echo_info "   Statistics:"
         echo_info "     Users: $USER_COUNT"
@@ -188,11 +188,11 @@ check_service_status() {
     # 8. Disk usage
     echo_info "8. Disk Usage:"
     if [ -d "/var/lib/gitea/data" ]; then
-        DISK_USAGE=$(sudo du -sh /var/lib/gitea/data 2>/dev/null | awk '{print $1}' || echo "N/A")
+        DISK_USAGE=$(sudo du -sh /var/lib/gitea/data 2> /dev/null | awk '{print $1}' || echo "N/A")
         echo_info "   Data directory: $DISK_USAGE"
 
         if [ -d "/var/lib/gitea/data/gitea-repositories" ]; then
-            REPO_USAGE=$(sudo du -sh /var/lib/gitea/data/gitea-repositories 2>/dev/null | awk '{print $1}' || echo "N/A")
+            REPO_USAGE=$(sudo du -sh /var/lib/gitea/data/gitea-repositories 2> /dev/null | awk '{print $1}' || echo "N/A")
             echo_info "   Repositories: $REPO_USAGE"
         fi
     fi
@@ -200,8 +200,8 @@ check_service_status() {
 
     # 9. Recent logs
     echo_info "9. Recent Log Entries (last 5):"
-    if sudo journalctl -u ${SERVICE_NAME} -n 5 --no-pager 2>/dev/null | grep -q .; then
-        sudo journalctl -u ${SERVICE_NAME} -n 5 --no-pager 2>/dev/null | sed 's/^/   /'
+    if sudo journalctl -u ${SERVICE_NAME} -n 5 --no-pager 2> /dev/null | grep -q .; then
+        sudo journalctl -u ${SERVICE_NAME} -n 5 --no-pager 2> /dev/null | sed 's/^/   /'
     else
         echo_warning "   ⚠ Could not retrieve logs (may need sudo)"
     fi
@@ -217,7 +217,7 @@ print_summary() {
     if [ "$ENV" = "dev" ]; then
         echo "  http://localhost:${HTTP_PORT}"
         echo "  http://127.0.0.1:${HTTP_PORT}"
-        WSL_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+        WSL_IP=$(hostname -I 2> /dev/null | awk '{print $1}')
         if [ -n "$WSL_IP" ]; then
             echo "  http://${WSL_IP}:${HTTP_PORT} (from Windows)"
         fi

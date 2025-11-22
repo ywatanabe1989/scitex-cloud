@@ -6,14 +6,13 @@ from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse
 from django.conf import settings
 from pathlib import Path
-import os
 
 
 # Documentation paths for each module
 # Note: code/scholar are in scitex_repo at repo root level, not in src/scitex
 DOC_PATHS = {
     "scholar": "../scitex_repo/docs/_build/html",  # scholar docs in main scitex repo
-    "code": "../scitex_repo/docs/_build/html",      # code docs in main scitex repo
+    "code": "../scitex_repo/docs/_build/html",  # code docs in main scitex repo
     "viz": "../SciTeX-Viz/docs/_build/html",
     "writer": "../neurovista/paper/docs/_build/html",
 }

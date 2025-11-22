@@ -31,27 +31,27 @@ from .collaboration.session import WriterPresence, CollaborativeSession
 
 __all__ = [
     # Editor
-    'Manuscript',
-    'ManuscriptSection',
-    'Citation',
-    'Figure',
-    'Table',
+    "Manuscript",
+    "ManuscriptSection",
+    "Citation",
+    "Figure",
+    "Table",
     # Compilation
-    'CompilationJob',
-    'AIAssistanceLog',
+    "CompilationJob",
+    "AIAssistanceLog",
     # Version Control
-    'ManuscriptVersion',
-    'ManuscriptBranch',
-    'DiffResult',
-    'MergeRequest',
+    "ManuscriptVersion",
+    "ManuscriptBranch",
+    "DiffResult",
+    "MergeRequest",
     # arXiv
-    'ArxivAccount',
-    'ArxivCategory',
-    'ArxivSubmission',
-    'ArxivSubmissionHistory',
-    'ArxivValidationResult',
-    'ArxivApiResponse',
+    "ArxivAccount",
+    "ArxivCategory",
+    "ArxivSubmission",
+    "ArxivSubmissionHistory",
+    "ArxivValidationResult",
+    "ArxivApiResponse",
     # Collaboration
-    'WriterPresence',
-    'CollaborativeSession',
+    "WriterPresence",
+    "CollaborativeSession",
 ]

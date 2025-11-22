@@ -1,20 +1,20 @@
 /* User overview page styles */
-@import url('shared/variables.css');
+@import url("shared/variables.css");
 
 .user-overview-container {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 .overview-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .stat-card {
-    padding: 1.5rem;
-    border: 1px solid var(--border-color, #ddd);
-    border-radius: 0.375rem;
-    text-align: center;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 0.375rem;
+  text-align: center;
 }

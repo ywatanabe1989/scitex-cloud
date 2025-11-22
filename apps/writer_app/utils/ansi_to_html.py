@@ -13,23 +13,23 @@ import re
 # ANSI color code to CSS class mapping
 ANSI_TO_CLASS = {
     # Regular colors
-    '30': 'ansi-black',
-    '31': 'ansi-red',
-    '32': 'ansi-green',
-    '33': 'ansi-yellow',
-    '34': 'ansi-blue',
-    '35': 'ansi-magenta',
-    '36': 'ansi-cyan',
-    '37': 'ansi-white',
+    "30": "ansi-black",
+    "31": "ansi-red",
+    "32": "ansi-green",
+    "33": "ansi-yellow",
+    "34": "ansi-blue",
+    "35": "ansi-magenta",
+    "36": "ansi-cyan",
+    "37": "ansi-white",
     # Bright colors
-    '90': 'ansi-bright-black',
-    '91': 'ansi-bright-red',
-    '92': 'ansi-bright-green',
-    '93': 'ansi-bright-yellow',
-    '94': 'ansi-bright-blue',
-    '95': 'ansi-bright-magenta',
-    '96': 'ansi-bright-cyan',
-    '97': 'ansi-bright-white',
+    "90": "ansi-bright-black",
+    "91": "ansi-bright-red",
+    "92": "ansi-bright-green",
+    "93": "ansi-bright-yellow",
+    "94": "ansi-bright-blue",
+    "95": "ansi-bright-magenta",
+    "96": "ansi-bright-cyan",
+    "97": "ansi-bright-white",
 }
 
 
@@ -54,7 +54,7 @@ def ansi_to_html(text: str) -> str:
         return text
 
     # Pattern to match ANSI codes: \x1b[...m or \033[...m
-    ansi_pattern = re.compile(r'\x1b\[([0-9;]+)m')
+    ansi_pattern = re.compile(r"\x1b\[([0-9;]+)m")
 
     result = []
     last_end = 0
@@ -63,17 +63,19 @@ def ansi_to_html(text: str) -> str:
     for match in ansi_pattern.finditer(text):
         # Add text before this code
         if match.start() > last_end:
-            text_segment = text[last_end:match.start()]
+            text_segment = text[last_end : match.start()]
             if current_classes:
-                result.append(f"<span class='{' '.join(current_classes)}'>{escape_html(text_segment)}</span>")
+                result.append(
+                    f"<span class='{' '.join(current_classes)}'>{escape_html(text_segment)}</span>"
+                )
             else:
                 result.append(escape_html(text_segment))
 
         # Parse the ANSI code
-        codes = match.group(1).split(';')
+        codes = match.group(1).split(";")
 
         # Handle reset
-        if '0' in codes or codes == ['']:
+        if "0" in codes or codes == [""]:
             # Close any open spans and reset
             current_classes = []
         else:
@@ -90,21 +92,24 @@ def ansi_to_html(text: str) -> str:
     if last_end < len(text):
         text_segment = text[last_end:]
         if current_classes:
-            result.append(f"<span class='{' '.join(current_classes)}'>{escape_html(text_segment)}</span>")
+            result.append(
+                f"<span class='{' '.join(current_classes)}'>{escape_html(text_segment)}</span>"
+            )
         else:
             result.append(escape_html(text_segment))
 
-    return ''.join(result)
+    return "".join(result)
 
 
 def escape_html(text: str) -> str:
     """Escape HTML special characters."""
-    return (text
-        .replace('&', '&amp;')
-        .replace('<', '&lt;')
-        .replace('>', '&gt;')
-        .replace('"', '&quot;')
-        .replace("'", '&#39;'))
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
 
 
 def strip_ansi(text: str) -> str:
@@ -117,8 +122,8 @@ def strip_ansi(text: str) -> str:
     Returns:
         Plain text without ANSI codes
     """
-    ansi_escape = re.compile(r'\x1b\[([0-9;]+)m')
-    return ansi_escape.sub('', text)
+    ansi_escape = re.compile(r"\x1b\[([0-9;]+)m")
+    return ansi_escape.sub("", text)
 
 
 # EOF

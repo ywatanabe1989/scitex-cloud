@@ -1,0 +1,451 @@
+{% extends "global_base.html" %}
+{% load static %}
+
+{% block title %}Workspace - SciTeX{% endblock %}
+
+{% block extra_css %}
+<style>
+  .workspace-header {
+    background-color: var(--scitex-color-07);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .workspace-section {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .status-running {
+    background-color: #d4edda;
+    color: #155724;
+  }
+
+  .status-stopped {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  .status-not-created {
+    background-color: #e2e3e5;
+    color: #383d41;
+  }
+
+  .workspace-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card {
+    background-color: var(--scitex-color-09);
+    padding: 1rem;
+    border-radius: 4px;
+    border-left: 4px solid var(--scitex-color-05);
+  }
+
+  .info-label {
+    font-size: 0.875rem;
+    color: var(--scitex-color-02);
+    margin-bottom: 0.25rem;
+  }
+
+  .info-value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color);
+    font-family: monospace;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-workspace {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-start {
+    background-color: var(--scitex-color-05);
+    color: white;
+  }
+
+  .btn-start:hover {
+    background-color: var(--scitex-color-04);
+  }
+
+  .btn-stop {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .btn-stop:hover {
+    background-color: #c82333;
+  }
+
+  .btn-connect {
+    background-color: var(--scitex-color-06);
+    color: white;
+  }
+
+  .btn-connect:hover {
+    background-color: var(--scitex-color-05);
+  }
+
+  .terminal-section {
+    margin-top: 2rem;
+  }
+
+  .terminal-container {
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    min-height: 400px;
+    overflow-y: auto;
+  }
+
+  .terminal-input {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .terminal-input input {
+    flex: 1;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+    border: 1px solid #444;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .terminal-output {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .command-line {
+    color: #4ec9b0;
+  }
+
+  .output-line {
+    color: #d4d4d4;
+    margin-left: 1rem;
+  }
+
+  .error-line {
+    color: #f48771;
+    margin-left: 1rem;
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--scitex-color-05);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .resource-limits {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+  }
+
+  .resource-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-section {
+    background-color: #e7f3ff;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    border-left: 4px solid var(--scitex-color-05);
+  }
+
+  .guide-section h4 {
+    margin-top: 0;
+    color: var(--scitex-color-02);
+  }
+
+  .guide-section code {
+    background-color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="workspace-header">
+  <div class="container">
+    <h1>My Workspace</h1>
+    <p class="lead">Isolated Python environment with scientific packages</p>
+  </div>
+</div>
+
+<div class="container">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="workspace-section">
+    <h2>Container Status</h2>
+
+    {% if is_running %}
+      <div class="status-badge status-running" id="status-badge">
+        ● Running
+      </div>
+    {% elif status %}
+      <div class="status-badge status-stopped" id="status-badge">
+        ● Stopped
+      </div>
+    {% else %}
+      <div class="status-badge status-not-created" id="status-badge">
+        ● Not Created
+      </div>
+    {% endif %}
+
+    {% if status %}
+      <div class="workspace-info">
+        <div class="info-card">
+          <div class="info-label">Container Name</div>
+          <div class="info-value">{{ status.name }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Container ID</div>
+          <div class="info-value">{{ status.id|slice:":12" }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Image</div>
+          <div class="info-value">{{ status.image }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Status</div>
+          <div class="info-value">{{ status.status }}</div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if workspace %}
+      <div class="resource-limits">
+        <h4>Resource Limits</h4>
+        <div class="resource-item">
+          <span>CPU:</span>
+          <span>{{ workspace.cpu_limit|floatformat:0|add:"00000"|floatformat:0|divisibleby:100000 }} cores</span>
+        </div>
+        <div class="resource-item">
+          <span>Memory:</span>
+          <span>{{ workspace.memory_limit|filesizeformat }}</span>
+        </div>
+        {% if workspace.last_activity_at %}
+          <div class="resource-item">
+            <span>Last Activity:</span>
+            <span>{{ workspace.last_activity_at|timesince }} ago</span>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="action-buttons">
+      {% if is_running %}
+        <form method="post" action="{% url 'workspace_app:stop' %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-workspace btn-stop">Stop Workspace</button>
+        </form>
+        <button class="btn-workspace btn-connect" onclick="scrollToTerminal()">
+          Open Terminal
+        </button>
+      {% else %}
+        <form method="post" action="{% url 'workspace_app:start' %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-workspace btn-start">
+            {% if status %}Restart Workspace{% else %}Start Workspace{% endif %}
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if is_running %}
+    <div class="workspace-section terminal-section" id="terminal-section">
+      <h2>Web Terminal</h2>
+      <p>Execute commands in your workspace container</p>
+
+      <div class="terminal-container" id="terminal-output">
+        <div class="output-line">Welcome to SciTeX Workspace!</div>
+        <div class="output-line">Python 3.11 with scientific packages (numpy, pandas, matplotlib, scikit-learn, jupyter)</div>
+        <div class="output-line">Type a command below to execute it in your container.</div>
+        <div class="output-line">&nbsp;</div>
+      </div>
+
+      <div class="terminal-input">
+        <input
+          type="text"
+          id="command-input"
+          placeholder="python --version"
+          autocomplete="off"
+        >
+        <button class="btn-workspace btn-start" onclick="executeCommand()">Execute</button>
+      </div>
+
+      <div class="guide-section">
+        <h4>Quick Start Examples:</h4>
+        <ul>
+          <li><code>python --version</code> - Check Python version</li>
+          <li><code>pip list</code> - List installed packages</li>
+          <li><code>python -c "import numpy; print(numpy.__version__)"</code> - Test numpy</li>
+          <li><code>ls -la /home/user</code> - List your files</li>
+        </ul>
+      </div>
+    </div>
+  {% else %}
+    <div class="workspace-section">
+      <h2>Getting Started</h2>
+      <p>Start your workspace to get access to:</p>
+      <ul>
+        <li>Python 3.11 with scientific computing packages</li>
+        <li>8GB RAM and 2 CPU cores</li>
+        <li>Persistent data storage in <code>/home/user</code></li>
+        <li>Web-based terminal for command execution</li>
+        <li>Pre-installed: numpy, pandas, matplotlib, scikit-learn, jupyter</li>
+      </ul>
+      <p>Your workspace will automatically shut down after 30 minutes of inactivity to save resources.</p>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+// Auto-refresh status every 10 seconds
+setInterval(async () => {
+  try {
+    const response = await fetch('{% url "workspace_app:status_api" %}');
+    const data = await response.json();
+
+    const badge = document.getElementById('status-badge');
+    if (data.exists && data.status === 'running') {
+      if (!badge.classList.contains('status-running')) {
+        location.reload(); // Reload to show terminal
+      }
+    } else if (data.exists && data.status !== 'running') {
+      badge.className = 'status-badge status-stopped';
+      badge.textContent = '● Stopped';
+    }
+  } catch (error) {
+    console.error('Failed to fetch status:', error);
+  }
+}, 10000);
+
+function scrollToTerminal() {
+  document.getElementById('terminal-section').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('command-input').focus();
+}
+
+// Terminal command execution
+document.getElementById('command-input')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    executeCommand();
+  }
+});
+
+async function executeCommand() {
+  const input = document.getElementById('command-input');
+  const output = document.getElementById('terminal-output');
+  const command = input.value.trim();
+
+  if (!command) return;
+
+  // Display command
+  const commandLine = document.createElement('div');
+  commandLine.className = 'command-line';
+  commandLine.textContent = `$ ${command}`;
+  output.appendChild(commandLine);
+
+  // Show loading
+  const loadingLine = document.createElement('div');
+  loadingLine.className = 'output-line';
+  loadingLine.innerHTML = '<span class="loading-spinner"></span> Executing...';
+  output.appendChild(loadingLine);
+
+  input.value = '';
+  output.scrollTop = output.scrollHeight;
+
+  try {
+    const formData = new FormData();
+    formData.append('command', command);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    const response = await fetch('{% url "workspace_app:exec" %}', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    // Remove loading line
+    output.removeChild(loadingLine);
+
+    if (data.success) {
+      const outputLine = document.createElement('div');
+      outputLine.className = data.exit_code === 0 ? 'output-line' : 'error-line';
+      outputLine.textContent = data.output || '(no output)';
+      output.appendChild(outputLine);
+    } else {
+      const errorLine = document.createElement('div');
+      errorLine.className = 'error-line';
+      errorLine.textContent = `Error: ${data.error}`;
+      output.appendChild(errorLine);
+    }
+  } catch (error) {
+    output.removeChild(loadingLine);
+    const errorLine = document.createElement('div');
+    errorLine.className = 'error-line';
+    errorLine.textContent = `Error: ${error.message}`;
+    output.appendChild(errorLine);
+  }
+
+  output.scrollTop = output.scrollHeight;
+}
+</script>
+{% endblock %}

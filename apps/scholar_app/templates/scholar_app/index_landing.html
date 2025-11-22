@@ -1,11 +1,11 @@
 {% extends "scholar_app/scholar_base.html" %}
 {% load static %}
-
-{% block title %}SciTeX Scholar - Academic Research Tools{% endblock %}
-
+{%block title%}
+    SciTeX Scholar - Academic Research Tools
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/common.css' %}">
-<style>
+    <link rel="stylesheet" href="{% static 'shared/css/common.css' %}" />
+    <style>
   .feature-card {
     border: 1px solid var(--color-border-default);
     border-radius: 8px;
@@ -26,7 +26,7 @@
 
   .feature-card:hover {
     border-color: var(--scitex-color-03);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     transform: translateY(-4px);
     text-decoration: none;
     color: inherit;
@@ -34,7 +34,7 @@
 
   .feature-card:active {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   }
 
   .feature-icon {
@@ -115,79 +115,88 @@
     max-width: 600px;
     margin: 0 auto;
   }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="container-fluid px-4">
-  <!-- Page Hero -->
-  <div class="page-hero">
-    <h1>SciTeX Scholar</h1>
-    <p>Powerful tools for academic research and bibliography management</p>
-  </div>
-
-  <!-- Features Grid -->
-  <div class="row">
-    <!-- BibTeX Enrichment Feature -->
-    <div class="col-md-6">
-      <a href="{% url 'scholar_app:scholar_bibtex' %}" class="feature-card" style="position: relative;">
-        <div class="feature-icon">
-          <i class="fas fa-file-code"></i>
+    <div class="container-fluid px-4">
+        <!-- Page Hero -->
+        <div class="page-hero">
+            <h1>SciTeX Scholar</h1>
+            <p>Powerful tools for academic research and bibliography management</p>
         </div>
-        <div class="feature-title-wrapper">
-          <h2 class="feature-title">BibTeX Enrichment</h2>
-          <span class="feature-badge">Recommended</span>
+        <!-- Features Grid -->
+        <div class="row">
+            <!-- BibTeX Enrichment Feature -->
+            <div class="col-md-6">
+                <a href="{% url 'scholar_app:scholar_bibtex' %}"
+                   class="feature-card"
+                   style="position: relative">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="feature-title-wrapper">
+                        <h2 class="feature-title">BibTeX Enrichment</h2>
+                        <span class="feature-badge">Recommended</span>
+                    </div>
+                    <p class="feature-description">
+                        Enhance your references with
+                        <strong>abstracts, citation counts,</strong> and
+                        <strong>journal impact factors</strong>
+                    </p>
+                    <ul class="mb-3">
+                        <li>
+                            <strong>Foundation for AI-enhanced research</strong>
+                        </li>
+                        <li>
+                            <strong>Synergy with AI2 Semantic Scholar</strong>
+                        </li>
+                        <li>Works with your existing citation manager</li>
+                    </ul>
+                    <div class="feature-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
+            <!-- Literature Search Feature -->
+            <div class="col-md-6">
+                <a href="{% url 'scholar_app:scholar_search' %}"
+                   class="feature-card"
+                   style="position: relative">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h2 class="feature-title">Literature Search</h2>
+                    <p class="feature-description">
+                        Discover papers from <strong>multiple databases</strong> in one
+                        unified search
+                    </p>
+                    <ul class="mb-3">
+                        <li>Search PubMed, arXiv, Semantic Scholar, OpenAlex</li>
+                        <li>Advanced filters by year, citations, and impact</li>
+                        <li>Interactive data visualization</li>
+                    </ul>
+                    <div class="feature-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
         </div>
-        <p class="feature-description">
-          Enhance your references with <strong>abstracts, citation counts,</strong> and <strong>journal impact factors</strong>
-        </p>
-        <ul class="mb-3">
-          <li><strong>Foundation for AI-enhanced research</strong></li>
-          <li><strong>Synergy with AI2 Semantic Scholar</strong></li>          
-          <li>Works with your existing citation manager</li>
-        </ul>
-        <div class="feature-arrow">
-          <i class="fas fa-arrow-right"></i>
+        <!-- Additional Information -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Getting Started:</strong>
+                    Choose one of the tools above to begin your research workflow.
+                    {% if not user.is_authenticated %}
+                        Sign in to save your searches and build your
+                        personal library.
+                    {% else %}
+                        Your searches and enriched files can be
+                        downloaded or saved to your account.
+                    {% endif %}
+                </div>
+            </div>
         </div>
-      </a>
     </div>
-
-    <!-- Literature Search Feature -->
-    <div class="col-md-6">
-      <a href="{% url 'scholar_app:scholar_search' %}" class="feature-card" style="position: relative;">
-        <div class="feature-icon">
-          <i class="fas fa-search"></i>
-        </div>
-        <h2 class="feature-title">Literature Search</h2>
-        <p class="feature-description">
-          Discover papers from <strong>multiple databases</strong> in one unified search
-        </p>
-        <ul class="mb-3">
-          <li>Search PubMed, arXiv, Semantic Scholar, OpenAlex</li>
-          <li>Advanced filters by year, citations, and impact</li>
-          <li>Interactive data visualization</li>
-        </ul>
-        <div class="feature-arrow">
-          <i class="fas fa-arrow-right"></i>
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <!-- Additional Information -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="alert alert-info" role="alert">
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Getting Started:</strong>
-        Choose one of the tools above to begin your research workflow.
-        {% if not user.is_authenticated %}
-        Sign in to save your searches and build your personal library.
-        {% else %}
-        Your searches and enriched files can be downloaded or saved to your account.
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}

@@ -7,359 +7,432 @@
 
 /* GitHub-inspired layout */
 body {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* background-color: var(--color-canvas-default); */
-    /* color: var(--color-fg-default); */
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* background-color: var(--color-canvas-default); */
+  /* color: var(--color-fg-default); */
 }
 
 .profile-page {
-    /* Layout preserved */
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 32px 16px;
+  /* Layout preserved */
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 16px;
 }
 
 .profile-layout {
-    /* Layout preserved */
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 24px;
+  /* Layout preserved */
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 24px;
 }
 
 /* Left sidebar - Profile info */
 .profile-sidebar {
-    /* Layout preserved */
-    align-self: start;
+  /* Layout preserved */
+  align-self: start;
+  position: sticky;
+  top: 80px; /* Stick below header */
+  max-height: calc(100vh - 100px); /* Full viewport minus header/padding */
+  overflow-y: auto; /* Enable scrolling */
+  overflow-x: hidden;
 }
 
 .profile-avatar {
-    /* Layout preserved */
-    width: 160px;
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    overflow: hidden;
-    /* Styling moved to central CSS - see static/css/components/avatars.css */
-    border-radius: 50%;
-    border: 1px solid var(--border-default);
-    background: var(--bg-muted);
-    font-size: 3.5rem;
-    font-weight: 500;
-    color: var(--text-primary);
+  /* Layout preserved */
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  overflow: hidden;
+  /* Styling moved to central CSS - see static/css/components/avatars.css */
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--bg-muted);
+  font-size: 3.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .profile-avatar img {
-    /* Layout preserved */
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  /* Layout preserved */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .profile-names {
-    /* Layout preserved */
-    margin-bottom: 16px;
+  /* Layout preserved */
+  margin-bottom: 16px;
 }
 
 .profile-fullname {
-    /* Layout preserved */
-    line-height: 1.25;
-    margin-bottom: 4px;
-    /* Styling - enhanced to be more prominent than other text */
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
+  /* Layout preserved */
+  line-height: 1.25;
+  margin-bottom: 4px;
+  /* Styling - enhanced to be more prominent than other text */
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .profile-username {
-    /* Layout preserved */
-    line-height: 24px;
-    /* Keep default text size (not oversized) */
-    font-size: 1rem;
-    font-weight: 400;
-    color: var(--text-secondary);
+  /* Layout preserved */
+  line-height: 24px;
+  /* Keep default text size (not oversized) */
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-secondary);
 }
 
 .profile-username::before {
-    content: '@';
+  content: "@";
 }
 
 .profile-bio {
-    /* Layout preserved */
-    margin-bottom: 16px;
-    line-height: 1.5;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* font-size: 14px; */
-    /* color: var(--color-fg-default); */
+  /* Layout preserved */
+  margin-bottom: 16px;
+  line-height: 1.5;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* font-size: 14px; */
+  /* color: var(--color-fg-default); */
 }
 
 .profile-meta {
-    /* Layout preserved */
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
+  /* Layout preserved */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
 .profile-meta-item {
-    /* Layout preserved */
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* font-size: 14px; */
-    /* color: var(--color-fg-muted); */
+  /* Layout preserved */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* font-size: 14px; */
+  /* color: var(--color-fg-muted); */
 }
 
 .profile-meta-item i {
-    /* Layout preserved */
-    width: 16px;
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    /* color: var(--color-fg-muted); */
+  /* Layout preserved */
+  width: 16px;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  /* color: var(--color-fg-muted); */
 }
 
 .profile-stats {
-    /* Layout preserved */
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* font-size: 14px; */
+  /* Layout preserved */
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* font-size: 14px; */
 }
 
 .profile-stat {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* color: var(--color-fg-muted); */
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* color: var(--color-fg-muted); */
 }
 
 .profile-stat strong {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* color: var(--color-fg-default); */
-    /* font-weight: 600; */
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* color: var(--color-fg-default); */
+  /* font-weight: 600; */
 }
 
 /* Right content area */
 .profile-content {
-    min-width: 0;
+  min-width: 0;
 }
 
 /* Navigation tabs */
 .profile-nav {
-    /* Layout preserved */
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-    /* Styling restored for visibility */
-    border-bottom: 1px solid var(--border-muted);
+  /* Layout preserved */
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  /* Styling restored for visibility */
+  border-bottom: 1px solid var(--border-muted);
 }
 
 .profile-nav-item {
-    text-decoration: none;
-    /* Layout preserved */
-    padding: 12px 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    /* Styling restored for visibility */
-    color: var(--text-muted);
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+  text-decoration: none;
+  /* Layout preserved */
+  padding: 12px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Styling restored for visibility */
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .profile-nav-item:hover {
-    /* Styling restored for visibility */
-    color: var(--text-primary);
-    border-bottom-color: var(--border-default);
+  /* Styling restored for visibility */
+  color: var(--text-primary);
+  border-bottom-color: var(--border-default);
 }
 
 .profile-nav-item.active {
-    /* Styling restored for visibility */
-    color: var(--text-primary);
-    border-bottom-color: var(--primary-color);
-    font-weight: 500;
+  /* Styling restored for visibility */
+  color: var(--text-primary);
+  border-bottom-color: var(--primary-color);
+  font-weight: 500;
 }
 
 .nav-counter {
-    /* Layout preserved */
-    padding: 2px 8px;
-    /* Styling restored for visibility */
-    background: var(--bg-muted);
-    color: var(--text-muted);
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
+  /* Layout preserved */
+  padding: 2px 8px;
+  /* Styling restored for visibility */
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* Repository section */
 .repo-section-header {
-    /* Layout preserved */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
+  /* Layout preserved */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.repo-section-header .btn {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
 }
 
 .repo-search {
-    /* Layout preserved */
-    display: flex;
-    gap: 8px;
-    flex: 1;
-    max-width: 100%;
+  /* Layout preserved */
+  position: relative;
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  max-width: 100%;
+}
+
+.repo-search-input {
+  flex: 1;
+  padding-right: 70px !important;
+  height: 40px;
+}
+
+.repo-search-shortcut {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: 3px;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  line-height: 14px;
+}
+
+.repo-search-input:focus ~ .repo-search-shortcut {
+  opacity: 0;
+}
+
+[data-theme="dark"] .repo-search-shortcut {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .repo-search input {
-    /* Layout preserved */
-    padding: 5px 12px;
-    flex: 1;
-    width: 100%;
-    /* Styling moved to central CSS - see static/css/components/forms.css */
-    /* background: var(--color-canvas-default); */
-    /* border: 1px solid var(--color-border-default); */
-    /* border-radius: 6px; */
-    /* color: var(--color-fg-default); */
-    /* font-size: 14px; */
+  /* Layout preserved */
+  padding: 5px 12px;
+  flex: 1;
+  width: 100%;
+  /* Styling moved to central CSS - see static/css/components/forms.css */
+  /* background: var(--color-canvas-default); */
+  /* border: 1px solid var(--color-border-default); */
+  /* border-radius: 6px; */
+  /* color: var(--color-fg-default); */
+  /* font-size: 14px; */
 }
 
 .repo-search input::placeholder {
-    /* Styling moved to central CSS - see static/css/components/forms.css */
-    /* color: var(--color-fg-muted); */
+  /* Styling moved to central CSS - see static/css/components/forms.css */
+  /* color: var(--color-fg-muted); */
 }
 
 .repo-search input:focus {
-    outline: none;
-    /* Styling moved to central CSS - see static/css/components/forms.css */
-    /* border-color: var(--color-accent-fg); */
+  outline: none;
+  /* Styling moved to central CSS - see static/css/components/forms.css */
+  /* border-color: var(--color-accent-fg); */
 }
 
 /* Repository list */
 .repo-list {
-    /* Single-column wide card layout */
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    margin-top: 0;
+  /* Single-column wide card layout */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-top: 0;
 }
 
 .repo-item {
-    /* Card styling */
-    border: 1px solid var(--border-default);
-    border-radius: 8px;
-    padding: 0.25rem 1.5rem 1rem 1.5rem;
-    background: var(--bg-surface);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  /* Card styling */
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 0.25rem 1.5rem 1rem 1.5rem;
+  background: var(--bg-surface);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  position: relative; /* For clickable overlay */
 }
 
 .repo-item:hover {
-    border-color: var(--primary-color, #007acc);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color, #007acc);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer; /* Show clickable cursor */
+}
+
+/* Make entire card clickable via invisible overlay link */
+.repo-item-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  text-decoration: none;
+}
+
+/* Ensure buttons stay above the overlay */
+.repo-item button,
+.repo-item .btn {
+  position: relative;
+  z-index: 2;
 }
 
 .repo-header {
-    /* Updated for card layout */
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-    margin: 0 0 4px 0;
-    padding-bottom: 0;
-    border-bottom: none;
+  /* Updated for card layout */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 4px 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 /* .repo-name is now deprecated, use .text-link .font-semibold .text-lg instead */
 
 .repo-visibility {
-    /* Layout preserved */
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    /* Styling moved to central CSS - see static/css/components/badges.css */
-    /* font-size: 12px; */
-    /* border-radius: 12px; */
-    /* border: 1px solid var(--color-border-default); */
-    /* color: var(--color-fg-muted); */
-    /* font-weight: 500; */
+  /* Layout preserved */
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  /* Styling moved to central CSS - see static/css/components/badges.css */
+  /* font-size: 12px; */
+  /* border-radius: 12px; */
+  /* border: 1px solid var(--color-border-default); */
+  /* color: var(--color-fg-muted); */
+  /* font-weight: 500; */
 }
 
 /* .star-btn is now deprecated, use .btn .btn-outline-secondary .btn-sm instead */
 
 .star-btn img {
-    /* Layout preserved */
-    width: 14px;
-    height: 14px;
+  /* Layout preserved */
+  width: 14px;
+  height: 14px;
 }
 
 .repo-description {
-    /* Layout preserved */
-    margin-bottom: 8px;
-    margin-top: 8px;
-    line-height: 1.5;
-    color: var(--text-secondary);
-    /* font-size: 14px; */
+  /* Layout preserved */
+  margin-bottom: 8px;
+  margin-top: 8px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  /* font-size: 14px; */
 }
 
 .repo-meta {
-    /* Layout preserved */
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 8px;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* font-size: 12px; */
-    /* color: var(--color-fg-muted); */
+  /* Layout preserved */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* font-size: 12px; */
+  /* color: var(--color-fg-muted); */
 }
 
 .repo-meta-item {
-    /* Layout preserved */
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  /* Layout preserved */
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .language-dot {
-    /* Layout preserved */
-    width: 12px;
-    height: 12px;
-    display: inline-block;
-    /* Styling moved to central CSS - see static/css/components/badges.css */
-    /* border-radius: 50%; */
+  /* Layout preserved */
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  /* Styling moved to central CSS - see static/css/components/badges.css */
+  /* border-radius: 50%; */
 }
 
 /* Empty state */
 .empty-state {
-    /* Layout preserved */
-    text-align: center;
-    padding: 48px 24px;
-    margin-top: 24px;
-    /* Styling moved to central CSS - see static/css/components/cards.css */
-    /* background: var(--color-canvas-default); */
-    /* border: 1px solid var(--color-border-muted); */
-    /* border-radius: 6px; */
+  /* Layout preserved */
+  text-align: center;
+  padding: 48px 24px;
+  margin-top: 24px;
+  /* Styling moved to central CSS - see static/css/components/cards.css */
+  /* background: var(--color-canvas-default); */
+  /* border: 1px solid var(--color-border-muted); */
+  /* border-radius: 6px; */
 }
 
 .empty-state-icon {
-    /* Layout preserved */
-    margin-bottom: 16px;
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    /* font-size: 48px; */
-    /* color: var(--color-border-default); */
+  /* Layout preserved */
+  margin-bottom: 16px;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  /* font-size: 48px; */
+  /* color: var(--color-border-default); */
 }
 
 .empty-state h3 {
-    /* Layout preserved */
-    margin-bottom: 8px;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* color: var(--color-fg-default); */
-    /* font-size: 24px; */
+  /* Layout preserved */
+  margin-bottom: 8px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* color: var(--color-fg-default); */
+  /* font-size: 24px; */
 }
 
 .empty-state p {
-    /* Layout preserved */
-    margin-bottom: 24px;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* color: var(--color-fg-muted); */
-    /* font-size: 14px; */
+  /* Layout preserved */
+  margin-bottom: 24px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* color: var(--color-fg-muted); */
+  /* font-size: 14px; */
 }
 
 /* Buttons */
@@ -369,53 +442,53 @@ body {
 
 /* Pagination */
 .pagination-link {
-    text-decoration: none;
-    /* Layout preserved */
-    padding: 8px 16px;
-    /* Styling moved to central CSS - see static/css/components/pagination.css */
-    /* background: var(--color-btn-bg); */
-    /* color: var(--color-fg-default); */
-    /* border-radius: 6px; */
-    /* transition: all 0.2s ease; */
+  text-decoration: none;
+  /* Layout preserved */
+  padding: 8px 16px;
+  /* Styling moved to central CSS - see static/css/components/pagination.css */
+  /* background: var(--color-btn-bg); */
+  /* color: var(--color-fg-default); */
+  /* border-radius: 6px; */
+  /* transition: all 0.2s ease; */
 }
 
 .pagination-link:hover {
-    text-decoration: none;
-    /* Styling moved to central CSS - see static/css/components/pagination.css */
-    /* background: var(--color-btn-hover-bg); */
+  text-decoration: none;
+  /* Styling moved to central CSS - see static/css/components/pagination.css */
+  /* background: var(--color-btn-hover-bg); */
 }
 
 .pagination-info {
-    /* Layout preserved */
-    padding: 8px 16px;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    /* color: var(--color-fg-muted); */
+  /* Layout preserved */
+  padding: 8px 16px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  /* color: var(--color-fg-muted); */
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .profile-layout {
-        grid-template-columns: 1fr;
-    }
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
 
-    .profile-sidebar {
-        position: static;
-    }
+  .profile-sidebar {
+    position: static;
+  }
 
-    .profile-avatar {
-        /* Layout preserved */
-        width: 150px;
-        height: 150px;
-        font-size: 3rem;
-    }
+  .profile-avatar {
+    /* Layout preserved */
+    width: 150px;
+    height: 150px;
+    font-size: 3rem;
+  }
 
-    /* Stack repo cards on mobile */
-    .repo-list {
-        grid-template-columns: 1fr;
-    }
+  /* Stack repo cards on mobile */
+  .repo-list {
+    grid-template-columns: 1fr;
+  }
 
-    .repo-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+  .repo-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

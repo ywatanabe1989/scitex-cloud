@@ -1,1 +1,0 @@
-../../../deployment/gitea/scripts/maintenance/gitea_check_status.sh

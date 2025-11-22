@@ -2,4 +2,4 @@
 
 from .models import BibTeXEnrichmentJob
 
-__all__ = ['BibTeXEnrichmentJob']
+__all__ = ["BibTeXEnrichmentJob"]

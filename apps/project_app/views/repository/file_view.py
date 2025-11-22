@@ -8,6 +8,7 @@ Repository File View
 
 Handles file viewing functionality with syntax highlighting.
 """
+
 from __future__ import annotations
 
 import logging
@@ -53,9 +54,7 @@ def project_file_view(request, username, slug, file_path):
     )
 
     if not has_access:
-        messages.error(
-            request, "You don't have permission to access this file."
-        )
+        messages.error(request, "You don't have permission to access this file.")
         return redirect("user_projects:detail", username=username, slug=slug)
 
     # Get file path
@@ -77,9 +76,7 @@ def project_file_view(request, username, slug, file_path):
         full_file_path = full_file_path.resolve()
         if not str(full_file_path).startswith(str(project_path.resolve())):
             messages.error(request, "Invalid file path.")
-            return redirect(
-                "user_projects:detail", username=username, slug=slug
-            )
+            return redirect("user_projects:detail", username=username, slug=slug)
     except Exception:
         messages.error(request, "Invalid file path.")
         return redirect("user_projects:detail", username=username, slug=slug)
@@ -94,78 +91,83 @@ def project_file_view(request, username, slug, file_path):
     try:
         # Get current branch from session or repository
         from apps.project_app.views.api_views import get_current_branch_from_session
+
         current_branch = get_current_branch_from_session(request, project)
-        git_info['current_branch'] = current_branch
+        git_info["current_branch"] = current_branch
 
         # Get all branches
         all_branches_result = subprocess.run(
-            ['git', 'branch', '-a'],
+            ["git", "branch", "-a"],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
         )
         if all_branches_result.returncode == 0:
             branches = []
-            for line in all_branches_result.stdout.split('\n'):
+            for line in all_branches_result.stdout.split("\n"):
                 line = line.strip()
-                if line and not line.startswith('*'):
+                if line and not line.startswith("*"):
                     # Remove 'remotes/origin/' prefix if present
-                    branch_name = line.replace('remotes/origin/', '')
+                    branch_name = line.replace("remotes/origin/", "")
                     if branch_name and branch_name not in branches:
                         branches.append(branch_name)
-                elif line.startswith('*'):
+                elif line.startswith("*"):
                     # Current branch
                     branch_name = line[2:].strip()
                     if branch_name not in branches:
                         branches.insert(0, branch_name)
-            git_info['branches'] = branches
+            git_info["branches"] = branches
         else:
-            git_info['branches'] = [git_info['current_branch']]
+            git_info["branches"] = [git_info["current_branch"]]
 
         # Get last commit info for this specific file
         commit_result = subprocess.run(
-            ['git', 'log', '-1', '--format=%an|%ae|%ar|%at|%s|%h|%H', '--', file_path],
+            ["git", "log", "-1", "--format=%an|%ae|%ar|%at|%s|%h|%H", "--", file_path],
             cwd=project_path,
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
         )
 
         if commit_result.returncode == 0 and commit_result.stdout.strip():
-            parts = commit_result.stdout.strip().split('|', 6)
-            git_info.update({
-                'author_name': parts[0],
-                'author_email': parts[1],
-                'time_ago': parts[2],
-                'timestamp': parts[3],
-                'message': parts[4],
-                'short_hash': parts[5],
-                'full_hash': parts[6] if len(parts) > 6 else parts[5],
-            })
+            parts = commit_result.stdout.strip().split("|", 6)
+            git_info.update(
+                {
+                    "author_name": parts[0],
+                    "author_email": parts[1],
+                    "time_ago": parts[2],
+                    "timestamp": parts[3],
+                    "message": parts[4],
+                    "short_hash": parts[5],
+                    "full_hash": parts[6] if len(parts) > 6 else parts[5],
+                }
+            )
         else:
             # File might not be committed yet
-            git_info.update({
-                'author_name': '',
-                'author_email': '',
-                'time_ago': 'Not committed',
-                'timestamp': '',
-                'message': 'No commits yet',
-                'short_hash': '',
-                'full_hash': '',
-            })
+            git_info.update(
+                {
+                    "author_name": "",
+                    "author_email": "",
+                    "time_ago": "Not committed",
+                    "timestamp": "",
+                    "message": "No commits yet",
+                    "short_hash": "",
+                    "full_hash": "",
+                }
+            )
     except Exception as e:
         logger.debug(f"Error getting git info for {file_path}: {e}")
         git_info = {
-            'current_branch': 'main',
-            'branches': ['main'],
-            'author_name': '',
-            'author_email': '',
-            'time_ago': '',
-            'timestamp': '',
-            'message': '',
-            'short_hash': '',
-            'full_hash': '',
+            "current_branch": "main",
+            "branches": ["main"],
+            "author_name": "",
+            "author_email": "",
+            "time_ago": "",
+            "timestamp": "",
+            "message": "",
+            "short_hash": "",
+            "full_hash": "",
         }
 
     # Determine file type and rendering method
@@ -197,6 +199,7 @@ def project_file_view(request, username, slug, file_path):
     if mode == "edit":
         # Import the edit view from the same feature module
         from .file_edit import project_file_edit
+
         return project_file_edit(request, username, slug, file_path)
 
     # Read file content
@@ -248,9 +251,7 @@ def project_file_view(request, username, slug, file_path):
             else:
                 # Try to read as text file
                 try:
-                    with open(
-                        full_file_path, "r", encoding="utf-8"
-                    ) as f:
+                    with open(full_file_path, "r", encoding="utf-8") as f:
                         file_content = f.read()
 
                     # Detect language for syntax highlighting
@@ -281,30 +282,60 @@ def project_file_view(request, username, slug, file_path):
                         # Sanitize HTML to prevent XSS
                         # Allow common safe tags and attributes
                         allowed_tags = bleach.ALLOWED_TAGS | {
-                            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-                            'p', 'br', 'hr', 'pre', 'code', 'span', 'div',
-                            'table', 'thead', 'tbody', 'tr', 'th', 'td',
-                            'ul', 'ol', 'li', 'dl', 'dt', 'dd',
-                            'img', 'a', 'strong', 'em', 'del', 'ins',
-                            'blockquote', 'details', 'summary'
+                            "h1",
+                            "h2",
+                            "h3",
+                            "h4",
+                            "h5",
+                            "h6",
+                            "p",
+                            "br",
+                            "hr",
+                            "pre",
+                            "code",
+                            "span",
+                            "div",
+                            "table",
+                            "thead",
+                            "tbody",
+                            "tr",
+                            "th",
+                            "td",
+                            "ul",
+                            "ol",
+                            "li",
+                            "dl",
+                            "dt",
+                            "dd",
+                            "img",
+                            "a",
+                            "strong",
+                            "em",
+                            "del",
+                            "ins",
+                            "blockquote",
+                            "details",
+                            "summary",
                         }
                         allowed_attributes = {
-                            '*': ['class', 'id'],
-                            'a': ['href', 'title', 'rel'],
-                            'img': ['src', 'alt', 'title', 'width', 'height'],
-                            'code': ['class'],
-                            'pre': ['class'],
-                            'span': ['class', 'style'],
-                            'div': ['class', 'style'],
+                            "*": ["class", "id"],
+                            "a": ["href", "title", "rel"],
+                            "img": ["src", "alt", "title", "width", "height"],
+                            "code": ["class"],
+                            "pre": ["class"],
+                            "span": ["class", "style"],
+                            "div": ["class", "style"],
                         }
-                        css_sanitizer = CSSSanitizer(allowed_css_properties=['color', 'background-color'])
+                        css_sanitizer = CSSSanitizer(
+                            allowed_css_properties=["color", "background-color"]
+                        )
 
                         file_html = bleach.clean(
                             raw_html,
                             tags=allowed_tags,
                             attributes=allowed_attributes,
                             css_sanitizer=css_sanitizer,
-                            strip=False
+                            strip=False,
                         )
                         render_type = "markdown"
                     elif language:
@@ -350,7 +381,7 @@ def project_file_view(request, username, slug, file_path):
         "file_content": file_content,
         "file_html": file_html,
         "render_type": render_type,
-        "language": language if 'language' in locals() else None,
+        "language": language if "language" in locals() else None,
         "breadcrumbs": breadcrumbs,
         "can_edit": project.owner == request.user,
         "git_info": git_info,

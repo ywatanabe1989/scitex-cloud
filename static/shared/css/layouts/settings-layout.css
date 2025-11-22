@@ -1,139 +1,139 @@
 /* GitHub-Style Settings Layout - Shared across all settings pages */
 
 .settings-page {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 24px 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
 }
 
 .settings-layout {
-    display: grid;
-    grid-template-columns: 296px 1fr;
-    gap: 24px;
+  display: grid;
+  grid-template-columns: 296px 1fr;
+  gap: 24px;
 }
 
 /* Settings Navigation Sidebar */
 .settings-nav {
-    background: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    padding: 8px;
-    position: sticky;
-    top: 80px;
-    align-self: start;
+  background: var(--color-canvas-subtle);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  padding: 8px;
+  position: sticky;
+  top: 80px;
+  align-self: start;
 }
 
 .settings-nav-section {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .settings-nav-header {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    padding: 8px 12px;
-    margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  padding: 8px 12px;
+  margin-bottom: 4px;
 }
 
 .settings-nav-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    color: var(--text-primary);
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 14px;
 }
 
 .settings-nav-item:hover {
-    background: var(--color-btn-hover-bg);
-    text-decoration: none;
+  background: var(--color-btn-hover-bg);
+  text-decoration: none;
 }
 
 .settings-nav-item.active {
-    background: var(--color-btn-hover-bg);
-    font-weight: 600;
+  background: var(--color-btn-hover-bg);
+  font-weight: 600;
 }
 
 .settings-nav-item i {
-    width: 20px;
-    text-align: center;
-    color: var(--text-secondary);
+  width: 20px;
+  text-align: center;
+  color: var(--text-secondary);
 }
 
 /* Settings Content Area */
 .settings-content {
-    min-width: 0;
+  min-width: 0;
 }
 
 .settings-header {
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border-default);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .settings-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
 }
 
 .settings-subtitle {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* Form Sections */
 .form-section {
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    padding: 24px;
-    margin-bottom: 24px;
+  background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .form-section-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
 }
 
 .section-header {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border-default);
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .section-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
 }
 
 .section-subtitle {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
 }
 
 /* Form Elements */
 .form-group {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 6px;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
 }
 
 .form-group input[type="text"],
@@ -141,98 +141,98 @@
 .form-group input[type="url"],
 .form-group input[type="password"],
 .form-group textarea {
-    width: 100%;
-    padding: 8px 12px;
-    border: 2px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--text-primary);
-    font-size: 14px;
-    transition: all 0.2s ease;
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-control:focus,
 .form-select:focus {
-    outline: none;
-    border-color: var(--color-accent-fg);
-    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
+  outline: none;
+  border-color: var(--color-accent-fg);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
 }
 
 [data-theme="dark"] .form-group input:focus,
 [data-theme="dark"] .form-group textarea:focus,
 [data-theme="dark"] .form-control:focus,
 [data-theme="dark"] .form-select:focus {
-    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
 }
 
 /* Select elements - remove duplicate styling, handled by select.css */
 .form-select {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .form-help {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
 }
 
 .form-help a {
-    color: var(--scitex-color-04);
+  color: var(--scitex-color-04);
 }
 
 /* Form Actions */
 .form-actions {
-    display: flex;
-    gap: 12px;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-border-default);
-    margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-default);
+  margin-top: 24px;
 }
 
 .btn-save {
-    background: var(--color-btn-primary-bg);
-    color: var(--color-btn-primary-text);
-    border: 1px solid var(--color-btn-primary-border);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  background: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  border: 1px solid var(--color-btn-primary-border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-save:hover {
-    background: var(--color-btn-primary-hover-bg);
+  background: var(--color-btn-primary-hover-bg);
 }
 
 .btn-cancel {
-    background: var(--color-btn-bg);
-    color: var(--color-btn-text);
-    border: 1px solid var(--color-btn-border);
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
+  background: var(--color-btn-bg);
+  color: var(--color-btn-text);
+  border: 1px solid var(--color-btn-border);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-cancel:hover {
-    background: var(--color-btn-hover-bg);
-    text-decoration: none;
+  background: var(--color-btn-hover-bg);
+  text-decoration: none;
 }
 
 /* Responsive Design */
 @media (max-width: 992px) {
-    .settings-layout {
-        grid-template-columns: 1fr;
-    }
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
 
-    .settings-nav {
-        position: static;
-    }
+  .settings-nav {
+    position: static;
+  }
 }

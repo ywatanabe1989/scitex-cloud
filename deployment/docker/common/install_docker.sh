@@ -8,7 +8,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 
 GRAY='\033[0;90m'
 GREEN='\033[0;32m'
@@ -29,21 +29,21 @@ readonly DOCKER_GROUP="docker"
 set -e
 
 check_docker_installed() {
-    command -v docker &>/dev/null
+    command -v docker &> /dev/null
 }
 
 check_compose_v2_installed() {
-    docker compose version &>/dev/null
+    docker compose version &> /dev/null
 }
 
 check_buildx_installed() {
-    docker buildx version &>/dev/null
+    docker buildx version &> /dev/null
 }
 
 install_docker_official() {
     echo_info "Installing Docker from official repository..."
     echo_info "Removing old Docker packages if present..."
-    sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
+    sudo apt-get remove -y docker docker-engine docker.io containerd runc 2> /dev/null || true
 
     echo_info "Updating package index..."
     sudo apt-get update
@@ -53,12 +53,12 @@ install_docker_official() {
 
     echo_info "Adding Docker GPG key..."
     sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-        sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
     echo_info "Setting up Docker repository..."
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
-        sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+        | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     echo_info "Installing Docker Engine..."
     sudo apt-get update
@@ -77,7 +77,7 @@ install_docker_simple() {
 setup_user_permissions() {
     echo_info "Setting up user permissions..."
 
-    if ! getent group $DOCKER_GROUP &>/dev/null; then
+    if ! getent group $DOCKER_GROUP &> /dev/null; then
         sudo groupadd $DOCKER_GROUP
     fi
 
@@ -89,8 +89,8 @@ setup_user_permissions() {
 
 remove_old_compose() {
     echo_info "Removing old docker-compose (standalone)..."
-    sudo apt-get remove -y docker-compose 2>/dev/null || true
-    pip uninstall -y docker-compose 2>/dev/null || true
+    sudo apt-get remove -y docker-compose 2> /dev/null || true
+    pip uninstall -y docker-compose 2> /dev/null || true
     sudo rm -f /usr/local/bin/docker-compose
     echo_success "Old docker-compose removed"
 }
@@ -152,7 +152,7 @@ verify_installation() {
         echo_warning "Docker Buildx not found"
     fi
 
-    if sudo docker ps &>/dev/null; then
+    if sudo docker ps &> /dev/null; then
         echo_success "Docker daemon is running"
     else
         echo_warning "Docker daemon not running, starting..."

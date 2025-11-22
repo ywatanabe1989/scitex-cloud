@@ -64,7 +64,9 @@
   background-clip: padding-box;
   border: 2px solid var(--border-default);
   border-radius: 6px;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition:
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
@@ -81,7 +83,9 @@
 .form-select:focus {
   border-color: var(--scitex-color-04);
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 0 0 3px rgba(108, 139, 160, 0.15),
+    0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .form-select:disabled {
@@ -107,7 +111,9 @@
 
 [data-theme="dark"] .form-select:focus {
   border-color: var(--scitex-color-05);
-  box-shadow: 0 0 0 3px rgba(108, 139, 160, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 0 3px rgba(108, 139, 160, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .form-select:disabled {

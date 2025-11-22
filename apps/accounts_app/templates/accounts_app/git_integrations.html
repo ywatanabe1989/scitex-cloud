@@ -1,53 +1,55 @@
 {% extends "global_base.html" %}
 {% load static %}
-
-{% block title %}Git Integrations - Settings{% endblock %}
-
+{% block title %}
+    Git
+    Integrations - Settings
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/layouts/settings-layout.css' %}">
-<style>
-/* Git integrations page-specific styles */
+    <link rel="stylesheet"
+          href="{% static 'shared/css/layouts/settings-layout.css' %}" />
+    <style>
+  /* Git integrations page-specific styles */
 
-.form-section {
+  .form-section {
     background: var(--color-canvas-default);
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
     padding: 24px;
     margin-bottom: 24px;
-}
+  }
 
-.section-header {
+  .section-header {
     margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--color-border-default);
-}
+  }
 
-.section-title {
+  .section-title {
     font-size: 20px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 4px;
-}
+  }
 
-.section-subtitle {
+  .section-subtitle {
     font-size: 14px;
     color: var(--color-fg-muted);
-}
+  }
 
-.form-group {
+  .form-group {
     margin-bottom: 16px;
-}
+  }
 
-.form-group label {
+  .form-group label {
     display: block;
     font-size: 14px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin-bottom: 6px;
-}
+  }
 
-.form-group input[type="password"],
-.form-group input[type="text"] {
+  .form-group input[type="password"],
+  .form-group input[type="text"] {
     width: 100%;
     padding: 8px 12px;
     border: 1px solid var(--color-border-default);
@@ -55,27 +57,27 @@
     background: var(--color-canvas-default);
     color: var(--color-fg-default);
     font-size: 14px;
-}
+  }
 
-.form-help {
+  .form-help {
     font-size: 12px;
     color: var(--color-fg-muted);
     margin-top: 6px;
-}
+  }
 
-.form-help a {
+  .form-help a {
     color: var(--scitex-color-04);
-}
+  }
 
-.form-actions {
+  .form-actions {
     display: flex;
     gap: 12px;
     padding-top: 16px;
     border-top: 1px solid var(--color-border-default);
     margin-top: 24px;
-}
+  }
 
-.btn-save {
+  .btn-save {
     background: var(--color-btn-primary-bg);
     color: var(--color-btn-primary-text);
     border: 1px solid var(--color-btn-primary-border);
@@ -87,9 +89,9 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-}
+  }
 
-.btn-cancel {
+  .btn-cancel {
     background: var(--color-btn-bg);
     color: var(--color-btn-text);
     border: 1px solid var(--color-btn-border);
@@ -97,127 +99,160 @@
     border-radius: 6px;
     font-size: 14px;
     text-decoration: none;
-}
-</style>
+  }
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="settings-page">
-    <div class="settings-layout">
-        <!-- Left Navigation -->
-        <aside class="settings-nav">
-            {% include 'accounts_app/partials/settings_nav.html' with active='git_integrations' %}
-        </aside>
-
-        <!-- Right Content -->
-        <main class="settings-content">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                {% if messages %}
-                <div style="margin-bottom: var(--spacing-md);">
-                    {% for message in messages %}
-                    <div class="alert-banner alert-banner-{% if message.tags == 'success' %}success{% else %}danger{% endif %}" style="margin-bottom: var(--spacing-sm);">
-                      <div class="warning-banner-container">
-                        <div class="warning-banner-content">
-                          <i class="warning-banner-icon fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-                          <div class="warning-banner-text">
-                            <div class="warning-banner-description">{{ message }}</div>
-                          </div>
+    <div class="settings-page">
+        <div class="settings-layout">
+            <!-- Left Navigation -->
+            <aside class="settings-nav">
+                {% include 'accounts_app/partials/settings_nav.html' with active='git_integrations' %}
+            </aside>
+            <!-- Right Content -->
+            <main class="settings-content">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if messages %}
+                        <div style="margin-bottom: var(--spacing-md)">
+                            {% for message in messages %}
+                                <div class="alert-banner alert-banner-{% if message.tags == 'success' %}success{% else %}danger{% endif %}"
+                                     style="margin-bottom: var(--spacing-sm)">
+                                    <div class="warning-banner-container">
+                                        <div class="warning-banner-content">
+                                            <i class="warning-banner-icon fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                                            <div class="warning-banner-text">
+                                                <div class="warning-banner-description">{{ message }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                      </div>
+                    {% endif %}
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Git Platform Integration</h2>
+                            <p class="section-subtitle">
+                                Connect your GitHub, GitLab, and Bitbucket accounts to import
+                                private repositories
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label for="github_token">GitHub Personal Access Token</label>
+                            <input type="password"
+                                   id="github_token"
+                                   name="github_token"
+                                   value=""
+                                   placeholder="{% if github_token_masked %}{{ github_token_masked }}{% else %}ghp_xxxxxxxxxxxx or github_pat_xxxxx{% endif %}" />
+                            <p class="form-help">
+                                {% if profile.github_token %}
+                                    ✅ Token saved:
+                                    <code style="background: var(--color-canvas-subtle);
+                                                 padding: 2px 6px;
+                                                 border-radius: 3px;
+                                                 font-size: 12px">{{ github_token_masked }}</code>
+                                {% else %}
+                                    No token saved
+                                {% endif %}
+                                •
+                                <a href="https://github.com/settings/tokens" target="_blank">Create token on GitHub →</a>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label for="gitlab_token">GitLab Personal Access Token</label>
+                            <input type="password"
+                                   id="gitlab_token"
+                                   name="gitlab_token"
+                                   value=""
+                                   placeholder="{% if gitlab_token_masked %}{{ gitlab_token_masked }}{% else %}glpat-xxxxxxxxxxxx{% endif %}" />
+                            <p class="form-help">
+                                {% if profile.gitlab_token %}
+                                    ✅ Token saved:
+                                    <code style="background: var(--color-canvas-subtle);
+                                                 padding: 2px 6px;
+                                                 border-radius: 3px;
+                                                 font-size: 12px">{{ gitlab_token_masked }}</code>
+                                {% else %}
+                                    No token saved
+                                {% endif %}
+                                •
+                                <a href="https://gitlab.com/-/profile/personal_access_tokens"
+                                   target="_blank">Create token on GitLab →</a>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label for="bitbucket_token">Bitbucket App Password</label>
+                            <input type="password"
+                                   id="bitbucket_token"
+                                   name="bitbucket_token"
+                                   value=""
+                                   placeholder="{% if bitbucket_token_masked %}{{ bitbucket_token_masked }}{% else %}ATBB...{% endif %}" />
+                            <p class="form-help">
+                                {% if profile.bitbucket_token %}
+                                    ✅ Password saved:
+                                    <code style="background: var(--color-canvas-subtle);
+                                                 padding: 2px 6px;
+                                                 border-radius: 3px;
+                                                 font-size: 12px">{{ bitbucket_token_masked }}</code>
+                                {% else %}
+                                    No password saved
+                                {% endif %}
+                                •
+                                <a href="https://bitbucket.org/account/settings/app-passwords/"
+                                   target="_blank">Create app password on Bitbucket →</a>
+                            </p>
+                        </div>
                     </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="form-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Git Platform Integration</h2>
-                        <p class="section-subtitle">Connect your GitHub, GitLab, and Bitbucket accounts to import private repositories</p>
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Git Hosting Profiles</h2>
+                            <p class="section-subtitle">Your public profile usernames on different Git platforms</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="github_profile">GitHub Username</label>
+                            <input type="text"
+                                   id="github_profile"
+                                   name="github_profile"
+                                   value="{{ profile.github_profile }}"
+                                   placeholder="username" />
+                            <p class="form-help">
+                                Your GitHub profile: github.com/<span id="github-preview">{{ profile.github_profile|default:"username" }}</span>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label for="gitlab_profile">GitLab Username</label>
+                            <input type="text"
+                                   id="gitlab_profile"
+                                   name="gitlab_profile"
+                                   value="{{ profile.gitlab_profile }}"
+                                   placeholder="username" />
+                            <p class="form-help">
+                                Your GitLab profile: gitlab.com/<span id="gitlab-preview">{{ profile.gitlab_profile|default:"username" }}</span>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label for="bitbucket_profile">Bitbucket Username</label>
+                            <input type="text"
+                                   id="bitbucket_profile"
+                                   name="bitbucket_profile"
+                                   value="{{ profile.bitbucket_profile }}"
+                                   placeholder="username" />
+                            <p class="form-help">
+                                Your Bitbucket profile: bitbucket.org/<span id="bitbucket-preview">{{ profile.bitbucket_profile|default:"username" }}</span>
+                            </p>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="github_token">GitHub Personal Access Token</label>
-                        <input type="password" id="github_token" name="github_token"
-                               value=""
-                               placeholder="{% if github_token_masked %}{{ github_token_masked }}{% else %}ghp_xxxxxxxxxxxx or github_pat_xxxxx{% endif %}">
-                        <p class="form-help">
-                            {% if profile.github_token %}
-                                ✅ Token saved: <code style="background: var(--color-canvas-subtle); padding: 2px 6px; border-radius: 3px; font-size: 12px;">{{ github_token_masked }}</code>
-                            {% else %}
-                                No token saved
-                            {% endif %} •
-                            <a href="https://github.com/settings/tokens" target="_blank">Create token on GitHub →</a>
-                        </p>
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-check"></i>
+                            Save changes
+                        </button>
+                        <a href="{% url 'accounts_app:profile_edit' %}" class="btn-cancel">Cancel</a>
                     </div>
-
-                    <div class="form-group">
-                        <label for="gitlab_token">GitLab Personal Access Token</label>
-                        <input type="password" id="gitlab_token" name="gitlab_token"
-                               value=""
-                               placeholder="{% if gitlab_token_masked %}{{ gitlab_token_masked }}{% else %}glpat-xxxxxxxxxxxx{% endif %}">
-                        <p class="form-help">
-                            {% if profile.gitlab_token %}
-                                ✅ Token saved: <code style="background: var(--color-canvas-subtle); padding: 2px 6px; border-radius: 3px; font-size: 12px;">{{ gitlab_token_masked }}</code>
-                            {% else %}
-                                No token saved
-                            {% endif %} •
-                            <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank">Create token on GitLab →</a>
-                        </p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bitbucket_token">Bitbucket App Password</label>
-                        <input type="password" id="bitbucket_token" name="bitbucket_token"
-                               value=""
-                               placeholder="{% if bitbucket_token_masked %}{{ bitbucket_token_masked }}{% else %}ATBB...{% endif %}">
-                        <p class="form-help">
-                            {% if profile.bitbucket_token %}
-                                ✅ Password saved: <code style="background: var(--color-canvas-subtle); padding: 2px 6px; border-radius: 3px; font-size: 12px;">{{ bitbucket_token_masked }}</code>
-                            {% else %}
-                                No password saved
-                            {% endif %} •
-                            <a href="https://bitbucket.org/account/settings/app-passwords/" target="_blank">Create app password on Bitbucket →</a>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Git Hosting Profiles</h2>
-                        <p class="section-subtitle">Your public profile usernames on different Git platforms</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="github_profile">GitHub Username</label>
-                        <input type="text" id="github_profile" name="github_profile" value="{{ profile.github_profile }}" placeholder="username">
-                        <p class="form-help">Your GitHub profile: github.com/<span id="github-preview">{{ profile.github_profile|default:"username" }}</span></p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gitlab_profile">GitLab Username</label>
-                        <input type="text" id="gitlab_profile" name="gitlab_profile" value="{{ profile.gitlab_profile }}" placeholder="username">
-                        <p class="form-help">Your GitLab profile: gitlab.com/<span id="gitlab-preview">{{ profile.gitlab_profile|default:"username" }}</span></p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bitbucket_profile">Bitbucket Username</label>
-                        <input type="text" id="bitbucket_profile" name="bitbucket_profile" value="{{ profile.bitbucket_profile }}" placeholder="username">
-                        <p class="form-help">Your Bitbucket profile: bitbucket.org/<span id="bitbucket-preview">{{ profile.bitbucket_profile|default:"username" }}</span></p>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="form-actions">
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-check"></i>
-                        Save changes
-                    </button>
-                    <a href="{% url 'accounts_app:profile_edit' %}" class="btn-cancel">Cancel</a>
-                </div>
-            </form>
-        </main>
+                </form>
+            </main>
+        </div>
     </div>
-</div>
 {% endblock %}

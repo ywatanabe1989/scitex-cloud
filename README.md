@@ -33,7 +33,7 @@ make start
 
 **Test User:**
 - Username: `test-user`
-- Password: `Test-user!`
+- Password: `Password123!`
 
 </details>
 

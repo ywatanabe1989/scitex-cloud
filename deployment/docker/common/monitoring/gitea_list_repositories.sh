@@ -10,7 +10,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 
 # Colors
 GRAY='\033[0;90m'
@@ -88,7 +88,7 @@ show_repo_details() {
     echo
 
     response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-        "$GITEA_URL/api/v1/repos/$owner/$repo" 2>/dev/null)
+        "$GITEA_URL/api/v1/repos/$owner/$repo" 2> /dev/null)
 
     echo "$response" | python3 << 'EOF'
 import sys
@@ -167,19 +167,19 @@ main() {
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -u|--user)
+            -u | --user)
                 username="$2"
                 shift 2
                 ;;
-            -d|--detail)
+            -d | --detail)
                 detail_repo="$2"
                 shift 2
                 ;;
-            -p|--private)
+            -p | --private)
                 private_only=true
                 shift
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 exit 0
                 ;;
@@ -203,7 +203,7 @@ main() {
 
     # Validate token
     test_response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-        "$GITEA_URL/api/v1/user" 2>/dev/null)
+        "$GITEA_URL/api/v1/user" 2> /dev/null)
 
     if ! echo "$test_response" | grep -q '"login"'; then
         echo_error "Invalid or expired token"
@@ -226,11 +226,11 @@ main() {
     if [ -n "$username" ]; then
         echo_info "Fetching repositories for user: $username"
         response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-            "$GITEA_URL/api/v1/users/$username/repos" 2>/dev/null)
+            "$GITEA_URL/api/v1/users/$username/repos" 2> /dev/null)
     else
         echo_info "Fetching your repositories..."
         response=$(curl -s -H "Authorization: token $GITEA_TOKEN" \
-            "$GITEA_URL/api/v1/user/repos" 2>/dev/null)
+            "$GITEA_URL/api/v1/user/repos" 2> /dev/null)
     fi
 
     # Filter private repos if requested

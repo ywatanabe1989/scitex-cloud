@@ -1,4 +1,5 @@
 """arXiv integration models."""
+
 from .submission import (
     ArxivAccount,
     ArxivCategory,
@@ -9,10 +10,10 @@ from .submission import (
 )
 
 __all__ = [
-    'ArxivAccount',
-    'ArxivCategory',
-    'ArxivSubmission',
-    'ArxivSubmissionHistory',
-    'ArxivValidationResult',
-    'ArxivApiResponse',
+    "ArxivAccount",
+    "ArxivCategory",
+    "ArxivSubmission",
+    "ArxivSubmissionHistory",
+    "ArxivValidationResult",
+    "ArxivApiResponse",
 ]

@@ -9,9 +9,9 @@ from .workflow_tasks import (
 )
 
 __all__ = [
-    'execute_workflow_run',
-    'execute_workflow_job',
-    'execute_workflow_step',
+    "execute_workflow_run",
+    "execute_workflow_job",
+    "execute_workflow_step",
 ]
 
 # EOF

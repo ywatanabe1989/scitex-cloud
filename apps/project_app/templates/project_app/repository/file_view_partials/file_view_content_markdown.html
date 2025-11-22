@@ -1,14 +1,12 @@
 <!-- Markdown Content -->
-<div id="markdownPreview" class="markdown-body">
-    {{ file_html|safe }}
-</div>
-<div id="markdownCode" class="file-content" style="display: none;">
+<div id="markdownPreview" class="markdown-body">{{ file_html|safe }}</div>
+<div id="markdownCode" class="file-content" style="display: none">
     <div class="line-numbers">
         {% for line in file_content.splitlines %}
-        <div class="line">
-            <div class="line-number">{{ forloop.counter }}</div>
-            <div class="line-content">{{ line }}</div>
-        </div>
+            <div class="line">
+                <div class="line-number">{{ forloop.counter }}</div>
+                <div class="line-content">{{ line }}</div>
+            </div>
         {% endfor %}
     </div>
 </div>

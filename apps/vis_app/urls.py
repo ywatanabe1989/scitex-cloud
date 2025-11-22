@@ -1,0 +1,109 @@
+from django.urls import path
+from . import views, api_views
+
+app_name = "vis"
+
+urlpatterns = [
+    # Main editor
+    path(
+        "",
+        views.figure_editor,
+        name="figure_editor",
+    ),
+    # SigmaPlot-inspired editor (experimental)
+    path(
+        "sigma/",
+        views.sigma_editor,
+        name="sigma_editor",
+    ),
+    # Figure management
+    path(
+        "figures/",
+        views.figure_list,
+        name="figure_list",
+    ),
+    path(
+        "figures/create/",
+        views.create_figure,
+        name="create_figure",
+    ),
+    path(
+        "figures/<uuid:figure_id>/",
+        views.figure_detail,
+        name="figure_detail",
+    ),
+    # API endpoints
+    path(
+        "api/presets/",
+        api_views.get_journal_presets,
+        name="api_presets",
+    ),
+    path(
+        "api/presets/<int:preset_id>/",
+        api_views.get_preset_detail,
+        name="api_preset_detail",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/save/",
+        api_views.save_figure_state,
+        name="api_save_figure",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/load/",
+        api_views.load_figure_state,
+        name="api_load_figure",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/upload-panel/",
+        api_views.upload_panel_image,
+        name="api_upload_panel",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/config/",
+        api_views.update_figure_config,
+        name="api_update_config",
+    ),
+    # Version management endpoints (Original | Edited Cards)
+    path(
+        "api/figures/<uuid:figure_id>/versions/",
+        api_views.get_figure_versions,
+        name="api_get_versions",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/create/",
+        api_views.create_version_snapshot,
+        name="api_create_version",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/<uuid:version_id>/",
+        api_views.load_version_state,
+        name="api_load_version",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/original/set/",
+        api_views.set_original_version,
+        name="api_set_original",
+    ),
+    path(
+        "api/figures/<uuid:figure_id>/versions/original/",
+        api_views.get_original_version,
+        name="api_get_original",
+    ),
+    # Image conversion
+    path(
+        "api/convert/png-to-tiff/",
+        api_views.convert_png_to_tiff,
+        name="api_convert_png_to_tiff",
+    ),
+    # Backend plot renderer (matplotlib/scitex.plt)
+    path(
+        "api/plot/",
+        api_views.render_plot,
+        name="api_render_plot",
+    ),
+    path(
+        "api/upload-plot-data/",
+        api_views.upload_plot_data,
+        name="api_upload_plot_data",
+    ),
+]

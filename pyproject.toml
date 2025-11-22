@@ -1,0 +1,40 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+extend-exclude = '''
+/(
+  # Exclude HTML files - use djlint instead
+  .*\.html$
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+# Exclude Django template files from Ruff
+extend-exclude = [
+    "*.html",
+    "*/templates/**",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+]
+
+[tool.djlint]
+indent = 4
+profile = "django"
+max_line_length = 120
+format_css = true
+format_js = true

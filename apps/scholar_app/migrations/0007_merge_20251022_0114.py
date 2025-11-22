@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scholar_app", "0004_allow_null_project_name"),
         ("scholar_app", "0006_bibtexenrichmentjob_processing_log"),

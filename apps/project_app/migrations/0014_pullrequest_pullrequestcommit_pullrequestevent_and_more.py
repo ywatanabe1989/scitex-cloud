@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("project_app", "0013_projectfork_projectstar_projectwatch"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

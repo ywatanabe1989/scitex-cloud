@@ -1,34 +1,32 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Projects - SciTeX Cloud{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
-
+{% block title %}
+    Projects -
+    SciTeX Cloud
 {% endblock %}
-
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/project_app.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/shared/buttons.css' %}" />
+{% endblock %}
 {% block content %}
-<div class="container-fluid">
-    <div class="page-header">
-        <h1>Projects</h1>
-    </div>
-
-    <!-- Quick Create Project Form -->
-    {% include 'project_app/projects/list_partials/list_create_form.html' %}
-
-    {% if projects %}
-        <div class="project-grid">
-            {% for project in projects %}
-                {% include 'project_app/projects/list_partials/list_project_card.html' %}
-            {% endfor %}
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1>Projects</h1>
         </div>
-
-        <!-- Pagination -->
-        {% include 'project_app/projects/list_partials/list_pagination.html' %}
-    {% else %}
-        {% include 'project_app/projects/list_partials/list_empty_state.html' %}
-    {% endif %}
-</div>
+        <!-- Quick Create Project Form -->
+        {% include 'project_app/projects/list_partials/list_create_form.html' %}
+        {% if projects %}
+            <div class="project-grid">
+                {% for project in projects %}
+                    {% include 'project_app/projects/list_partials/list_project_card.html' %}
+                {% endfor %}
+            </div>
+            <!-- Pagination -->
+            {% include 'project_app/projects/list_partials/list_pagination.html' %}
+        {% else %}
+            {% include 'project_app/projects/list_partials/list_empty_state.html' %}
+        {% endif %}
+    </div>
 {% endblock %}

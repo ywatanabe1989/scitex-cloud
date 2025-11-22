@@ -8,26 +8,27 @@ class UserFollow(models.Model):
 
     A user can follow other users to see their activity in their feed.
     """
+
     follower = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following',
-        help_text="User who is following"
+        related_name="following",
+        help_text="User who is following",
     )
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='followers',
-        help_text="User being followed"
+        related_name="followers",
+        help_text="User being followed",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('follower', 'following')
-        ordering = ['-created_at']
+        unique_together = ("follower", "following")
+        ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=['follower', '-created_at']),
-            models.Index(fields=['following', '-created_at']),
+            models.Index(fields=["follower", "-created_at"]),
+            models.Index(fields=["following", "-created_at"]),
         ]
 
     def __str__(self):
@@ -57,26 +58,27 @@ class RepositoryStar(models.Model):
 
     Users can star repositories to bookmark them and show appreciation.
     """
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='starred_repositories',
-        help_text="User who starred the repository"
+        related_name="starred_repositories",
+        help_text="User who starred the repository",
     )
     project = models.ForeignKey(
-        'project_app.Project',
+        "project_app.Project",
         on_delete=models.CASCADE,
-        related_name='stars',
-        help_text="Repository that was starred"
+        related_name="stars",
+        help_text="Repository that was starred",
     )
     starred_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'project')
-        ordering = ['-starred_at']
+        unique_together = ("user", "project")
+        ordering = ["-starred_at"]
         indexes = [
-            models.Index(fields=['user', '-starred_at']),
-            models.Index(fields=['project', '-starred_at']),
+            models.Index(fields=["user", "-starred_at"]),
+            models.Index(fields=["project", "-starred_at"]),
         ]
 
     def __str__(self):
@@ -106,21 +108,22 @@ class Activity(models.Model):
 
     Tracks actions like: follow, star, commit, create project, etc.
     """
+
     ACTIVITY_TYPES = [
-        ('follow', 'Followed user'),
-        ('star', 'Starred repository'),
-        ('create_project', 'Created repository'),
-        ('fork', 'Forked repository'),
-        ('commit', 'Committed to repository'),
-        ('issue', 'Created issue'),
-        ('pr', 'Created pull request'),
+        ("follow", "Followed user"),
+        ("star", "Starred repository"),
+        ("create_project", "Created repository"),
+        ("fork", "Forked repository"),
+        ("commit", "Committed to repository"),
+        ("issue", "Created issue"),
+        ("pr", "Created pull request"),
     ]
 
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='activities',
-        help_text="User who performed the activity"
+        related_name="activities",
+        help_text="User who performed the activity",
     )
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
 
@@ -130,34 +133,34 @@ class Activity(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name='targeted_activities',
-        help_text="Target user (for follow actions)"
+        related_name="targeted_activities",
+        help_text="Target user (for follow actions)",
     )
     target_project = models.ForeignKey(
-        'project_app.Project',
+        "project_app.Project",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name='project_activities',
-        help_text="Target project (for star, fork, commit actions)"
+        related_name="project_activities",
+        help_text="Target project (for star, fork, commit actions)",
     )
 
     # Additional metadata stored as JSON
     metadata = models.JSONField(
         default=dict,
         blank=True,
-        help_text="Additional activity metadata (commit message, issue title, etc.)"
+        help_text="Additional activity metadata (commit message, issue title, etc.)",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=['user', '-created_at']),
-            models.Index(fields=['activity_type', '-created_at']),
+            models.Index(fields=["user", "-created_at"]),
+            models.Index(fields=["activity_type", "-created_at"]),
         ]
-        verbose_name_plural = 'Activities'
+        verbose_name_plural = "Activities"
 
     def __str__(self):
         return f"{self.user.username} - {self.get_activity_type_display()} ({self.created_at.strftime('%Y-%m-%d')})"
@@ -166,25 +169,19 @@ class Activity(models.Model):
     def create_follow_activity(cls, follower, following):
         """Create activity for following a user"""
         return cls.objects.create(
-            user=follower,
-            activity_type='follow',
-            target_user=following
+            user=follower, activity_type="follow", target_user=following
         )
 
     @classmethod
     def create_star_activity(cls, user, project):
         """Create activity for starring a repository"""
         return cls.objects.create(
-            user=user,
-            activity_type='star',
-            target_project=project
+            user=user, activity_type="star", target_project=project
         )
 
     @classmethod
     def create_project_activity(cls, user, project):
         """Create activity for creating a repository"""
         return cls.objects.create(
-            user=user,
-            activity_type='create_project',
-            target_project=project
+            user=user, activity_type="create_project", target_project=project
         )

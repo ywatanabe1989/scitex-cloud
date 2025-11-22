@@ -1,0 +1,310 @@
+{% extends "global_base.html" %}
+{% block title %}Research Tools - SciTeX{% endblock %}
+{% block meta_description %}
+    Free browser-based tools for
+    researchers: bookmarklets for element inspection, citation scraping, and more.
+    Works on any website, no installation required.
+{% endblock %}
+{% block extra_css %}
+        {% load static %}
+        <style>
+  .tools-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .tools-hero {
+    text-align: center;
+    padding: 48px 20px;
+    background: linear-gradient(135deg, var(--_scitex-01, #1a2a40) 0%, var(--_scitex-03, #506b7a) 100%);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 48px;
+  }
+
+  .tools-hero-title {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .tools-hero-subtitle {
+    font-size: 18px;
+    opacity: 0.95;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .tools-domain-section {
+    margin-bottom: 48px;
+  }
+
+  .domain-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-default, #e1e4e8);
+  }
+
+  .domain-icon {
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .domain-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary, #24292e);
+    margin: 0;
+  }
+
+  .domain-count {
+    font-size: 14px;
+    color: var(--text-secondary, #586069);
+    background: var(--bg-muted, #f6f8fa);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+
+  .tools-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tool-card {
+    background: var(--bg-surface, #ffffff);
+    border-radius: 6px;
+    padding: 0;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-default, #e1e4e8);
+    display: block;
+    overflow: hidden;
+    position: relative;
+    min-height: 72px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .tool-card:hover {
+    border-color: var(--_scitex-04, #6c8ba0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+
+  .tool-card-header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-left: 4px solid;
+  }
+
+  .tool-icon {
+    font-size: 32px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .tool-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tool-card-title {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary, #24292e);
+    line-height: 1.3;
+  }
+
+  .tool-description {
+    color: var(--text-secondary, #586069);
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0 0 4px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .tool-use-case {
+    color: var(--status-success, #4a9b7e);
+    font-size: 12px;
+    line-height: 1.3;
+    margin: 0;
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tool-use-case::before {
+    content: "→ ";
+    font-weight: 600;
+  }
+
+  .domain-description {
+    color: var(--text-secondary, #586069);
+    font-size: 14px;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  @media (max-width: 768px) {
+    .tool-card-header {
+      border-left: none;
+      border-top: 4px solid;
+    }
+  }
+
+  .search-filter-section {
+    margin-bottom: 32px;
+    text-align: center;
+  }
+
+  .search-box {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 20px 12px 44px;
+    font-size: 16px;
+    border: 2px solid var(--border-default, #e1e4e8);
+    border-radius: 8px;
+    background: var(--bg-surface, #ffffff);
+    color: var(--text-primary, #24292e);
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--status-info, #6b8fb3);
+    box-shadow: 0 0 0 3px rgba(107, 143, 179, 0.1);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary, #586069);
+    font-size: 18px;
+  }
+
+  .tool-count {
+    text-align: center;
+    color: var(--text-secondary, #586069);
+    font-size: 14px;
+    margin-top: 12px;
+  }
+
+  /* Domain-specific colors */
+  .domain-research .tool-card-header { border-left-color: var(--status-success, #4a9b7e); }
+  .domain-development .tool-card-header { border-left-color: var(--status-info, #6b8fb3); }
+  .domain-pdf .tool-card-header { border-left-color: #dc2626; }
+  .domain-image .tool-card-header { border-left-color: #9333ea; }
+  .domain-text .tool-card-header { border-left-color: #10b981; }
+  .domain-design .tool-card-header { border-left-color: #f59e0b; }
+  .domain-video .tool-card-header { border-left-color: #6366f1; }
+  .domain-utilities .tool-card-header { border-left-color: var(--_scitex-04, #6c8ba0); }
+        </style>
+    {% endblock %}
+    {% block content %}
+        <div class="tools-container">
+            <!-- Hero Section -->
+            <div class="tools-hero">
+                <h1 class="tools-hero-title">Research Tools</h1>
+                <p class="tools-hero-subtitle">
+                    Free, privacy-focused browser tools for researchers. No installation, no data collection.
+                </p>
+            </div>
+            <!-- Search Filter -->
+            <div class="search-filter-section">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text"
+                           class="search-input"
+                           id="searchInput"
+                           placeholder="Search tools...">
+                </div>
+                <div class="tool-count">
+                    <span id="toolCount">{{ total_tools }}</span> tools available
+                </div>
+            </div>
+            <!-- Tools by Domain -->
+            {% for domain in domains %}
+                <div class="tools-domain-section domain-{{ domain.slug }}" id="domain-{{ domain.slug }}">
+                    <div class="domain-header">
+                        <span class="domain-icon">{{ domain.icon }}</span>
+                        <h2 class="domain-title">{{ domain.name }}</h2>
+                        <span class="domain-count">{{ domain.tools|length }} tools</span>
+                    </div>
+                    <p class="domain-description">{{ domain.description }}</p>
+                    <div class="tools-grid">
+                        {% for tool in domain.tools %}
+                            <a href="{{ tool.bookmarklet_url }}" class="tool-card" data-search="{{ tool.name|lower }} {{ tool.description|lower }} {{ tool.use_case|lower }}">
+                                <div class="tool-card-header">
+                                    <span class="tool-icon">{{ tool.icon }}</span>
+                                    <div class="tool-info">
+                                        <h3 class="tool-card-title">{{ tool.name }}</h3>
+                                        <p class="tool-description">{{ tool.description }}</p>
+                                        <p class="tool-use-case">{{ tool.use_case }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+  // Search functionality
+  const searchInput = document.getElementById('searchInput');
+  const toolCards = document.querySelectorAll('.tool-card');
+  const domainSections = document.querySelectorAll('.tools-domain-section');
+  const toolCount = document.getElementById('toolCount');
+
+  searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    // Reset domain sections visibility
+    domainSections.forEach(section => {
+      section.style.display = 'block';
+    });
+
+    toolCards.forEach(card => {
+      const searchText = card.dataset.search;
+      const isVisible = searchTerm === '' || searchText.includes(searchTerm);
+
+      card.style.display = isVisible ? 'block' : 'none';
+      if (isVisible) visibleCount++;
+    });
+
+    // Hide empty domain sections
+    domainSections.forEach(section => {
+      const visibleCards = section.querySelectorAll('.tool-card[style*="display: block"], .tool-card:not([style*="display"])');
+      if (searchTerm !== '' && visibleCards.length === 0) {
+        section.style.display = 'none';
+      }
+    });
+
+    toolCount.textContent = visibleCount;
+  });
+        </script>
+    {% endblock %}

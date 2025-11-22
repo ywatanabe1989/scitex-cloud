@@ -64,8 +64,8 @@ usage() {
 # Ensure proper file permissions
 ensure_permissions() {
     echo_header "Ensure permissions..."
-    chmod 755 "$APP_HOME/scripts"/*.sh 2>/dev/null || true
-    chmod 755 "$APP_HOME/manage.py" 2>/dev/null || true
+    chmod 755 "$APP_HOME/scripts"/*.sh 2> /dev/null || true
+    chmod 755 "$APP_HOME/manage.py" 2> /dev/null || true
     echo "Done"
 }
 
@@ -90,32 +90,32 @@ stop_existing() {
 
     {
         # Kill all Django runserver processes (with and without sudo)
-        pkill -9 -f "runserver" 2>/dev/null || true
-        sudo pkill -9 -f "runserver" 2>/dev/null || true
+        pkill -9 -f "runserver" 2> /dev/null || true
+        sudo pkill -9 -f "runserver" 2> /dev/null || true
 
         # Kill all Python processes running manage.py
-        pkill -9 -f "python.*manage.py" 2>/dev/null || true
-        sudo pkill -9 -f "python.*manage.py" 2>/dev/null || true
+        pkill -9 -f "python.*manage.py" 2> /dev/null || true
+        sudo pkill -9 -f "python.*manage.py" 2> /dev/null || true
 
         # Kill processes using port 8000
-        sudo fuser -k -9 8000/tcp 2>/dev/null || true
-        fuser -k -9 8000/tcp 2>/dev/null || true
+        sudo fuser -k -9 8000/tcp 2> /dev/null || true
+        fuser -k -9 8000/tcp 2> /dev/null || true
 
         # Kill any processes listening on port 8000 using lsof
         if command -v lsof &> /dev/null; then
-            lsof -ti:8000 2>/dev/null | xargs -r kill -9 2>/dev/null || true
-            sudo lsof -ti:8000 2>/dev/null | xargs -r sudo kill -9 2>/dev/null || true
+            lsof -ti:8000 2> /dev/null | xargs -r kill -9 2> /dev/null || true
+            sudo lsof -ti:8000 2> /dev/null | xargs -r sudo kill -9 2> /dev/null || true
         fi
 
         # Kill existing uwsgi processes
-        pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
-        sudo pkill -9 -f "uwsgi.*scitex" 2>/dev/null || true
+        pkill -9 -f "uwsgi.*scitex" 2> /dev/null || true
+        sudo pkill -9 -f "uwsgi.*scitex" 2> /dev/null || true
 
         # Remove PID file
-        rm -f "$PID_FILE" 2>/dev/null || true
+        rm -f "$PID_FILE" 2> /dev/null || true
 
         # Remove uwsgi socket
-        rm -f "$APP_HOME/run/uwsgi.sock" 2>/dev/null || true
+        rm -f "$APP_HOME/run/uwsgi.sock" 2> /dev/null || true
 
         # Wait a moment for processes to fully terminate
         sleep 1
@@ -152,7 +152,7 @@ start_prod() {
     echo_header "Starting SciTeX-Cloud production server..."
 
     # Ensure nginx is configured
-    if ! nginx -t 2>/dev/null; then
+    if ! nginx -t 2> /dev/null; then
         echo_warn "    Nginx configuration not found or invalid"
         echo_warn "    Please configure nginx before running in production"
     fi
@@ -177,14 +177,17 @@ main() {
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -m|--migrate) do_migrate=true ;;
-            -c|--collect-static) do_collect_static=true ;;
-            -p|--production) is_prod=true ;;
-            -d|--daemon) is_daemon=true ;;
+            -m | --migrate) do_migrate=true ;;
+            -c | --collect-static) do_collect_static=true ;;
+            -p | --production) is_prod=true ;;
+            -d | --daemon) is_daemon=true ;;
             --skip-migrate) do_migrate=false ;;
             --skip-static) do_collect_static=false ;;
-            -h|--help) usage ;;
-            *) echo "Unknown option: $1"; usage ;;
+            -h | --help) usage ;;
+            *)
+                echo "Unknown option: $1"
+                usage
+                ;;
         esac
         shift
     done
@@ -236,20 +239,20 @@ cleanup() {
     # Kill Django server if PID file exists
     if [ -f "$PID_FILE" ]; then
         DJANGO_PID=$(cat "$PID_FILE")
-        if kill -0 $DJANGO_PID 2>/dev/null; then
+        if kill -0 $DJANGO_PID 2> /dev/null; then
             echo_info "Stopping Django server (PID: $DJANGO_PID)..."
-            kill -TERM $DJANGO_PID 2>/dev/null || true
+            kill -TERM $DJANGO_PID 2> /dev/null || true
             sleep 2
             # Force kill if still running
-            if kill -0 $DJANGO_PID 2>/dev/null; then
-                kill -9 $DJANGO_PID 2>/dev/null || true
+            if kill -0 $DJANGO_PID 2> /dev/null; then
+                kill -9 $DJANGO_PID 2> /dev/null || true
             fi
         fi
         rm -f "$PID_FILE"
     fi
 
     # Kill any remaining processes on port 8000
-    fuser -k 8000/tcp 2>/dev/null || true
+    fuser -k 8000/tcp 2> /dev/null || true
 
     echo_success "✓ SciTeX-Cloud stopped"
     exit 0
@@ -269,10 +272,10 @@ if [ -f "$PID_FILE" ]; then
     TAIL_PID=$!
 
     # Wait for Django server process
-    wait $DJANGO_PID 2>/dev/null || true
+    wait $DJANGO_PID 2> /dev/null || true
 
     # Kill tail when Django stops
-    kill $TAIL_PID 2>/dev/null || true
+    kill $TAIL_PID 2> /dev/null || true
 fi
 
 # EOF

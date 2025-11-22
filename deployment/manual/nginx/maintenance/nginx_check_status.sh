@@ -33,7 +33,7 @@ detect_environment() {
         echo "production"
     elif [ -f /etc/nginx/sites-enabled/scitex_cloud_dev.conf ]; then
         echo "development"
-    elif systemctl is-active --quiet nginx 2>/dev/null; then
+    elif systemctl is-active --quiet nginx 2> /dev/null; then
         echo "running"
     else
         echo "unknown"
@@ -60,7 +60,7 @@ check_general_status() {
     else
         echo_error "  ✗ Service not active"
 
-        if systemctl is-enabled --quiet nginx 2>/dev/null; then
+        if systemctl is-enabled --quiet nginx 2> /dev/null; then
             echo_warning "  ⚠ Service enabled but not running"
             echo_info "  Start with: sudo systemctl start nginx"
         else
@@ -129,7 +129,7 @@ check_development() {
 
     # Test HTTP connectivity
     echo_info "HTTP Connectivity:"
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ 2>/dev/null | grep -q "200\|301\|302"; then
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/ 2> /dev/null | grep -q "200\|301\|302"; then
         echo_success "  ✓ HTTP accessible at http://localhost:8000"
     else
         echo_error "  ✗ HTTP not accessible"
@@ -180,7 +180,7 @@ check_production() {
     # SSL certificate check
     echo_info "SSL Certificates:"
     if [ -f /etc/letsencrypt/live/scitex.ai/fullchain.pem ]; then
-        EXPIRY=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/scitex.ai/fullchain.pem 2>/dev/null | cut -d= -f2)
+        EXPIRY=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/scitex.ai/fullchain.pem 2> /dev/null | cut -d= -f2)
         echo_success "  ✓ Certificate exists for scitex.ai"
         echo_info "  Expires: $EXPIRY"
     else
@@ -188,7 +188,7 @@ check_production() {
     fi
 
     if [ -f /etc/letsencrypt/live/git.scitex.ai/fullchain.pem ]; then
-        EXPIRY=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/git.scitex.ai/fullchain.pem 2>/dev/null | cut -d= -f2)
+        EXPIRY=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/git.scitex.ai/fullchain.pem 2> /dev/null | cut -d= -f2)
         echo_success "  ✓ Certificate exists for git.scitex.ai"
         echo_info "  Expires: $EXPIRY"
     else
@@ -198,7 +198,7 @@ check_production() {
 
     # Test HTTPS connectivity
     echo_info "HTTPS Connectivity:"
-    if curl -s -o /dev/null -w "%{http_code}" https://scitex.ai/ 2>/dev/null | grep -q "200\|301\|302"; then
+    if curl -s -o /dev/null -w "%{http_code}" https://scitex.ai/ 2> /dev/null | grep -q "200\|301\|302"; then
         echo_success "  ✓ HTTPS accessible at https://scitex.ai"
     else
         echo_error "  ✗ HTTPS not accessible"
@@ -251,11 +251,11 @@ main() {
 
     # Recent logs
     echo_info "Recent Error Logs (last 10 lines):"
-    sudo tail -n 10 /var/log/nginx/error.log 2>/dev/null | sed 's/^/  /' || echo_info "  No error log available"
+    sudo tail -n 10 /var/log/nginx/error.log 2> /dev/null | sed 's/^/  /' || echo_info "  No error log available"
     echo
 
     echo_info "Recent Access Logs (last 5 lines):"
-    sudo tail -n 5 /var/log/nginx/access.log 2>/dev/null | sed 's/^/  /' || echo_info "  No access log available"
+    sudo tail -n 5 /var/log/nginx/access.log 2> /dev/null | sed 's/^/  /' || echo_info "  No access log available"
 
     echo -e "\nLogs: $LOG_PATH (stdout) | $ERR_PATH (stderr)"
 }

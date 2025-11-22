@@ -52,6 +52,8 @@
 	db-shell \
 	db-backup \
 	db-reset \
+	fresh-start \
+	fresh-start-confirm \
 	logs-web \
 	logs-db \
 	logs-gitea \
@@ -63,6 +65,10 @@
 	test-e2e-headed \
 	test-e2e-specific \
 	clean-python \
+	format \
+	format-python \
+	format-web \
+	format-shell \
 	info
 
 .DEFAULT_GOAL := help
@@ -98,7 +104,7 @@ ifdef ENV
 else
   # ENV not specified - only allow non-operational commands
   ifneq ($(MAKECMDGOALS),)
-    ifneq ($(filter-out help status validate-docker stop-all force-stop-all,$(MAKECMDGOALS)),)
+    ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell,$(MAKECMDGOALS)),)
       $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
     endif
   endif
@@ -164,6 +170,10 @@ help:
 	@echo "  make ENV=<env> build-ts           # Compile TypeScript to JavaScript"
 	@echo "  make ENV=<env> collectstatic      # Collect static files (auto-builds TS)"
 	@echo ""
+	@echo "$(CYAN)🔄 Reset & Fresh Start:$(NC)"
+	@echo "  make ENV=dev fresh-start          # Complete reset: DB + Gitea + Files (dev only)"
+	@echo "  make ENV=dev fresh-start-confirm  # Skip confirmation (use with caution)"
+	@echo ""
 	@echo "$(CYAN)📊 Monitoring:$(NC)"
 	@echo "  make ENV=<env> logs               # View logs"
 	@echo "  make ENV=<env> ps                 # Container status"
@@ -179,6 +189,12 @@ help:
 	@echo "  make ENV=<env> exec-db            # Shell into database container"
 	@echo "  make ENV=<env> exec <cmd>         # Execute command in web container"
 	@echo "  make ENV=<env> list-envs          # List environment variables"
+	@echo ""
+	@echo "$(CYAN)✨ Code Quality:$(NC)"
+	@echo "  make format                       # Format & lint all code (Python + Web + Shell)"
+	@echo "  make format-python                # Format & lint Python with Ruff"
+	@echo "  make format-web                   # Format & lint web (djLint + Prettier + ESLint)"
+	@echo "  make format-shell                 # Format & lint shell scripts (shfmt + shellcheck)"
 	@echo ""
 	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
 	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
@@ -250,6 +266,8 @@ switch: validate stop-all
 # Service Lifecycle with Validation
 # ============================================
 start:
+	rm -f ./logs/*.log
+
 	@echo "$(CYAN)🚀 Starting $(ENV) environment (exclusive mode)...$(NC)"
 	@echo ""
 	@# Stop all other environments to ensure exclusivity
@@ -275,6 +293,8 @@ start:
 	@$(MAKE) --no-print-directory status
 
 restart: validate
+	rm -f ./logs/*.log
+
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
 	if [ "$$RUNNING" != "$(ENV)" ]; then \
 		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
@@ -289,6 +309,8 @@ restart: validate
 	@echo "$(GREEN)✅ $(ENV) restarted$(NC)"
 
 reload: validate
+	rm -f ./logs/*.log
+
 	@RUNNING=$$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u); \
 	if [ "$$RUNNING" != "$(ENV)" ]; then \
 		echo "$(RED)❌ $(ENV) is not running ($$RUNNING is active)$(NC)"; \
@@ -324,7 +346,8 @@ rebuild: validate-docker
 		echo "$(RED)⚠️  WARNING: Production rebuild!$(NC)"; \
 		echo "$(YELLOW)   This will cause downtime.$(NC)"; \
 		echo ""; \
-		read -p "Type 'yes' to confirm: " confirm; \
+		printf "Type 'yes' to confirm: "; \
+		read confirm; \
 		if [ "$$confirm" != "yes" ]; then \
 			echo "$(YELLOW)❌ Rebuild cancelled$(NC)"; \
 			exit 1; \
@@ -413,6 +436,141 @@ db-reset: validate
 	fi
 	@echo "$(YELLOW)⚠️  Resetting database (dev only)...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile db-reset
+
+# ============================================
+# Fresh Start (Complete Reset)
+# ============================================
+fresh-start: validate
+	@if [ "$(ENV)" != "dev" ]; then \
+		echo "$(RED)❌ fresh-start only available in dev environment$(NC)"; \
+		echo "$(YELLOW)   This is a destructive operation meant for development$(NC)"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "$(RED)╔═══════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(RED)║           ⚠️  COMPLETE FRESH START ⚠️                 ║$(NC)"
+	@echo "$(RED)╚═══════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(CYAN)📊 Current System State:$(NC)"
+	@echo ""
+	@# Show database info
+	@USERS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from django.contrib.auth.models import User; print(User.objects.count())" 2>/dev/null | tail -1); \
+	PROJECTS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from apps.project_app.models import Project; print(Project.objects.count())" 2>/dev/null | tail -1); \
+	MANUSCRIPTS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from apps.writer_app.models import Manuscript; print(Manuscript.objects.count())" 2>/dev/null | tail -1); \
+	REPOS=$$(docker exec scitex-cloud-dev-db-1 psql -U scitex_dev -d scitex_cloud_dev -t -c "SELECT COUNT(*) FROM repository;" 2>/dev/null | xargs); \
+	DB_SIZE=$$(docker exec scitex-cloud-dev-db-1 du -sh /var/lib/postgresql/data 2>/dev/null | cut -f1); \
+	GITEA_SIZE=$$(docker exec scitex-cloud-dev-gitea-1 du -sh /data 2>/dev/null | cut -f1); \
+	USER_SIZE=$$(du -sh ./data/users/ 2>/dev/null | cut -f1); \
+	echo "  $(YELLOW)Database:$(NC)"; \
+	echo "    • Users: $$USERS"; \
+	echo "    • Projects: $$PROJECTS"; \
+	echo "    • Manuscripts: $$MANUSCRIPTS"; \
+	echo "    • Size: $$DB_SIZE"; \
+	echo ""; \
+	echo "  $(YELLOW)Gitea:$(NC)"; \
+	echo "    • Repositories: $$REPOS"; \
+	echo "    • Size: $$GITEA_SIZE"; \
+	echo ""; \
+	echo "  $(YELLOW)User Files:$(NC)"; \
+	echo "    • Total Size: $$USER_SIZE"; \
+	echo "    • Directories: $$(ls -1 ./data/users/ 2>/dev/null | wc -l)"; \
+	echo ""
+	@echo "$(RED)⚠️  THIS WILL DELETE:$(NC)"
+	@echo "  • All database tables (Django + Gitea)"
+	@echo "  • All user directories (./data/users/*)"
+	@echo "  • All Gitea repositories"
+	@echo "  • All Docker volumes"
+	@echo ""
+	@echo "$(GREEN)✓ What's PRESERVED:$(NC)"
+	@echo "  • Source code (apps/, config/, scripts/)"
+	@echo "  • Docker images (no rebuild needed)"
+	@echo "  • Configuration files (.env, settings)"
+	@echo "  • Static files (CSS, JS, templates)"
+	@echo "  • Python packages (.venv in project root)"
+	@echo ""
+	@echo "$(GREEN)Then it will:$(NC)"
+	@echo "  • Recreate database with migrations"
+	@echo "  • Initialize visitor pool (4 accounts)"
+	@echo "  • Create fresh Gitea instance"
+	@echo ""
+	@echo "$(YELLOW)⚠️  Note: Will ask for sudo password to delete Docker-created files$(NC)"
+	@echo ""
+	@printf "$(YELLOW)Type 'DELETE EVERYTHING' to confirm: $(NC)"; \
+	read confirm; \
+	if [ "$$confirm" != "DELETE EVERYTHING" ]; then \
+		echo "$(GREEN)✅ Cancelled - no changes made$(NC)"; \
+		exit 0; \
+	fi
+	@echo ""
+	@echo "$(CYAN)🔄 Starting complete fresh start...$(NC)"
+	@echo ""
+	@# Step 1: Stop all containers
+	@echo "$(CYAN)Step 1/6: Stopping all containers...$(NC)"
+	@$(MAKE) --no-print-directory stop-all
+	@echo ""
+	@# Step 2: Remove volumes
+	@echo "$(CYAN)Step 2/6: Removing Docker volumes...$(NC)"
+	@docker volume rm -f scitex-cloud-dev_postgres_data scitex-cloud-dev_gitea_data 2>/dev/null || true
+	@echo "$(GREEN)✓ Volumes removed$(NC)"
+	@echo ""
+	@# Step 3: Clean data directories
+	@echo "$(CYAN)Step 3/6: Cleaning data directories...$(NC)"
+	@echo "  Removing ./data/users/* (requires sudo for Docker-created files)..."
+	@if [ -d ./data/users ] && [ "$$(ls -A ./data/users 2>/dev/null)" ]; then \
+		sudo rm -rf ./data/users/* || { \
+			echo "$(RED)❌ Failed to remove user directories. Try: sudo rm -rf ./data/users/*$(NC)"; \
+			exit 1; \
+		}; \
+	fi
+	@echo "  Removing ./logs/*..."
+	@rm -rf ./logs/*.log 2>/dev/null || true
+	@echo "$(GREEN)✓ Directories cleaned$(NC)"
+	@echo ""
+	@# Step 4: Start containers
+	@echo "$(CYAN)Step 4/6: Starting fresh containers...$(NC)"
+	@$(MAKE) --no-print-directory ENV=dev start
+	@echo ""
+	@# Step 5: Wait for services
+	@echo "$(CYAN)Step 5/6: Waiting for services to be ready...$(NC)"
+	@echo "  Waiting 15 seconds for database and Gitea..."
+	@sleep 15
+	@echo "$(GREEN)✓ Services ready$(NC)"
+	@echo ""
+	@# Step 6: Initialize visitor pool
+	@echo "$(CYAN)Step 6/6: Initializing visitor pool...$(NC)"
+	@docker exec scitex-cloud-dev-web-1 python manage.py create_visitor_pool
+	@echo ""
+	@echo "$(GREEN)╔═══════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(GREEN)║            ✨ FRESH START COMPLETE! ✨                ║$(NC)"
+	@echo "$(GREEN)╚═══════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(CYAN)🎉 Your development environment is now clean:$(NC)"
+	@echo "  • Database: Fresh with migrations applied"
+	@echo "  • Visitor pool: 4 accounts ready (rotated automatically)"
+	@echo "  • Gitea: Fresh instance"
+	@echo "  • Files: Clean slate"
+	@echo ""
+	@echo "$(CYAN)📝 Next steps:$(NC)"
+	@echo "  1. Create superuser: make ENV=dev createsuperuser"
+	@echo "  2. Access dev server: http://localhost:8000"
+	@echo "  3. Access Gitea: http://localhost:3001"
+	@echo ""
+
+# Quick fresh start without confirmation (for scripts/automation)
+fresh-start-confirm: validate
+	@if [ "$(ENV)" != "dev" ]; then \
+		echo "$(RED)❌ fresh-start-confirm only available in dev environment$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)⚠️  Running fresh start without confirmation...$(NC)"
+	@$(MAKE) --no-print-directory stop-all
+	@docker volume rm -f scitex-cloud-dev_postgres_data scitex-cloud-dev_gitea_data 2>/dev/null || true
+	@rm -rf ./data/users/*
+	@rm -rf ./logs/*.log
+	@$(MAKE) --no-print-directory ENV=dev start
+	@sleep 15
+	@docker exec scitex-cloud-dev-web-1 python manage.py create_visitor_pool
+	@echo "$(GREEN)✅ Fresh start complete$(NC)"
 
 # ============================================
 # Logs & Monitoring
@@ -535,6 +693,90 @@ endif
 # ============================================
 clean-python:
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile clean-python
+
+# ============================================
+# Code Quality (Format + Lint)
+# ============================================
+format: format-python format-web format-shell
+	@echo ""
+	@echo "$(GREEN)✅ All formatting and linting complete!$(NC)"
+
+format-python:
+	@echo "$(CYAN)🐍 Formatting and linting Python code with Ruff...$(NC)"
+	@if command -v ruff >/dev/null 2>&1; then \
+		ruff format apps/ --respect-gitignore --quiet || echo "$(YELLOW)⚠️  Ruff formatting completed with warnings$(NC)"; \
+		ruff check --fix apps/ --exclude migrations --respect-gitignore --quiet || echo "$(RED)❌ Ruff found errors$(NC)"; \
+		echo "$(GREEN)✅ Python formatting and linting complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ Ruff not found. Install with: pip install ruff$(NC)"; \
+		exit 1; \
+	fi
+
+format-web:
+	@echo "$(CYAN)✨ Formatting and linting web files...$(NC)"
+	@echo "$(CYAN)📝 Formatting Django templates with djLint...$(NC)"
+	@if command -v djlint >/dev/null 2>&1; then \
+		djlint --reformat --quiet \
+			apps/ templates/ \
+			2>&1 || echo "$(YELLOW)⚠️  djLint formatting completed with warnings$(NC)"; \
+		echo "$(GREEN)✅ Django template formatting complete!$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  djLint not found. Install with: pip install djlint$(NC)"; \
+		echo "$(YELLOW)   Skipping Django template formatting...$(NC)"; \
+	fi
+	@echo "$(CYAN)💅 Formatting JS/TS/CSS with Prettier...$(NC)"
+	@if command -v prettier >/dev/null 2>&1; then \
+		prettier --write \
+			"apps/**/*.{ts,js,css}" \
+			"static/**/*.{ts,js,css}" \
+			--ignore-path .gitignore \
+			--log-level warn \
+			2>&1 || echo "$(YELLOW)⚠️  Prettier formatting completed with warnings$(NC)"; \
+		echo "$(GREEN)✅ Prettier formatting complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ Prettier not found. Install with: npm install -g prettier$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(CYAN)🔍 Linting TS/JS with ESLint...$(NC)"
+	@if command -v eslint >/dev/null 2>&1; then \
+		eslint --fix \
+			"apps/**/*.{ts,js}" \
+			"static/**/*.{ts,js}" \
+			--ignore-path .gitignore \
+			--quiet \
+			2>&1 || echo "$(RED)❌ ESLint found errors$(NC)"; \
+		echo "$(GREEN)✅ ESLint linting complete!$(NC)"; \
+	else \
+		echo "$(RED)❌ ESLint not found. Install with: npm install -g eslint$(NC)"; \
+		exit 1; \
+	fi
+
+format-shell:
+	@echo "$(CYAN)🐚 Formatting and linting shell scripts...$(NC)"
+	@if command -v shfmt >/dev/null 2>&1; then \
+		find scripts/ deployment/ apps/ -name "*.sh" \
+			! -path "*/externals/*" \
+			! -path "*/node_modules/*" \
+			! -path "*/.venv/*" \
+			-exec shfmt -w -i 4 -bn -ci -sr {} + \
+			2>&1 || echo "$(YELLOW)⚠️  shfmt formatting completed with warnings$(NC)"; \
+		echo "$(GREEN)✅ Shell formatting complete!$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  shfmt not found. Install with: go install mvdan.cc/sh/v3/cmd/shfmt@latest$(NC)"; \
+		echo "$(YELLOW)   Skipping shell formatting...$(NC)"; \
+	fi
+	@if command -v shellcheck >/dev/null 2>&1; then \
+		find scripts/ deployment/ apps/ -name "*.sh" \
+			! -path "*/externals/*" \
+			! -path "*/node_modules/*" \
+			! -path "*/.venv/*" \
+			-exec shellcheck --severity=error {} + \
+			2>&1 || echo "$(RED)❌ ShellCheck found errors$(NC)"; \
+		echo "$(GREEN)✅ Shell linting complete!$(NC)"; \
+	else \
+		echo "$(YELLOW)⚠️  shellcheck not found. Install with: sudo apt-get install shellcheck$(NC)"; \
+		echo "$(YELLOW)   Skipping shell linting...$(NC)"; \
+	fi
 
 # ============================================
 # Info

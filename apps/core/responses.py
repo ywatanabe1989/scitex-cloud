@@ -13,7 +13,7 @@ import logging
 from datetime import datetime
 
 # Setup console logger for error cascading
-console_logger = logging.getLogger('scitex.console')
+console_logger = logging.getLogger("scitex.console")
 
 
 @dataclass
@@ -36,6 +36,7 @@ class ApiResponse:
         endpoint: API endpoint path
         timestamp: ISO 8601 timestamp
     """
+
     success: bool
     message: str = ""
     data: Optional[Dict[str, Any]] = None
@@ -104,7 +105,7 @@ def api_response(
         exit_code=exit_code,
         traceback=traceback if settings.DEBUG else None,  # Only in DEBUG
         endpoint=endpoint,
-        timestamp=datetime.utcnow().isoformat() + 'Z'
+        timestamp=datetime.utcnow().isoformat() + "Z",
     )
 
     # Log errors to console.log for debugging
@@ -142,10 +143,12 @@ def log_error(response: ApiResponse) -> None:
     if response.traceback and settings.DEBUG:
         log_parts.append(f"  Traceback: {response.traceback[:1000]}")
 
-    console_logger.error('\n'.join(log_parts))
+    console_logger.error("\n".join(log_parts))
 
 
-def success_response(message: str = "", data: Optional[dict] = None, **kwargs) -> JsonResponse:
+def success_response(
+    message: str = "", data: Optional[dict] = None, **kwargs
+) -> JsonResponse:
     """Shorthand for successful API response.
 
     Args:
@@ -164,7 +167,7 @@ def error_response(
     error_type: str = None,
     stderr: str = None,
     status_code: int = 400,
-    **kwargs
+    **kwargs,
 ) -> JsonResponse:
     """Shorthand for error API response.
 
@@ -184,5 +187,5 @@ def error_response(
         error_type=error_type,
         stderr=stderr,
         status_code=status_code,
-        **kwargs
+        **kwargs,
     )

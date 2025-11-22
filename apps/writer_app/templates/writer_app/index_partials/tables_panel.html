@@ -1,0 +1,69 @@
+<!-- Tables Panel -->
+<div class="tables-panel-container">
+    <!-- Drop Zone for File Upload -->
+    <div id="tables-drop-zone" class="media-drop-zone">
+        <input type="file" id="tables-file-input" accept=".csv,.xlsx,.xls,.tsv,.ods" multiple style="display: none;">
+        <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+        <p class="mb-1"><strong>Drop tables here</strong> or <label for="tables-file-input" style="color: var(--scitex-color-03); cursor: pointer; text-decoration: underline;">browse</label></p>
+        <small class="text-muted">Supports: CSV, Excel, TSV (multiple files)</small>
+    </div>
+    <!-- Tables List (Scrollable Cards) -->
+    <div class="tables-list" id="tables-list">
+        <!-- Loading State -->
+        <div id="tables-loading" class="tables-empty-state">
+            <i class="fas fa-spinner fa-spin fa-2x mb-2"></i>
+            <p>Loading tables...</p>
+        </div>
+        <!-- Empty State (No Tables) -->
+        <div id="tables-empty"
+             class="tables-empty-state"
+             style="display: none">
+            <i class="fas fa-table fa-2x mb-3 text-muted"></i>
+            <p class="text-muted mb-2" style="font-weight: 600">No tables found</p>
+            <div style="max-width: 400px;
+                        text-align: left;
+                        padding: 1rem;
+                        background: var(--color-accent-subtle);
+                        border-radius: 6px;
+                        border-left: 4px solid var(--scitex-color-05)">
+                <p style="margin: 0 0 0.75rem 0; font-size: 13px; font-weight: 600">
+                    <i class="fas fa-info-circle me-1"></i>To add tables:
+                </p>
+                <ol style="margin: 0;
+                           padding-left: 1.5rem;
+                           font-size: 12px;
+                           line-height: 1.6">
+                    <li>Upload table files (CSV, Excel, TSV) to your project's <code>data/</code> directory</li>
+                    <li>Tables in <code>scitex/writer/*/tables/</code> are automatically indexed</li>
+                    <li>Use <code>\input{}</code> or <code>\csvreader{}</code> to include them in LaTeX</li>
+                    <li>Return here to browse and manage your table files</li>
+                </ol>
+                <p style="margin: 0.75rem 0 0 0;
+                          padding-top: 0.75rem;
+                          border-top: 1px solid var(--color-border-muted);
+                          font-size: 11px;
+                          color: var(--color-fg-muted)">
+                    <i class="fas fa-lightbulb me-1"></i><strong>Tip:</strong> Drag tables directly into your editor to insert LaTeX code
+                </p>
+            </div>
+        </div>
+        <!-- No Search Results -->
+        <div id="tables-no-results"
+             class="tables-empty-state"
+             style="display: none">
+            <i class="fas fa-search fa-2x mb-2 text-muted"></i>
+            <p class="text-muted">No tables match your search</p>
+        </div>
+        <!-- Table Cards Container -->
+        <div id="tables-cards-container">
+            <!-- Cards will be dynamically inserted here -->
+        </div>
+    </div>
+    <!-- Quick Help -->
+    <div class="tables-help">
+        <small class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            Drag to insert • Click to preview • Check boxes to select multiple
+        </small>
+    </div>
+</div>

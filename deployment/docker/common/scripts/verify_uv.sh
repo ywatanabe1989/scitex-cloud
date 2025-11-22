@@ -7,7 +7,7 @@
 
 set -e
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 cd "$GIT_ROOT/deployment/docker/docker_dev"
 
 # Colors

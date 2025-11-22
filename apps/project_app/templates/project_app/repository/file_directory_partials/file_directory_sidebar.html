@@ -1,31 +1,52 @@
 <!-- Sidebar (LEFT side like GitHub) - File Tree Navigation -->
 <aside class="repo-sidebar collapsed" id="repo-sidebar">
     <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar" title="Expand sidebar" onclick="toggleSidebar()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" class="sidebar-toggle-icon">
-            <path fill="currentColor" d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2ZM1.5 8V12.25c0 .138.112.25.25.25h3.5V8H1.5ZM5.25 6.5V3.5h-3.5a.25.25 0 0 0-.25.25V6.5h3.75ZM6.75 3.5V14h7.5a.25.25 0 0 0 .25-.25V3.75a.25.25 0 0 0-.25-.25h-7.5Z"/>
+    <button class="sidebar-toggle"
+            id="sidebar-toggle"
+            aria-label="Toggle sidebar"
+            title="Expand sidebar"
+            onclick="toggleSidebar()">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 16 16"
+             class="sidebar-toggle-icon">
+            <path fill="currentColor" d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2ZM1.5 8V12.25c0 .138.112.25.25.25h3.5V8H1.5ZM5.25 6.5V3.5h-3.5a.25.25 0 0 0-.25.25V6.5h3.75ZM6.75 3.5V14h7.5a.25.25 0 0 0 .25-.25V3.75a.25.25 0 0 0-.25-.25h-7.5Z" />
         </svg>
     </button>
-
     <!-- File Tree -->
     <div class="sidebar-section">
         <!-- Static tree root - shows project path -->
-        <div class="sidebar-title" style="margin-bottom: 12px; padding: 6px 8px;">
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/" style="display: inline-flex; align-items: center; gap: 6px; color: var(--color-fg-default); text-decoration: none; font-weight: 600; font-size: 14px;">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" style="fill: var(--color-accent-fg);"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path></svg>
+        <div class="sidebar-title" style="margin-bottom: 12px; padding: 6px 8px">
+            <a href="/{{ project.owner.username }}/{{ project.slug }}/"
+               style="display: inline-flex;
+                      align-items: center;
+                      gap: 6px;
+                      color: var(--color-fg-default);
+                      text-decoration: none;
+                      font-weight: 600;
+                      font-size: 14px">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 16 16"
+                     width="16"
+                     height="16"
+                     style="fill: var(--color-accent-fg)">
+                    <path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z">
+                    </path>
+                </svg>
                 <span>{{ project.owner.username }}/{{ project.slug }}/</span>
             </a>
         </div>
-
         <!-- Dynamic file tree - rendered by JavaScript (see _scripts.html) -->
-        <div id="file-tree" style="font-size: 14px; margin-top: 4px;">
+        <div id="file-tree" style="font-size: 14px; margin-top: 4px">
             <!-- Placeholder: File tree will be dynamically loaded by loadFileTree() -->
-            <div class="tree-loading" style="color: var(--color-fg-muted); padding: 1rem; font-size: 14px;">
-                <i class="fas fa-spinner fa-spin" style="font-size: 16px;"></i> Loading file tree...
+            <div class="tree-loading"
+                 style="color: var(--color-fg-muted);
+                        padding: 1rem;
+                        font-size: 14px">
+                <i class="fas fa-spinner fa-spin" style="font-size: 16px"></i> Loading
+                file tree...
             </div>
         </div>
     </div>
-
     <!-- About Section - Hidden by default to match GitHub style -->
     <!-- Metadata can be accessed via project settings or a collapsible section if needed -->
 </aside>

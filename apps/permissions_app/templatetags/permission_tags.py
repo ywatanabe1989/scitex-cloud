@@ -22,7 +22,7 @@ def can(user, permission_string):
     Format: "action:module:project_obj"
     """
     try:
-        parts = permission_string.split(':')
+        parts = permission_string.split(":")
         action = parts[0]
         module = parts[1] if len(parts) > 1 else None
         project = parts[2] if len(parts) > 2 else None
@@ -54,7 +54,7 @@ def can_edit_module(user, module_and_project):
         {% if user|can_edit_module:"writer,project_obj" %}
     """
     try:
-        module, project = module_and_project.split(',')
+        module, project = module_and_project.split(",")
         return PermissionService.can_write(user, project, module.strip())
     except (ValueError, AttributeError):
         # Invalid format (missing comma) or module/project is invalid

@@ -1,20 +1,29 @@
 {% load static %}
-
 <!-- Module Demo Component -->
 <div class="module-demo-container">
-    <h2 class="module-demo-title">
-        <img src="{% static icon_path %}" alt="" class="module-demo-icon">
-        <span>SciTeX {{ module_name }}</span>
-        <img src="{% static icon_path %}" alt="" class="module-demo-icon">
-    </h2>
-
-    <div class="module-demo-grid" style="grid-template-columns: {{ video_position }};">
+    <div class="module-demo-grid"
+         style="grid-template-columns: {{ video_position }}">
         {% if video_first %}
             <!-- Video Section -->
             <div class="module-demo-video-section">
+                <p style="text-align: center;
+                          color: var(--color-fg-muted);
+                          font-size: 0.9rem;
+                          margin-bottom: 0.75rem;
+                          font-style: italic">
+                    <i class="fas fa-desktop"></i> Demonstration on local environment
+                </p>
                 <div class="module-demo-video-wrapper">
-                    <video autoplay loop muted playsinline controls class="module-demo-video" {% if poster %}poster="{% static poster %}"{% endif %}>
-                        <source src="{% static video_path %}" type="video/mp4">
+                    <video
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        controls
+                        class="module-demo-video"
+                        {% if poster %}poster="{% static poster %}"{% endif %}
+                        >
+                        <source src="{% static video_path %}" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 </div>
@@ -22,30 +31,39 @@
                     <a href="{% url docs_url %}" class="btn btn-dark github-link-btn">
                         <i class="fas fa-book-open"></i> Documentation
                     </a>
-                    <a href="{{ github_url }}" target="_blank" class="btn btn-black github-link-btn">
+                    <a href="{{ github_url }}"
+                       target="_blank"
+                       class="btn btn-black github-link-btn">
                         <i class="fab fa-github"></i> View on GitHub
                     </a>
-                    {% if extra_note %}
-                    <p class="module-demo-note">{{ extra_note }}</p>
-                    {% endif %}
+                    {% if extra_note %}<p class="module-demo-note">{{ extra_note }}</p>{% endif %}
                 </div>
             </div>
-
             <!-- Features Section -->
-            <div class="module-demo-features">
-                {% include features_partial %}
-            </div>
+            <div class="module-demo-features">{% include features_partial %}</div>
         {% else %}
             <!-- Features Section -->
-            <div class="module-demo-features">
-                {% include features_partial %}
-            </div>
-
+            <div class="module-demo-features">{% include features_partial %}</div>
             <!-- Video Section -->
             <div class="module-demo-video-section">
+                <p style="text-align: center;
+                          color: var(--color-fg-muted);
+                          font-size: 0.9rem;
+                          margin-bottom: 0.75rem;
+                          font-style: italic">
+                    <i class="fas fa-desktop"></i> Demonstration on local environment
+                </p>
                 <div class="module-demo-video-wrapper">
-                    <video autoplay loop muted playsinline controls class="module-demo-video" {% if poster %}poster="{% static poster %}"{% endif %}>
-                        <source src="{% static video_path %}" type="video/mp4">
+                    <video
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        controls
+                        class="module-demo-video"
+                        {% if poster %}poster="{% static poster %}"{% endif %}
+                        >
+                        <source src="{% static video_path %}" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 </div>
@@ -53,109 +71,134 @@
                     <a href="{% url docs_url %}" class="btn btn-dark github-link-btn">
                         <i class="fas fa-book-open"></i> Documentation
                     </a>
-                    <a href="{{ github_url }}" target="_blank" class="btn btn-black github-link-btn">
+                    <a href="{{ github_url }}"
+                       target="_blank"
+                       class="btn btn-black github-link-btn">
                         <i class="fab fa-github"></i> View on GitHub
                     </a>
-                    {% if extra_note %}
-                    <p class="module-demo-note">{{ extra_note }}</p>
-                    {% endif %}
+                    {% if extra_note %}<p class="module-demo-note">{{ extra_note }}</p>{% endif %}
                 </div>
             </div>
         {% endif %}
     </div>
 </div>
-
 <style>
-    .module-demo-container {
-        max-width: 1200px;
-        margin: {{ margin|default:'3rem auto' }};
-    }
+  .module-demo-container {
+      max-width: 1600px;
+      margin: {{ margin|default:'3rem auto' }};
+  }
 
-    .module-demo-title {
-        color: var(--color-fg-default);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
+  .module-demo-title {
+      color: var(--color-fg-default);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+  }
 
-    .module-demo-icon {
-        width: 32px;
-        height: 32px;
-    }
+  .module-demo-icon {
+      width: 32px;
+      height: 32px;
+  }
 
-    .module-demo-grid {
-        display: grid;
-        gap: 2rem;
-        align-items: center;
-    }
+  .module-demo-grid {
+      display: grid;
+      gap: 4rem;
+      align-items: start;
+      margin: 2rem 0;
+  }
 
-    .module-demo-video-section {
-        background: transparent;
-        border-radius: 12px;
-        padding: 1rem;
-    }
+  .module-demo-video-section {
+      background: transparent;
+      border-radius: 12px;
+      padding: 0;
+  }
 
-    .module-demo-video-wrapper {
-        position: relative;
-        width: 100%;
-        padding-bottom: 56.25%;
-        overflow: hidden;
-        border-radius: 8px;
-    }
+  .module-demo-video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      overflow: hidden;
+      border-radius: 8px;
+  }
 
-    .module-demo-video {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        {% if object_fit %}object-fit: cover;{% endif %}
-    }
+  .module-demo-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      {% if object_fit %}object-fit: cover;{% endif %}
+  }
 
-    .module-demo-actions {
-        text-align: center;
-        margin-top: 1rem;
-    }
+  .module-demo-actions {
+      text-align: center;
+      margin-top: 1rem;
+  }
 
-    .github-link-btn {
-        margin-top: 0.5rem;
-        margin-right: 0.5rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+  .github-link-btn {
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+  }
 
-    .module-demo-note {
-        font-size: 0.75rem;
-        color: var(--color-fg-muted);
-        margin-top: 0.5rem;
-    }
+  .module-demo-note {
+      font-size: 0.75rem;
+      color: var(--color-fg-muted);
+      margin-top: 0.5rem;
+  }
 
-    .module-demo-features {
-        padding: 1rem;
-    }
+  .module-demo-features {
+      padding: 2rem 1rem;
+  }
 
-    .module-demo-features-list {
-        color: var(--color-fg-muted);
-        line-height: 2;
-        list-style: none;
-        padding: 0;
-        font-size: 1rem;
-    }
+  .module-demo-features-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+  }
 
-    .module-demo-feature-item {
-        margin-bottom: 0.8rem;
-    }
+  .module-demo-feature-item {
+      padding: 0;
+      border-left: 3px solid transparent;
+      padding-left: 1.25rem;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-    .feature-title {
-        color: var(--color-fg-default);
-    }
+  .module-demo-feature-item:hover {
+      border-left-color: var(--color-accent-emphasis);
+      padding-left: 1.5rem;
+  }
 
-    .feature-description {
-        font-size: 0.9rem;
-        color: var(--color-fg-muted);
-    }
+  .feature-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-fg-default);
+      display: block;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+  }
+
+  .feature-description {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: var(--color-fg-muted);
+  }
+
+  .feature-description code {
+      background: var(--color-accent-subtle);
+      color: var(--color-accent-fg);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: var(--font-mono);
+      font-weight: 500;
+  }
 </style>

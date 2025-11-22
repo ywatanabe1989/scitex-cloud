@@ -33,7 +33,9 @@
   border-radius: var(--border-radius);
   padding: var(--spacing-lg);
   box-shadow: var(--box-shadow-sm);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 .feature-card:hover {
@@ -129,17 +131,17 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
   }
-  
+
   .feature-alternating-item:nth-child(even) .feature-content,
   .feature-alternating-item:nth-child(even) .feature-image {
     order: 0;
   }
-  
+
   .icon-feature {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .icon-feature-icon {
     margin: 0 auto;
   }

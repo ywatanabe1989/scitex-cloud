@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-06 09:29:38
+!-- Timestamp: 2025-11-20 01:19:41
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -21,7 +21,7 @@ Launch up to eight agents in parallel when beneficial.
 Based on the following conditions, please proceed development autonomously
 ### Test user
 Create and use this user for testing purposes as you want:
-- Username: test-user, Password: Test-user!
+- Username: test-user, Password: Password123!
 ### Playwright
 - MCP available
 - Screenshot available
@@ -68,12 +68,25 @@ See `/dev/design/`
 Add console.log for debugging
 
 ## Strict Typescript over javascript
-./RULES/02_TYPESCRIPT_HOT_BUILDING_IN_DEVELOPMENT.md
-./RULES/03_TYPESCRIPT_WATCH_MECHANISM.md
-./RULES/JAVASCRIPT_MIGRATION_STEPS.md
-./RULES/JAVASCRIPT_TYPESCRIPT_MIGRATION_STATUS.md
+./GITIGNORED/RULES/02_TYPESCRIPT_HOT_BUILDING_IN_DEVELOPMENT.md
+./GITIGNORED/RULES/03_TYPESCRIPT_WATCH_MECHANISM.md
+./GITIGNORED/RULES/JAVASCRIPT_MIGRATION_STEPS.md
+./GITIGNORED/RULES/JAVASCRIPT_TYPESCRIPT_MIGRATION_STATUS.md
 
 ---
+
+## Overleaf Source Code
+Available at ./externals/overleaf/
+Please learn from them and add additional values to our platform
+
+## SciTeX MUST be EASY.
+- Intuitive
+  - No need to learn
+- Bidirectional low migration cost 
+- Simplicity
+- Synergy between modules is our advantage
+  - However, modules MUST be able to work independently as well
+Details can be read in ./docs/PHILOSOPHY.md
 
 # Requests
 

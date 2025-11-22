@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scholar_app", "0003_add_project_to_bibtex_job"),
         ("scholar_app", "0004_allow_null_project_name"),

@@ -1,47 +1,48 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}Security Advisories - {{ project.name }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'project_app/css/project_app.css' %}">
-<link rel="stylesheet" href="{% static 'project_app/css/shared/buttons.css' %}">
+{% block title %}
+    Security Advisories - {{ project.name }}
 {% endblock %}
-
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/project_app.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/shared/buttons.css' %}" />
+{% endblock %}
 {% block content %}
-<div class="container-fluid" style="max-width: 1280px;">
-    {% include 'project_app/repository/browse_partials/browse_header.html' %}
-    {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
-    {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='advisories' %}
-
-    <h2 class="mb-3">Security Advisories</h2>
-
-    {% if page_obj %}
-        {% for advisory in page_obj %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5>
-                    {{ advisory.title }}
-                    <span class="badge bg-{{ advisory.severity }}">{{ advisory.get_severity_display }}</span>
-                    {% if advisory.cve_id %}
-                    <span class="badge bg-secondary">{{ advisory.cve_id }}</span>
-                    {% endif %}
-                </h5>
-                <p>{{ advisory.description }}</p>
-                {% if advisory.affected_versions %}
-                <p><strong>Affected:</strong> {{ advisory.affected_versions }}</p>
-                {% endif %}
-                {% if advisory.patched_versions %}
-                <p><strong>Patched:</strong> {{ advisory.patched_versions }}</p>
-                {% endif %}
-                <p class="text-muted small">Published {{ advisory.published_at|timesince }} ago</p>
+    <div class="container-fluid browse-container">
+        {% include 'project_app/repository/browse_partials/browse_header.html' %}
+        {% include 'project_app/repository/browse_partials/browse_tabs.html' with active_tab='security' %}
+        {% include 'project_app/security_overview_partials/security_overview_tabs.html' with active_tab='advisories' %}
+        <h2 class="mb-3">Security Advisories</h2>
+        {% if page_obj %}
+            {% for advisory in page_obj %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>
+                            {{ advisory.title }}
+                            <span class="badge bg-{{ advisory.severity }}">{{ advisory.get_severity_display }}</span>
+                            {% if advisory.cve_id %}<span class="badge bg-secondary">{{ advisory.cve_id }}</span>{% endif %}
+                        </h5>
+                        <p>{{ advisory.description }}</p>
+                        {% if advisory.affected_versions %}
+                            <p>
+                                <strong>Affected:</strong> {{ advisory.affected_versions }}
+                            </p>
+                        {% endif %}
+                        {% if advisory.patched_versions %}
+                            <p>
+                                <strong>Patched:</strong> {{ advisory.patched_versions }}
+                            </p>
+                        {% endif %}
+                        <p class="text-muted small">Published {{ advisory.published_at|timesince }} ago</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center p-5 text-muted">
+                <p>No published security advisories</p>
             </div>
-        </div>
-        {% endfor %}
-    {% else %}
-    <div class="text-center p-5 text-muted">
-        <p>No published security advisories</p>
+        {% endif %}
     </div>
-    {% endif %}
-</div>
 {% endblock %}

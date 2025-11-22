@@ -5,57 +5,55 @@
 
 from django.core.mail import send_mail
 from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 import logging
 
 logger = logging.getLogger(__name__)
 
 # Get site URL from settings for generating absolute URLs
-SITE_URL = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+SITE_URL = getattr(settings, "SITE_URL", "http://127.0.0.1:8000")
 
 
 class EmailService:
     """Service for sending emails including OTP verification"""
-    
+
     @staticmethod
-    def send_otp_email(email, otp_code, verification_type='signup'):
+    def send_otp_email(email, otp_code, verification_type="signup"):
         """Send OTP verification email"""
         try:
             # Determine email subject and context based on verification type
-            if verification_type == 'signup':
-                subject = 'SciTeX - Verify Your Email Address'
-                template_name = 'emails/signup_otp.html'
+            if verification_type == "signup":
+                subject = "SciTeX - Verify Your Email Address"
+                template_name = "emails/signup_otp.html"
                 context = {
-                    'otp_code': otp_code,
-                    'email': email,
-                    'site_name': 'SciTeX',
-                    'expires_minutes': 10,
-                    'verification_type': 'account registration'
+                    "otp_code": otp_code,
+                    "email": email,
+                    "site_name": "SciTeX",
+                    "expires_minutes": 10,
+                    "verification_type": "account registration",
                 }
-            elif verification_type == 'password_reset':
-                subject = 'SciTeX - Reset Your Password'
-                template_name = 'emails/password_reset_otp.html'
+            elif verification_type == "password_reset":
+                subject = "SciTeX - Reset Your Password"
+                template_name = "emails/password_reset_otp.html"
                 context = {
-                    'otp_code': otp_code,
-                    'email': email,
-                    'site_name': 'SciTeX',
-                    'expires_minutes': 10,
-                    'verification_type': 'password reset'
+                    "otp_code": otp_code,
+                    "email": email,
+                    "site_name": "SciTeX",
+                    "expires_minutes": 10,
+                    "verification_type": "password reset",
                 }
-            elif verification_type == 'email_change':
-                subject = 'SciTeX - Verify Your New Email Address'
-                template_name = 'emails/email_change_otp.html'
+            elif verification_type == "email_change":
+                subject = "SciTeX - Verify Your New Email Address"
+                template_name = "emails/email_change_otp.html"
                 context = {
-                    'otp_code': otp_code,
-                    'email': email,
-                    'site_name': 'SciTeX',
-                    'expires_minutes': 10,
-                    'verification_type': 'email address change'
+                    "otp_code": otp_code,
+                    "email": email,
+                    "site_name": "SciTeX",
+                    "expires_minutes": 10,
+                    "verification_type": "email address change",
                 }
             else:
                 raise ValueError(f"Unknown verification type: {verification_type}")
-            
+
             # Create fallback plain text email if template doesn't exist
             html_message = f"""
             <!DOCTYPE html>
@@ -73,7 +71,7 @@ class EmailService:
                 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                     <p>Hi there,</p>
-                    <p>Use this verification code to complete your {context['verification_type']}:</p>
+                    <p>Use this verification code to complete your {context["verification_type"]}:</p>
                     
                     <div style="text-align: center; margin: 30px 0;">
                         <div style="display: inline-block; background: #4a6baf; color: white; padding: 15px 30px; border-radius: 8px; font-size: 24px; font-weight: bold; letter-spacing: 3px;">
@@ -83,7 +81,7 @@ class EmailService:
                     
                     <p><strong>Important:</strong></p>
                     <ul>
-                        <li>This code expires in {context['expires_minutes']} minutes</li>
+                        <li>This code expires in {context["expires_minutes"]} minutes</li>
                         <li>You have 3 attempts to enter the correct code</li>
                         <li>Do not share this code with anyone</li>
                     </ul>
@@ -100,18 +98,18 @@ class EmailService:
             </body>
             </html>
             """
-            
+
             plain_message = f"""
             SciTeX - Email Verification
             
             Hi there,
             
-            Use this verification code to complete your {context['verification_type']}:
+            Use this verification code to complete your {context["verification_type"]}:
             
             {otp_code}
             
             Important:
-            - This code expires in {context['expires_minutes']} minutes
+            - This code expires in {context["expires_minutes"]} minutes
             - You have 3 attempts to enter the correct code
             - Do not share this code with anyone
             
@@ -119,7 +117,7 @@ class EmailService:
             
             This is an automated message from SciTeX Cloud.
             """
-            
+
             # Send email
             result = send_mail(
                 subject=subject,
@@ -129,24 +127,26 @@ class EmailService:
                 html_message=html_message,
                 fail_silently=False,
             )
-            
+
             if result:
-                logger.info(f"OTP email sent successfully to {email} for {verification_type}")
+                logger.info(
+                    f"OTP email sent successfully to {email} for {verification_type}"
+                )
                 return True, "Verification email sent successfully"
             else:
                 logger.error(f"Failed to send OTP email to {email}")
                 return False, "Failed to send verification email"
-                
+
         except Exception as e:
             logger.error(f"Error sending OTP email to {email}: {str(e)}")
             return False, f"Error sending email: {str(e)}"
-    
+
     @staticmethod
     def send_welcome_email(user):
         """Send welcome email after successful verification"""
         try:
-            subject = 'Welcome to SciTeX - Your Scientific Research Platform'
-            
+            subject = "Welcome to SciTeX - Your Scientific Research Platform"
+
             html_message = f"""
             <!DOCTYPE html>
             <html>
@@ -195,7 +195,7 @@ class EmailService:
             </body>
             </html>
             """
-            
+
             plain_message = f"""
             Welcome to SciTeX!
             
@@ -217,7 +217,7 @@ class EmailService:
             Happy researching!
             The SciTeX Team
             """
-            
+
             result = send_mail(
                 subject=subject,
                 message=plain_message,
@@ -226,24 +226,24 @@ class EmailService:
                 html_message=html_message,
                 fail_silently=True,  # Don't fail registration if welcome email fails
             )
-            
+
             if result:
                 logger.info(f"Welcome email sent to {user.email}")
             else:
                 logger.warning(f"Failed to send welcome email to {user.email}")
-                
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error sending welcome email to {user.email}: {str(e)}")
             return False
-    
+
     @staticmethod
     def send_deletion_confirmation_email(user, deletion_date):
         """Send account deletion confirmation email"""
         try:
-            subject = 'SciTeX Account Deletion Scheduled'
-            
+            subject = "SciTeX Account Deletion Scheduled"
+
             html_message = f"""
             <!DOCTYPE html>
             <html>
@@ -266,7 +266,7 @@ class EmailService:
                         <p><strong>Deletion Details:</strong></p>
                         <ul>
                             <li><strong>Account:</strong> {user.email}</li>
-                            <li><strong>Scheduled Date:</strong> {deletion_date.strftime('%B %d, %Y at %I:%M %p UTC')}</li>
+                            <li><strong>Scheduled Date:</strong> {deletion_date.strftime("%B %d, %Y at %I:%M %p UTC")}</li>
                             <li><strong>Grace Period:</strong> 28 days</li>
                         </ul>
                     </div>
@@ -298,7 +298,7 @@ class EmailService:
             </body>
             </html>
             """
-            
+
             plain_message = f"""
             SciTeX Account Deletion Scheduled
             
@@ -308,7 +308,7 @@ class EmailService:
             
             Deletion Details:
             - Account: {user.email}
-            - Scheduled Date: {deletion_date.strftime('%B %d, %Y at %I:%M %p UTC')}
+            - Scheduled Date: {deletion_date.strftime("%B %d, %Y at %I:%M %p UTC")}
             - Grace Period: 28 days
             
             What happens next:
@@ -325,7 +325,7 @@ class EmailService:
             
             The SciTeX Team
             """
-            
+
             result = send_mail(
                 subject=subject,
                 message=plain_message,
@@ -334,14 +334,18 @@ class EmailService:
                 html_message=html_message,
                 fail_silently=False,
             )
-            
+
             if result:
                 logger.info(f"Account deletion confirmation email sent to {user.email}")
                 return True, "Deletion confirmation email sent successfully"
             else:
-                logger.error(f"Failed to send deletion confirmation email to {user.email}")
+                logger.error(
+                    f"Failed to send deletion confirmation email to {user.email}"
+                )
                 return False, "Failed to send deletion confirmation email"
-                
+
         except Exception as e:
-            logger.error(f"Error sending deletion confirmation email to {user.email}: {str(e)}")
+            logger.error(
+                f"Error sending deletion confirmation email to {user.email}: {str(e)}"
+            )
             return False, f"Error sending email: {str(e)}"

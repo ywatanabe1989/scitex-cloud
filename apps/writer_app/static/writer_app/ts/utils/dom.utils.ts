@@ -6,8 +6,12 @@
  * Safely query element from DOM
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/dom.utils.ts loaded");
-export function querySelector<T extends Element = Element>(selector: string): T | null {
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/dom.utils.ts loaded",
+);
+export function querySelector<T extends Element = Element>(
+  selector: string,
+): T | null {
   try {
     return document.querySelector(selector) as T | null;
   } catch (error) {
@@ -19,7 +23,9 @@ export function querySelector<T extends Element = Element>(selector: string): T 
 /**
  * Safely query all elements matching selector
  */
-export function querySelectorAll<T extends Element = Element>(selector: string): T[] {
+export function querySelectorAll<T extends Element = Element>(
+  selector: string,
+): T[] {
   try {
     return Array.from(document.querySelectorAll(selector)) as T[];
   } catch (error) {
@@ -31,15 +37,22 @@ export function querySelectorAll<T extends Element = Element>(selector: string):
 /**
  * Set element's visibility
  */
-export function setVisibility(element: HTMLElement | null, visible: boolean): void {
+export function setVisibility(
+  element: HTMLElement | null,
+  visible: boolean,
+): void {
   if (!element) return;
-  element.style.display = visible ? '' : 'none';
+  element.style.display = visible ? "" : "none";
 }
 
 /**
  * Toggle class on element
  */
-export function toggleClass(element: HTMLElement | null, className: string, force?: boolean): void {
+export function toggleClass(
+  element: HTMLElement | null,
+  className: string,
+  force?: boolean,
+): void {
   if (!element) return;
   if (force === undefined) {
     element.classList.toggle(className);
@@ -59,7 +72,10 @@ export function addClass(element: HTMLElement | null, className: string): void {
 /**
  * Remove class from element
  */
-export function removeClass(element: HTMLElement | null, className: string): void {
+export function removeClass(
+  element: HTMLElement | null,
+  className: string,
+): void {
   if (!element) return;
   element.classList.remove(className);
 }
@@ -67,7 +83,10 @@ export function removeClass(element: HTMLElement | null, className: string): voi
 /**
  * Check if element has class
  */
-export function hasClass(element: HTMLElement | null, className: string): boolean {
+export function hasClass(
+  element: HTMLElement | null,
+  className: string,
+): boolean {
   if (!element) return false;
   return element.classList.contains(className);
 }
@@ -82,7 +101,10 @@ export function getComputedStyle(element: HTMLElement): CSSStyleDeclaration {
 /**
  * Set multiple attributes on element
  */
-export function setAttributes(element: HTMLElement | null, attributes: Record<string, string>): void {
+export function setAttributes(
+  element: HTMLElement | null,
+  attributes: Record<string, string>,
+): void {
   if (!element) return;
   Object.entries(attributes).forEach(([key, value]) => {
     element.setAttribute(key, value);
@@ -103,7 +125,7 @@ export function removeElement(element: HTMLElement | null): void {
  */
 export function clearElement(element: HTMLElement | null): void {
   if (!element) return;
-  element.innerHTML = '';
+  element.innerHTML = "";
 }
 
 /**
@@ -117,7 +139,7 @@ export function createElement(
     attributes?: Record<string, string>;
     textContent?: string;
     innerHTML?: string;
-  }
+  },
 ): HTMLElement {
   const element = document.createElement(tag);
 
@@ -151,9 +173,12 @@ export function createElement(
 /**
  * Scroll element into view smoothly
  */
-export function scrollIntoView(element: HTMLElement | null, behavior: 'smooth' | 'auto' = 'smooth'): void {
+export function scrollIntoView(
+  element: HTMLElement | null,
+  behavior: "smooth" | "auto" = "smooth",
+): void {
   if (element) {
-    element.scrollIntoView({ behavior, block: 'nearest' });
+    element.scrollIntoView({ behavior, block: "nearest" });
   }
 }
 

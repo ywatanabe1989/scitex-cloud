@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/scholar_app/views.py"
-)
+
+__FILE__ = "./apps/scholar_app/views.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 from django.shortcuts import render, redirect, get_object_or_404
@@ -23,9 +22,7 @@ from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,
 )
-from django.db import transaction
 from django.core.cache import cache
-from django.views.decorators.cache import cache_page
 
 # from django.utils.cache import make_template_fragment_key  # Removed - not available in newer Django
 import json
@@ -44,8 +41,6 @@ from .models import (
     SearchResult,
     SavedSearch,
     RecommendationLog,
-    AuthorPaper,
-    SearchFilter,
 )
 from . import default_workspace_views
 from . import project_views
@@ -62,12 +57,8 @@ def index(request):
     """Scholar app - main landing page for all users."""
     if request.user.is_authenticated:
         # Logged in users - redirect to their projects
-        messages.info(
-            request, "Please select or create a project to use Scholar."
-        )
-        return redirect(
-            "user_projects:user_projects", username=request.user.username
-        )
+        messages.info(request, "Please select or create a project to use Scholar.")
+        return redirect("user_projects:user_projects", username=request.user.username)
     else:
         # Anonymous users - redirect to default workspace
         return redirect("scholar_app:user_default_workspace")
@@ -99,9 +90,7 @@ def search_dashboard(request):
                 if k not in ["page", "csrfmiddlewaretoken"]
             ]
         )
-        cache_key = (
-            f"scholar_search:{hashlib.md5(filters_str.encode()).hexdigest()}"
-        )
+        cache_key = f"scholar_search:{hashlib.md5(filters_str.encode()).hexdigest()}"
 
         # Try to get cached results
         cached_results = cache.get(cache_key)
@@ -182,9 +171,7 @@ def search_dashboard(request):
             "citations_received__citing_paper__authors",
             Prefetch(
                 "authors",
-                queryset=Author.objects.only(
-                    "id", "first_name", "last_name", "orcid"
-                ),
+                queryset=Author.objects.only("id", "first_name", "last_name", "orcid"),
             ),
         )
         .only(
@@ -224,9 +211,7 @@ def search_dashboard(request):
             .only("id", "name", "paper_count", "description")
             .order_by("-paper_count")[:10]
         )
-        cache.set(
-            "scholar_trending_topics", trending_topics, 1800
-        )  # 30 minutes
+        cache.set("scholar_trending_topics", trending_topics, 1800)  # 30 minutes
 
     context = {
         "query": query,
@@ -234,9 +219,7 @@ def search_dashboard(request):
         "papers": papers,
         "suggestions": suggestions,
         "trending_topics": trending_topics,
-        "filters": (
-            filters.get("active_filters", {}) if "filters" in locals() else {}
-        ),
+        "filters": (filters.get("active_filters", {}) if "filters" in locals() else {}),
         "total_results": results.count() if query else 0,
     }
 
@@ -279,9 +262,7 @@ def advanced_search(request):
 
         # Add other filters
         if request.POST.getlist("document_types"):
-            params["doc_types"] = ",".join(
-                request.POST.getlist("document_types")
-            )
+            params["doc_types"] = ",".join(request.POST.getlist("document_types"))
         if request.POST.get("journal"):
             params["journal"] = request.POST["journal"]
         if request.POST.get("min_citations"):
@@ -321,9 +302,9 @@ def paper_detail(request, paper_id):
     paper.save(update_fields=["view_count"])
 
     # Get citations
-    citations_made = paper.citations_made.select_related(
-        "cited_paper"
-    ).order_by("cited_paper__publication_date")
+    citations_made = paper.citations_made.select_related("cited_paper").order_by(
+        "cited_paper__publication_date"
+    )
     citations_received = paper.citations_received.select_related(
         "citing_paper"
     ).order_by("-citing_paper__publication_date")
@@ -389,9 +370,7 @@ def author_profile(request, author_id):
             .prefetch_related(
                 Prefetch(
                     "authors",
-                    queryset=Author.objects.only(
-                        "id", "first_name", "last_name"
-                    ),
+                    queryset=Author.objects.only("id", "first_name", "last_name"),
                 )
             )
             .only(
@@ -498,9 +477,7 @@ def saved_searches(request):
         elif action == "delete":
             # Delete saved search
             search_id = request.POST.get("search_id")
-            SavedSearch.objects.filter(
-                id=search_id, user=request.user
-            ).delete()
+            SavedSearch.objects.filter(id=search_id, user=request.user).delete()
             messages.success(request, "Saved search deleted.")
 
         elif action == "update":
@@ -509,21 +486,15 @@ def saved_searches(request):
             saved_search = get_object_or_404(
                 SavedSearch, id=search_id, user=request.user
             )
-            saved_search.email_alerts = (
-                request.POST.get("email_alerts") == "on"
-            )
-            saved_search.alert_frequency = request.POST.get(
-                "alert_frequency", "never"
-            )
+            saved_search.email_alerts = request.POST.get("email_alerts") == "on"
+            saved_search.alert_frequency = request.POST.get("alert_frequency", "never")
             saved_search.save()
             messages.success(request, "Saved search updated.")
 
         return redirect("search:saved_searches")
 
     # GET request - show saved searches
-    searches = SavedSearch.objects.filter(user=request.user).order_by(
-        "-created_at"
-    )
+    searches = SavedSearch.objects.filter(user=request.user).order_by("-created_at")
 
     context = {
         "saved_searches": searches,
@@ -594,9 +565,7 @@ def recommendations(request):
             request.user, recent_views
         )
     elif recommendation_type == "author_based":
-        recommendations = _get_author_based_recommendations(
-            request.user, recent_views
-        )
+        recommendations = _get_author_based_recommendations(request.user, recent_views)
     elif recommendation_type == "citation_based":
         recommendations = _get_citation_based_recommendations(
             request.user, recent_views
@@ -605,9 +574,7 @@ def recommendations(request):
         recommendations = _get_trending_recommendations(request.user)
     else:
         # Combine all recommendation types
-        recommendations = _get_mixed_recommendations(
-            request.user, recent_views
-        )
+        recommendations = _get_mixed_recommendations(request.user, recent_views)
 
     # Track recommendations shown
     for rec in recommendations:
@@ -694,9 +661,7 @@ def trending_papers(request):
         ).order_by("-trending_score")
 
     # Get top 50 papers
-    papers = papers.select_related("journal").prefetch_related(
-        "authors", "topics"
-    )[:50]
+    papers = papers.select_related("journal").prefetch_related("authors", "topics")[:50]
 
     # Get trending topics
     trending_topics = (
@@ -794,11 +759,7 @@ def _track_search_results(search_query, papers):
                 search_query=search_query,
                 paper=paper,
                 rank=rank,
-                score=(
-                    getattr(paper, "rank", 0.0)
-                    if hasattr(paper, "rank")
-                    else 0.0
-                ),
+                score=(getattr(paper, "rank", 0.0) if hasattr(paper, "rank") else 0.0),
             )
         )
 
@@ -820,14 +781,8 @@ def _build_citation_network(paper, depth=2):
         nodes.append(
             {
                 "id": str(p.id),
-                "title": (
-                    p.title[:50] + "..." if len(p.title) > 50 else p.title
-                ),
-                "year": (
-                    p.publication_date.year
-                    if p.publication_date
-                    else "Unknown"
-                ),
+                "title": (p.title[:50] + "..." if len(p.title) > 50 else p.title),
+                "year": (p.publication_date.year if p.publication_date else "Unknown"),
                 "citations": p.citation_count,
                 "level": level,
             }
@@ -845,9 +800,7 @@ def _build_citation_network(paper, depth=2):
             add_node(citation.cited_paper, level + 1)
 
         # Add references
-        for citation in p.citations_received.select_related("citing_paper")[
-            :10
-        ]:
+        for citation in p.citations_received.select_related("citing_paper")[:10]:
             edges.append(
                 {
                     "source": str(citation.citing_paper.id),
@@ -964,9 +917,7 @@ def _compute_similarity_score(paper1, paper2):
             paper1.authors.count(), paper2.authors.count(), 1
         )
         total_score += author_score * 0.25
-        author_names = [
-            f"{a.first_name} {a.last_name}" for a in common_authors
-        ]
+        author_names = [f"{a.first_name} {a.last_name}" for a in common_authors]
         reasons.append(f"Common authors: {', '.join(author_names[:2])}")
 
     # 3. Journal similarity (15% weight)
@@ -995,18 +946,14 @@ def _compute_similarity_score(paper1, paper2):
 
     # 6. Temporal proximity bonus
     if paper1.publication_date and paper2.publication_date:
-        date_diff = abs(
-            (paper1.publication_date - paper2.publication_date).days
-        )
+        date_diff = abs((paper1.publication_date - paper2.publication_date).days)
         if date_diff < 365:  # Same year
             total_score += 0.05
         elif date_diff < 365 * 2:  # Within 2 years
             total_score += 0.02
 
     # 7. Citation count similarity (papers with similar impact)
-    cite_diff = abs(
-        (paper1.citation_count or 0) - (paper2.citation_count or 0)
-    )
+    cite_diff = abs((paper1.citation_count or 0) - (paper2.citation_count or 0))
     if cite_diff < 10:
         total_score += 0.05
 
@@ -1017,13 +964,9 @@ def _compute_similarity_score(paper1, paper2):
 def _papers_have_citation_relationship(paper1, paper2):
     """Check if papers have direct or indirect citation relationships."""
     # Direct citation
-    if Citation.objects.filter(
-        citing_paper=paper1, cited_paper=paper2
-    ).exists():
+    if Citation.objects.filter(citing_paper=paper1, cited_paper=paper2).exists():
         return True
-    if Citation.objects.filter(
-        citing_paper=paper2, cited_paper=paper1
-    ).exists():
+    if Citation.objects.filter(citing_paper=paper2, cited_paper=paper1).exists():
         return True
 
     # Shared citations (co-cited papers)
@@ -1038,9 +981,7 @@ def _papers_have_citation_relationship(paper1, paper2):
         )
     )
 
-    if (
-        len(paper1_citations & paper2_citations) >= 2
-    ):  # At least 2 shared citations
+    if len(paper1_citations & paper2_citations) >= 2:  # At least 2 shared citations
         return True
 
     return False
@@ -1070,9 +1011,7 @@ def _calculate_text_similarity(paper1, paper2):
         )
 
         tfidf_matrix = vectorizer.fit_transform([text1, text2])
-        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[
-            0
-        ][0]
+        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
 
         return float(similarity)
 
@@ -1136,9 +1075,7 @@ def _simple_text_similarity(paper1, paper2):
             "must",
             "shall",
         }
-        return set(
-            word for word in words if word not in stopwords and len(word) > 3
-        )
+        return set(word for word in words if word not in stopwords and len(word) > 3)
 
     text1 = f"{paper1.title or ''} {paper1.abstract or ''}"
     text2 = f"{paper2.title or ''} {paper2.abstract or ''}"
@@ -1223,9 +1160,7 @@ def _get_trending_recommendations(user):
     # Get trending papers from last week with optimized queries
     last_week = timezone.now() - timedelta(weeks=1)
     trending = (
-        SearchIndex.objects.filter(
-            publication_date__gte=last_week, status="active"
-        )
+        SearchIndex.objects.filter(publication_date__gte=last_week, status="active")
         .select_related("journal")
         .prefetch_related(
             Prefetch(
@@ -1279,9 +1214,7 @@ def _get_mixed_recommendations(user, recent_views):
     seen_papers = set()
     unique_recommendations = []
 
-    for rec in sorted(
-        all_recommendations, key=lambda x: x["score"], reverse=True
-    ):
+    for rec in sorted(all_recommendations, key=lambda x: x["score"], reverse=True):
         if rec["paper"].id not in seen_papers:
             seen_papers.add(rec["paper"].id)
             unique_recommendations.append(rec)
@@ -1301,9 +1234,7 @@ def _export_as_csv(papers):
 
     # Write data
     for paper in papers:
-        authors = ", ".join(
-            [author.full_name for author in paper.authors.all()]
-        )
+        authors = ", ".join([author.full_name for author in paper.authors.all()])
         writer.writerow(
             [
                 paper.title,
@@ -1345,21 +1276,15 @@ def _export_as_bibtex(papers):
 
         # Generate citation key
         first_author = paper.authors.first()
-        year = (
-            paper.publication_date.year if paper.publication_date else "YYYY"
-        )
-        citation_key = (
-            f"{first_author.last_name if first_author else 'Unknown'}{year}"
-        )
+        year = paper.publication_date.year if paper.publication_date else "YYYY"
+        citation_key = f"{first_author.last_name if first_author else 'Unknown'}{year}"
 
         # Write BibTeX entry
         output.write(f"{entry_type}{{{citation_key},\n")
         output.write(f"  title = {{{paper.title}}},\n")
 
         # Authors
-        authors = " and ".join(
-            [author.full_name for author in paper.authors.all()]
-        )
+        authors = " and ".join([author.full_name for author in paper.authors.all()])
         if authors:
             output.write(f"  author = {{{authors}}},\n")
 
@@ -1469,9 +1394,7 @@ def _export_as_json(papers):
             ],
             "journal": paper.journal.name if paper.journal else None,
             "publication_date": (
-                paper.publication_date.isoformat()
-                if paper.publication_date
-                else None
+                paper.publication_date.isoformat() if paper.publication_date else None
             ),
             "doi": paper.doi,
             "pmid": paper.pmid,
@@ -1485,9 +1408,7 @@ def _export_as_json(papers):
         data.append(paper_data)
 
     # Create response
-    response = HttpResponse(
-        json.dumps(data, indent=2), content_type="application/json"
-    )
+    response = HttpResponse(json.dumps(data, indent=2), content_type="application/json")
     response["Content-Disposition"] = (
         f'attachment; filename="scitex_papers_{datetime.now().strftime("%Y%m%d")}.json"'
     )
@@ -1539,5 +1460,6 @@ def recommendation_feedback(request):
         )
 
     return JsonResponse({"status": "ok"})
+
 
 # EOF

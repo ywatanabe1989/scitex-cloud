@@ -5,197 +5,213 @@
 /* Styling provided by: static/css/common/*.css and static/css/components/*.css */
 /* ============================================================================= */
 
+/* Browse page container - GitHub-style max-width */
+.browse-container {
+  max-width: 1280px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin: 0 auto; /* Center the container */
+}
 
 /* GitHub-style repository header - Theme-aware */
 .repo-header {
-    padding: 0.75rem 0 1.5rem 0;  /* Reduced top padding: 0.75rem top, 1.5rem bottom */
-    border-bottom: 1px solid var(--color-border-default);
+  padding: 0.75rem 0 1rem 0; /* Compact: 0.75rem top, 1rem bottom */
+  margin-bottom: 1rem; /* Space between header and tabs */
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .repo-header-main {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Create space between left and right groups */
+  gap: 0.75rem; /* Reduced gap for compact layout */
+  min-height: 40px; /* More compact height */
+}
+
+/* Right side: action buttons + description */
+.repo-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .repo-header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .repo-header-owner {
-    color: var(--color-accent-fg);
-    text-decoration: none;
-    font-weight: 400;
+  color: var(--color-accent-fg);
+  text-decoration: none;
+  font-weight: 400;
 }
 
 .repo-header-owner:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .repo-header-separator {
-    color: var(--color-fg-muted);
+  color: var(--color-fg-muted);
 }
 
 .repo-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-accent-fg);
-    text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-accent-fg);
+  text-decoration: none;
 }
 
 .repo-title:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .repo-breadcrumb-item {
-    color: var(--color-accent-fg);
-    text-decoration: none;
+  color: var(--color-accent-fg);
+  text-decoration: none;
 }
 
 .repo-breadcrumb-item:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .repo-breadcrumb-current {
-    font-weight: 600;
-    color: var(--color-fg-default);
+  font-weight: 600;
+  color: var(--color-fg-default);
 }
 
 .repo-branch-selector {
-    margin-left: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .repo-branch-name {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 .repo-branch-count-links {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .repo-branch-count-link {
-    color: var(--color-fg-muted);
-    text-decoration: none;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .repo-branch-count-link:hover {
-    color: var(--color-accent-fg);
+  color: var(--color-accent-fg);
 }
 
+/* Header action buttons (Watch/Star/Fork) */
 .repo-action-buttons {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .repo-description {
-    margin-top: 0.5rem;
-    color: var(--color-fg-muted);
+  color: var(--color-fg-muted);
 }
 
 /* Branch dropdown menu */
 .branch-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 4px;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    min-width: 250px;
-    z-index: 1000;
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  min-width: 250px;
+  z-index: 1000;
 }
 
 .branch-dropdown-menu.show {
-    display: block;
+  display: block;
 }
 
 .branch-search-container {
-    padding: 8px;
+  padding: 8px;
 }
 
 .branch-search-input {
-    width: 100%;
-    padding: 5px 12px;
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
+  width: 100%;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-neutral-muted);
+  color: var(--color-fg-default);
 }
 
 .branch-list-container {
-    padding: 8px 0;
-    border-top: 1px solid var(--color-border-default);
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border-default);
 }
 
 .branch-list-header {
-    padding: 4px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-muted);
+  padding: 4px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
 }
 
 .branch-item {
-    display: block;
-    padding: 6px 12px;
-    color: var(--color-fg-default);
-    text-decoration: none;
-    font-size: 14px;
+  display: block;
+  padding: 6px 12px;
+  color: var(--color-fg-default);
+  text-decoration: none;
+  font-size: 14px;
 }
 
 .branch-item:hover {
-    background: var(--color-canvas-subtle);
+  background: var(--color-canvas-subtle);
 }
 
 .branch-item-indent {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 /* SVG icon utilities */
 .icon-inline {
-    display: inline-block;
-    vertical-align: text-bottom;
+  display: inline-block;
+  vertical-align: text-bottom;
 }
 
 .icon-inline-mr {
-    display: inline-block;
-    vertical-align: text-bottom;
-    margin-right: 4px;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-right: 4px;
 }
 
 .icon-inline-ml {
-    display: inline-block;
-    vertical-align: text-bottom;
-    margin-left: 4px;
+  display: inline-block;
+  vertical-align: text-bottom;
+  margin-left: 4px;
 }
 
 .icon-success {
-    color: var(--color-success-fg);
+  color: var(--color-success-fg);
 }
 
 /* Tab navigation now uses standardized .scitex-tabs component from design system */
 .repo-tabs {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 .scitex-tabs {
-    display: flex;
-    gap: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
 }
 
 /* ============================================================================= */
@@ -204,436 +220,440 @@
 
 /* Container with border and rounded corners */
 .file-browser {
-    /* Layout preserved */
-    margin-bottom: 1.5rem;
-    overflow: hidden;
-    /* Styling moved to central CSS - see static/css/components/cards.css */
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
+  /* Layout preserved */
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  /* Styling moved to central CSS - see static/css/components/cards.css */
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
 }
 
 .file-browser-table {
-    /* Layout preserved */
-    width: 100%;
-    margin: 0;
-    border-collapse: collapse;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Layout preserved */
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
 }
 
 /* Table Header */
 .file-browser-table thead {
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    background: var(--color-canvas-subtle);
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  background: var(--color-canvas-subtle);
 }
 
 .file-browser-header {
-    /* Layout preserved */
-    padding: 8px 16px;
-    text-align: left;
-    line-height: 1.5;
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    background: var(--color-canvas-subtle);
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--color-fg-muted);
-    border-bottom: 1px solid var(--color-border-default);
+  /* Layout preserved */
+  padding: 8px 8px;
+  text-align: left;
+  line-height: 1.5;
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  background: var(--color-canvas-subtle);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  border-bottom: 1px solid var(--color-border-default);
 }
 
 .file-browser-name-col {
-    width: 40%;
+  width: 30%;
 }
 
 .file-browser-message-col {
-    width: 45%;
+  width: 50%;
 }
 
 .file-browser-time-col {
-    width: 15%;
-    text-align: right;
+  width: 20%;
+  text-align: right;
 }
 
 /* Table Rows - Full row hover and clickability */
 .file-browser-table tbody tr {
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    border-top: 1px solid var(--color-border-default);
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  border-top: 1px solid var(--color-border-default);
 }
 
 .file-browser-table tbody tr:first-child {
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    border-top: none;
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  border-top: none;
 }
 
 .file-browser-row {
-    cursor: pointer;
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    transition: background-color 0.15s ease-out, box-shadow 0.15s ease-out;
+  cursor: pointer;
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  transition:
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out;
 }
 
 /* GitHub-style subtle hover - light background change */
 .file-browser-row:hover {
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    background: var(--color-neutral-muted);
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  background: var(--color-neutral-muted);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.03);
 }
 
 /* Table Cells */
 .file-browser-cell {
-    /* Layout preserved */
-    padding: 10px 16px;
-    vertical-align: middle;
-    line-height: 24px;  /* Increased for better alignment */
-    height: 44px;  /* Fixed height for consistency */
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    font-size: 14px;
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  padding: 8px 8px;
+  vertical-align: middle;
+  line-height: 24px; /* Increased for better alignment */
+  height: 40px; /* Fixed height for consistency */
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  font-size: 14px;
+  color: var(--color-fg-default);
 }
 
 /* Name Cell with Icon and Text */
 .file-browser-name-cell {
-    width: 40%;
+  width: 30%;
 }
 
 .file-browser-link {
-    /* Layout preserved */
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    line-height: 1;  /* Ensure consistent line height */
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--color-accent-fg);
-    font-weight: 600;
+  /* Layout preserved */
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  line-height: 1; /* Ensure consistent line height */
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--color-accent-fg);
+  font-weight: 600;
 }
 
 .file-browser-link:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .file-browser-link:hover .file-browser-name {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* SVG Icons - Octicons */
 .file-browser-icon {
-    /* Layout preserved */
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* Layout preserved */
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .octicon-directory {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    fill: var(--color-fg-muted);
-    transition: fill 0.2s ease;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  fill: var(--color-fg-muted);
+  transition: fill 0.2s ease;
 }
 
 .octicon-file {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    fill: var(--color-fg-muted);
-    transition: fill 0.2s ease;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  fill: var(--color-fg-muted);
+  transition: fill 0.2s ease;
 }
 
 /* Hover effects for file browser icons */
 .file-browser-row:hover .octicon-directory {
-    fill: var(--color-accent-fg);
+  fill: var(--color-accent-fg);
 }
 
 .file-browser-row:hover .octicon-file {
-    fill: var(--color-fg-default);
+  fill: var(--color-fg-default);
 }
 
 .clickable-row:hover .octicon-directory {
-    fill: var(--color-accent-fg);
+  fill: var(--color-accent-fg);
 }
 
 .clickable-row:hover .octicon-file {
-    fill: var(--color-fg-default);
+  fill: var(--color-fg-default);
 }
 
 /* Dark theme support */
 [data-theme="dark"] .octicon-directory {
-    fill: var(--color-fg-muted, #8b949e);
+  fill: var(--color-fg-muted, #8b949e);
 }
 
 [data-theme="dark"] .octicon-file {
-    fill: var(--color-fg-muted, #8b949e);
+  fill: var(--color-fg-muted, #8b949e);
 }
 
 [data-theme="dark"] .file-browser-row:hover .octicon-directory,
 [data-theme="dark"] .clickable-row:hover .octicon-directory {
-    fill: var(--color-accent-fg, #58a6ff);
+  fill: var(--color-accent-fg, #58a6ff);
 }
 
 [data-theme="dark"] .file-browser-row:hover .octicon-file,
 [data-theme="dark"] .clickable-row:hover .octicon-file {
-    fill: var(--color-fg-default, #e6edf3);
+  fill: var(--color-fg-default, #e6edf3);
 }
 
 .file-browser-name {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-accent-fg);
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-accent-fg);
 }
 
 /* Commit Message Cell */
 .file-browser-message-cell {
-    /* Layout preserved */
-    width: 45%;
-    line-height: 24px;  /* Match cell line height */
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    color: var(--color-fg-muted);
-    font-size: 12px;
+  /* Layout preserved */
+  width: 50%;
+  line-height: 24px; /* Match cell line height */
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  color: var(--color-fg-muted);
+  font-size: 12px;
 }
 
 .file-browser-commit-message {
-    /* Layout preserved */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-    max-width: calc(100% - 80px);
-    vertical-align: middle;
-    text-decoration: none;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-fg-muted);
+  /* Layout preserved */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: calc(100% - 80px);
+  vertical-align: middle;
+  text-decoration: none;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-fg-muted);
 }
 
 .file-browser-commit-message:hover {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--color-accent-fg);
-    text-decoration: underline;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--color-accent-fg);
+  text-decoration: underline;
 }
 
 .file-browser-no-commit {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-fg-muted);
-    font-style: italic;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-fg-muted);
+  font-style: italic;
 }
 
 /* Commit Hash Badge */
 .file-browser-commit-hash {
-    /* Layout preserved */
-    padding: 2px 6px;
-    white-space: nowrap;
-    margin-left: 8px;
-    display: inline-block;
-    vertical-align: middle;
-    position: relative;
-    text-decoration: none;
-    /* Styling moved to central CSS - see static/css/components/badges.css */
-    font-family: ui-monospace, 'Cascadia Code', 'Courier New', monospace;
-    font-size: 12px;
-    color: var(--color-fg-muted);
-    background: rgba(175, 184, 193, 0.2);
-    border-radius: 6px;
+  /* Layout preserved */
+  padding: 2px 6px;
+  white-space: nowrap;
+  margin-left: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  text-decoration: none;
+  /* Styling moved to central CSS - see static/css/components/badges.css */
+  font-family: ui-monospace, "Cascadia Code", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--color-fg-muted);
+  background: rgba(175, 184, 193, 0.2);
+  border-radius: 6px;
 }
 
 .file-browser-commit-hash:hover {
-    /* Styling moved to central CSS - see static/css/components/badges.css */
-    color: var(--color-accent-fg);
-    background: var(--color-accent-subtle);
+  /* Styling moved to central CSS - see static/css/components/badges.css */
+  color: var(--color-accent-fg);
+  background: var(--color-accent-subtle);
 }
 
 /* Tooltip for full commit hash */
 .file-browser-commit-hash::before {
-    content: attr(data-hash);
-    /* Layout preserved */
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 10px;
-    white-space: nowrap;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    /* Styling moved to central CSS - see static/css/components/tooltips.css */
-    background: #24292f;
-    color: #ffffff;
-    border-radius: 6px;
-    font-size: 11px;
-    box-shadow: 0 8px 24px rgba(31, 35, 40, 0.45);
-    transition: opacity 0.2s ease;
+  content: attr(data-hash);
+  /* Layout preserved */
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  /* Styling moved to central CSS - see static/css/components/tooltips.css */
+  background: #24292f;
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 11px;
+  box-shadow: 0 8px 24px rgba(31, 35, 40, 0.45);
+  transition: opacity 0.2s ease;
 }
 
 .file-browser-commit-hash:hover::before {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Tooltip arrow */
 .file-browser-commit-hash::after {
-    content: '';
-    /* Layout preserved */
-    position: absolute;
-    bottom: calc(100% + 2px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    opacity: 0;
-    pointer-events: none;
-    /* Styling moved to central CSS - see static/css/components/tooltips.css */
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid #24292f;
-    transition: opacity 0.2s ease;
+  content: "";
+  /* Layout preserved */
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  /* Styling moved to central CSS - see static/css/components/tooltips.css */
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #24292f;
+  transition: opacity 0.2s ease;
 }
 
 .file-browser-commit-hash:hover::after {
-    opacity: 1;
+  opacity: 1;
 }
 
 [data-theme="dark"] .file-browser-commit-hash {
-    /* Styling moved to central CSS - see static/css/components/badges.css */
-    background: rgba(110, 118, 129, 0.4);
+  /* Styling moved to central CSS - see static/css/components/badges.css */
+  background: rgba(110, 118, 129, 0.4);
 }
 
 [data-theme="dark"] .file-browser-commit-hash::before {
-    /* Styling moved to central CSS - see static/css/components/tooltips.css */
-    background: #c9d1d9;
-    color: #0d1117;
+  /* Styling moved to central CSS - see static/css/components/tooltips.css */
+  background: #c9d1d9;
+  color: #0d1117;
 }
 
 [data-theme="dark"] .file-browser-commit-hash::after {
-    /* Styling moved to central CSS - see static/css/components/tooltips.css */
-    border-top-color: #c9d1d9;
+  /* Styling moved to central CSS - see static/css/components/tooltips.css */
+  border-top-color: #c9d1d9;
 }
 
 /* Dark mode row hover - slightly lighter than background */
 [data-theme="dark"] .file-browser-row:hover {
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    background: var(--color-neutral-muted);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  background: var(--color-neutral-muted);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 /* Time Cell */
 .file-browser-time-cell {
-    /* Layout preserved */
-    width: 15%;
-    text-align: right;
-    white-space: nowrap;
-    line-height: 24px;  /* Match cell line height */
-    /* Styling moved to central CSS - see static/css/components/tables.css */
-    color: var(--color-fg-muted);
-    font-size: 12px;
+  /* Layout preserved */
+  width: 20%;
+  text-align: right;
+  white-space: nowrap;
+  line-height: 24px; /* Match cell line height */
+  /* Styling moved to central CSS - see static/css/components/tables.css */
+  color: var(--color-fg-muted);
+  font-size: 12px;
 }
-
 
 /* README rendering - Theme-aware */
 .readme-container {
-    /* Layout preserved */
-    padding: 2rem;
-    /* Styling moved to central CSS - see static/css/components/cards.css */
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  padding: 1rem;
+  max-width: 100%;
+  /* Styling moved to central CSS - see static/css/components/cards.css */
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
 }
 
 .readme-header {
-    /* Layout preserved */
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    border-bottom: 1px solid var(--color-border-default);
-    font-weight: 600;
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  border-bottom: 1px solid var(--color-border-default);
+  font-weight: 600;
+  color: var(--color-fg-default);
 }
 
 .readme-content {
-    /* Layout preserved */
-    line-height: 1.6;
+  /* Layout preserved */
+  line-height: 1.6;
 }
 
 .readme-content h1,
 .readme-content h2,
 .readme-content h3 {
-    /* Layout preserved */
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    line-height: 1.25;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-weight: 600;
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-weight: 600;
+  color: var(--color-fg-default);
 }
 
 .readme-content h1 {
-    /* Layout preserved */
-    padding-bottom: 0.3em;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-size: 2em;
+  /* Layout preserved */
+  padding-bottom: 0.3em;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-size: 2em;
 }
 
 .readme-content h2 {
-    /* Layout preserved */
-    padding-bottom: 0.3em;
-    margin-top: 2rem;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-size: 1.5em;
+  /* Layout preserved */
+  padding-bottom: 0.3em;
+  margin-top: 2rem;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-size: 1.5em;
 }
 
 .readme-content code {
-    /* Layout preserved */
-    padding: 0.2em 0.4em;
-    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
-    border-radius: 6px;
-    font-family: ui-monospace, monospace;
-    font-size: 85%;
+  /* Layout preserved */
+  padding: 0.2em 0.4em;
+  /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+  background: var(--color-neutral-muted);
+  color: var(--color-fg-default);
+  border-radius: 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 85%;
 }
 
 .readme-content pre {
-    /* Layout preserved */
-    padding: 1rem;
-    overflow-x: auto;
-    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
-    background: var(--color-neutral-muted);
-    border-radius: 6px;
+  /* Layout preserved */
+  padding: 1rem;
+  overflow-x: auto;
+  /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+  background: var(--color-neutral-muted);
+  border-radius: 6px;
 }
 
 .readme-content pre code {
-    /* Layout preserved */
-    padding: 0;
-    /* Styling moved to central CSS - see static/css/common/code-blocks.css */
-    background: none;
+  /* Layout preserved */
+  padding: 0;
+  /* Styling moved to central CSS - see static/css/common/code-blocks.css */
+  background: none;
 }
 
 /* Lists and directory structures - no borders */
 .readme-content ul,
 .readme-content ol {
-    /* Layout preserved */
-    padding-left: 2em;
-    margin: 0.5em 0;
+  /* Layout preserved */
+  padding-left: 2em;
+  margin: 0.5em 0;
 }
 
 .readme-content li {
-    /* Layout preserved */
-    margin: 0.25em 0;
-    border: none !important;  /* Remove any borders from list items */
+  /* Layout preserved */
+  margin: 0.25em 0;
+  border: none !important; /* Remove any borders from list items */
 }
 
 .readme-content p {
-    /* Layout preserved */
-    margin: 1em 0;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  margin: 1em 0;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-fg-default);
 }
 
 .readme-content a {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--color-accent-fg);
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--color-accent-fg);
 }
 
 .readme-content a:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Remove borders from h3, h4, h5, h6 */
@@ -641,444 +661,447 @@
 .readme-content h4,
 .readme-content h5,
 .readme-content h6 {
-    /* Layout preserved */
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    border: none !important;  /* No borders for smaller headings */
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-weight: 600;
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  border: none !important; /* No borders for smaller headings */
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-weight: 600;
+  color: var(--color-fg-default);
 }
 
 /* Button overrides for theme support */
 .btn-outline-primary {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--color-accent-fg) !important;
-    border-color: var(--color-accent-fg) !important;
-    background: transparent !important;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--color-accent-fg) !important;
+  border-color: var(--color-accent-fg) !important;
+  background: transparent !important;
 }
 
 .btn-outline-primary:hover {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: #ffffff !important;
-    background: var(--color-accent-fg) !important;
-    border-color: var(--color-accent-fg) !important;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: #ffffff !important;
+  background: var(--color-accent-fg) !important;
+  border-color: var(--color-accent-fg) !important;
 }
 
 [data-theme="dark"] .btn-outline-primary {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--scitex-color-06) !important;
-    border-color: var(--scitex-color-05) !important;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--scitex-color-06) !important;
+  border-color: var(--scitex-color-05) !important;
 }
 
 [data-theme="dark"] .btn-outline-primary:hover {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: #ffffff !important;
-    background: var(--scitex-color-04) !important;
-    border-color: var(--scitex-color-04) !important;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: #ffffff !important;
+  background: var(--scitex-color-04) !important;
+  border-color: var(--scitex-color-04) !important;
 }
 
 /* Text muted helper */
 .text-muted {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-fg-muted) !important;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-fg-muted) !important;
 }
 
 /* GitHub-style repo action buttons */
 .repo-action-btn {
-    /* Layout preserved */
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 12px;
-    white-space: nowrap;
-    cursor: pointer;
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 20px;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    color: var(--color-fg-default);
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  color: var(--color-fg-default);
+  transition: all 0.2s ease;
 }
 
 /* Fix dropdown positioning */
 .btn-group,
 .dropdown {
-    /* Layout preserved */
-    position: relative;
-    display: inline-flex;
+  /* Layout preserved */
+  position: relative;
+  display: inline-flex;
 }
 
 /* Split button - connect buttons visually */
 .btn-group .repo-action-btn {
-    margin-left: 0;
+  margin-left: 0;
 }
 
 .btn-group .repo-action-btn:not(:first-child) {
-    margin-left: -1px;
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
+  margin-left: -1px;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
 }
 
 .btn-group .repo-action-btn:not(:last-of-type) {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 .btn-group .repo-action-btn.dropdown-toggle-split {
-    padding-left: 8px;
-    padding-right: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 /* Dropdown menu visibility control */
 .dropdown-menu {
-    display: none;
+  display: none;
 }
 
 .dropdown-menu.show {
-    display: block;
+  display: block;
 }
 
 .repo-action-btn:hover {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    background: var(--color-neutral-muted);
-    border-color: var(--color-fg-muted);
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  background: var(--color-neutral-muted);
+  border-color: var(--color-fg-muted);
 }
 
 .repo-action-btn:active {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    background: var(--color-canvas-default);
-    transform: scale(0.97);
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  background: var(--color-canvas-default);
+  transform: scale(0.97);
 }
 
 .repo-action-btn.active {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    background: var(--color-accent-emphasis);
-    color: #ffffff;
-    border-color: var(--color-accent-emphasis);
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  background: var(--color-accent-emphasis);
+  color: #ffffff;
+  border-color: var(--color-accent-emphasis);
 }
 
 .repo-action-icon {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    fill: currentColor;
-    vertical-align: text-bottom;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  fill: currentColor;
+  vertical-align: text-bottom;
 }
 
 .repo-action-count {
-    /* Layout preserved */
-    display: inline-flex;
-    min-width: 20px;
-    padding: 0 6px;
-    margin-left: 2px;
-    /* Styling moved to central CSS - see static/css/components/badges.css */
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-muted);
+  /* Layout preserved */
+  display: inline-flex;
+  min-width: 20px;
+  padding: 0 6px;
+  margin-left: 2px;
+  /* Styling moved to central CSS - see static/css/components/badges.css */
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
 }
 
-/* GitHub-style layout with sidebar on LEFT - COLLAPSED BY DEFAULT */
+/* GitHub-style layout with sidebar on LEFT - EXPANDED BY DEFAULT */
 .repo-layout {
-    /* Layout preserved */
-    display: grid;
-    grid-template-columns: 60px 1fr;  /* Start collapsed by default - slightly wider for icons */
-    gap: 24px;
-    margin-top: 1.5rem;
-    /* Styling moved to central CSS - see static/css/common/layout.css */
-    transition: grid-template-columns 0.3s ease;
+  /* Layout preserved */
+  display: grid;
+  grid-template-columns: 280px 1fr; /* Start expanded by default for better visibility */
+  gap: 16px;
+  margin: 0; /* No margin needed - spacing handled by parent sections */
+  width: 100%; /* Ensure full container width */
+  /* Styling moved to central CSS - see static/css/common/layout.css */
+  transition: grid-template-columns 0.3s ease;
 }
 
 .repo-layout.sidebar-collapsed {
-    grid-template-columns: 60px 1fr;  /* Collapsed width - wider for larger icons */
+  grid-template-columns: 60px 1fr; /* Collapsed width - wider for larger icons */
 }
 
 .repo-layout.sidebar-expanded {
-    grid-template-columns: 420px 1fr;  /* Expanded width - LARGER than before (was 380px) */
+  grid-template-columns: 280px 1fr; /* Narrower expanded width for better content space */
 }
 
 .repo-main {
-    min-width: 0;
+  min-width: 0;
 }
 
 .repo-sidebar {
-    /* Layout preserved */
-    position: sticky;
-    top: 80px;
-    align-self: start;
-    overflow: hidden;
-    width: 60px;  /* Default collapsed width */
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    transition: all 0.3s ease;
+  /* Layout preserved */
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  overflow-y: auto; /* Vertical scrollbar for file tree */
+  overflow-x: auto; /* Horizontal scrollbar for wide content */
+  max-height: calc(100vh - 150px); /* Match code block height */
+  width: 280px; /* Default expanded width for better visibility */
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  transition: all 0.3s ease;
 }
 
 .repo-sidebar.collapsed {
-    width: 60px;  /* Wider for larger icons */
+  width: 60px; /* Wider for larger icons */
 }
 
 .repo-sidebar.expanded {
-    width: 420px;  /* LARGER when expanded */
+  width: 280px; /* Narrower when expanded for better layout */
 }
 
 /* Sidebar toggle button */
 .sidebar-toggle-btn {
-    /* Layout preserved */
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    background: var(--color-canvas-default);
-    color: var(--color-fg-muted);
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-muted);
+  transition: all 0.2s ease;
 }
 
 .sidebar-toggle-btn:hover {
-    transform: scale(1.05);
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    background: var(--color-neutral-muted);
-    color: var(--color-accent-fg);
-    border-color: var(--color-accent-fg);
+  transform: scale(1.05);
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  background: var(--color-neutral-muted);
+  color: var(--color-accent-fg);
+  border-color: var(--color-accent-fg);
 }
 
 .sidebar-toggle-btn:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 .sidebar-toggle-icon {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    transition: transform 0.3s ease;
-    font-size: 14px;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  transition: transform 0.3s ease;
+  font-size: 14px;
 }
 
 .repo-sidebar.collapsed .sidebar-toggle-icon {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 /* Sidebar sections */
 .sidebar-section {
-    /* Layout preserved */
-    padding: 16px;
-    margin-bottom: 0;
-    position: relative;
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  /* Layout preserved */
+  padding: 16px;
+  margin-bottom: 0;
+  position: relative;
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
 }
 
 .repo-sidebar.collapsed .sidebar-section {
-    /* Layout preserved */
-    padding: 8px;
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    border: none;
-    background: transparent;
+  /* Layout preserved */
+  padding: 8px;
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  border: none;
+  background: transparent;
 }
 
 .sidebar-section.collapsible {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .sidebar-section.collapsible:hover {
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    border-color: var(--color-accent-fg);
-    background: var(--color-neutral-muted);
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  border-color: var(--color-accent-fg);
+  background: var(--color-neutral-muted);
 }
 
 .sidebar-section.section-collapsed .sidebar-content {
-    display: none;
+  display: none;
 }
 
 .sidebar-title {
-    /* Layout preserved */
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-default);
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
 }
 
 .sidebar-title:hover {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-accent-fg);
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-accent-fg);
 }
 
 .repo-sidebar.collapsed .sidebar-title {
-    /* Layout preserved */
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    margin: 0;
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    font-size: 10px;
+  /* Layout preserved */
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  margin: 0;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  font-size: 10px;
 }
 
 .sidebar-section-chevron {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    font-size: 10px;
-    transition: transform 0.2s ease;
-    color: var(--color-fg-muted);
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  font-size: 10px;
+  transition: transform 0.2s ease;
+  color: var(--color-fg-muted);
 }
 
 .sidebar-section.section-collapsed .sidebar-section-chevron {
-    transform: rotate(-90deg);
+  transform: rotate(-90deg);
 }
 
 .repo-sidebar.collapsed .sidebar-section-chevron {
-    display: none;
+  display: none;
 }
 
 .sidebar-item {
-    /* Layout preserved */
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    margin: 3px 0;
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    font-size: 16px;
-    color: var(--color-fg-muted);
-    border-radius: 6px;
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  margin: 3px 0;
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  font-size: 16px;
+  color: var(--color-fg-muted);
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .sidebar-item:hover {
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  background: var(--color-neutral-muted);
+  color: var(--color-fg-default);
 }
 
 .sidebar-item strong {
-    /* Styling moved to central CSS - see static/css/common/typography-vars.css */
-    color: var(--color-fg-default);
-    font-size: 17px;
+  /* Styling moved to central CSS - see static/css/common/typography-vars.css */
+  color: var(--color-fg-default);
+  font-size: 17px;
 }
 
 .repo-sidebar.collapsed .sidebar-item {
-    display: none;
+  display: none;
 }
 
 .sidebar-link {
-    /* Layout preserved */
-    display: block;
-    padding: 12px 14px;
-    text-decoration: none;
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--color-accent-fg);
-    font-size: 16px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  display: block;
+  padding: 12px 14px;
+  text-decoration: none;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--color-accent-fg);
+  font-size: 16px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .sidebar-link:hover {
-    transform: translateX(3px);
-    text-decoration: none;
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    background: var(--color-neutral-muted);
-    color: var(--color-accent-fg);
+  transform: translateX(3px);
+  text-decoration: none;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  background: var(--color-neutral-muted);
+  color: var(--color-accent-fg);
 }
 
 .repo-sidebar.collapsed .sidebar-link {
-    display: none;
+  display: none;
 }
 
 .sidebar-content {
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    transition: opacity 0.3s ease;
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  transition: opacity 0.3s ease;
 }
 
 .repo-sidebar.collapsed .sidebar-content {
-    /* Layout preserved */
-    display: none;
-    /* Styling moved to central CSS - see static/css/components/sidebar.css */
-    opacity: 0;
+  /* Layout preserved */
+  display: none;
+  /* Styling moved to central CSS - see static/css/components/sidebar.css */
+  opacity: 0;
 }
 
 /* File tree styles */
 .file-tree-item {
-    /* Layout preserved */
-    padding: 10px 12px;
-    cursor: pointer;
-    margin: 2px 0;
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    color: var(--color-fg-default);
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    font-size: 15px;
+  /* Layout preserved */
+  padding: 10px 12px;
+  cursor: pointer;
+  margin: 2px 0;
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  color: var(--color-fg-default);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 15px;
 }
 
 .file-tree-item:hover {
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    background: var(--color-neutral-muted);
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  background: var(--color-neutral-muted);
 }
 
 .file-tree-item.active {
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    background: var(--color-accent-subtle);
-    font-weight: 600;
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  background: var(--color-accent-subtle);
+  font-weight: 600;
 }
 
 .repo-sidebar.collapsed .file-tree-item {
-    display: none;
+  display: none;
 }
 
 .file-tree-folder {
-    /* Layout preserved */
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    color: var(--color-fg-default);
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  color: var(--color-fg-default);
+  transition: all 0.2s ease;
 }
 
 .file-tree-folder:hover {
-    transform: translateX(2px);
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    color: var(--color-accent-fg);
+  transform: translateX(2px);
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  color: var(--color-accent-fg);
 }
 
 .file-tree-file {
-    /* Layout preserved */
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    color: var(--color-fg-muted);
-    transition: all 0.2s ease;
+  /* Layout preserved */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  color: var(--color-fg-muted);
+  transition: all 0.2s ease;
 }
 
 .file-tree-file:hover {
-    transform: translateX(2px);
-    /* Styling moved to central CSS - see static/css/components/file-tree.css */
-    color: var(--color-accent-fg);
+  transform: translateX(2px);
+  /* Styling moved to central CSS - see static/css/components/file-tree.css */
+  color: var(--color-accent-fg);
 }
 
 .file-tree-icon {
-    /* Layout preserved */
-    width: 18px;
-    height: 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  /* Layout preserved */
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .file-tree-icon svg,
 .icon-folder,
 .icon-file {
-    /* Layout preserved */
-    width: 18px;
-    height: 18px;
+  /* Layout preserved */
+  width: 18px;
+  height: 18px;
 }
 
 .icon-folder,
@@ -1087,93 +1110,93 @@
 
 .icon-file,
 .file-tree-file .file-tree-icon {
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    color: var(--text-secondary);
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  color: var(--text-secondary);
 }
 
 .file-tree-chevron {
-    /* Layout preserved */
-    width: 12px;
-    height: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    /* Styling moved to central CSS - see static/css/components/icons.css */
-    font-size: 10px;
-    color: var(--color-fg-muted);
-    transition: transform 0.2s;
+  /* Layout preserved */
+  width: 12px;
+  height: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* Styling moved to central CSS - see static/css/components/icons.css */
+  font-size: 10px;
+  color: var(--color-fg-muted);
+  transition: transform 0.2s;
 }
 
 .file-tree-chevron.expanded {
-    transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 
 .file-tree-children {
-    display: none;
+  display: none;
 }
 
 .file-tree-children.expanded {
-    display: block;
+  display: block;
 }
 
 /* Split button dropdown fix */
 .btn-group {
-    position: relative;
+  position: relative;
 }
 
 .btn-group .dropdown-menu {
-    /* Layout preserved */
-    min-width: 200px;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 4px;
-    /* Styling moved to central CSS - see static/css/common/buttons.css */
-    z-index: 9999 !important;
-    background: var(--color-canvas-default);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  /* Layout preserved */
+  min-width: 200px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  /* Styling moved to central CSS - see static/css/common/buttons.css */
+  z-index: 9999 !important;
+  background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .btn-group .dropdown-item {
-    /* Layout preserved */
-    padding: 6px 12px;
-    white-space: nowrap;
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    color: var(--color-fg-default);
+  /* Layout preserved */
+  padding: 6px 12px;
+  white-space: nowrap;
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  color: var(--color-fg-default);
 }
 
 .btn-group .dropdown-item:hover {
-    /* Styling moved to central CSS - see static/css/components/buttons.css */
-    background: var(--color-neutral-muted);
-    color: var(--color-fg-default);
+  /* Styling moved to central CSS - see static/css/components/buttons.css */
+  background: var(--color-neutral-muted);
+  color: var(--color-fg-default);
 }
 
 @media (max-width: 1024px) {
-    .repo-layout {
-        grid-template-columns: 1fr;
-    }
+  .repo-layout {
+    grid-template-columns: 1fr;
+  }
 
-    .repo-layout.sidebar-collapsed,
-    .repo-layout.sidebar-expanded {
-        grid-template-columns: 1fr;
-    }
+  .repo-layout.sidebar-collapsed,
+  .repo-layout.sidebar-expanded {
+    grid-template-columns: 1fr;
+  }
 
-    .repo-sidebar {
-        /* Layout preserved */
-        position: static;
-        width: 100% !important;
-    }
+  .repo-sidebar {
+    /* Layout preserved */
+    position: static;
+    width: 100% !important;
+  }
 
-    .repo-sidebar.collapsed {
-        display: none;
-    }
+  .repo-sidebar.collapsed {
+    display: none;
+  }
 
-    .sidebar-toggle-btn {
-        /* Layout preserved */
-        position: fixed;
-        top: 80px;
-    }
+  .sidebar-toggle-btn {
+    /* Layout preserved */
+    position: fixed;
+    top: 80px;
+  }
 }

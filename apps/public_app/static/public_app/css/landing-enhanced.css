@@ -178,11 +178,19 @@
 
 /* Special styling for SciTeX Local card */
 .local-card-compact {
-  background: linear-gradient(135deg, var(--scitex-color-07) 0%, var(--scitex-color-06) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--scitex-color-07) 0%,
+    var(--scitex-color-06) 100%
+  );
 }
 
 .local-card-compact:hover {
-  background: linear-gradient(135deg, var(--white) 0%, var(--scitex-color-07) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--white) 0%,
+    var(--scitex-color-07) 100%
+  );
 }
 
 .local-card-compact .module-icon-compact {
@@ -212,11 +220,11 @@
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .module-card-compact {
     min-height: 150px;
   }
-  
+
   /* Always show features on mobile */
   .module-features-compact li {
     white-space: normal;

@@ -1,7 +1,7 @@
 #!/bin/bash
 # SciTeX Cloud Development Server Startup Script
 
-set -e  # Exit on any error
+set -e # Exit on any error
 
 echo "🚀 Starting SciTeX Cloud Development Server..."
 

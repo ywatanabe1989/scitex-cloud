@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scholar_app", "0003_add_project_to_bibtex_job"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

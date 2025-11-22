@@ -35,9 +35,9 @@ echo_header() { echo -e "${BLUE}$1${NC}"; }
 
 # Detect environment
 detect_environment() {
-    if docker ps 2>/dev/null | grep -q scitex-gitea-dev; then
+    if docker ps 2> /dev/null | grep -q scitex-gitea-dev; then
         echo "development"
-    elif systemctl is-active --quiet gitea 2>/dev/null; then
+    elif systemctl is-active --quiet gitea 2> /dev/null; then
         echo "production"
     else
         echo "unknown"
@@ -76,14 +76,14 @@ check_development() {
 
     # Port bindings
     echo_info "Port Bindings:"
-    docker port scitex-gitea-dev 2>/dev/null | while read line; do
+    docker port scitex-gitea-dev 2> /dev/null | while read line; do
         echo_info "  $line"
     done
     echo
 
     # API connectivity
     echo_info "API Connectivity:"
-    if curl -s http://localhost:3000/api/v1/version >/dev/null 2>&1; then
+    if curl -s http://localhost:3000/api/v1/version > /dev/null 2>&1; then
         VERSION=$(curl -s http://localhost:3000/api/v1/version | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
         echo_success "  ✓ API accessible"
         echo_info "  Version: $VERSION"
@@ -103,13 +103,13 @@ check_development() {
 
     # Resource usage
     echo_info "Resource Usage:"
-    docker stats scitex-gitea-dev --no-stream --format "table {{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}" 2>/dev/null
+    docker stats scitex-gitea-dev --no-stream --format "table {{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}" 2> /dev/null
     echo
 
     # Volume
     echo_info "Data Volume:"
-    if docker volume inspect gitea-data >/dev/null 2>&1; then
-        VOLUME_SIZE=$(docker system df -v 2>/dev/null | grep gitea-data | awk '{print $3}')
+    if docker volume inspect gitea-data > /dev/null 2>&1; then
+        VOLUME_SIZE=$(docker system df -v 2> /dev/null | grep gitea-data | awk '{print $3}')
         echo_success "  ✓ Volume exists"
         echo_info "  Size: $VOLUME_SIZE"
     else
@@ -138,7 +138,7 @@ check_production() {
     else
         echo_error "  ✗ Service not active"
 
-        if systemctl is-enabled --quiet gitea 2>/dev/null; then
+        if systemctl is-enabled --quiet gitea 2> /dev/null; then
             echo_warning "  ⚠ Service enabled but not running"
             echo_info "  Start with: sudo systemctl start gitea"
         else
@@ -151,12 +151,12 @@ check_production() {
 
     # Process info
     echo_info "Process Info:"
-    systemctl show gitea --property=MainPID --value | xargs -I {} ps -p {} -o pid,user,%cpu,%mem,vsz,rss,tty,stat,start,time,comm 2>/dev/null | sed 's/^/  /'
+    systemctl show gitea --property=MainPID --value | xargs -I {} ps -p {} -o pid,user,%cpu,%mem,vsz,rss,tty,stat,start,time,comm 2> /dev/null | sed 's/^/  /'
     echo
 
     # API connectivity
     echo_info "API Connectivity:"
-    if curl -s https://git.scitex.ai/api/v1/version >/dev/null 2>&1; then
+    if curl -s https://git.scitex.ai/api/v1/version > /dev/null 2>&1; then
         VERSION=$(curl -s https://git.scitex.ai/api/v1/version | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
         echo_success "  ✓ API accessible"
         echo_info "  Version: $VERSION"
@@ -177,7 +177,7 @@ check_production() {
     # SSL certificate
     echo_info "SSL Certificate:"
     if [ -f /etc/letsencrypt/live/git.scitex.ai/fullchain.pem ]; then
-        EXPIRY=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/git.scitex.ai/fullchain.pem 2>/dev/null | cut -d= -f2)
+        EXPIRY=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/git.scitex.ai/fullchain.pem 2> /dev/null | cut -d= -f2)
         echo_success "  ✓ Certificate valid"
         echo_info "  Expires: $EXPIRY"
     else
@@ -187,11 +187,11 @@ check_production() {
 
     # Database
     echo_info "Database Connection:"
-    if sudo -u postgres psql -d gitea_prod -c "SELECT 1;" >/dev/null 2>&1; then
+    if sudo -u postgres psql -d gitea_prod -c "SELECT 1;" > /dev/null 2>&1; then
         echo_success "  ✓ PostgreSQL connected"
 
         # Database size
-        DB_SIZE=$(sudo -u postgres psql -d gitea_prod -t -c "SELECT pg_size_pretty(pg_database_size('gitea_prod'));" 2>/dev/null | tr -d ' ')
+        DB_SIZE=$(sudo -u postgres psql -d gitea_prod -t -c "SELECT pg_size_pretty(pg_database_size('gitea_prod'));" 2> /dev/null | tr -d ' ')
         echo_info "  Size: $DB_SIZE"
     else
         echo_error "  ✗ Database connection failed"
@@ -201,7 +201,7 @@ check_production() {
     # Data directory
     echo_info "Data Directory:"
     if [ -d /var/lib/gitea ]; then
-        DATA_SIZE=$(du -sh /var/lib/gitea 2>/dev/null | cut -f1)
+        DATA_SIZE=$(du -sh /var/lib/gitea 2> /dev/null | cut -f1)
         echo_success "  ✓ Directory exists"
         echo_info "  Size: $DATA_SIZE"
         echo_info "  Path: /var/lib/gitea"
@@ -212,7 +212,7 @@ check_production() {
 
     # Recent logs
     echo_info "Recent Logs (last 10 lines):"
-    sudo journalctl -u gitea -n 10 --no-pager 2>/dev/null | sed 's/^/  /'
+    sudo journalctl -u gitea -n 10 --no-pager 2> /dev/null | sed 's/^/  /'
 }
 
 # Main

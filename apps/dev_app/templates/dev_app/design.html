@@ -1,59 +1,74 @@
 {% extends "global_base.html" %}
-
-{% block title %}SciTeX Design System{% endblock %}
-
-{% block meta_description %}Design system for the SciTeX platform.{% endblock %}
-
-{% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'shared/css/common.css' %}">
-<link rel="stylesheet" href="{% static 'shared/css/components/code-blocks.css' %}">
-<link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css">
-{% endblock %}
-
-{% block content %}
-{% include 'dev_app/design_partial/hero.html' %}
-
-<div class="container py-5">
-  <div style="display: flex; gap: 2rem;">
-    {% include 'dev_app/design_partial/sidebar.html' %}
-    <main style="flex: 1; min-width: 0;">
-      {% include 'dev_app/design_partial/typography.html' %}
-      {% include 'dev_app/design_partial/spacing.html' %}
-      {% include 'dev_app/design_partial/colors.html' %}
-      {% include 'dev_app/design_partial/code.html' %}
-      {% include 'dev_app/design_partial/theme.html' %}
-
-      <!-- Components Section -->
-      {% include 'dev_app/design_partial/hero-guideline.html' %}
-      {% include 'dev_app/design_partial/badge.html' %}
-      {% include 'dev_app/design_partial/button.html' %}
-      {% include 'dev_app/design_partial/card.html' %}
-      {% include 'dev_app/design_partial/checkbox.html' %}
-      {% include 'dev_app/design_partial/form-input.html' %}
-      {% include 'dev_app/design_partial/toggle-button-checkbox.html' %}
-      {% include 'dev_app/design_partial/select-dropdown.html' %}
-      {% include 'dev_app/design_partial/tabs.html' %}
-      {% include 'dev_app/design_partial/breadcrumb.html' %}
-      {% include 'dev_app/design_partial/dropdown-menu.html' %}
-      {% include 'dev_app/design_partial/file-upload.html' %}
-      {% include 'dev_app/design_partial/segmented-radio-control.html' %}
-      {% include 'dev_app/design_partial/navbar.html' %}
-      {% include 'dev_app/design_partial/alerts.html' %}
-
-      {% include 'dev_app/design_partial/guidelines.html' %}
-    </main>
-  </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-{% load static %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('pre code').forEach((block) => {
+{% block title %}
+    SciTeX Design System{% endblock %}
+    {% block meta_description %}
+        Design system for the SciTeX platform.{% endblock %}
+        {% block extra_css %}
+            {% load static %}
+            <link rel="stylesheet" href="{% static 'shared/css/common.css' %}" />
+            <link rel="stylesheet"
+                  href="{% static 'shared/css/components/code-blocks.css' %}" />
+            <link rel="stylesheet" href="{% static 'dev_app/styles/design.css' %}" />
+            <link rel="stylesheet"
+                  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/zenburn.min.css" />
+        {% endblock %}
+        {% block content %}
+            {%include 'dev_app/design_partial/hero.html'%}
+            <div class="container py-5">
+                <div style="display: flex; gap: 2rem">
+                    {% include 'dev_app/design_partial/sidebar.html' %}
+                    <main style="flex: 1; min-width: 0">
+                        {% include 'dev_app/design_partial/typography.html' %}
+                        {% include
+                        'dev_app/design_partial/spacing.html' %}
+                        {% include
+                        'dev_app/design_partial/colors.html' %}
+                        {% include
+                        'dev_app/design_partial/code.html' %}
+                        {% include
+                        'dev_app/design_partial/theme.html' %}
+                        <!-- Components Section -->
+                        {% include 'dev_app/design_partial/hero-guideline.html' %}
+                        {% include
+                        'dev_app/design_partial/badge.html' %}
+                        {% include
+                        'dev_app/design_partial/button.html' %}
+                        {% include
+                        'dev_app/design_partial/card.html' %}
+                        {% include
+                        'dev_app/design_partial/checkbox.html' %}
+                        {% include
+                        'dev_app/design_partial/form-input.html' %}
+                        {% include
+                        'dev_app/design_partial/toggle-button-checkbox.html' %}
+                        {% include
+                        'dev_app/design_partial/select-dropdown.html' %}
+                        {% include
+                        'dev_app/design_partial/tabs.html' %}
+                        {% include
+                        'dev_app/design_partial/breadcrumb.html' %}
+                        {% include
+                        'dev_app/design_partial/dropdown-menu.html' %}
+                        {% include
+                        'dev_app/design_partial/file-upload.html' %}
+                        {% include
+                        'dev_app/design_partial/segmented-radio-control.html' %}
+                        {% include
+                        'dev_app/design_partial/navbar.html' %}
+                        {% include
+                        'dev_app/design_partial/alerts.html' %}
+                        {% include
+                        'dev_app/design_partial/guidelines.html' %}
+                    </main>
+                </div>
+            </div>
+        {% endblock %}
+        {% block extra_js %}
+            {% load static %}
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+            <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("pre code").forEach((block) => {
       hljs.highlightElement(block);
     });
 
@@ -61,14 +76,14 @@
     if (window.location.hash) {
       const hash = window.location.hash.substring(1); // Remove the #
       const hashToUrl = {
-        'colors': '{% url "dev_app:design_colors" %}',
-        'typography': '{% url "dev_app:design_typography" %}',
-        'code-blocks': '{% url "dev_app:design_code_blocks" %}',
-        'terminal-log': '{% url "dev_app:design_terminal_log" %}',
-        'spacing': '{% url "dev_app:design_spacing" %}',
-        'theme': '{% url "dev_app:design_theme" %}',
-        'guidelines': '{% url "dev_app:design_guidelines" %}',
-        'components': '{% url "dev_app:design_components" %}'
+        colors: '{% url "dev_app:design_colors" %}',
+        typography: '{% url "dev_app:design_typography" %}',
+        "code-blocks": '{% url "dev_app:design_code_blocks" %}',
+        "terminal-log": '{% url "dev_app:design_terminal_log" %}',
+        spacing: '{% url "dev_app:design_spacing" %}',
+        theme: '{% url "dev_app:design_theme" %}',
+        guidelines: '{% url "dev_app:design_guidelines" %}',
+        components: '{% url "dev_app:design_components" %}',
       };
 
       if (hashToUrl[hash]) {
@@ -76,7 +91,7 @@
       }
     }
   });
-</script>
-<script src="{% static 'shared/js/code-blocks.js' %}"></script>
-<script src="{% static 'dev_app/scripts/design.js' %}"></script>
-{% endblock %}
+            </script>
+            <script src="{% static 'shared/js/code-blocks.js' %}"></script>
+            <script src="{% static 'dev_app/scripts/design.js' %}"></script>
+        {% endblock %}

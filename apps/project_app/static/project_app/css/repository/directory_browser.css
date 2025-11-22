@@ -1,15 +1,15 @@
 /* Directory browser styles */
-@import url('shared/variables.css');
+@import url("shared/variables.css");
 
 .directory-browser {
-    padding: 1.5rem;
+  padding: 1.5rem;
 }
 
 .directory-tree {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
 
 .directory-item {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--border-color, #ddd);
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color, #ddd);
 }

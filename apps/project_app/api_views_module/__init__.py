@@ -13,8 +13,8 @@ from .api_views import (
 )
 
 __all__ = [
-    'api_project_watch',
-    'api_project_star',
-    'api_project_fork',
-    'api_project_stats',
+    "api_project_watch",
+    "api_project_star",
+    "api_project_fork",
+    "api_project_stats",
 ]

@@ -1,23 +1,25 @@
 // Workflow Editor JavaScript
 // Template YAML definitions and template selection logic
 
+console.log(
+  "[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts loaded",
+);
 
-console.log("[DEBUG] apps/project_app/static/project_app/ts/workflows/editor.ts loaded");
+(function () {
+  "use strict";
 
-(function() {
-    'use strict';
+  // type TemplateId = 'blank' | 'python-test' | 'latex-build' | 'code-lint' | 'docker-build';
 
-    // type TemplateId = 'blank' | 'python-test' | 'latex-build' | 'code-lint' | 'docker-build';
+  interface TemplateYamlMap {
+    [key: string]: string;
+  }
 
-    interface TemplateYamlMap {
-        [key: string]: string;
-    }
+  interface TemplateNamesMap {
+    [key: string]: string;
+  }
 
-    interface TemplateNamesMap {
-        [key: string]: string;
-    }
-
-    const templateYaml: TemplateYamlMap = {        'blank': `name: My Workflow
+  const templateYaml: TemplateYamlMap = {
+    blank: `name: My Workflow
 on:
   push:
     branches: [ main ]
@@ -32,7 +34,7 @@ jobs:
       - name: Run command
         run: echo "Hello, World!"
 `,
-        'python-test': `name: Python Tests
+    "python-test": `name: Python Tests
 on:
   push:
     branches: [ main, develop ]
@@ -60,7 +62,7 @@ jobs:
         run: |
           pytest tests/ -v
 `,
-        'latex-build': `name: LaTeX Build
+    "latex-build": `name: LaTeX Build
 on:
   push:
     branches: [ main ]
@@ -77,7 +79,7 @@ jobs:
 
       - name: Compile LaTeX
         run: |
-          cd scitex/writer/shared
+          cd scitex/writer/00_shared
           pdflatex main.tex
           bibtex main
           pdflatex main.tex
@@ -87,9 +89,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: manuscript
-          path: scitex/writer/shared/main.pdf
+          path: scitex/writer/00_shared/main.pdf
 `,
-        'code-lint': `name: Code Linting
+    "code-lint": `name: Code Linting
 on:
   push:
     branches: [ main, develop ]
@@ -120,7 +122,7 @@ jobs:
       - name: Run mypy
         run: mypy . --ignore-missing-imports
 `,
-        'docker-build': `name: Docker Build
+    "docker-build": `name: Docker Build
 on:
   push:
     branches: [ main ]
@@ -145,46 +147,54 @@ jobs:
         run: |
           docker run myapp:latest pytest
 `,
-    };
+  };
 
-    function selectTemplate(templateId: string, event?: Event): void {
-        console.log('Selecting template:', templateId);
-        // Highlight selected template
-        document.querySelectorAll('.template-item').forEach(item => {
-            item.classList.remove('selected');
-        });
+  function selectTemplate(templateId: string, event?: Event): void {
+    console.log("Selecting template:", templateId);
+    // Highlight selected template
+    document.querySelectorAll(".template-item").forEach((item) => {
+      item.classList.remove("selected");
+    });
 
-        if (event && event.target) {
-            const target = event.target as HTMLElement;            const templateItem = target.closest('.template-item');
-            if (templateItem) {
-                templateItem.classList.add('selected');
-            }
-        }
-
-        // Set template input
-        const templateInput = document.getElementById('template-input') as HTMLInputElement;
-        if (templateInput) {
-            templateInput.value = templateId;
-        }
-
-        // Load template YAML
-        const yamlEditor = document.getElementById('yaml-editor') as HTMLTextAreaElement;
-        if (yamlEditor && templateYaml[templateId]) {
-            yamlEditor.value = templateYaml[templateId];
-        }
-
-        // Auto-fill workflow name if blank
-        const nameInput = document.getElementById('workflow-name') as HTMLInputElement;
-        if (nameInput && !nameInput.value && templateId !== 'blank') {
-            const templateNames: TemplateNamesMap = {                'python-test': 'Python Tests',
-                'latex-build': 'LaTeX Build',
-                'code-lint': 'Code Linting',
-                'docker-build': 'Docker Build',
-            };
-            nameInput.value = templateNames[templateId] || '';
-        }
+    if (event && event.target) {
+      const target = event.target as HTMLElement;
+      const templateItem = target.closest(".template-item");
+      if (templateItem) {
+        templateItem.classList.add("selected");
+      }
     }
 
-    // Expose function to global scope
-    (window as any).selectTemplate = selectTemplate;
+    // Set template input
+    const templateInput = document.getElementById(
+      "template-input",
+    ) as HTMLInputElement;
+    if (templateInput) {
+      templateInput.value = templateId;
+    }
+
+    // Load template YAML
+    const yamlEditor = document.getElementById(
+      "yaml-editor",
+    ) as HTMLTextAreaElement;
+    if (yamlEditor && templateYaml[templateId]) {
+      yamlEditor.value = templateYaml[templateId];
+    }
+
+    // Auto-fill workflow name if blank
+    const nameInput = document.getElementById(
+      "workflow-name",
+    ) as HTMLInputElement;
+    if (nameInput && !nameInput.value && templateId !== "blank") {
+      const templateNames: TemplateNamesMap = {
+        "python-test": "Python Tests",
+        "latex-build": "LaTeX Build",
+        "code-lint": "Code Linting",
+        "docker-build": "Docker Build",
+      };
+      nameInput.value = templateNames[templateId] || "";
+    }
+  }
+
+  // Expose function to global scope
+  (window as any).selectTemplate = selectTemplate;
 })();

@@ -1,10 +1,12 @@
 {% extends "public_app/cloud_base.html" %}
-
-{% block title %}SciTeX Roadmap - Upcoming Features{% endblock %}
-
+{% block title %}
+    SciTeX Roadmap -
+    Upcoming Features
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
-<style>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css" />
+    <style>
   .roadmap-section {
     margin-bottom: 3rem;
   }
@@ -16,7 +18,7 @@
     transition: all 0.3s ease;
   }
   .feature-card:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   }
   .feature-status {
     display: inline-block;
@@ -82,7 +84,7 @@
     box-sizing: border-box;
   }
   .milestone::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 20px;
     height: 20px;
@@ -94,7 +96,7 @@
     z-index: 1;
   }
   .milestone::before {
-    content: '';
+    content: "";
     position: absolute;
     width: 3px;
     background-color: #c8e1ff;
@@ -112,7 +114,7 @@
     background-color: white;
     position: relative;
     border-radius: 6px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
   .feature-feedback {
     margin-top: 2rem;
@@ -120,317 +122,375 @@
     border: 1px solid #e0e0e0;
     border-radius: 8px;
   }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="container">
-  <header class="py-5 text-center">
-    <h1 class="display-4">SciTeX Roadmap</h1>
-    <p class="lead">Our development plan and upcoming features</p>
-  </header>
-
-  <!-- Introduction -->
-  <section class="roadmap-section">
-    <h2>Development Approach</h2>
-    <p>
-      SciTeX is built with an iterative, community-driven approach. Our roadmap is shaped by scientific needs, contributor interests, and user feedback. We prioritize features that advance scientific research and address common pain points in the research workflow.
-    </p>
-    <p>
-      This roadmap is a living document that evolves with community input. We invite you to provide feedback, vote on desired features, and contribute to development.
-    </p>
-  </section>
-
-  <!-- Development Timeline -->
-  <section class="roadmap-section">
-    <h2>Development Timeline</h2>
-    <div class="mermaid">
-      gantt
-        title SciTeX Development Timeline
-        dateFormat  YYYY-MM-DD
-        section SciTeX-Cloud
-          Web Interface           :done, cloud1, 2025-01-01, 90d
-          User Authentication     :done, cloud2, after cloud1, 60d
-          Collaboration Features  :active, cloud3, after cloud2, 90d
-          API Integration         :       cloud4, after cloud3, 120d
-        section SciTeX-Doc
-          LaTeX Compilation      :done, doc1, 2025-01-01, 120d
-          Document Templates     :done, doc2, after doc1, 60d
-          Revision System        :active, doc3, after doc2, 90d
-          Bibliography Management:       doc4, after doc3, 60d
-        section SciTeX-Code
-          Analysis Framework     :active, code1, 2025-04-01, 120d
-          Data Visualization     :       code2, after code1, 90d
-          Notebook Integration   :       code3, after code2, 60d
-        section SciTeX-Engine
-          Emacs Integration      :       engine1, 2025-07-01, 90d
-          AI Assistant           :       engine2, after engine1, 120d
-        section SciTeX-Viz
-          Figure Generation      :active, viz1, 2025-04-01, 90d
-          Interactive Plots      :       viz2, after viz1, 60d
-    </div>
-  </section>
-
-  <!-- Upcoming Milestones -->
-  <section class="roadmap-section">
-    <h2>Upcoming Milestones</h2>
-    <div class="timeline-container">
-      <div class="timeline">
-        <div class="milestone">
-          <div class="milestone-date">June 2025</div>
-          <div class="milestone-content">
-            <h3>SciTeX-Cloud Beta Release</h3>
-            <p>First public beta of the web interface with basic document management and LaTeX compilation capabilities.</p>
-            <ul>
-              <li>User account management</li>
-              <li>Document creation and editing</li>
-              <li>LaTeX compilation</li>
-              <li>Basic collaboration features</li>
-            </ul>
-            <div class="progress-bar-container">
-              <div class="progress-bar" style="width: 75%"></div>
+    <div class="container">
+        <header class="py-5 text-center">
+            <h1 class="display-4">SciTeX Roadmap</h1>
+            <p class="lead">Our development plan and upcoming features</p>
+        </header>
+        <!-- Introduction -->
+        <section class="roadmap-section">
+            <h2>Development Approach</h2>
+            <p>
+                SciTeX is built with an iterative, community-driven approach. Our roadmap
+                is shaped by scientific needs, contributor interests, and user feedback.
+                We prioritize features that advance scientific research and address common
+                pain points in the research workflow.
+            </p>
+            <p>
+                This roadmap is a living document that evolves with community input. We
+                invite you to provide feedback, vote on desired features, and contribute
+                to development.
+            </p>
+        </section>
+        <!-- Development Timeline -->
+        <section class="roadmap-section">
+            <h2>Development Timeline</h2>
+            <div class="mermaid">
+                gantt title SciTeX Development Timeline dateFormat YYYY-MM-DD section
+                SciTeX-Cloud Web Interface :done, cloud1, 2025-01-01, 90d User
+                Authentication :done, cloud2, after cloud1, 60d Collaboration Features
+                :active, cloud3, after cloud2, 90d API Integration : cloud4, after cloud3,
+                120d section SciTeX-Doc LaTeX Compilation :done, doc1, 2025-01-01, 120d
+                Document Templates :done, doc2, after doc1, 60d Revision System :active,
+                doc3, after doc2, 90d Bibliography Management: doc4, after doc3, 60d
+                section SciTeX-Code Analysis Framework :active, code1, 2025-04-01, 120d
+                Data Visualization : code2, after code1, 90d Notebook Integration : code3,
+                after code2, 60d section SciTeX-Engine Emacs Integration : engine1,
+                2025-07-01, 90d AI Assistant : engine2, after engine1, 120d section
+                SciTeX-Viz Figure Generation :active, viz1, 2025-04-01, 90d Interactive
+                Plots : viz2, after viz1, 60d
             </div>
-            <small>75% Complete</small>
-          </div>
-        </div>
-        <div class="milestone">
-          <div class="milestone-date">August 2025</div>
-          <div class="milestone-content">
-            <h3>SciTeX-Doc Full Release</h3>
-            <p>Complete document preparation system with advanced revision tracking and reviewer feedback management.</p>
-            <ul>
-              <li>Template library</li>
-              <li>Reviewer comment management</li>
-              <li>Revision tracking and comparison</li>
-              <li>Bibliography integration</li>
-            </ul>
-            <div class="progress-bar-container">
-              <div class="progress-bar" style="width: 60%"></div>
+        </section>
+        <!-- Upcoming Milestones -->
+        <section class="roadmap-section">
+            <h2>Upcoming Milestones</h2>
+            <div class="timeline-container">
+                <div class="timeline">
+                    <div class="milestone">
+                        <div class="milestone-date">June 2025</div>
+                        <div class="milestone-content">
+                            <h3>SciTeX-Cloud Beta Release</h3>
+                            <p>
+                                First public beta of the web interface with basic document
+                                management and LaTeX compilation capabilities.
+                            </p>
+                            <ul>
+                                <li>User account management</li>
+                                <li>Document creation and editing</li>
+                                <li>LaTeX compilation</li>
+                                <li>Basic collaboration features</li>
+                            </ul>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 75%"></div>
+                            </div>
+                            <small>75% Complete</small>
+                        </div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">August 2025</div>
+                        <div class="milestone-content">
+                            <h3>SciTeX-Doc Full Release</h3>
+                            <p>
+                                Complete document preparation system with advanced revision
+                                tracking and reviewer feedback management.
+                            </p>
+                            <ul>
+                                <li>Template library</li>
+                                <li>Reviewer comment management</li>
+                                <li>Revision tracking and comparison</li>
+                                <li>Bibliography integration</li>
+                            </ul>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 60%"></div>
+                            </div>
+                            <small>60% Complete</small>
+                        </div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">October 2025</div>
+                        <div class="milestone-content">
+                            <h3>SciTeX-Code Integration</h3>
+                            <p>
+                                Integration of data analysis capabilities with document generation
+                                for seamless research workflows.
+                            </p>
+                            <ul>
+                                <li>Data analysis framework</li>
+                                <li>Results integration with documents</li>
+                                <li>Code snippet sharing</li>
+                                <li>Analysis pipeline templates</li>
+                            </ul>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 30%"></div>
+                            </div>
+                            <small>30% Complete</small>
+                        </div>
+                    </div>
+                    <div class="milestone">
+                        <div class="milestone-date">December 2025</div>
+                        <div class="milestone-content">
+                            <h3>SciTeX-Viz Integration</h3>
+                            <p>
+                                Publication-quality visualization tools integrated with both
+                                analysis and document systems.
+                            </p>
+                            <ul>
+                                <li>Figure generation from data</li>
+                                <li>Publication-ready styling</li>
+                                <li>Interactive plot options</li>
+                                <li>Figure management in documents</li>
+                            </ul>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 15%"></div>
+                            </div>
+                            <small>15% Complete</small>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <small>60% Complete</small>
-          </div>
-        </div>
-        <div class="milestone">
-          <div class="milestone-date">October 2025</div>
-          <div class="milestone-content">
-            <h3>SciTeX-Code Integration</h3>
-            <p>Integration of data analysis capabilities with document generation for seamless research workflows.</p>
-            <ul>
-              <li>Data analysis framework</li>
-              <li>Results integration with documents</li>
-              <li>Code snippet sharing</li>
-              <li>Analysis pipeline templates</li>
-            </ul>
-            <div class="progress-bar-container">
-              <div class="progress-bar" style="width: 30%"></div>
+        </section>
+        <!-- Feature Voting Section -->
+        <section class="roadmap-section">
+            <h2>Feature Prioritization</h2>
+            <p>
+                Help us prioritize development by voting for the features that would be
+                most valuable to your research workflow. The most popular features will be
+                prioritized in our development schedule.
+            </p>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <span class="feature-status status-planning">Planning</span>
+                        <h3>Collaborative Real-Time Editing</h3>
+                        <p>
+                            Google Docs-like real-time collaborative editing for research
+                            documents with LaTeX support.
+                        </p>
+                        <div class="feature-vote">
+                            <span class="vote-count">42</span>
+                            <button class="btn btn-sm btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <span class="feature-status status-development">In Development</span>
+                        <h3>Reference Management</h3>
+                        <p>
+                            Integrated reference management with search, organization, and
+                            automatic formatting capabilities.
+                        </p>
+                        <div class="feature-vote">
+                            <span class="vote-count">38</span>
+                            <button class="btn btn-sm btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <span class="feature-status status-planning">Planning</span>
+                        <h3>Journal-Specific Formatting</h3>
+                        <p>
+                            Automatic formatting according to specific journal guidelines,
+                            including reference styles and layout.
+                        </p>
+                        <div class="feature-vote">
+                            <span class="vote-count">31</span>
+                            <button class="btn btn-sm btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <span class="feature-status status-planning">Planning</span>
+                        <h3>AI Literature Review Assistant</h3>
+                        <p>
+                            AI-powered tool to help find, summarize, and organize relevant
+                            literature for research projects.
+                        </p>
+                        <div class="feature-vote">
+                            <span class="vote-count">27</span>
+                            <button class="btn btn-sm btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <span class="feature-status status-testing">Testing</span>
+                        <h3>Data Visualization Templates</h3>
+                        <p>
+                            Library of customizable templates for creating publication-quality
+                            figures from research data.
+                        </p>
+                        <div class="feature-vote">
+                            <span class="vote-count">23</span>
+                            <button class="btn btn-sm btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <span class="feature-status status-planning">Planning</span>
+                        <h3>Preprint Submission Integration</h3>
+                        <p>
+                            Direct submission to preprint servers (arXiv, bioRxiv, etc.) from
+                            within the SciTeX platform.
+                        </p>
+                        <div class="feature-vote">
+                            <span class="vote-count">19</span>
+                            <button class="btn btn-sm btn-outline-primary">Vote</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <small>30% Complete</small>
-          </div>
-        </div>
-        <div class="milestone">
-          <div class="milestone-date">December 2025</div>
-          <div class="milestone-content">
-            <h3>SciTeX-Viz Integration</h3>
-            <p>Publication-quality visualization tools integrated with both analysis and document systems.</p>
-            <ul>
-              <li>Figure generation from data</li>
-              <li>Publication-ready styling</li>
-              <li>Interactive plot options</li>
-              <li>Figure management in documents</li>
-            </ul>
-            <div class="progress-bar-container">
-              <div class="progress-bar" style="width: 15%"></div>
+        </section>
+        <!-- Preview of Current Development -->
+        <section class="roadmap-section preview-section">
+            <h2>Preview: Revision Management System</h2>
+            <p class="lead">
+                Coming in Q3 2025: Our comprehensive revision management system for
+                handling the peer review process.
+            </p>
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="/static/shared/images/revision-system-preview.png"
+                         alt="Revision Management System Preview"
+                         class="img-fluid rounded" />
+                </div>
+                <div class="col-md-6">
+                    <h4>Key Features:</h4>
+                    <ul>
+                        <li>
+                            <strong>Reviewer Comment Organization</strong> - Track and organize
+                            comments by reviewer and section
+                        </li>
+                        <li>
+                            <strong>Response Generation</strong> - Easily craft responses to
+                            each reviewer point
+                        </li>
+                        <li>
+                            <strong>Change Tracking</strong> - Clear visualization of document
+                            changes between versions
+                        </li>
+                        <li>
+                            <strong>Revision Planning</strong> - Tools to plan and track
+                            revision tasks
+                        </li>
+                        <li>
+                            <strong>Change Highlighting</strong> - Automatically highlight
+                            changes for reviewers
+                        </li>
+                    </ul>
+                    <p>
+                        This system is currently in development with a target release date of
+                        August 2025. Early access will be available to beta testers in July.
+                    </p>
+                    <button class="btn btn-primary">Sign Up for Early Access</button>
+                </div>
             </div>
-            <small>15% Complete</small>
-          </div>
-        </div>
-      </div>
+        </section>
+        <!-- Feature Request Section -->
+        <section class="roadmap-section feature-feedback">
+            <h2>Suggest a Feature</h2>
+            <p>
+                Have an idea for a feature that would improve your research workflow? Let
+                us know! We're constantly looking for community input to guide our
+                development priorities.
+            </p>
+            <form>
+                <div class="form-group mb-3">
+                    <label for="featureTitle">Feature Title</label>
+                    <input type="text"
+                           class="form-control"
+                           id="featureTitle"
+                           placeholder="Short descriptive title" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="featureDescription">Description</label>
+                    <textarea class="form-control"
+                              id="featureDescription"
+                              rows="3"
+                              placeholder="Describe the feature and how it would help your research workflow"></textarea>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="featureEmail">Your Email (optional)</label>
+                    <input type="email"
+                           class="form-control"
+                           id="featureEmail"
+                           placeholder="Your email for follow-up questions" />
+                    <small class="form-text text-muted">Or reach out directly to
+                        <a href="mailto:support@scitex.ai">support@scitex.ai</a></small>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="featureCategory">Category</label>
+                    <select class="form-control" id="featureCategory">
+                        <option>SciTeX-Cloud (Web Interface)</option>
+                        <option>SciTeX-Doc (Document Preparation)</option>
+                        <option>SciTeX-Code (Data Analysis)</option>
+                        <option>SciTeX-Engine (Research Automation)</option>
+                        <option>SciTeX-Viz (Visualization)</option>
+                        <option>Integration & Workflow</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="featurePriority">Priority</label>
+                    <select class="form-control" id="featurePriority">
+                        <option>Nice to have</option>
+                        <option>Important</option>
+                        <option>Critical</option>
+                    </select>
+                </div>
+                <a href="{% url 'feature-request' %}" class="btn btn-primary">Submit Feature Request</a>
+            </form>
+        </section>
+        <!-- Get Involved -->
+        <section class="roadmap-section text-center py-4">
+            <h2>Get Involved in Development</h2>
+            <p class="lead">Help us build the future of scientific research tools</p>
+            <div class="mt-4">
+                <a href="{% url 'fundraising' %}" class="btn btn-primary btn-lg mx-2">Support SciTeX</a>
+                <a href="{% url 'feature-request' %}"
+                   class="btn btn-success btn-lg mx-2">Request Feature</a>
+                <a href="https://github.com/scitex-ai"
+                   class="btn btn-outline-dark btn-lg mx-2">Contribute on GitHub</a>
+                <a href="https://scitexworkspace.slack.com/channels/development"
+                   class="btn btn-info btn-lg mx-2">Join Developer Discussions on Slack</a>
+            </div>
+            <div class="mt-4 p-3 bg-light rounded">
+                <div class="d-flex align-items-center justify-content-center">
+                    <span class="h5 mb-0 me-3">Join our Slack:</span>
+                    <div>
+                        <strong>scitexworkspace.slack.com</strong>
+                    </div>
+                </div>
+                <div class="mt-2 small">
+                    <div>
+                        Key channels: <code>#development</code>
+                        <code>#feature-requests</code> <code>#research-collaboration</code>
+                    </div>
+                    <div class="mt-2">
+                        Email support:
+                        <a href="mailto:support@scitex.ai">support@scitex.ai</a>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-  </section>
-
-  <!-- Feature Voting Section -->
-  <section class="roadmap-section">
-    <h2>Feature Prioritization</h2>
-    <p>
-      Help us prioritize development by voting for the features that would be most valuable to your research workflow. The most popular features will be prioritized in our development schedule.
-    </p>
-    <div class="row">
-      <div class="col-lg-6">
-        <div class="feature-card">
-          <span class="feature-status status-planning">Planning</span>
-          <h3>Collaborative Real-Time Editing</h3>
-          <p>Google Docs-like real-time collaborative editing for research documents with LaTeX support.</p>
-          <div class="feature-vote">
-            <span class="vote-count">42</span>
-            <button class="btn btn-sm btn-outline-primary">Vote</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="feature-card">
-          <span class="feature-status status-development">In Development</span>
-          <h3>Reference Management</h3>
-          <p>Integrated reference management with search, organization, and automatic formatting capabilities.</p>
-          <div class="feature-vote">
-            <span class="vote-count">38</span>
-            <button class="btn btn-sm btn-outline-primary">Vote</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="feature-card">
-          <span class="feature-status status-planning">Planning</span>
-          <h3>Journal-Specific Formatting</h3>
-          <p>Automatic formatting according to specific journal guidelines, including reference styles and layout.</p>
-          <div class="feature-vote">
-            <span class="vote-count">31</span>
-            <button class="btn btn-sm btn-outline-primary">Vote</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="feature-card">
-          <span class="feature-status status-planning">Planning</span>
-          <h3>AI Literature Review Assistant</h3>
-          <p>AI-powered tool to help find, summarize, and organize relevant literature for research projects.</p>
-          <div class="feature-vote">
-            <span class="vote-count">27</span>
-            <button class="btn btn-sm btn-outline-primary">Vote</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="feature-card">
-          <span class="feature-status status-testing">Testing</span>
-          <h3>Data Visualization Templates</h3>
-          <p>Library of customizable templates for creating publication-quality figures from research data.</p>
-          <div class="feature-vote">
-            <span class="vote-count">23</span>
-            <button class="btn btn-sm btn-outline-primary">Vote</button>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="feature-card">
-          <span class="feature-status status-planning">Planning</span>
-          <h3>Preprint Submission Integration</h3>
-          <p>Direct submission to preprint servers (arXiv, bioRxiv, etc.) from within the SciTeX platform.</p>
-          <div class="feature-vote">
-            <span class="vote-count">19</span>
-            <button class="btn btn-sm btn-outline-primary">Vote</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Preview of Current Development -->
-  <section class="roadmap-section preview-section">
-    <h2>Preview: Revision Management System</h2>
-    <p class="lead">
-      Coming in Q3 2025: Our comprehensive revision management system for handling the peer review process.
-    </p>
-    <div class="row">
-      <div class="col-md-6">
-        <img src="/static/shared/images/revision-system-preview.png" alt="Revision Management System Preview" class="img-fluid rounded">
-      </div>
-      <div class="col-md-6">
-        <h4>Key Features:</h4>
-        <ul>
-          <li><strong>Reviewer Comment Organization</strong> - Track and organize comments by reviewer and section</li>
-          <li><strong>Response Generation</strong> - Easily craft responses to each reviewer point</li>
-          <li><strong>Change Tracking</strong> - Clear visualization of document changes between versions</li>
-          <li><strong>Revision Planning</strong> - Tools to plan and track revision tasks</li>
-          <li><strong>Change Highlighting</strong> - Automatically highlight changes for reviewers</li>
-        </ul>
-        <p>
-          This system is currently in development with a target release date of August 2025. Early access will be available to beta testers in July.
-        </p>
-        <button class="btn btn-primary">Sign Up for Early Access</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Feature Request Section -->
-  <section class="roadmap-section feature-feedback">
-    <h2>Suggest a Feature</h2>
-    <p>
-      Have an idea for a feature that would improve your research workflow? Let us know! We're constantly looking for community input to guide our development priorities.
-    </p>
-    <form>
-      <div class="form-group mb-3">
-        <label for="featureTitle">Feature Title</label>
-        <input type="text" class="form-control" id="featureTitle" placeholder="Short descriptive title">
-      </div>
-      <div class="form-group mb-3">
-        <label for="featureDescription">Description</label>
-        <textarea class="form-control" id="featureDescription" rows="3" placeholder="Describe the feature and how it would help your research workflow"></textarea>
-      </div>
-      <div class="form-group mb-3">
-        <label for="featureEmail">Your Email (optional)</label>
-        <input type="email" class="form-control" id="featureEmail" placeholder="Your email for follow-up questions">
-        <small class="form-text text-muted">Or reach out directly to <a href="mailto:support@scitex.ai">support@scitex.ai</a></small>
-      </div>
-      <div class="form-group mb-3">
-        <label for="featureCategory">Category</label>
-        <select class="form-control" id="featureCategory">
-          <option>SciTeX-Cloud (Web Interface)</option>
-          <option>SciTeX-Doc (Document Preparation)</option>
-          <option>SciTeX-Code (Data Analysis)</option>
-          <option>SciTeX-Engine (Research Automation)</option>
-          <option>SciTeX-Viz (Visualization)</option>
-          <option>Integration & Workflow</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group mb-3">
-        <label for="featurePriority">Priority</label>
-        <select class="form-control" id="featurePriority">
-          <option>Nice to have</option>
-          <option>Important</option>
-          <option>Critical</option>
-        </select>
-      </div>
-      <a href="{% url 'feature-request' %}" class="btn btn-primary">Submit Feature Request</a>
-    </form>
-  </section>
-
-  <!-- Get Involved -->
-  <section class="roadmap-section text-center py-4">
-    <h2>Get Involved in Development</h2>
-    <p class="lead">Help us build the future of scientific research tools</p>
-    <div class="mt-4">
-      <a href="{% url 'fundraising' %}" class="btn btn-primary btn-lg mx-2">Support SciTeX</a>
-      <a href="{% url 'feature-request' %}" class="btn btn-success btn-lg mx-2">Request Feature</a>
-      <a href="https://github.com/scitex-ai" class="btn btn-outline-dark btn-lg mx-2">Contribute on GitHub</a>
-      <a href="https://scitexworkspace.slack.com/channels/development" class="btn btn-info btn-lg mx-2">Join Developer Discussions on Slack</a>
-    </div>
-    <div class="mt-4 p-3 bg-light rounded">
-      <div class="d-flex align-items-center justify-content-center">
-        <span class="h5 mb-0 me-3">Join our Slack:</span>
-        <div>
-          <strong>scitexworkspace.slack.com</strong>
-        </div>
-      </div>
-      <div class="mt-2 small">
-        <div>Key channels: <code>#development</code> <code>#feature-requests</code> <code>#research-collaboration</code></div>
-        <div class="mt-2">Email support: <a href="mailto:support@scitex.ai">support@scitex.ai</a></div>
-      </div>
-    </div>
-  </section>
-</div>
 {% endblock %}
-
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'neutral',
+      theme: "neutral",
       flowchart: {
         useMaxWidth: true,
-        htmlLabels: true
+        htmlLabels: true,
       },
       gantt: {
         titleTopMargin: 25,
@@ -442,9 +502,9 @@
         fontSize: 11,
         fontFamily: '"Open Sans", sans-serif',
         numberSectionStyles: 4,
-        axisFormat: '%b %Y'
-      }
+        axisFormat: "%b %Y",
+      },
     });
   });
-</script>
+    </script>
 {% endblock %}

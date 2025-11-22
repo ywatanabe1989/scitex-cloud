@@ -11,7 +11,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 DOCKER_DIR="$GIT_ROOT/deployment/docker/docker_dev"
 
 # Colors
@@ -46,7 +46,7 @@ check_gitea_status() {
     # Container status
     echo_info "Container Status:"
     if docker-compose -f docker-compose.dev.yml ps | grep -q "docker_gitea_1"; then
-        STATUS=$(docker-compose -f docker-compose.dev.yml ps docker_gitea_1 2>/dev/null | grep docker_gitea_1 | awk '{print $4}')
+        STATUS=$(docker-compose -f docker-compose.dev.yml ps docker_gitea_1 2> /dev/null | grep docker_gitea_1 | awk '{print $4}')
 
         if echo "$STATUS" | grep -q "Up"; then
             echo_success "  ✓ Container running"
@@ -76,7 +76,7 @@ check_gitea_status() {
 
     # Port bindings
     echo_info "Port Bindings:"
-    docker port docker_gitea_1 2>/dev/null | while read line; do
+    docker port docker_gitea_1 2> /dev/null | while read line; do
         echo_info "  $line"
     done
     echo
@@ -85,7 +85,7 @@ check_gitea_status() {
     echo_info "API Connectivity:"
     GITEA_URL="${SCITEX_CLOUD_GITEA_URL_DEV:-http://127.0.0.1:3000}"
 
-    if curl -f -s "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
+    if curl -f -s "${GITEA_URL}/api/v1/version" > /dev/null 2>&1; then
         VERSION=$(curl -s "${GITEA_URL}/api/v1/version" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
         echo_success "  ✓ API accessible at ${GITEA_URL}/api/v1"
         echo_info "  Gitea Version: $VERSION"
@@ -100,7 +100,7 @@ check_gitea_status() {
 
     if [ -n "$GITEA_TOKEN" ]; then
         AUTH_RESPONSE=$(curl -s -H "Authorization: token ${GITEA_TOKEN}" \
-            "${GITEA_URL}/api/v1/user" 2>/dev/null)
+            "${GITEA_URL}/api/v1/user" 2> /dev/null)
 
         if echo "$AUTH_RESPONSE" | grep -q '"login"'; then
             GITEA_USER=$(echo "$AUTH_RESPONSE" | grep -o '"login":"[^"]*"' | cut -d'"' -f4)
@@ -128,18 +128,18 @@ check_gitea_status() {
     echo_info "Resource Usage:"
     docker stats docker_gitea_1 --no-stream --format \
         "  CPU: {{.CPUPerc}}  |  Memory: {{.MemUsage}}  |  Net I/O: {{.NetIO}}  |  Block I/O: {{.BlockIO}}" \
-        2>/dev/null
+        2> /dev/null
     echo
 
     # Volume
     echo_info "Data Volume:"
-    if docker volume inspect docker_gitea_data >/dev/null 2>&1; then
+    if docker volume inspect docker_gitea_data > /dev/null 2>&1; then
         echo_success "  ✓ Volume exists: docker_gitea_data"
 
         # Get volume size (approximate)
-        VOLUME_MOUNTPOINT=$(docker volume inspect docker_gitea_data --format '{{.Mountpoint}}' 2>/dev/null)
+        VOLUME_MOUNTPOINT=$(docker volume inspect docker_gitea_data --format '{{.Mountpoint}}' 2> /dev/null)
         if [ -n "$VOLUME_MOUNTPOINT" ] && [ -d "$VOLUME_MOUNTPOINT" ]; then
-            VOLUME_SIZE=$(sudo du -sh "$VOLUME_MOUNTPOINT" 2>/dev/null | cut -f1 || echo "N/A")
+            VOLUME_SIZE=$(sudo du -sh "$VOLUME_MOUNTPOINT" 2> /dev/null | cut -f1 || echo "N/A")
             echo_info "  Size: $VOLUME_SIZE"
         fi
         echo_info "  Mountpoint: $VOLUME_MOUNTPOINT"

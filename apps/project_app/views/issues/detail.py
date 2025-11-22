@@ -17,9 +17,9 @@ def issue_detail(request, username, slug, issue_number):
     """
     project = get_object_or_404(Project, owner__username=username, slug=slug)
     issue = get_object_or_404(
-        Issue.objects.select_related('author', 'milestone', 'closed_by'),
+        Issue.objects.select_related("author", "milestone", "closed_by"),
         project=project,
-        number=issue_number
+        number=issue_number,
     )
 
     # Check permissions
@@ -27,31 +27,33 @@ def issue_detail(request, username, slug, issue_number):
         raise Http404("Issue not found")
 
     # Get comments
-    comments = issue.comments.select_related('author').order_by('created_at')
+    comments = issue.comments.select_related("author").order_by("created_at")
 
     # Get events (optional - for timeline)
-    events = issue.events.select_related('actor').order_by('created_at')
+    events = issue.events.select_related("actor").order_by("created_at")
 
     # Get labels and milestones for editing
     labels = project.issue_labels.all()
-    milestones = project.issue_milestones.filter(state='open')
+    milestones = project.issue_milestones.filter(state="open")
 
     # Get potential assignees (project collaborators)
-    potential_assignees = project.memberships.select_related('user').values_list('user', flat=True)
+    potential_assignees = project.memberships.select_related("user").values_list(
+        "user", flat=True
+    )
     assignable_users = User.objects.filter(
         Q(id__in=potential_assignees) | Q(id=project.owner.id)
     ).distinct()
 
     context = {
-        'project': project,
-        'issue': issue,
-        'comments': comments,
-        'events': events,
-        'labels': labels,
-        'milestones': milestones,
-        'assignable_users': assignable_users,
-        'can_edit': issue.can_edit(request.user),
-        'can_comment': issue.can_comment(request.user),
+        "project": project,
+        "issue": issue,
+        "comments": comments,
+        "events": events,
+        "labels": labels,
+        "milestones": milestones,
+        "assignable_users": assignable_users,
+        "can_edit": issue.can_edit(request.user),
+        "can_comment": issue.can_comment(request.user),
     }
 
-    return render(request, 'project_app/issues/detail.html', context)
+    return render(request, "project_app/issues/detail.html", context)

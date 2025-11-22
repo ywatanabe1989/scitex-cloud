@@ -1,25 +1,30 @@
 {% extends "global_base.html" %}
 {% load static %}
-
-{% block title %}Page Not Found - SciTeX{% endblock %}
-
+{% block title %}
+    Page Not
+    Found - SciTeX
+{% endblock %}
 {% block content %}
-<div style="max-width: 600px; margin: 60px auto; padding: 0 16px; text-align: center;">
-    <div style="margin-bottom: 32px;">
-        <h1 style="font-size: 48px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">404</h1>
-        <h2 style="font-size: 24px; font-weight: 500; margin-bottom: 16px; color: var(--text-primary);">Page Not Found</h2>
-        <p style="font-size: 16px; color: var(--text-secondary); margin-bottom: 32px;">
-            The page you're looking for doesn't exist or has been removed.
-        </p>
+    <div style="max-width: 600px;
+                margin: 60px auto;
+                padding: 0 16px;
+                text-align: center">
+        <div style="margin-bottom: 32px">
+            <h1 style="font-size: 48px;
+                       font-weight: 600;
+                       margin-bottom: 16px;
+                       color: var(--text-primary)">404</h1>
+            <h2 style="font-size: 24px;
+                       font-weight: 500;
+                       margin-bottom: 16px;
+                       color: var(--text-primary)">Page Not Found</h2>
+            <p style="font-size: 16px;
+                      color: var(--text-secondary);
+                      margin-bottom: 32px">The page you're looking for doesn't exist or has been removed.</p>
+        </div>
+        <div style="display: flex; gap: 12px; justify-content: center">
+            <a href="/" class="btn btn-primary">Go Home</a>
+            <a href="/social/explore/" class="btn btn-outline-secondary">Explore</a>
+        </div>
     </div>
-
-    <div style="display: flex; gap: 12px; justify-content: center;">
-        <a href="/" class="btn btn-primary">
-            Go Home
-        </a>
-        <a href="/social/explore/" class="btn btn-outline-secondary">
-            Explore
-        </a>
-    </div>
-</div>
 {% endblock %}

@@ -11,6 +11,6 @@ def project_code(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
     context = {
-        'project': project,
+        "project": project,
     }
-    return render(request, 'code_app/project_code.html', context)
+    return render(request, "code_app/project_code.html", context)

@@ -1,6 +1,7 @@
 """
 Console Logger View - Captures browser console logs to server file
 """
+
 import json
 import logging
 from pathlib import Path
@@ -14,7 +15,7 @@ from django.views.decorators.http import require_http_methods
 console_log_file = Path(settings.BASE_DIR) / "logs" / "console.log"
 console_log_file.parent.mkdir(parents=True, exist_ok=True)
 
-console_logger = logging.getLogger('browser_console')
+console_logger = logging.getLogger("browser_console")
 console_logger.setLevel(logging.DEBUG)
 
 # File handler
@@ -23,8 +24,7 @@ file_handler.setLevel(logging.DEBUG)
 
 # Format: [timestamp] LEVEL: message (file:line:col)
 formatter = logging.Formatter(
-    '[%(asctime)s] %(levelname)s: %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    "[%(asctime)s] %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
 file_handler.setFormatter(formatter)
 console_logger.addHandler(file_handler)
@@ -55,23 +55,23 @@ def log_console(request):
     """
     try:
         data = json.loads(request.body)
-        logs = data.get('logs', [])
+        logs = data.get("logs", [])
 
         # Map console levels to logging levels
         level_map = {
-            'log': logging.INFO,
-            'info': logging.INFO,
-            'warn': logging.WARNING,
-            'warning': logging.WARNING,
-            'error': logging.ERROR,
-            'debug': logging.DEBUG,
+            "log": logging.INFO,
+            "info": logging.INFO,
+            "warn": logging.WARNING,
+            "warning": logging.WARNING,
+            "error": logging.ERROR,
+            "debug": logging.DEBUG,
         }
 
         for log_entry in logs:
-            level = log_entry.get('level', 'log').lower()
-            message = log_entry.get('message', '')
-            source = log_entry.get('source', '')
-            url = log_entry.get('url', '')
+            level = log_entry.get("level", "log").lower()
+            message = log_entry.get("message", "")
+            source = log_entry.get("source", "")
+            url = log_entry.get("url", "")
 
             # Format log message
             log_msg = f"{message}"
@@ -83,8 +83,8 @@ def log_console(request):
             log_level = level_map.get(level, logging.INFO)
             console_logger.log(log_level, log_msg)
 
-        return JsonResponse({'status': 'ok', 'logged': len(logs)})
+        return JsonResponse({"status": "ok", "logged": len(logs)})
 
     except Exception as e:
         console_logger.error(f"Failed to process console logs: {e}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)

@@ -8,10 +8,9 @@ without database intermediaries.
 
 import hashlib
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple
+from typing import List, Dict, Tuple
 from datetime import datetime
 import mimetypes
-import os
 
 
 class NativeFileHandler:
@@ -24,21 +23,56 @@ class NativeFileHandler:
 
     # File extensions to show in UI
     VIEWABLE_EXTENSIONS = {
-        '.py', '.md', '.txt', '.json', '.yaml', '.yml', '.csv',
-        '.tex', '.bib', '.sh', '.r', '.R', '.ipynb', '.html', '.css', '.js'
+        ".py",
+        ".md",
+        ".txt",
+        ".json",
+        ".yaml",
+        ".yml",
+        ".csv",
+        ".tex",
+        ".bib",
+        ".sh",
+        ".r",
+        ".R",
+        ".ipynb",
+        ".html",
+        ".css",
+        ".js",
     }
 
     # Binary files that need special handling
     BINARY_EXTENSIONS = {
-        '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.svg',
-        '.zip', '.tar', '.gz', '.pkl', '.npy', '.npz', '.h5', '.hdf5'
+        ".pdf",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".svg",
+        ".zip",
+        ".tar",
+        ".gz",
+        ".pkl",
+        ".npy",
+        ".npz",
+        ".h5",
+        ".hdf5",
     }
 
     # Files to ignore
     IGNORE_PATTERNS = {
-        '__pycache__', '.git', '.svn', '.hg',
-        'node_modules', '.venv', 'venv', '.env',
-        '.DS_Store', 'Thumbs.db', '*.pyc', '*.pyo'
+        "__pycache__",
+        ".git",
+        ".svn",
+        ".hg",
+        "node_modules",
+        ".venv",
+        "venv",
+        ".env",
+        ".DS_Store",
+        "Thumbs.db",
+        "*.pyc",
+        "*.pyo",
     }
 
     @staticmethod
@@ -58,33 +92,33 @@ class NativeFileHandler:
         is_binary = file_path.suffix.lower() in NativeFileHandler.BINARY_EXTENSIONS
 
         info = {
-            'name': file_path.name,
-            'path': str(file_path),
-            'size': stat.st_size,
-            'size_human': NativeFileHandler._format_size(stat.st_size),
-            'modified': datetime.fromtimestamp(stat.st_mtime),
-            'modified_timestamp': stat.st_mtime,
-            'created': datetime.fromtimestamp(stat.st_ctime),
-            'is_file': file_path.is_file(),
-            'is_dir': file_path.is_dir(),
-            'is_symlink': file_path.is_symlink(),
-            'is_text': is_text,
-            'is_binary': is_binary,
-            'extension': file_path.suffix.lower(),
-            'mime_type': mimetypes.guess_type(str(file_path))[0],
-            'permissions': oct(stat.st_mode)[-3:],
+            "name": file_path.name,
+            "path": str(file_path),
+            "size": stat.st_size,
+            "size_human": NativeFileHandler._format_size(stat.st_size),
+            "modified": datetime.fromtimestamp(stat.st_mtime),
+            "modified_timestamp": stat.st_mtime,
+            "created": datetime.fromtimestamp(stat.st_ctime),
+            "is_file": file_path.is_file(),
+            "is_dir": file_path.is_dir(),
+            "is_symlink": file_path.is_symlink(),
+            "is_text": is_text,
+            "is_binary": is_binary,
+            "extension": file_path.suffix.lower(),
+            "mime_type": mimetypes.guess_type(str(file_path))[0],
+            "permissions": oct(stat.st_mode)[-3:],
         }
 
         # Add quick hash for change detection (only for small text files)
         if is_text and stat.st_size < 1024 * 100:  # < 100KB
-            info['content_hash'] = NativeFileHandler.quick_hash(file_path)
+            info["content_hash"] = NativeFileHandler.quick_hash(file_path)
 
         return info
 
     @staticmethod
-    def list_directory(directory_path: Path,
-                      recursive: bool = False,
-                      include_hidden: bool = False) -> List[Dict]:
+    def list_directory(
+        directory_path: Path, recursive: bool = False, include_hidden: bool = False
+    ) -> List[Dict]:
         """
         List directory contents with metadata.
 
@@ -104,7 +138,7 @@ class NativeFileHandler:
         try:
             for item in directory_path.iterdir():
                 # Skip hidden files unless requested
-                if not include_hidden and item.name.startswith('.'):
+                if not include_hidden and item.name.startswith("."):
                     continue
 
                 # Skip ignored patterns
@@ -127,7 +161,7 @@ class NativeFileHandler:
                     continue
 
             # Sort: directories first, then by name
-            items.sort(key=lambda x: (not x['is_dir'], x['name'].lower()))
+            items.sort(key=lambda x: (not x["is_dir"], x["name"].lower()))
 
         except PermissionError:
             raise PermissionError(f"Permission denied: {directory_path}")
@@ -135,8 +169,9 @@ class NativeFileHandler:
         return items
 
     @staticmethod
-    def read_file_content(file_path: Path,
-                         max_size: int = 1024 * 1024) -> Tuple[bool, str]:
+    def read_file_content(
+        file_path: Path, max_size: int = 1024 * 1024
+    ) -> Tuple[bool, str]:
         """
         Read file content directly from filesystem.
 
@@ -156,22 +191,25 @@ class NativeFileHandler:
         # Check file size
         file_size = file_path.stat().st_size
         if file_size > max_size:
-            return False, f"File too large ({NativeFileHandler._format_size(file_size)}). Max size: {NativeFileHandler._format_size(max_size)}"
+            return (
+                False,
+                f"File too large ({NativeFileHandler._format_size(file_size)}). Max size: {NativeFileHandler._format_size(max_size)}",
+            )
 
         # Check if binary
         if not NativeFileHandler.is_text_file(file_path):
             return False, "Binary file - cannot display as text"
 
         try:
-            content = file_path.read_text(encoding='utf-8', errors='ignore')
+            content = file_path.read_text(encoding="utf-8", errors="ignore")
             return True, content
         except Exception as e:
             return False, f"Error reading file: {str(e)}"
 
     @staticmethod
-    def write_file_content(file_path: Path,
-                          content: str,
-                          create_dirs: bool = True) -> Tuple[bool, str]:
+    def write_file_content(
+        file_path: Path, content: str, create_dirs: bool = True
+    ) -> Tuple[bool, str]:
         """
         Write content directly to filesystem.
 
@@ -189,9 +227,12 @@ class NativeFileHandler:
                 file_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Write content
-            file_path.write_text(content, encoding='utf-8')
+            file_path.write_text(content, encoding="utf-8")
 
-            return True, f"File saved successfully ({NativeFileHandler._format_size(len(content))})"
+            return (
+                True,
+                f"File saved successfully ({NativeFileHandler._format_size(len(content))})",
+            )
 
         except PermissionError:
             return False, "Permission denied"
@@ -214,16 +255,16 @@ class NativeFileHandler:
 
         # Check MIME type
         mime_type = mimetypes.guess_type(str(file_path))[0]
-        if mime_type and mime_type.startswith('text/'):
+        if mime_type and mime_type.startswith("text/"):
             return True
 
         # Sample first 8KB and check for null bytes
         try:
             sample_size = min(8192, file_path.stat().st_size)
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 sample = f.read(sample_size)
                 # If null byte found, it's binary
-                return b'\x00' not in sample
+                return b"\x00" not in sample
         except (OSError, IOError, ValueError):
             # File access error or invalid path, treat as binary
             return False
@@ -243,7 +284,7 @@ class NativeFileHandler:
         else:
             # For large files, hash first 64KB + last 64KB
             block_size = 65536
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 # First block
                 hasher.update(f.read(block_size))
                 # Last block
@@ -262,7 +303,7 @@ class NativeFileHandler:
         dir_count = 0
 
         try:
-            for item in directory_path.rglob('*'):
+            for item in directory_path.rglob("*"):
                 if NativeFileHandler._should_ignore(item):
                     continue
 
@@ -280,17 +321,17 @@ class NativeFileHandler:
             pass
 
         return {
-            'total_size': total_size,
-            'total_size_human': NativeFileHandler._format_size(total_size),
-            'file_count': file_count,
-            'directory_count': dir_count,
-            'total_items': file_count + dir_count
+            "total_size": total_size,
+            "total_size_human": NativeFileHandler._format_size(total_size),
+            "file_count": file_count,
+            "directory_count": dir_count,
+            "total_items": file_count + dir_count,
         }
 
     @staticmethod
-    def find_files(directory_path: Path,
-                   pattern: str = '*',
-                   recursive: bool = True) -> List[Path]:
+    def find_files(
+        directory_path: Path, pattern: str = "*", recursive: bool = True
+    ) -> List[Path]:
         """
         Find files matching pattern.
 
@@ -308,10 +349,7 @@ class NativeFileHandler:
             matches = list(directory_path.glob(pattern))
 
         # Filter out ignored files
-        matches = [
-            m for m in matches
-            if not NativeFileHandler._should_ignore(m)
-        ]
+        matches = [m for m in matches if not NativeFileHandler._should_ignore(m)]
 
         return matches
 
@@ -326,7 +364,7 @@ class NativeFileHandler:
 
         # Check pattern matches (simple)
         for pattern in NativeFileHandler.IGNORE_PATTERNS:
-            if pattern.startswith('*') and name.endswith(pattern[1:]):
+            if pattern.startswith("*") and name.endswith(pattern[1:]):
                 return True
 
         return False
@@ -334,7 +372,7 @@ class NativeFileHandler:
     @staticmethod
     def _format_size(size_bytes: int) -> str:
         """Format byte size in human-readable format"""
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        for unit in ["B", "KB", "MB", "GB", "TB"]:
             if size_bytes < 1024.0:
                 return f"{size_bytes:.1f} {unit}"
             size_bytes /= 1024.0
@@ -358,58 +396,59 @@ class ProjectFileScanner:
         Returns:
             Nested dictionary representing directory structure
         """
+
         def scan_dir(path: Path, depth: int = 0) -> Dict:
             if depth > max_depth:
-                return {'truncated': True}
+                return {"truncated": True}
 
             try:
                 items = self.handler.list_directory(path, recursive=False)
 
                 result = {
-                    'name': path.name,
-                    'path': str(path.relative_to(self.project_path)),
-                    'files': [],
-                    'directories': []
+                    "name": path.name,
+                    "path": str(path.relative_to(self.project_path)),
+                    "files": [],
+                    "directories": [],
                 }
 
                 for item in items:
-                    if item['is_dir']:
-                        sub_path = Path(item['path'])
+                    if item["is_dir"]:
+                        sub_path = Path(item["path"])
                         sub_tree = scan_dir(sub_path, depth + 1)
-                        result['directories'].append(sub_tree)
+                        result["directories"].append(sub_tree)
                     else:
-                        result['files'].append({
-                            'name': item['name'],
-                            'size': item['size'],
-                            'size_human': item['size_human'],
-                            'modified': item['modified'].isoformat(),
-                            'extension': item['extension']
-                        })
+                        result["files"].append(
+                            {
+                                "name": item["name"],
+                                "size": item["size"],
+                                "size_human": item["size_human"],
+                                "modified": item["modified"].isoformat(),
+                                "extension": item["extension"],
+                            }
+                        )
 
                 return result
 
             except Exception as e:
-                return {'error': str(e)}
+                return {"error": str(e)}
 
         return scan_dir(self.project_path)
 
     def get_recent_files(self, limit: int = 10) -> List[Dict]:
         """Get most recently modified files"""
-        all_files = self.handler.list_directory(
-            self.project_path,
-            recursive=True
-        )
+        all_files = self.handler.list_directory(self.project_path, recursive=True)
 
         # Filter to files only
-        files = [f for f in all_files if f['is_file']]
+        files = [f for f in all_files if f["is_file"]]
 
         # Sort by modification time
-        files.sort(key=lambda x: x['modified_timestamp'], reverse=True)
+        files.sort(key=lambda x: x["modified_timestamp"], reverse=True)
 
         return files[:limit]
 
-    def search_content(self, query: str,
-                      file_patterns: List[str] = ['*.py', '*.md', '*.txt']) -> List[Dict]:
+    def search_content(
+        self, query: str, file_patterns: List[str] = ["*.py", "*.md", "*.txt"]
+    ) -> List[Dict]:
         """
         Search file contents for query string.
 
@@ -432,15 +471,19 @@ class ProjectFileScanner:
                         continue
 
                     # Search for query
-                    lines = content.split('\n')
+                    lines = content.split("\n")
                     for line_no, line in enumerate(lines, 1):
                         if query.lower() in line.lower():
-                            results.append({
-                                'file': str(file_path.relative_to(self.project_path)),
-                                'line': line_no,
-                                'content': line.strip(),
-                                'context': self._get_context(lines, line_no - 1)
-                            })
+                            results.append(
+                                {
+                                    "file": str(
+                                        file_path.relative_to(self.project_path)
+                                    ),
+                                    "line": line_no,
+                                    "content": line.strip(),
+                                    "context": self._get_context(lines, line_no - 1),
+                                }
+                            )
                 except (UnicodeDecodeError, OSError, IOError):
                     # Unable to read or decode file, skip it
                     continue
@@ -448,8 +491,9 @@ class ProjectFileScanner:
         return results
 
     @staticmethod
-    def _get_context(lines: List[str], line_idx: int,
-                    context_lines: int = 2) -> List[str]:
+    def _get_context(
+        lines: List[str], line_idx: int, context_lines: int = 2
+    ) -> List[str]:
         """Get surrounding lines for context"""
         start = max(0, line_idx - context_lines)
         end = min(len(lines), line_idx + context_lines + 1)

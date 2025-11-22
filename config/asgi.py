@@ -18,13 +18,19 @@ django.setup()
 
 # Import routing after Django setup
 from apps.writer_app import routing as writer_routing
+from apps.code_app import routing as code_routing
+
+# Combine all WebSocket routes
+websocket_urlpatterns = (
+    writer_routing.websocket_urlpatterns +
+    code_routing.websocket_urlpatterns
+)
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AllowedHostsOriginValidator(
         AuthMiddlewareStack(
-            URLRouter(
-                writer_routing.websocket_urlpatterns
-            )
+            URLRouter(websocket_urlpatterns)
         )
     ),
+})

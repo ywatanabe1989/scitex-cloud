@@ -111,8 +111,9 @@ urlpatterns = [
     # Main Modules
     path("scholar/", include(("apps.scholar_app.urls", "scholar_app"))),
     path("code/", include(("apps.code_app.urls", "code_app"))),
-    path("viz/", include(("apps.viz_app.urls", "viz_app"))),
+    path("vis/", include(("apps.vis_app.urls", "vis"))),
     path("writer/", include(("apps.writer_app.urls", "writer_app"))),
+    path("workspace/", include(("apps.workspace_app.urls", "workspace_app"))),
     # Deveopment
     path("dev/", include(("apps.dev_app.urls", "dev_app"))),
     path("docs/", include(("apps.docs_app.urls", "docs_app"))),
@@ -150,7 +151,18 @@ urlpatterns = [
         decline_invitation,
         name="decline_invitation",
     ),
-    # GitHub-style username/project URLs (MUST be last to avoid conflicts)
+]
+
+# Add development tools BEFORE catch-all username pattern
+if settings.DEBUG:
+    # Add django-browser-reload URLs for hot reload
+    if "django_browser_reload" in settings.INSTALLED_APPS:
+        urlpatterns += [
+            path("__reload__/", include("django_browser_reload.urls")),
+        ]
+
+# GitHub-style username/project URLs (MUST be last to avoid conflicts)
+urlpatterns += [
     path("<str:username>/", include("apps.project_app.urls")),
 ]
 
@@ -166,11 +178,5 @@ if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
     )
-
-    # Add django-browser-reload URLs for hot reload
-    if "django_browser_reload" in settings.INSTALLED_APPS:
-        urlpatterns += [
-            path("__reload__/", include("django_browser_reload.urls")),
-        ]
 
 # EOF

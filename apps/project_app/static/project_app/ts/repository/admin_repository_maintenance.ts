@@ -3,19 +3,20 @@
  * Corresponds to: templates/project_app/repository/admin_repository_maintenance.html
  */
 
-
-console.log("[DEBUG] apps/project_app/static/project_app/ts/repository/admin_repository_maintenance.ts loaded");
+console.log(
+  "[DEBUG] apps/project_app/static/project_app/ts/repository/admin_repository_maintenance.ts loaded",
+);
 
 class RepositoryMaintenancePage {
-    constructor() {
-        this.init();
-    }
+  constructor() {
+    this.init();
+  }
 
-    private init(): void {
-        console.log('[RepoMaintenance] Initializing repository maintenance');
-    }
+  private init(): void {
+    console.log("[RepoMaintenance] Initializing repository maintenance");
+  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new RepositoryMaintenancePage();
+document.addEventListener("DOMContentLoaded", () => {
+  new RepositoryMaintenancePage();
 });

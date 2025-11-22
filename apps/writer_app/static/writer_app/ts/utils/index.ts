@@ -5,7 +5,9 @@
 
 // DOM utilities
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/index.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/utils/index.ts loaded",
+);
 export {
   querySelector,
   querySelectorAll,
@@ -22,7 +24,7 @@ export {
   scrollIntoView,
   getScrollPosition,
   setScrollPosition,
-} from './dom.utils.js';
+} from "./dom.utils.js";
 
 // Keyboard utilities
 export {
@@ -31,7 +33,7 @@ export {
   formatShortcut,
   isInputElement,
   type KeyboardShortcut,
-} from './keyboard.utils.js';
+} from "./keyboard.utils.js";
 
 // LaTeX utilities
 export {
@@ -40,7 +42,7 @@ export {
   extractTextFromLatex,
   isLatexContent,
   validateLatexSyntax,
-} from './latex.utils.js';
+} from "./latex.utils.js";
 
 // Timer and timing utilities
 export {
@@ -50,4 +52,4 @@ export {
   SimpleTimer,
   wait,
   createTimeout,
-} from './timer.utils.js';
+} from "./timer.utils.js";

@@ -5,74 +5,74 @@
 
 // Highlight.js
 interface HLJSApi {
-    highlightElement(element: HTMLElement): void;
-    lineNumbersBlock?(element: HTMLElement): void;
-    configure(options: any): void;
-    highlightAll(): void;
-    registerLanguage(name: string, definition: (hljs: any) => any): void;
-    COMMENT(begin: string, end: string): any;
-    QUOTE_STRING_MODE: any;
-    C_NUMBER_MODE: any;
+  highlightElement(element: HTMLElement): void;
+  lineNumbersBlock?(element: HTMLElement): void;
+  configure(options: any): void;
+  highlightAll(): void;
+  registerLanguage(name: string, definition: (hljs: any) => any): void;
+  COMMENT(begin: string, end: string): any;
+  QUOTE_STRING_MODE: any;
+  C_NUMBER_MODE: any;
 }
 
 // Marked (Markdown parser)
 interface MarkedStatic {
-    parse(markdown: string, options?: any): string;
-    setOptions(options: any): void;
+  parse(markdown: string, options?: any): string;
+  setOptions(options: any): void;
 }
 
 // Icon utilities
 export interface IconOptions {
-    size?: number;
-    classes?: string;
-    color?: string;
-    title?: string;
+  size?: number;
+  classes?: string;
+  color?: string;
+  title?: string;
 }
 
 interface IconUtilsInterface {
-    loadIcon(iconName: string, options?: IconOptions): Promise<any>;
-    createIcon(iconName: string, options?: IconOptions): Promise<any>;
-    getInlineIcon(iconName: string, options?: IconOptions): string;
-    emojiToIcon(emoji: string): string;
-    ICON_BASE_PATH: string;
+  loadIcon(iconName: string, options?: IconOptions): Promise<any>;
+  createIcon(iconName: string, options?: IconOptions): Promise<any>;
+  getInlineIcon(iconName: string, options?: IconOptions): string;
+  emojiToIcon(emoji: string): string;
+  ICON_BASE_PATH: string;
 }
 
 // PDF.js
 interface PDFJSLib {
-    GlobalWorkerOptions: {
-        workerSrc: string;
-    };
-    getDocument(params: any): any;
+  GlobalWorkerOptions: {
+    workerSrc: string;
+  };
+  getDocument(params: any): any;
 }
 
 // Global variables
 declare global {
-    interface Window {
-        hljs: HLJSApi;
-        marked: MarkedStatic;
-        IconUtils: IconUtilsInterface;
-        pdfjsLib: PDFJSLib;
-        SCITEX_PROJECT_DATA: {
-            owner: string;
-            repo: string;
-            slug?: string;
-            path: string;
-            branch: string;
-            [key: string]: any;
-        };
-        SCITEX_FILE_PATH?: string;
-        SCITEX_PROFILE_DATA?: {
-            [key: string]: any;
-        };
-        // Functions exposed by file_view.ts
-        copyToClipboard: () => void;
-        showCode: () => void;
-        showPreview: () => void;
-        toggleBranchDropdown: (event: Event) => void;
-        switchBranch: (branch: string) => Promise<any>;
-        // Functions exposed by file_edit.ts
-        showEdit?: () => void;
-    }
+  interface Window {
+    hljs: HLJSApi;
+    marked: MarkedStatic;
+    IconUtils: IconUtilsInterface;
+    pdfjsLib: PDFJSLib;
+    SCITEX_PROJECT_DATA: {
+      owner: string;
+      repo: string;
+      slug?: string;
+      path: string;
+      branch: string;
+      [key: string]: any;
+    };
+    SCITEX_FILE_PATH?: string;
+    SCITEX_PROFILE_DATA?: {
+      [key: string]: any;
+    };
+    // Functions exposed by file_view.ts
+    copyToClipboard: () => void;
+    showCode: () => void;
+    showPreview: () => void;
+    toggleBranchDropdown: (event: Event) => void;
+    switchBranch: (branch: string) => Promise<any>;
+    // Functions exposed by file_edit.ts
+    showEdit?: () => void;
+  }
 }
 
 export {};

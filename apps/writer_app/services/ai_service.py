@@ -5,7 +5,6 @@ Context-aware content generation and improvement suggestions.
 
 import os
 from typing import Dict, List, Optional
-from django.conf import settings
 
 
 class WriterAI:
@@ -13,16 +12,16 @@ class WriterAI:
 
     def __init__(self):
         """Initialize AI client."""
-        self.api_key = os.getenv('ANTHROPIC_API_KEY') or os.getenv('OPENAI_API_KEY')
-        self.model = 'claude-3-5-sonnet-20241022'  # or 'gpt-4'
-        self.use_anthropic = os.getenv('ANTHROPIC_API_KEY') is not None
+        self.api_key = os.getenv("ANTHROPIC_API_KEY") or os.getenv("OPENAI_API_KEY")
+        self.model = "claude-3-5-sonnet-20241022"  # or 'gpt-4'
+        self.use_anthropic = os.getenv("ANTHROPIC_API_KEY") is not None
 
     def get_suggestion(
         self,
         content: str,
         section_type: str,
-        target: str = 'clarity',
-        context: Optional[Dict] = None
+        target: str = "clarity",
+        context: Optional[Dict] = None,
     ) -> Dict:
         """
         Get AI suggestions for improving text.
@@ -44,10 +43,7 @@ class WriterAI:
             return self._call_openai(prompt)
 
     def generate_content(
-        self,
-        section_type: str,
-        target_words: int,
-        context: Optional[Dict] = None
+        self, section_type: str, target_words: int, context: Optional[Dict] = None
     ) -> Dict:
         """
         Generate content for a section.
@@ -67,11 +63,7 @@ class WriterAI:
         else:
             return self._call_openai(prompt)
 
-    def suggest_citations(
-        self,
-        text: str,
-        section_type: str
-    ) -> List[Dict]:
+    def suggest_citations(self, text: str, section_type: str) -> List[Dict]:
         """
         Suggest citations for claims that need references.
 
@@ -93,22 +85,22 @@ For each claim needing a citation, provide:
 
 Format as JSON list."""
 
-        result = self._call_anthropic(prompt) if self.use_anthropic else self._call_openai(prompt)
+        result = (
+            self._call_anthropic(prompt)
+            if self.use_anthropic
+            else self._call_openai(prompt)
+        )
 
         # Parse and return suggestions
-        return result.get('suggestions', [])
+        return result.get("suggestions", [])
 
     def _build_improvement_prompt(
-        self,
-        content: str,
-        section_type: str,
-        target: str,
-        context: Optional[Dict]
+        self, content: str, section_type: str, target: str, context: Optional[Dict]
     ) -> str:
         """Build prompt for content improvement."""
 
         prompts = {
-            'clarity': f"""Improve the clarity of this {section_type} section while maintaining scientific accuracy:
+            "clarity": f"""Improve the clarity of this {section_type} section while maintaining scientific accuracy:
 
 {content}
 
@@ -118,15 +110,13 @@ Provide:
 3. Explanation of changes
 
 Keep the academic tone but make it more accessible.""",
-
-            'conciseness': f"""Make this {section_type} section more concise without losing key information:
+            "conciseness": f"""Make this {section_type} section more concise without losing key information:
 
 {content}
 
 Target: Reduce by 20-30% while preserving all essential points.
 Provide the revised version and list what was condensed.""",
-
-            'academic_style': f"""Enhance the academic style and formality of this {section_type}:
+            "academic_style": f"""Enhance the academic style and formality of this {section_type}:
 
 {content}
 
@@ -137,8 +127,7 @@ Improve:
 - Follow academic writing conventions
 
 Provide revised version with explanations.""",
-
-            'expand': f"""Expand this {section_type} section with more detail and examples:
+            "expand": f"""Expand this {section_type} section with more detail and examples:
 
 {content}
 
@@ -148,30 +137,27 @@ Add:
 - Supporting details
 - Smooth transitions
 
-Provide expanded version."""
+Provide expanded version.""",
         }
 
-        return prompts.get(target, prompts['clarity'])
+        return prompts.get(target, prompts["clarity"])
 
     def _build_generation_prompt(
-        self,
-        section_type: str,
-        target_words: int,
-        context: Optional[Dict]
+        self, section_type: str, target_words: int, context: Optional[Dict]
     ) -> str:
         """Build prompt for content generation."""
 
         context_text = ""
         if context:
-            if context.get('methods'):
+            if context.get("methods"):
                 context_text += f"\n\nMethods summary:\n{context['methods']}"
-            if context.get('results'):
+            if context.get("results"):
                 context_text += f"\n\nResults summary:\n{context['results']}"
-            if context.get('introduction'):
+            if context.get("introduction"):
                 context_text += f"\n\nIntroduction:\n{context['introduction']}"
 
         prompts = {
-            'abstract': f"""Generate an abstract (approximately {target_words} words) for a scientific paper with this content:{context_text}
+            "abstract": f"""Generate an abstract (approximately {target_words} words) for a scientific paper with this content:{context_text}
 
 Structure:
 1. Background/Context (1-2 sentences)
@@ -181,8 +167,7 @@ Structure:
 5. Conclusions/Implications (1-2 sentences)
 
 Write in past tense, be concise and specific.""",
-
-            'discussion': f"""Generate a discussion section (approximately {target_words} words) based on these results:{context_text}
+            "discussion": f"""Generate a discussion section (approximately {target_words} words) based on these results:{context_text}
 
 Include:
 1. Interpretation of key findings
@@ -192,8 +177,7 @@ Include:
 5. Broader implications
 
 Use appropriate academic tone and hedging language.""",
-
-            'conclusion': f"""Generate a conclusion (approximately {target_words} words) summarizing this research:{context_text}
+            "conclusion": f"""Generate a conclusion (approximately {target_words} words) summarizing this research:{context_text}
 
 Include:
 1. Restate main objective and approach
@@ -201,10 +185,13 @@ Include:
 3. Highlight significance and impact
 4. Suggest future work
 
-Be concise and impactful."""
+Be concise and impactful.""",
         }
 
-        return prompts.get(section_type, f"Generate a {section_type} section ({target_words} words) for a scientific paper.")
+        return prompts.get(
+            section_type,
+            f"Generate a {section_type} section ({target_words} words) for a scientific paper.",
+        )
 
     def _call_anthropic(self, prompt: str) -> Dict:
         """Call Anthropic Claude API."""
@@ -216,17 +203,18 @@ Be concise and impactful."""
             response = client.messages.create(
                 model=self.model,
                 max_tokens=2048,
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             return {
-                'text': response.content[0].text,
-                'tokens_used': response.usage.input_tokens + response.usage.output_tokens,
-                'model': self.model
+                "text": response.content[0].text,
+                "tokens_used": response.usage.input_tokens
+                + response.usage.output_tokens,
+                "model": self.model,
             }
 
         except Exception as e:
-            return {'error': str(e), 'text': ''}
+            return {"error": str(e), "text": ""}
 
     def _call_openai(self, prompt: str) -> Dict:
         """Call OpenAI GPT API."""
@@ -236,23 +224,24 @@ Be concise and impactful."""
             client = openai.OpenAI(api_key=self.api_key)
 
             response = client.chat.completions.create(
-                model='gpt-4',
+                model="gpt-4",
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2048
+                max_tokens=2048,
             )
 
             return {
-                'text': response.choices[0].message.content,
-                'tokens_used': response.usage.total_tokens,
-                'model': 'gpt-4'
+                "text": response.choices[0].message.content,
+                "tokens_used": response.usage.total_tokens,
+                "model": "gpt-4",
             }
 
         except Exception as e:
-            return {'error': str(e), 'text': ''}
+            return {"error": str(e), "text": ""}
 
 
 # Singleton instance
 _ai_instance = None
+
 
 def get_ai_assistant() -> WriterAI:
     """Get or create AI assistant instance."""

@@ -1,0 +1,170 @@
+/**
+ * Keyboard Shortcuts Modal Styling
+ * Enhanced visual design for keyboard shortcut reference
+ */
+
+/* Modal dialog sizing */
+#shortcuts-modal .modal-dialog {
+  max-width: 900px;
+}
+
+/* Modal header styling */
+#shortcuts-modal .modal-header {
+  background: var(--bg-panel);
+  border-bottom: 2px solid var(--border-default);
+  padding: 1.25rem 1.5rem;
+}
+
+#shortcuts-modal .modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+#shortcuts-modal .modal-title i {
+  color: var(--text-secondary);
+}
+
+/* Modal body styling */
+#shortcuts-modal .modal-body {
+  padding: 1.5rem;
+  background: var(--bg-page);
+}
+
+/* Section headers */
+#shortcuts-modal .text-primary {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-muted);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+#shortcuts-modal .text-primary i {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* Table styling */
+#shortcuts-modal .table {
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+#shortcuts-modal .table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#shortcuts-modal .table tbody tr:last-child {
+  border-bottom: none;
+}
+
+#shortcuts-modal .table td {
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
+  color: var(--text-primary);
+  border: none;
+}
+
+#shortcuts-modal .table td:first-child {
+  width: 180px;
+  padding-right: 1rem;
+}
+
+#shortcuts-modal .table td:last-child {
+  color: var(--text-secondary);
+}
+
+/* Keyboard key styling */
+#shortcuts-modal kbd {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: "JetBrains Mono", "Courier New", monospace;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text-primary);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  margin: 0 0.2rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+/* Multiple keys in sequence (e.g., Ctrl+Shift+X) */
+#shortcuts-modal kbd + kbd {
+  margin-left: -0.2rem;
+}
+
+/* Special styling for modifier keys */
+#shortcuts-modal kbd:first-child {
+  margin-left: 0;
+}
+
+/* Hover effect for rows */
+#shortcuts-modal .table tbody tr:hover {
+  background: var(--bg-panel-hover, var(--bg-panel));
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] #shortcuts-modal kbd {
+  background: var(--bg-panel);
+  border-color: var(--border-subtle);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] #shortcuts-modal .modal-header {
+  background: var(--bg-panel);
+  border-bottom-color: var(--border-subtle);
+}
+
+[data-theme="dark"] #shortcuts-modal .modal-body {
+  background: var(--bg-page);
+}
+
+[data-theme="dark"] #shortcuts-modal .text-primary {
+  border-bottom-color: var(--border-subtle);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  #shortcuts-modal .modal-dialog {
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  #shortcuts-modal .modal-body {
+    padding: 1rem;
+  }
+
+  #shortcuts-modal .col-md-6 {
+    margin-bottom: 1.5rem;
+  }
+
+  #shortcuts-modal .col-md-6:last-child {
+    margin-bottom: 0;
+  }
+
+  #shortcuts-modal .table td:first-child {
+    width: 140px;
+  }
+
+  #shortcuts-modal kbd {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
+
+/* Animation for modal appearance */
+#shortcuts-modal.fade .modal-dialog {
+  transition: transform 0.2s ease-out;
+  transform: scale(0.95);
+}
+
+#shortcuts-modal.show .modal-dialog {
+  transform: scale(1);
+}

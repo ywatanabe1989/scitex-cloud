@@ -1,31 +1,30 @@
-        <!-- Abstract Section -->
-        <div class="manuscript-section collaborative-section" data-section="abstract">
-            <div class="section-header-collaborative">
-                <div>
-                    <h3 class="section-title">
-                        <i class="fas fa-file-alt"></i> Abstract
-                    </h3>
-                </div>
-                <div class="section-collaboration-info">
-                    <div class="section-stats">
-                        <span class="word-count" id="abstract-count">0 words</span>
-                    </div>
-                    <div class="collaboration-badges" id="abstract-badges"></div>
-                </div>
-            </div>
-            <div class="collaborative-section">
-                <textarea 
-                    class="text-editor" 
-                    id="section-abstract"
-                    placeholder="Write your abstract here... (150-300 words recommended)"
-                    rows="8"
-                >{{ manuscript.abstract }}</textarea>
-                <div class="section-help">
-                    <strong>Abstract Guidelines:</strong> Summarize your research question, methods, key findings, and conclusions. Keep it concise and focused.
-                </div>
-                <div class="collaborative-help hidden">
-                    <i class="fas fa-users"></i> <strong>Collaborative Mode:</strong> This section is being edited in real-time. You can see other users' cursors and changes as they type.
-                </div>
-            </div>
+<!-- Abstract Section -->
+<div class="manuscript-section collaborative-section"
+     data-section="abstract">
+    <div class="section-header-collaborative">
+        <div>
+            <h3 class="section-title">
+                <i class="fas fa-file-alt"></i> Abstract
+            </h3>
         </div>
-
+        <div class="section-collaboration-info">
+            <div class="section-stats">
+                <span class="word-count" id="abstract-count">0 words</span>
+            </div>
+            <div class="collaboration-badges" id="abstract-badges"></div>
+        </div>
+    </div>
+    <div class="collaborative-section">
+        <textarea class="text-editor" id="section-abstract" placeholder="Write your abstract here... (150-300 words recommended)" rows="8">
+{{ manuscript.abstract }}</textarea>
+        <div class="section-help">
+            <strong>Abstract Guidelines:</strong> Summarize your research question,
+            methods, key findings, and conclusions. Keep it concise and focused.
+        </div>
+        <div class="collaborative-help hidden">
+            <i class="fas fa-users"></i> <strong>Collaborative Mode:</strong> This
+            section is being edited in real-time. You can see other users' cursors and
+            changes as they type.
+        </div>
+    </div>
+</div>

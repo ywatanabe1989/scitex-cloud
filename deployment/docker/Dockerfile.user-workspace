@@ -1,0 +1,94 @@
+# Timestamp: "2025-11-14 17:45:00 (ywatanabe)"
+# File: ./deployment/docker/Dockerfile.user-workspace
+# ============================================
+# User Workspace Container Image
+# ============================================
+# This image provides a computational environment for SciTeX Cloud users
+# Used for SSH access and web-based code execution (Codespace/Jupyter)
+
+FROM python:3.11-slim
+
+LABEL maintainer="SciTeX Cloud <support@scitex.ai>"
+LABEL description="User computational workspace for SciTeX Cloud"
+LABEL version="1.0.0"
+
+# Set timezone
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Development tools
+    build-essential \
+    git \
+    wget \
+    curl \
+    # Text editors
+    vim \
+    nano \
+    # Terminal utilities
+    tmux \
+    htop \
+    tree \
+    less \
+    # SSH client (for git operations)
+    openssh-client \
+    # Compression tools
+    zip \
+    unzip \
+    bzip2 \
+    # Other utilities
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd -m -u 1000 -s /bin/bash user && \
+    echo "user:user" | chpasswd && \
+    mkdir -p /home/user/.ssh && \
+    chown -R user:user /home/user
+
+# Install Python scientific stack
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    # Core scientific computing
+    numpy==1.26.4 \
+    scipy==1.12.0 \
+    pandas==2.2.0 \
+    # Visualization
+    matplotlib==3.8.2 \
+    seaborn==0.13.2 \
+    plotly==5.18.0 \
+    # Machine learning
+    scikit-learn==1.4.0 \
+    # Interactive computing
+    jupyter==1.0.0 \
+    jupyterlab==4.0.11 \
+    ipython==8.20.0 \
+    ipdb==0.13.13 \
+    # Utilities
+    requests==2.31.0 \
+    beautifulsoup4==4.12.3 \
+    tqdm==4.66.1 \
+    # Development
+    black==24.1.1 \
+    flake8==7.0.0 \
+    pytest==8.0.0
+
+# Switch to user
+USER user
+WORKDIR /home/user
+
+# Configure shell environment
+RUN echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc && \
+    echo 'alias ll="ls -lah"' >> ~/.bashrc && \
+    echo 'alias python=python3' >> ~/.bashrc && \
+    echo 'alias pip=pip3' >> ~/.bashrc && \
+    echo 'export PS1="\\[\\e[32m\\]\\u@scitex-workspace\\[\\e[m\\]:\\[\\e[34m\\]\\w\\[\\e[m\\]\\$ "' >> ~/.bashrc
+
+# Create useful directories
+RUN mkdir -p ~/notebooks ~/scripts ~/data
+
+# Default command (will be overridden by SSH or exec)
+CMD ["/bin/bash", "-l"]
+
+# EOF

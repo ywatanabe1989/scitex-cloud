@@ -1,0 +1,143 @@
+/**
+ * File Modal for CRUD Operations
+ * Smooth modal dialog replacing browser prompts
+ */
+
+.file-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: none;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 120px 0 0 20px; /* Position near file tree - top padding accounts for header */
+  z-index: 10000;
+}
+
+.file-modal-overlay.active {
+  display: flex;
+}
+
+.file-modal {
+  background: var(--color-canvas-default);
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+  width: 90%;
+  max-width: 400px;
+  padding: 0;
+  animation: modalSlideIn 0.2s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.file-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.file-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-fg-default);
+}
+
+.file-modal-close {
+  background: none;
+  border: none;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  font-size: 20px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.file-modal-close:hover {
+  background: var(--color-neutral-subtle);
+  color: var(--color-fg-default);
+}
+
+.file-modal-body {
+  padding: 20px;
+}
+
+.file-modal-input-group {
+  margin-bottom: 16px;
+}
+
+.file-modal-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-fg-default);
+}
+
+.file-modal-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-subtle);
+  color: var(--color-fg-default);
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: all 0.2s;
+  pointer-events: auto;  /* Ensure input is clickable */
+  z-index: 10001;  /* Above overlay */
+}
+
+.file-modal-input:focus {
+  border-color: var(--color-accent-emphasis);
+  box-shadow: 0 0 0 3px var(--color-accent-subtle);
+}
+
+.file-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.file-modal-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-btn-bg);
+  color: var(--color-fg-default);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-modal-btn:hover {
+  background: var(--color-btn-hover-bg);
+}
+
+.file-modal-btn-primary {
+  background: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  border: none;
+}
+
+.file-modal-btn-primary:hover {
+  background: var(--color-btn-primary-hover-bg);
+}

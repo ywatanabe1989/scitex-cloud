@@ -1,314 +1,362 @@
 {% extends "auth_app/auth_base.html" %}
 {% load static %}
-
 {% block title %}Create an Account - SciTeX{% endblock %}
-
 {% block meta_description %}Join SciTeX - the open-source platform for scientific research. Create your free account to get started with managing, analyzing, and publishing your research.{% endblock %}
-
-{% block auth_content %}
-<div class="container auth-container">
-  <div class="auth-form">
-        <h2 class="mb-4">Sign Up</h2>
-        
-        {% if form.errors %}
-        <div class="alert-banner alert-banner-danger" style="margin-bottom: var(--spacing-md);">
-          <div class="warning-banner-container">
-            <div class="warning-banner-content">
-              <i class="warning-banner-icon fas fa-exclamation-circle"></i>
-              <div class="warning-banner-text">
-                <div class="warning-banner-title">Form Errors</div>
-                <div class="warning-banner-description">
-                  <ul class="mb-0" style="margin-left: 1rem;">
-                    {% for field, errors in form.errors.items %}
-                      {% for error in errors %}
-                        <li>{{ error }}</li>
-                      {% endfor %}
+    {% block auth_content %}
+        <div class="container auth-container">
+            <div class="auth-form">
+                <h2 class="mb-4">Sign Up</h2>
+                {% if form.errors %}
+                    <div class="alert-banner alert-banner-danger"
+                         style="margin-bottom: var(--spacing-md)">
+                        <div class="warning-banner-container">
+                            <div class="warning-banner-content">
+                                <i class="warning-banner-icon fas fa-exclamation-circle"></i>
+                                <div class="warning-banner-text">
+                                    <div class="warning-banner-title">Form Errors</div>
+                                    <div class="warning-banner-description">
+                                        <ul class="mb-0" style="margin-left: 1rem">
+                                            {% for field, errors in form.errors.items %}
+                                                {% for error in errors %}
+                                                    <li>{{ error }}</li>
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% else %}success{% endif %}"
+                             style="margin-bottom: var(--spacing-md)">
+                            <div class="warning-banner-container">
+                                <div class="warning-banner-content">
+                                    <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                                    <div class="warning-banner-text">
+                                        <div class="warning-banner-description">{{ message }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     {% endfor %}
-                  </ul>
+                {% endif %}
+                <div class="alert-banner alert-banner-danger"
+                     id="js-error-message"
+                     style="margin-bottom: var(--spacing-md);
+                            display: none">
+                    <div class="warning-banner-container">
+                        <div class="warning-banner-content">
+                            <i class="warning-banner-icon fas fa-exclamation-circle"></i>
+                            <div class="warning-banner-text">
+                                <div class="warning-banner-title">Error</div>
+                                <div class="warning-banner-description">
+                                    <span id="error-message">Something went wrong. Please try again.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-
-        {% if messages %}
-          {% for message in messages %}
-            <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% else %}success{% endif %}" style="margin-bottom: var(--spacing-md);">
-              <div class="warning-banner-container">
-                <div class="warning-banner-content">
-                  <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
-                  <div class="warning-banner-text">
-                    <div class="warning-banner-description">{{ message }}</div>
-                  </div>
+                <form id="signup-form"
+                      method="post"
+                      action="{% url 'auth_app:signup' %}"
+                      autocomplete="on">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">
+                            Username <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            {{ form.username }}
+                            <span class="input-group-text" id="username-status" style="display: none">
+                                <i class="fas fa-circle" id="username-status-icon"></i>
+                            </span>
+                        </div>
+                        <div class="form-text">
+                            <small class="text-muted">Your profile URL will be: scitex.ai/<span id="username-preview">username</span></small>
+                        </div>
+                        <div id="username-feedback"
+                             class="small"
+                             style="display: none;
+                                    margin-top: 0.5rem"></div>
+                        {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            Email <span class="text-danger">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                        <!-- Japanese Academic Benefits Alert -->
+                        <div class="alert alert-info academic-benefits"
+                             style="display: none;
+                                    margin-top: 0.75rem">
+                            <h6 class="alert-heading mb-2">
+                                <i class="fas fa-graduation-cap me-2"></i>日本の学術機関の特典
+                                (Japanese Academic Benefits)
+                            </h6>
+                            <div class="small">
+                                <strong>Japanese academic email detected!</strong> You'll receive:
+                                <ul class="mb-1 mt-1">
+                                    <li>Priority support in Japanese (日本語サポート)</li>
+                                    <li>Early access to new features</li>
+                                    <li>Special academic collaboration features</li>
+                                    <li>Enhanced storage limits</li>
+                                </ul>
+                                <em>Recognized domains: .ac.jp (academic), .go.jp (government
+                                research), .riken.jp, .jaxa.jp, and more</em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">
+                            Password <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            {{ form.password }}
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}<div class="text-danger small">{{ form.password.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="form-group mb-2">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">
+                            Confirm Password <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            {{ form.password2 }}
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    id="toggleConfirmPassword">
+                                <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors.0 }}</div>{% endif %}
+                    </div>
+                    <!-- Password Requirements -->
+                    <div class="password-rules mb-3">
+                        <div class="password-rules-title">Password Requirements:</div>
+                        <div class="password-rule invalid" id="rule-length">
+                            <i class="fas fa-times"></i> At least 8 characters
+                        </div>
+                        <div class="password-rule invalid" id="rule-lowercase">
+                            <i class="fas fa-times"></i> At least one lowercase letter
+                        </div>
+                        <div class="password-rule invalid" id="rule-uppercase">
+                            <i class="fas fa-times"></i> At least one uppercase letter
+                        </div>
+                        <div class="password-rule invalid" id="rule-number">
+                            <i class="fas fa-times"></i> At least one number
+                        </div>
+                        <div class="password-rule invalid" id="rule-special">
+                            <i class="fas fa-times"></i> At least one special character (!@#$%^&*)
+                        </div>
+                        <div class="password-rule invalid" id="rule-match">
+                            <i class="fas fa-times"></i> Passwords match
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ form.agree_terms }}
+                        <label class="form-check-label" for="{{ form.agree_terms.id_for_label }}">
+                            I agree to the
+                            <a href="/terms/" target="_blank" class="text-link">Terms of Use</a>
+                            and
+                            <a href="/privacy/" target="_blank" class="text-link">Privacy Policy</a>
+                        </label>
+                        {% if form.agree_terms.errors %}<div class="text-danger small">{{ form.agree_terms.errors.0 }}</div>{% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                </form>
+                <div class="text-center mt-3">
+                    <p>
+                        Already have an account?
+                        <a href="{% url 'auth_app:signin' %}" class="text-link">Sign In</a>
+                    </p>
                 </div>
-              </div>
             </div>
-          {% endfor %}
-        {% endif %}
-
-        <div class="alert-banner alert-banner-danger" id="js-error-message" style="margin-bottom: var(--spacing-md); display: none;">
-          <div class="warning-banner-container">
-            <div class="warning-banner-content">
-              <i class="warning-banner-icon fas fa-exclamation-circle"></i>
-              <div class="warning-banner-text">
-                <div class="warning-banner-title">Error</div>
-                <div class="warning-banner-description"><span id="error-message">Something went wrong. Please try again.</span></div>
-              </div>
-            </div>
-          </div>
         </div>
-        
-        <form id="signup-form" method="post" action="{% url 'auth_app:signup' %}" autocomplete="on">
-          {% csrf_token %}
-          <div class="form-group mb-3">
-            <label for="{{ form.username.id_for_label }}" class="form-label">Username <span class="text-danger">*</span></label>
-            <div class="input-group">
-              {{ form.username }}
-              <span class="input-group-text" id="username-status" style="display: none;">
-                <i class="fas fa-circle" id="username-status-icon"></i>
-              </span>
-            </div>
-            <div class="form-text">
-              <small class="text-muted">Your profile URL will be: scitex.ai/<span id="username-preview">username</span></small>
-            </div>
-            <div id="username-feedback" class="small" style="display: none; margin-top: 0.5rem;"></div>
-            {% if form.username.errors %}
-              <div class="text-danger small">{{ form.username.errors.0 }}</div>
-            {% endif %}
-          </div>
-          
-          <div class="form-group mb-3">
-            <label for="{{ form.email.id_for_label }}" class="form-label">Email <span class="text-danger">*</span></label>
-            {{ form.email }}
-            {% if form.email.errors %}
-              <div class="text-danger small">{{ form.email.errors.0 }}</div>
-            {% endif %}
-            
-            <!-- Japanese Academic Benefits Alert -->
-            <div class="alert alert-info academic-benefits" style="display: none; margin-top: 0.75rem;">
-              <h6 class="alert-heading mb-2">
-                <i class="fas fa-graduation-cap me-2"></i>日本の学術機関の特典 (Japanese Academic Benefits)
-              </h6>
-              <div class="small">
-                <strong>Japanese academic email detected!</strong> You'll receive:
-                <ul class="mb-1 mt-1">
-                  <li>Priority support in Japanese (日本語サポート)</li>
-                  <li>Early access to new features</li>
-                  <li>Special academic collaboration features</li>
-                  <li>Enhanced storage limits</li>
-                </ul>
-                <em>Recognized domains: .ac.jp (academic), .go.jp (government research), .riken.jp, .jaxa.jp, and more</em>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-group mb-2">
-            <label for="{{ form.password.id_for_label }}" class="form-label">Password <span class="text-danger">*</span></label>
-            <div class="input-group">
-              {{ form.password }}
-              <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                <i class="fas fa-eye" id="togglePasswordIcon"></i>
-              </button>
-            </div>
-            {% if form.password.errors %}
-              <div class="text-danger small">{{ form.password.errors.0 }}</div>
-            {% endif %}
-          </div>
-
-          <div class="form-group mb-2">
-            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-            <div class="input-group">
-              {{ form.password2 }}
-              <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
-                <i class="fas fa-eye" id="toggleConfirmPasswordIcon"></i>
-              </button>
-            </div>
-            {% if form.password2.errors %}
-              <div class="text-danger small">{{ form.password2.errors.0 }}</div>
-            {% endif %}
-          </div>
-
-          <!-- Password Requirements -->
-          <div class="password-rules mb-3">
-            <div class="password-rules-title">Password Requirements:</div>
-            <div class="password-rule invalid" id="rule-length"><i class="fas fa-times"></i> At least 8 characters</div>
-            <div class="password-rule invalid" id="rule-lowercase"><i class="fas fa-times"></i> At least one lowercase letter</div>
-            <div class="password-rule invalid" id="rule-uppercase"><i class="fas fa-times"></i> At least one uppercase letter</div>
-            <div class="password-rule invalid" id="rule-number"><i class="fas fa-times"></i> At least one number</div>
-            <div class="password-rule invalid" id="rule-special"><i class="fas fa-times"></i> At least one special character (!@#$%^&*)</div>
-          </div>
-
-          <div class="form-check mb-3">
-            {{ form.agree_terms }}
-            <label class="form-check-label" for="{{ form.agree_terms.id_for_label }}">
-              I agree to the <a href="/terms/" target="_blank" class="text-link">Terms of Use</a> and <a href="/privacy/" target="_blank" class="text-link">Privacy Policy</a>
-            </label>
-            {% if form.agree_terms.errors %}
-              <div class="text-danger small">{{ form.agree_terms.errors.0 }}</div>
-            {% endif %}
-          </div>
-          
-          <button type="submit" class="btn btn-primary w-100">Create Account</button>
-        </form>
-        
-        <div class="text-center mt-3">
-          <p>Already have an account? <a href="{% url 'auth_app:signin' %}" class="text-link">Sign In</a></p>
-        </div>
-  </div>
-</div>
-{% endblock %}
-
-{% block auth_extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('signup-form');
-    const passwordInput = document.getElementById('id_password');
-    const confirmPassword = document.getElementById('id_password2');
-    const usernameInput = document.getElementById('id_username');
-    const emailInput = document.getElementById('id_email');
-    const successMessage = document.querySelector('.form-message.success');
-    const errorMessage = document.getElementById('js-error-message');
-    const errorText = document.getElementById('error-message');
-    const academicBenefits = document.querySelector('.academic-benefits');
-    const usernamePreview = document.getElementById('username-preview');
-    const usernameStatus = document.getElementById('username-status');
-    const usernameStatusIcon = document.getElementById('username-status-icon');
-    const usernameFeedback = document.getElementById('username-feedback');
+    {% endblock %}
+    {% block auth_extra_js %}
+        <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("signup-form");
+    const passwordInput = document.getElementById("id_password");
+    const confirmPassword = document.getElementById("id_password2");
+    const usernameInput = document.getElementById("id_username");
+    const emailInput = document.getElementById("id_email");
+    const successMessage = document.querySelector(".form-message.success");
+    const errorMessage = document.getElementById("js-error-message");
+    const errorText = document.getElementById("error-message");
+    const academicBenefits = document.querySelector(".academic-benefits");
+    const usernamePreview = document.getElementById("username-preview");
+    const usernameStatus = document.getElementById("username-status");
+    const usernameStatusIcon = document.getElementById("username-status-icon");
+    const usernameFeedback = document.getElementById("username-feedback");
 
     // Debounce function to avoid excessive API calls
     function debounce(func, delay) {
       let timeout;
-      return function(...args) {
+      return function (...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), delay);
       };
     }
 
     // Check username availability with real-time validation
-    const checkUsernameAvailability = debounce(async function(username) {
+    const checkUsernameAvailability = debounce(async function (username) {
       if (!username || username.length === 0) {
-        usernameStatus.style.display = 'none';
-        usernameFeedback.style.display = 'none';
+        usernameStatus.style.display = "none";
+        usernameFeedback.style.display = "none";
         return;
       }
 
       try {
-        const response = await fetch('/auth/api/check-username/', {
-          method: 'POST',
+        const response = await fetch("/auth/api/check-username/", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+              .value,
           },
-          body: JSON.stringify({ username: username })
+          body: JSON.stringify({ username: username }),
         });
 
         const data = await response.json();
 
         // Show status indicator
-        usernameStatus.style.display = 'block';
-        usernameFeedback.style.display = 'block';
+        usernameStatus.style.display = "block";
+        usernameFeedback.style.display = "block";
 
         if (data.available) {
           // Username is available - show green check
-          usernameStatusIcon.className = 'fas fa-check';
-          usernameStatusIcon.style.color = 'var(--status-success-text)';
-          usernameStatus.style.borderColor = 'var(--status-success-text)';
+          usernameStatusIcon.className = "fas fa-check";
+          usernameStatusIcon.style.color = "var(--status-success-text)";
+          usernameStatus.style.borderColor = "var(--status-success-text)";
           usernameFeedback.textContent = data.message;
-          usernameFeedback.className = 'small text-success';
+          usernameFeedback.className = "small text-success";
         } else {
           // Username is taken or invalid - show red X
-          usernameStatusIcon.className = 'fas fa-times';
-          usernameStatusIcon.style.color = 'var(--status-error-text)';
-          usernameStatus.style.borderColor = 'var(--status-error-text)';
+          usernameStatusIcon.className = "fas fa-times";
+          usernameStatusIcon.style.color = "var(--status-error-text)";
+          usernameStatus.style.borderColor = "var(--status-error-text)";
           usernameFeedback.textContent = data.error;
-          usernameFeedback.className = 'small text-danger';
+          usernameFeedback.className = "small text-danger";
         }
       } catch (error) {
-        console.error('Error checking username:', error);
+        console.error("Error checking username:", error);
         // Silently fail - allow user to continue
-        usernameStatus.style.display = 'none';
-        usernameFeedback.style.display = 'none';
+        usernameStatus.style.display = "none";
+        usernameFeedback.style.display = "none";
       }
     }, 500); // Wait 500ms after user stops typing before checking
 
     // Update username preview and check availability as user types
-    usernameInput.addEventListener('input', function() {
-      const username = this.value || 'username';
+    usernameInput.addEventListener("input", function () {
+      const username = this.value || "username";
       usernamePreview.textContent = username;
 
       // Only check availability if username has content and is not empty
       if (this.value.trim()) {
         checkUsernameAvailability(this.value.trim());
       } else {
-        usernameStatus.style.display = 'none';
-        usernameFeedback.style.display = 'none';
+        usernameStatus.style.display = "none";
+        usernameFeedback.style.display = "none";
       }
     });
-    
+
     // Japanese academic domains (synced with backend)
     const japaneseAcademicDomains = [
       // Japanese Academic (.ac.jp) - All academic institutions
-      '.ac.jp',
-      '.u-tokyo.ac.jp', '.kyoto-u.ac.jp', '.osaka-u.ac.jp',
-      '.tohoku.ac.jp', '.nagoya-u.ac.jp', '.kyushu-u.ac.jp',
-      '.hokudai.ac.jp', '.tsukuba.ac.jp', '.hiroshima-u.ac.jp',
-      '.kobe-u.ac.jp', '.waseda.jp', '.keio.ac.jp',
-      
+      ".ac.jp",
+      ".u-tokyo.ac.jp",
+      ".kyoto-u.ac.jp",
+      ".osaka-u.ac.jp",
+      ".tohoku.ac.jp",
+      ".nagoya-u.ac.jp",
+      ".kyushu-u.ac.jp",
+      ".hokudai.ac.jp",
+      ".tsukuba.ac.jp",
+      ".hiroshima-u.ac.jp",
+      ".kobe-u.ac.jp",
+      ".waseda.jp",
+      ".keio.ac.jp",
+
       // Government Research Institutions (.go.jp)
-      '.go.jp',  // Broader government research support
-      '.riken.jp', '.aist.go.jp', '.nict.go.jp', '.jaxa.jp',
-      '.jst.go.jp', '.nims.go.jp', '.nies.go.jp'
+      ".go.jp", // Broader government research support
+      ".riken.jp",
+      ".aist.go.jp",
+      ".nict.go.jp",
+      ".jaxa.jp",
+      ".jst.go.jp",
+      ".nims.go.jp",
+      ".nies.go.jp",
     ];
-    
+
     // Check if email is Japanese academic (synced with backend logic)
     function isJapaneseAcademicEmail(email) {
-      if (!email || !email.includes('@')) return false;
-      const domain = email.toLowerCase().split('@')[1];
-      
+      if (!email || !email.includes("@")) return false;
+      const domain = email.toLowerCase().split("@")[1];
+
       // Check if domain matches exactly or ends with the academic domain
       for (const acadDomain of japaneseAcademicDomains) {
-        const cleanDomain = acadDomain.replace(/^\./, '');
+        const cleanDomain = acadDomain.replace(/^\./, "");
         if (domain === cleanDomain || domain.endsWith(acadDomain)) {
           return true;
         }
       }
       return false;
     }
-    
+
     // Check email for Japanese academic domains
-    emailInput.addEventListener('input', function() {
+    emailInput.addEventListener("input", function () {
       const email = this.value;
       if (isJapaneseAcademicEmail(email)) {
-        academicBenefits.style.display = 'block';
-        academicBenefits.classList.add('animate__animated', 'animate__slideInDown');
+        academicBenefits.style.display = "block";
+        academicBenefits.classList.add(
+          "animate__animated",
+          "animate__slideInDown",
+        );
       } else {
-        academicBenefits.style.display = 'none';
+        academicBenefits.style.display = "none";
       }
     });
-    
+
     // Password validation rules
-    const ruleLength = document.getElementById('rule-length');
-    const ruleLowercase = document.getElementById('rule-lowercase');
-    const ruleUppercase = document.getElementById('rule-uppercase');
-    const ruleNumber = document.getElementById('rule-number');
-    const ruleSpecial = document.getElementById('rule-special');
-    
+    const ruleLength = document.getElementById("rule-length");
+    const ruleLowercase = document.getElementById("rule-lowercase");
+    const ruleUppercase = document.getElementById("rule-uppercase");
+    const ruleNumber = document.getElementById("rule-number");
+    const ruleSpecial = document.getElementById("rule-special");
+    const ruleMatch = document.getElementById("rule-match");
+
     // Helper function to update rule state
     function updatePasswordRule(element, isValid, hasInput) {
-      element.classList.remove('valid', 'invalid');
+      element.classList.remove("valid", "invalid");
       if (isValid) {
-        element.classList.add('valid');
-        element.querySelector('i').className = 'fas fa-check';
+        element.classList.add("valid");
+        element.querySelector("i").className = "fas fa-check";
       } else {
         // Invalid state: red X (default)
-        element.classList.add('invalid');
-        element.querySelector('i').className = 'fas fa-times';
+        element.classList.add("invalid");
+        element.querySelector("i").className = "fas fa-times";
       }
     }
 
+    // Helper function to check password match
+    function checkPasswordMatch() {
+      const password = passwordInput.value;
+      const confirmPass = confirmPassword.value;
+      const hasInput = password.length > 0 && confirmPass.length > 0;
+      const passwordsMatch = password === confirmPass && password.length > 0;
+
+      updatePasswordRule(ruleMatch, passwordsMatch, hasInput);
+    }
+
     // Check password strength
-    passwordInput.addEventListener('input', function() {
+    passwordInput.addEventListener("input", function () {
       const password = this.value;
       const hasInput = password.length > 0;
 
@@ -325,97 +373,123 @@
       updatePasswordRule(ruleNumber, /\d/.test(password), hasInput);
 
       // Check for special characters
-      updatePasswordRule(ruleSpecial, /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password), hasInput);
+      updatePasswordRule(
+        ruleSpecial,
+        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+        hasInput,
+      );
+
+      // Check if passwords match
+      checkPasswordMatch();
     });
-    
+
+    // Check password match when confirm password changes
+    confirmPassword.addEventListener("input", function () {
+      checkPasswordMatch();
+    });
+
     // Form submission validation
-    form.addEventListener('submit', function(e) {
+    form.addEventListener("submit", function (e) {
       // Hide previous messages
-      successMessage.style.display = 'none';
-      errorMessage.style.display = 'none';
-      
+      successMessage.style.display = "none";
+      errorMessage.style.display = "none";
+
       // Password strength validation
       const password = passwordInput.value;
       const passwordErrors = [];
-      
+
       if (password.length < 8) {
-        passwordErrors.push('at least 8 characters');
+        passwordErrors.push("at least 8 characters");
       }
       if (!/[a-z]/.test(password)) {
-        passwordErrors.push('at least one lowercase letter');
+        passwordErrors.push("at least one lowercase letter");
       }
       if (!/[A-Z]/.test(password)) {
-        passwordErrors.push('at least one uppercase letter');
+        passwordErrors.push("at least one uppercase letter");
       }
       if (!/\d/.test(password)) {
-        passwordErrors.push('at least one number');
+        passwordErrors.push("at least one number");
       }
       if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-        passwordErrors.push('at least one special character');
+        passwordErrors.push("at least one special character");
       }
-      
+
       if (passwordErrors.length > 0) {
         e.preventDefault();
-        errorText.textContent = `Password must contain ${passwordErrors.join(', ')}.`;
-        errorMessage.style.display = 'block';
+        errorText.textContent = `Password must contain ${passwordErrors.join(", ")}.`;
+        errorMessage.style.display = "block";
         return;
       }
-      
+
       // Password match validation
       if (password !== confirmPassword.value) {
         e.preventDefault();
-        errorText.textContent = 'Passwords do not match.';
-        errorMessage.style.display = 'block';
+        errorText.textContent = "Passwords do not match.";
+        errorMessage.style.display = "block";
         return;
       }
-      
+
       // If validation passes, allow form to submit normally to Django
     });
   });
-  
+
   // Password visibility toggles - separate event listener
-  document.addEventListener('DOMContentLoaded', function() {
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('id_password');
-    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-    
-    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-    const confirmPasswordInput = document.getElementById('id_password2');
-    const toggleConfirmPasswordIcon = document.getElementById('toggleConfirmPasswordIcon');
-    
+  document.addEventListener("DOMContentLoaded", function () {
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("id_password");
+    const togglePasswordIcon = document.getElementById("togglePasswordIcon");
+
+    const toggleConfirmPassword = document.getElementById(
+      "toggleConfirmPassword",
+    );
+    const confirmPasswordInput = document.getElementById("id_password2");
+    const toggleConfirmPasswordIcon = document.getElementById(
+      "toggleConfirmPasswordIcon",
+    );
+
     // Main password toggle
     if (togglePassword && passwordInput && togglePasswordIcon) {
-      togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
-        
+      togglePassword.addEventListener("click", function () {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+
         // Toggle the eye icon
-        if (type === 'password') {
-          togglePasswordIcon.classList.remove('fa-eye-slash');
-          togglePasswordIcon.classList.add('fa-eye');
+        if (type === "password") {
+          togglePasswordIcon.classList.remove("fa-eye-slash");
+          togglePasswordIcon.classList.add("fa-eye");
         } else {
-          togglePasswordIcon.classList.remove('fa-eye');
-          togglePasswordIcon.classList.add('fa-eye-slash');
+          togglePasswordIcon.classList.remove("fa-eye");
+          togglePasswordIcon.classList.add("fa-eye-slash");
         }
       });
     }
-    
+
     // Confirm password toggle
-    if (toggleConfirmPassword && confirmPasswordInput && toggleConfirmPasswordIcon) {
-      toggleConfirmPassword.addEventListener('click', function() {
-        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        confirmPasswordInput.setAttribute('type', type);
-        
+    if (
+      toggleConfirmPassword &&
+      confirmPasswordInput &&
+      toggleConfirmPasswordIcon
+    ) {
+      toggleConfirmPassword.addEventListener("click", function () {
+        const type =
+          confirmPasswordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        confirmPasswordInput.setAttribute("type", type);
+
         // Toggle the eye icon
-        if (type === 'password') {
-          toggleConfirmPasswordIcon.classList.remove('fa-eye-slash');
-          toggleConfirmPasswordIcon.classList.add('fa-eye');
+        if (type === "password") {
+          toggleConfirmPasswordIcon.classList.remove("fa-eye-slash");
+          toggleConfirmPasswordIcon.classList.add("fa-eye");
         } else {
-          toggleConfirmPasswordIcon.classList.remove('fa-eye');
-          toggleConfirmPasswordIcon.classList.add('fa-eye-slash');
+          toggleConfirmPasswordIcon.classList.remove("fa-eye");
+          toggleConfirmPasswordIcon.classList.add("fa-eye-slash");
         }
       });
     }
   });
-</script>
-{% endblock %}
+        </script>
+    {% endblock %}

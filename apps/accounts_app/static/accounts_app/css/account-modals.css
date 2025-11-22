@@ -3,270 +3,286 @@
  * Styles for delete account modal and other account-related modals
  */
 
+/* Password Input Group Fixes */
+.input-group {
+  flex-wrap: nowrap !important;
+}
+
+.input-group .form-control {
+  flex: 1;
+}
+
+.input-group .toggle-password {
+  flex-shrink: 0;
+  border-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 /* Delete Account Modal Overlay */
 .delete-account-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* background: rgba(0, 0, 0, 0.6); */ /* Styling from central CSS */
-    z-index: 10000;
-    align-items: center;
-    justify-content: center;
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Modal Container */
 .delete-account-modal-content {
-    /* background: var(--color-canvas-default); */ /* Styling from central CSS */
-    /* border-radius: 12px; */ /* Styling from central CSS */
-    max-width: 600px;
-    width: 90%;
-    padding: 24px;
-    /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); */ /* Styling from central CSS */
+  background: var(--color-canvas-default);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* Modal Header */
 .delete-account-modal-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
 .delete-account-modal-icon {
-    margin-right: 12px;
+  margin-right: 12px;
 }
 
 .delete-account-modal-title {
-    margin: 0;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    /* font-size: 20px; */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
+  margin: 0;
+  color: var(--color-fg-default);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 /* Warning Box */
 .delete-account-warning {
-    padding: 16px;
-    /* background: var(--color-danger-subtle); */ /* Styling from central CSS */
-    /* border: 1px solid var(--color-danger-emphasis); */ /* Styling from central CSS */
-    /* border-radius: 6px; */ /* Styling from central CSS */
-    margin-bottom: 16px;
+  padding: 16px;
+  background: var(--color-danger-subtle);
+  border: 1px solid var(--color-danger-emphasis);
+  border-radius: 6px;
+  margin-bottom: 16px;
 }
 
 .delete-account-warning-title {
-    margin: 0 0 12px 0;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
+  margin: 0 0 12px 0;
+  color: var(--color-fg-default);
+  font-weight: 600;
 }
 
 .delete-account-warning-text {
-    margin: 0;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
+  margin: 0;
+  color: var(--color-fg-default);
+  font-size: 14px;
 }
 
 /* Confirmation Text */
 .delete-account-confirm-text {
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
-    margin-bottom: 8px;
-    /* font-size: 14px; */ /* Styling from central CSS */
+  color: var(--color-fg-default);
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
 .delete-account-username {
-    /* color: var(--color-danger-fg); */ /* Styling from central CSS */
+  color: var(--color-danger-fg);
 }
 
 /* Confirmation Input */
 .delete-account-confirm-input {
-    width: 100%;
-    padding: 8px 12px;
-    /* border: 2px solid var(--color-border-default); */ /* Styling from central CSS */
-    /* border-radius: 6px; */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
-    margin-bottom: 16px;
-    /* background: var(--color-canvas-default); */ /* Styling from central CSS */
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--color-border-default);
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
 }
 
 /* Modal Actions */
 .delete-account-modal-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 .delete-account-cancel-btn {
-    padding: 8px 16px;
-    /* border: 2px solid var(--color-border-default); */ /* Styling from static/css/common/buttons.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
-    /* background: var(--color-canvas-default); */ /* Styling from static/css/common/buttons.css */
-    /* color: var(--color-fg-default); */ /* Styling from static/css/common/buttons.css */
-    cursor: pointer;
-    /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
+  padding: 8px 16px;
+  border: 2px solid var(--color-border-default);
+  border-radius: 6px;
+  background: var(--color-canvas-default);
+  color: var(--color-fg-default);
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .delete-account-cancel-btn:hover {
-    /* background: var(--color-btn-hover-bg); */ /* Styling from static/css/common/buttons.css */
+  background: var(--color-btn-hover-bg);
 }
 
 .delete-account-confirm-btn {
-    padding: 8px 16px;
-    /* border: none; */ /* Styling from static/css/common/buttons.css */
-    /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
-    /* background: #d73a49; */ /* Styling from static/css/common/buttons.css */
-    /* color: white; */ /* Styling from static/css/common/buttons.css */
-    cursor: pointer;
-    /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
-    /* font-weight: 600; */ /* Styling from static/css/common/buttons.css */
-    /* opacity: 0.5; */ /* Styling from static/css/common/buttons.css */
-    /* transition: opacity 0.2s ease; */ /* Styling from static/css/common/buttons.css */
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #d73a49;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
 }
 
 .delete-account-confirm-btn:not(:disabled) {
-    /* opacity: 1; */ /* Styling from static/css/common/buttons.css */
+  opacity: 1;
 }
 
 .delete-account-confirm-btn:not(:disabled):hover {
-    /* background: #cb2431; */ /* Styling from static/css/common/buttons.css */
+  background: #cb2431;
 }
 
 .delete-account-confirm-btn:disabled {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 /* Message Alert Styles */
 .settings-alert {
-    padding: 12px;
-    /* border-radius: 6px; */ /* Styling from static/css/components/alerts.css */
-    margin-bottom: 8px;
-    /* color: white; */ /* Styling from static/css/components/alerts.css */
+  padding: 12px;
+  /* border-radius: 6px; */ /* Styling from static/css/components/alerts.css */
+  margin-bottom: 8px;
+  /* color: white; */ /* Styling from static/css/components/alerts.css */
 }
 
 .settings-alert-success {
-    /* background: var(--scitex-success); */ /* Styling from static/css/components/alerts.css */
+  /* background: var(--scitex-success); */ /* Styling from static/css/components/alerts.css */
 }
 
 .settings-alert-error {
-    /* background: var(--scitex-error); */ /* Styling from static/css/components/alerts.css */
+  /* background: var(--scitex-error); */ /* Styling from static/css/components/alerts.css */
 }
 
 .settings-messages {
-    margin-bottom: 16px;
+  margin-bottom: 16px;
 }
 
 /* Current Email Display */
 .current-email-text {
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
-    margin-bottom: 12px;
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  /* font-size: 14px; */ /* Styling from central CSS */
+  margin-bottom: 12px;
 }
 
 .current-email-value {
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
 }
 
 /* Danger Zone Specific Styles */
 .danger-zone-title {
-    /* color: var(--color-danger-fg); */ /* Styling from central CSS */
+  /* color: var(--color-danger-fg); */ /* Styling from central CSS */
 }
 
 .danger-zone-description {
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  /* font-size: 14px; */ /* Styling from central CSS */
 }
 
 .danger-zone-button {
-    /* background: var(--color-danger-emphasis); */ /* Styling from static/css/common/buttons.css */
-    /* color: white; */ /* Styling from static/css/common/buttons.css */
-    /* border: none; */ /* Styling from static/css/common/buttons.css */
-    padding: 8px 16px;
-    /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
-    margin-top: 12px;
-    cursor: pointer;
-    /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
+  /* background: var(--color-danger-emphasis); */ /* Styling from static/css/common/buttons.css */
+  /* color: white; */ /* Styling from static/css/common/buttons.css */
+  /* border: none; */ /* Styling from static/css/common/buttons.css */
+  padding: 8px 16px;
+  /* border-radius: 6px; */ /* Styling from static/css/common/buttons.css */
+  margin-top: 12px;
+  cursor: pointer;
+  /* font-size: 14px; */ /* Styling from static/css/common/buttons.css */
 }
 
 .danger-zone-button:hover {
-    /* background: #cb2431; */ /* Styling from static/css/common/buttons.css */
+  /* background: #cb2431; */ /* Styling from static/css/common/buttons.css */
 }
 
 /* Appearance Settings Specific Styles */
 .appearance-description {
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
-    margin-bottom: 16px;
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  /* font-size: 14px; */ /* Styling from central CSS */
+  margin-bottom: 16px;
 }
 
 .code-theme-label {
-    display: block;
-    /* font-weight: 600; */ /* Styling from central CSS */
-    margin-bottom: 8px;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  display: block;
+  /* font-weight: 600; */ /* Styling from central CSS */
+  margin-bottom: 8px;
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
 }
 
 .code-theme-selector {
-    max-width: 400px;
+  max-width: 400px;
 }
 
 .code-theme-section {
-    margin-bottom: 24px;
+  margin-bottom: 24px;
 }
 
 .code-preview-header {
-    /* font-size: 16px; */ /* Styling from central CSS */
-    /* font-weight: 600; */ /* Styling from central CSS */
-    margin-bottom: 12px;
-    /* color: var(--color-fg-default); */ /* Styling from central CSS */
+  /* font-size: 16px; */ /* Styling from central CSS */
+  /* font-weight: 600; */ /* Styling from central CSS */
+  margin-bottom: 12px;
+  /* color: var(--color-fg-default); */ /* Styling from central CSS */
 }
 
 .code-preview-description {
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
-    margin-bottom: 12px;
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  /* font-size: 14px; */ /* Styling from central CSS */
+  margin-bottom: 12px;
 }
 
 .code-preview-container {
-    position: relative;
+  position: relative;
 }
 
 .code-preview-lang-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    /* background: var(--color-canvas-subtle); */ /* Styling from static/css/common/code-blocks.css */
-    /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/code-blocks.css */
-    /* border-bottom: none; */ /* Styling from static/css/common/code-blocks.css */
-    /* border-radius: 6px 6px 0 0; */ /* Styling from static/css/common/code-blocks.css */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  /* background: var(--color-canvas-subtle); */ /* Styling from static/css/common/code-blocks.css */
+  /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/code-blocks.css */
+  /* border-bottom: none; */ /* Styling from static/css/common/code-blocks.css */
+  /* border-radius: 6px 6px 0 0; */ /* Styling from static/css/common/code-blocks.css */
 }
 
 .code-preview-lang {
-    /* font-size: 12px; */ /* Styling from static/css/common/code-blocks.css */
-    /* font-weight: 600; */ /* Styling from static/css/common/code-blocks.css */
-    /* color: var(--color-fg-muted); */ /* Styling from static/css/common/code-blocks.css */
-    /* font-family: var(--font-mono); */ /* Styling from static/css/common/code-blocks.css */
+  /* font-size: 12px; */ /* Styling from static/css/common/code-blocks.css */
+  /* font-weight: 600; */ /* Styling from static/css/common/code-blocks.css */
+  /* color: var(--color-fg-muted); */ /* Styling from static/css/common/code-blocks.css */
+  /* font-family: var(--font-mono); */ /* Styling from static/css/common/code-blocks.css */
 }
 
 .code-preview-pre {
-    margin: 0;
-    /* border-radius: 0 0 6px 6px; */ /* Styling from static/css/common/code-blocks.css */
-    overflow-x: auto;
-    /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/code-blocks.css */
+  margin: 0;
+  /* border-radius: 0 0 6px 6px; */ /* Styling from static/css/common/code-blocks.css */
+  overflow-x: auto;
+  /* border: 1px solid var(--color-border-default); */ /* Styling from static/css/common/code-blocks.css */
 }
 
 .code-preview-code {
-    /* font-family: var(--font-mono); */ /* Styling from static/css/common/code-blocks.css */
-    /* font-size: 14px; */ /* Styling from static/css/common/code-blocks.css */
-    /* font-weight: 400; */ /* Styling from static/css/common/code-blocks.css */
-    /* line-height: 1.6; */ /* Styling from static/css/common/code-blocks.css */
+  /* font-family: var(--font-mono); */ /* Styling from static/css/common/code-blocks.css */
+  /* font-size: 14px; */ /* Styling from static/css/common/code-blocks.css */
+  /* font-weight: 400; */ /* Styling from static/css/common/code-blocks.css */
+  /* line-height: 1.6; */ /* Styling from static/css/common/code-blocks.css */
 }
 
 .code-preview-status {
-    margin-top: 16px;
+  margin-top: 16px;
 }
 
 .code-save-status {
-    /* color: var(--color-fg-muted); */ /* Styling from central CSS */
-    /* font-size: 14px; */ /* Styling from central CSS */
+  /* color: var(--color-fg-muted); */ /* Styling from central CSS */
+  /* font-size: 14px; */ /* Styling from central CSS */
 }

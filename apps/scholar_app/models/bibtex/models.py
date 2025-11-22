@@ -18,38 +18,69 @@ class BibTeXEnrichmentJob(models.Model):
     """Track BibTeX enrichment jobs for users."""
 
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('cancelled', 'Cancelled'),
+        ("pending", "Pending"),
+        ("processing", "Processing"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+        ("cancelled", "Cancelled"),
     ]
 
     BROWSER_MODE_CHOICES = [
-        ('stealth', 'Stealth Mode'),
-        ('interactive', 'Interactive Mode'),
+        ("stealth", "Stealth Mode"),
+        ("interactive", "Interactive Mode"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bibtex_jobs', null=True, blank=True)
-    session_key = models.CharField(max_length=40, blank=True, null=True, help_text="For anonymous users")
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="bibtex_jobs",
+        null=True,
+        blank=True,
+    )
+    session_key = models.CharField(
+        max_length=40, blank=True, null=True, help_text="For anonymous users"
+    )
 
     # Input
-    input_file = models.FileField(upload_to='bibtex_uploads/%Y/%m/%d/')
-    original_filename = models.CharField(max_length=255, blank=True, null=True, help_text="Original filename before upload")
-    project_name = models.CharField(max_length=200, blank=True, null=True, help_text="Optional project name for organization")
-    project = models.ForeignKey('project_app.Project', on_delete=models.SET_NULL, null=True, blank=True, related_name='bibtex_jobs', help_text="Associated project for Gitea integration")
+    input_file = models.FileField(upload_to="bibtex_uploads/%Y/%m/%d/")
+    original_filename = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text="Original filename before upload",
+    )
+    project_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        help_text="Optional project name for organization",
+    )
+    project = models.ForeignKey(
+        "project_app.Project",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="bibtex_jobs",
+        help_text="Associated project for Gitea integration",
+    )
 
     # Processing parameters
     num_workers = models.IntegerField(default=4, help_text="Number of parallel workers")
-    browser_mode = models.CharField(max_length=20, choices=BROWSER_MODE_CHOICES, default='stealth')
-    use_cache = models.BooleanField(default=True, help_text="Use cached metadata if available")
+    browser_mode = models.CharField(
+        max_length=20, choices=BROWSER_MODE_CHOICES, default="stealth"
+    )
+    use_cache = models.BooleanField(
+        default=True, help_text="Use cached metadata if available"
+    )
 
     # Output
-    output_file = models.FileField(upload_to='bibtex_enriched/%Y/%m/%d/', blank=True, null=True)
+    output_file = models.FileField(
+        upload_to="bibtex_enriched/%Y/%m/%d/", blank=True, null=True
+    )
 
     # Progress tracking
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     total_papers = models.IntegerField(default=0)
     processed_papers = models.IntegerField(default=0)
     failed_papers = models.IntegerField(default=0)
@@ -63,21 +94,23 @@ class BibTeXEnrichmentJob(models.Model):
     error_message = models.TextField(blank=True)
 
     # Processing log for real-time updates
-    processing_log = models.TextField(blank=True, default='', help_text="Real-time processing log shown to user")
+    processing_log = models.TextField(
+        blank=True, default="", help_text="Real-time processing log shown to user"
+    )
 
     # Results summary
     enrichment_summary = models.JSONField(
         default=dict,
         blank=True,
-        help_text="Summary of enrichments: citations added, IFs found, PDFs downloaded, etc."
+        help_text="Summary of enrichments: citations added, IFs found, PDFs downloaded, etc.",
     )
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=['user', '-created_at']),
-            models.Index(fields=['session_key', '-created_at']),
-            models.Index(fields=['status']),
+            models.Index(fields=["user", "-created_at"]),
+            models.Index(fields=["session_key", "-created_at"]),
+            models.Index(fields=["status"]),
         ]
 
     def __str__(self):

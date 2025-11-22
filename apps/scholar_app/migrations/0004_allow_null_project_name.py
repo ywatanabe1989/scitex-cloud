@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scholar_app", "0003_add_anonymous_support_to_bibtex"),
     ]

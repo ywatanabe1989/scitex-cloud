@@ -1,79 +1,98 @@
 {% load static %}
 <!-- Single Repository List Item -->
-<article class="repo-item">
-    <div class="repo-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-            <a href="{{ project.get_absolute_url }}" class="text-link font-semibold text-lg">
-                {{ project.name }}
-            </a>
+<article class="repo-item repo-item-clickable">
+    <a href="{{ project.get_absolute_url }}"
+       class="repo-item-link"
+       aria-label="View {{ project.name }}"></a>
+    <div class="repo-header"
+         style="display: flex;
+                justify-content: space-between;
+                align-items: center">
+        <div style="display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    flex-wrap: wrap">
+            <span class="text-link font-semibold text-lg">{{ project.name }}</span>
             <span class="repo-visibility">
                 {% if project.visibility == 'private' %}
-                    <img src="{% static 'project_app/icons/lock.svg' %}" alt="" style="width: 14px; height: 14px; vertical-align: text-bottom; margin-right: 4px;">Private
+                    <img src="{% static 'project_app/icons/lock.svg' %}"
+                         alt=""
+                         style="width: 14px;
+                                height: 14px;
+                                vertical-align: text-bottom;
+                                margin-right: 4px" />
+                    Private
                 {% else %}
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" style="vertical-align: text-bottom; margin-right: 4px;"><path fill="#6c8ba0" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm6.5-3a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 8 5Zm0-2.5a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75Z"/></svg>Public
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 16 16"
+                         width="14"
+                         height="14"
+                         style="vertical-align: text-bottom;
+                                margin-right: 4px">
+                        <path fill="#6c8ba0" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm6.5-3a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 8 5Zm0-2.5a.875.875 0 1 1 0 1.75.875.875 0 0 1 0-1.75Z" />
+                    </svg>
+                    Public
                 {% endif %}
             </span>
-            <span class="repo-updated" style="color: var(--text-muted); font-size: 0.875rem;">
-                Updated {{ project.updated_at|timesince }} ago
-            </span>
+            <span class="repo-updated"
+                  style="color: var(--text-muted);
+                         font-size: 0.875rem">Updated {{ project.updated_at|timesince }} ago</span>
         </div>
         {% if user.is_authenticated %}
-        <button class="btn btn-outline-secondary btn-sm" data-username="{{ project.owner.username }}" data-slug="{{ project.slug }}" onclick="toggleStar(this)">
-            <img src="{% static 'project_app/icons/star.svg' %}" alt="">Star
-        </button>
+            <button class="btn btn-outline-secondary btn-sm"
+                    data-username="{{ project.owner.username }}"
+                    data-slug="{{ project.slug }}"
+                    onclick="toggleStar(this)">
+                <img src="{% static 'project_app/icons/star.svg' %}" alt="" />
+                Star
+            </button>
         {% endif %}
     </div>
-
-    {% if project.description %}
-    <p class="repo-description">
-        {{ project.description|truncatewords:30 }}
-    </p>
-    {% endif %}
-
+    {% if project.description %}<p class="repo-description">{{ project.description|truncatewords:30 }}</p>{% endif %}
     {% if project.primary_language %}
-    <div class="repo-meta">
-        <span class="repo-meta-item">
-            {% with language=project.primary_language %}
-                {% if language == 'Python' %}
-                    <span class="language-dot" style="background-color: #3572A5;"></span>
-                {% elif language == 'JavaScript' %}
-                    <span class="language-dot" style="background-color: #f1e05a;"></span>
-                {% elif language == 'TypeScript' %}
-                    <span class="language-dot" style="background-color: #3178c6;"></span>
-                {% elif language == 'Java' %}
-                    <span class="language-dot" style="background-color: #b07219;"></span>
-                {% elif language == 'C' %}
-                    <span class="language-dot" style="background-color: #555555;"></span>
-                {% elif language == 'C++' %}
-                    <span class="language-dot" style="background-color: #f34b7d;"></span>
-                {% elif language == 'C#' %}
-                    <span class="language-dot" style="background-color: #239120;"></span>
-                {% elif language == 'Go' %}
-                    <span class="language-dot" style="background-color: #00ADD8;"></span>
-                {% elif language == 'Rust' %}
-                    <span class="language-dot" style="background-color: #CE422B;"></span>
-                {% elif language == 'Ruby' %}
-                    <span class="language-dot" style="background-color: #CC342D;"></span>
-                {% elif language == 'PHP' %}
-                    <span class="language-dot" style="background-color: #777BB4;"></span>
-                {% elif language == 'Swift' %}
-                    <span class="language-dot" style="background-color: #FA7343;"></span>
-                {% elif language == 'LaTeX' %}
-                    <span class="language-dot" style="background-color: #3D6117;"></span>
-                {% elif language == 'Markdown' %}
-                    <span class="language-dot" style="background-color: #083fa1;"></span>
-                {% elif language == 'HTML' %}
-                    <span class="language-dot" style="background-color: #E34C26;"></span>
-                {% elif language == 'CSS' %}
-                    <span class="language-dot" style="background-color: #563D7C;"></span>
-                {% elif language == 'R' %}
-                    <span class="language-dot" style="background-color: #198CE7;"></span>
-                {% else %}
-                    <span class="language-dot" style="background-color: #858585;"></span>
-                {% endif %}
-                <span>{{ language }}</span>
-            {% endwith %}
-        </span>
-    </div>
+        <div class="repo-meta">
+            <span class="repo-meta-item">
+                {% with language=project.primary_language %}
+                    {% if language == 'Python' %}
+                        <span class="language-dot" style="background-color: #3572a5"></span>
+                    {% elif language == 'JavaScript' %}
+                        <span class="language-dot" style="background-color: #f1e05a"></span>
+                    {% elif language == 'TypeScript' %}
+                        <span class="language-dot" style="background-color: #3178c6"></span>
+                    {% elif language == 'Java' %}
+                        <span class="language-dot" style="background-color: #b07219"></span>
+                    {% elif language == 'C' %}
+                        <span class="language-dot" style="background-color: #555555"></span>
+                    {% elif language == 'C++' %}
+                        <span class="language-dot" style="background-color: #f34b7d"></span>
+                    {% elif language == 'C#' %}
+                        <span class="language-dot" style="background-color: #239120"></span>
+                    {% elif language == 'Go' %}
+                        <span class="language-dot" style="background-color: #00add8"></span>
+                    {% elif language == 'Rust' %}
+                        <span class="language-dot" style="background-color: #ce422b"></span>
+                    {% elif language == 'Ruby' %}
+                        <span class="language-dot" style="background-color: #cc342d"></span>
+                    {% elif language == 'PHP' %}
+                        <span class="language-dot" style="background-color: #777bb4"></span>
+                    {% elif language == 'Swift' %}
+                        <span class="language-dot" style="background-color: #fa7343"></span>
+                    {% elif language == 'LaTeX' %}
+                        <span class="language-dot" style="background-color: #3d6117"></span>
+                    {% elif language == 'Markdown' %}
+                        <span class="language-dot" style="background-color: #083fa1"></span>
+                    {% elif language == 'HTML' %}
+                        <span class="language-dot" style="background-color: #e34c26"></span>
+                    {% elif language == 'CSS' %}
+                        <span class="language-dot" style="background-color: #563d7c"></span>
+                    {% elif language == 'R' %}
+                        <span class="language-dot" style="background-color: #198ce7"></span>
+                    {% else %}
+                        <span class="language-dot" style="background-color: #858585"></span>
+                    {% endif %}
+                    <span>{{ language }}</span>
+                {% endwith %}
+            </span>
+        </div>
     {% endif %}
 </article>

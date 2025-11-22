@@ -34,26 +34,26 @@ def security_overview(request, username, slug):
 
     # Get security statistics
     alerts = SecurityAlert.objects.filter(project=project)
-    open_alerts = alerts.filter(status='open')
+    open_alerts = alerts.filter(status="open")
 
     stats = {
-        'total_alerts': alerts.count(),
-        'open_alerts': open_alerts.count(),
-        'critical': open_alerts.filter(severity='critical').count(),
-        'high': open_alerts.filter(severity='high').count(),
-        'medium': open_alerts.filter(severity='medium').count(),
-        'low': open_alerts.filter(severity='low').count(),
-        'fixed': alerts.filter(status='fixed').count(),
-        'dismissed': alerts.filter(status='dismissed').count(),
+        "total_alerts": alerts.count(),
+        "open_alerts": open_alerts.count(),
+        "critical": open_alerts.filter(severity="critical").count(),
+        "high": open_alerts.filter(severity="high").count(),
+        "medium": open_alerts.filter(severity="medium").count(),
+        "low": open_alerts.filter(severity="low").count(),
+        "fixed": alerts.filter(status="fixed").count(),
+        "dismissed": alerts.filter(status="dismissed").count(),
     }
 
     # Get recent alerts
-    recent_alerts = open_alerts.order_by('-created_at')[:10]
+    recent_alerts = open_alerts.order_by("-created_at")[:10]
 
     # Get recent scans
-    recent_scans = SecurityScanResult.objects.filter(
-        project=project
-    ).order_by('-started_at')[:5]
+    recent_scans = SecurityScanResult.objects.filter(project=project).order_by(
+        "-started_at"
+    )[:5]
 
     # Check if security policy exists
     try:
@@ -68,14 +68,14 @@ def security_overview(request, username, slug):
     vulnerable_deps = dependencies.filter(has_vulnerabilities=True).count()
 
     context = {
-        'project': project,
-        'stats': stats,
-        'recent_alerts': recent_alerts,
-        'recent_scans': recent_scans,
-        'has_policy': has_policy,
-        'security_policy': security_policy,
-        'total_dependencies': dependencies.count(),
-        'vulnerable_dependencies': vulnerable_deps,
+        "project": project,
+        "stats": stats,
+        "recent_alerts": recent_alerts,
+        "recent_scans": recent_scans,
+        "has_policy": has_policy,
+        "security_policy": security_policy,
+        "total_dependencies": dependencies.count(),
+        "vulnerable_dependencies": vulnerable_deps,
     }
 
-    return render(request, 'project_app/security/overview.html', context)
+    return render(request, "project_app/security/overview.html", context)

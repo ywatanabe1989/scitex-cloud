@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-02 18:32:26 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_prod.py
+# Timestamp: "2025-11-10 15:47:12 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_prod.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -30,6 +30,15 @@ except Exception as e:
 # Security
 # ---------------------------------------
 DEBUG = False  # Always False in production for security
+
+# ---------------------------------------
+# SciTeX Settings
+# ---------------------------------------
+# Use 'main' branch for writer template in production
+SCITEX_WRITER_TEMPLATE_BRANCH = os.getenv(
+    "SCITEX_WRITER_TEMPLATE_BRANCH", "main"
+)
+SCITEX_WRITER_TEMPLATE_TAG = os.getenv("SCITEX_WRITER_TEMPLATE_TAG", None)
 
 SECRET_KEY = os.environ.get("SCITEX_CLOUD_DJANGO_SECRET_KEY")
 
@@ -142,6 +151,15 @@ GITEA_API_URL = os.environ.get(
 )
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN", "")
 GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
+
+# Gitea Clone URLs (for user-facing clone button)
+SCITEX_CLOUD_GITEA_URL = os.environ.get(
+    "SCITEX_CLOUD_GITEA_URL_PROD", "https://git.scitex.ai"
+)
+SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "git.scitex.ai")
+SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
+    "SCITEX_CLOUD_GITEA_SSH_PORT_PROD", "22"
+)
 
 # ---------------------------------------
 # Logging

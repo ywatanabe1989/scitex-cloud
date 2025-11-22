@@ -15,7 +15,11 @@ urlpatterns = [
     # Main index page
     path("", index_views.index_view, name="index"),
     # Workspace initialization
-    path("initialize-workspace/", index_views.initialize_workspace, name="initialize-workspace"),
+    path(
+        "initialize-workspace/",
+        index_views.initialize_workspace,
+        name="initialize-workspace",
+    ),
 ]
 
 # EOF

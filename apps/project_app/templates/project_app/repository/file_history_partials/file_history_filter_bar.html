@@ -1,17 +1,15 @@
 <!-- Filter Bar -->
 {% if unique_authors|length > 1 %}
-<div class="filter-bar">
-    <label class="filter-label" for="author-filter">Filter by author:</label>
-    <select id="author-filter" class="filter-select" onchange="filterByAuthor(this.value)">
-        <option value="">All authors</option>
-        {% for author in unique_authors %}
-        <option value="{{ author }}" {% if author == author_filter %}selected{% endif %}>
-            {{ author }}
-        </option>
-        {% endfor %}
-    </select>
-    {% if author_filter %}
-    <a href="?page=1" class="btn btn-sm btn-outline-secondary">Clear filter</a>
-    {% endif %}
-</div>
+    <div class="filter-bar">
+        <label class="filter-label" for="author-filter">Filter by author:</label>
+        <select id="author-filter"
+                class="filter-select"
+                onchange="filterByAuthor(this.value)">
+            <option value="">All authors</option>
+            {% for author in unique_authors %}
+                <option value="{{ author }}" {% if author == author_filter %}selected{% endif %}>{{ author }}</option>
+            {% endfor %}
+        </select>
+        {% if author_filter %}<a href="?page=1" class="btn btn-sm btn-outline-secondary">Clear filter</a>{% endif %}
+    </div>
 {% endif %}

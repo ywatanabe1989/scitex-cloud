@@ -6,205 +6,705 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations_app', '0001_initial'),
-        ('project_app', '0019_projectinvitation'),
+        ("organizations_app", "0001_initial"),
+        ("project_app", "0019_projectinvitation"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Workflow',
+            name="Workflow",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text="Workflow name (e.g., 'Python Tests', 'LaTeX Build')", max_length=200)),
-                ('file_path', models.CharField(help_text='Path to workflow YAML file in .scitex/workflows/', max_length=500)),
-                ('description', models.TextField(blank=True, help_text='Workflow description')),
-                ('yaml_content', models.TextField(help_text='YAML workflow definition content')),
-                ('trigger_events', models.JSONField(default=list, help_text='List of trigger events (push, pull_request, etc.)')),
-                ('enabled', models.BooleanField(default=True, help_text='Whether workflow is enabled')),
-                ('schedule_cron', models.CharField(blank=True, help_text="Cron expression for scheduled runs (e.g., '0 0 * * *')", max_length=100)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('total_runs', models.IntegerField(default=0, help_text='Total number of runs')),
-                ('successful_runs', models.IntegerField(default=0, help_text='Number of successful runs')),
-                ('failed_runs', models.IntegerField(default=0, help_text='Number of failed runs')),
-                ('last_run_at', models.DateTimeField(blank=True, help_text='Last run timestamp', null=True)),
-                ('last_run_status', models.CharField(blank=True, help_text='Last run status (success, failure, cancelled)', max_length=20)),
-                ('created_by', models.ForeignKey(help_text='User who created this workflow', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_workflows', to=settings.AUTH_USER_MODEL)),
-                ('project', models.ForeignKey(help_text='Associated project', on_delete=django.db.models.deletion.CASCADE, related_name='workflows', to='project_app.project')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Workflow name (e.g., 'Python Tests', 'LaTeX Build')",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "file_path",
+                    models.CharField(
+                        help_text="Path to workflow YAML file in .scitex/workflows/",
+                        max_length=500,
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, help_text="Workflow description"),
+                ),
+                (
+                    "yaml_content",
+                    models.TextField(help_text="YAML workflow definition content"),
+                ),
+                (
+                    "trigger_events",
+                    models.JSONField(
+                        default=list,
+                        help_text="List of trigger events (push, pull_request, etc.)",
+                    ),
+                ),
+                (
+                    "enabled",
+                    models.BooleanField(
+                        default=True, help_text="Whether workflow is enabled"
+                    ),
+                ),
+                (
+                    "schedule_cron",
+                    models.CharField(
+                        blank=True,
+                        help_text="Cron expression for scheduled runs (e.g., '0 0 * * *')",
+                        max_length=100,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "total_runs",
+                    models.IntegerField(default=0, help_text="Total number of runs"),
+                ),
+                (
+                    "successful_runs",
+                    models.IntegerField(
+                        default=0, help_text="Number of successful runs"
+                    ),
+                ),
+                (
+                    "failed_runs",
+                    models.IntegerField(default=0, help_text="Number of failed runs"),
+                ),
+                (
+                    "last_run_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Last run timestamp", null=True
+                    ),
+                ),
+                (
+                    "last_run_status",
+                    models.CharField(
+                        blank=True,
+                        help_text="Last run status (success, failure, cancelled)",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        help_text="User who created this workflow",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="created_workflows",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        help_text="Associated project",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workflows",
+                        to="project_app.project",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-updated_at'],
+                "ordering": ["-updated_at"],
             },
         ),
         migrations.CreateModel(
-            name='WorkflowRun',
+            name="WorkflowRun",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('run_number', models.IntegerField(help_text='Sequential run number for this workflow')),
-                ('trigger_event', models.CharField(help_text='Event that triggered this run (push, pull_request, manual, etc.)', max_length=50)),
-                ('trigger_data', models.JSONField(default=dict, help_text='Additional trigger data (commit SHA, branch, etc.)')),
-                ('status', models.CharField(choices=[('queued', 'Queued'), ('in_progress', 'In Progress'), ('completed', 'Completed'), ('cancelled', 'Cancelled'), ('failed', 'Failed')], default='queued', help_text='Current run status', max_length=20)),
-                ('conclusion', models.CharField(blank=True, choices=[('success', 'Success'), ('failure', 'Failure'), ('cancelled', 'Cancelled'), ('skipped', 'Skipped'), ('timed_out', 'Timed Out')], help_text='Final run conclusion', max_length=20)),
-                ('started_at', models.DateTimeField(blank=True, help_text='Run start time', null=True)),
-                ('completed_at', models.DateTimeField(blank=True, help_text='Run completion time', null=True)),
-                ('duration_seconds', models.IntegerField(blank=True, help_text='Run duration in seconds', null=True)),
-                ('commit_sha', models.CharField(blank=True, help_text='Git commit SHA that triggered this run', max_length=40)),
-                ('branch', models.CharField(blank=True, help_text='Git branch', max_length=200)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('environment', models.CharField(default='default', help_text='Environment name (e.g., production, staging, development)', max_length=100)),
-                ('trigger_user', models.ForeignKey(blank=True, help_text='User who triggered this run (for manual triggers)', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='triggered_workflow_runs', to=settings.AUTH_USER_MODEL)),
-                ('workflow', models.ForeignKey(help_text='Associated workflow', on_delete=django.db.models.deletion.CASCADE, related_name='runs', to='project_app.workflow')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "run_number",
+                    models.IntegerField(
+                        help_text="Sequential run number for this workflow"
+                    ),
+                ),
+                (
+                    "trigger_event",
+                    models.CharField(
+                        help_text="Event that triggered this run (push, pull_request, manual, etc.)",
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "trigger_data",
+                    models.JSONField(
+                        default=dict,
+                        help_text="Additional trigger data (commit SHA, branch, etc.)",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("queued", "Queued"),
+                            ("in_progress", "In Progress"),
+                            ("completed", "Completed"),
+                            ("cancelled", "Cancelled"),
+                            ("failed", "Failed"),
+                        ],
+                        default="queued",
+                        help_text="Current run status",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "conclusion",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("success", "Success"),
+                            ("failure", "Failure"),
+                            ("cancelled", "Cancelled"),
+                            ("skipped", "Skipped"),
+                            ("timed_out", "Timed Out"),
+                        ],
+                        help_text="Final run conclusion",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Run start time", null=True
+                    ),
+                ),
+                (
+                    "completed_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Run completion time", null=True
+                    ),
+                ),
+                (
+                    "duration_seconds",
+                    models.IntegerField(
+                        blank=True, help_text="Run duration in seconds", null=True
+                    ),
+                ),
+                (
+                    "commit_sha",
+                    models.CharField(
+                        blank=True,
+                        help_text="Git commit SHA that triggered this run",
+                        max_length=40,
+                    ),
+                ),
+                (
+                    "branch",
+                    models.CharField(
+                        blank=True, help_text="Git branch", max_length=200
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "environment",
+                    models.CharField(
+                        default="default",
+                        help_text="Environment name (e.g., production, staging, development)",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "trigger_user",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="User who triggered this run (for manual triggers)",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="triggered_workflow_runs",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "workflow",
+                    models.ForeignKey(
+                        help_text="Associated workflow",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="runs",
+                        to="project_app.workflow",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='WorkflowJob',
+            name="WorkflowJob",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Job name from workflow YAML', max_length=200)),
-                ('job_id', models.CharField(help_text='Job identifier from workflow YAML', max_length=100)),
-                ('runs_on', models.CharField(default='ubuntu-latest', help_text='Runner environment (e.g., ubuntu-latest, python:3.11)', max_length=100)),
-                ('depends_on', models.JSONField(default=list, help_text='List of job IDs that must complete before this job')),
-                ('status', models.CharField(choices=[('queued', 'Queued'), ('in_progress', 'In Progress'), ('completed', 'Completed'), ('cancelled', 'Cancelled'), ('failed', 'Failed'), ('skipped', 'Skipped')], default='queued', help_text='Current job status', max_length=20)),
-                ('conclusion', models.CharField(blank=True, help_text='Job conclusion (success, failure, etc.)', max_length=20)),
-                ('started_at', models.DateTimeField(blank=True, help_text='Job start time', null=True)),
-                ('completed_at', models.DateTimeField(blank=True, help_text='Job completion time', null=True)),
-                ('duration_seconds', models.IntegerField(blank=True, help_text='Job duration in seconds', null=True)),
-                ('runner_id', models.CharField(blank=True, help_text='ID of the runner that executed this job', max_length=100)),
-                ('container_id', models.CharField(blank=True, help_text='Container ID for this job execution', max_length=100)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('matrix_config', models.JSONField(default=dict, help_text="Matrix configuration for this job (e.g., {python: '3.11', os: 'ubuntu'})")),
-                ('run', models.ForeignKey(help_text='Associated workflow run', on_delete=django.db.models.deletion.CASCADE, related_name='jobs', to='project_app.workflowrun')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Job name from workflow YAML", max_length=200
+                    ),
+                ),
+                (
+                    "job_id",
+                    models.CharField(
+                        help_text="Job identifier from workflow YAML", max_length=100
+                    ),
+                ),
+                (
+                    "runs_on",
+                    models.CharField(
+                        default="ubuntu-latest",
+                        help_text="Runner environment (e.g., ubuntu-latest, python:3.11)",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "depends_on",
+                    models.JSONField(
+                        default=list,
+                        help_text="List of job IDs that must complete before this job",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("queued", "Queued"),
+                            ("in_progress", "In Progress"),
+                            ("completed", "Completed"),
+                            ("cancelled", "Cancelled"),
+                            ("failed", "Failed"),
+                            ("skipped", "Skipped"),
+                        ],
+                        default="queued",
+                        help_text="Current job status",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "conclusion",
+                    models.CharField(
+                        blank=True,
+                        help_text="Job conclusion (success, failure, etc.)",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Job start time", null=True
+                    ),
+                ),
+                (
+                    "completed_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Job completion time", null=True
+                    ),
+                ),
+                (
+                    "duration_seconds",
+                    models.IntegerField(
+                        blank=True, help_text="Job duration in seconds", null=True
+                    ),
+                ),
+                (
+                    "runner_id",
+                    models.CharField(
+                        blank=True,
+                        help_text="ID of the runner that executed this job",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "container_id",
+                    models.CharField(
+                        blank=True,
+                        help_text="Container ID for this job execution",
+                        max_length=100,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "matrix_config",
+                    models.JSONField(
+                        default=dict,
+                        help_text="Matrix configuration for this job (e.g., {python: '3.11', os: 'ubuntu'})",
+                    ),
+                ),
+                (
+                    "run",
+                    models.ForeignKey(
+                        help_text="Associated workflow run",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="jobs",
+                        to="project_app.workflowrun",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['created_at'],
+                "ordering": ["created_at"],
             },
         ),
         migrations.CreateModel(
-            name='WorkflowArtifact',
+            name="WorkflowArtifact",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Artifact name', max_length=200)),
-                ('file_path', models.CharField(help_text='Path to artifact file', max_length=500)),
-                ('file_size', models.BigIntegerField(default=0, help_text='Artifact size in bytes')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('expires_at', models.DateTimeField(help_text='Artifact expiration time')),
-                ('run', models.ForeignKey(help_text='Associated workflow run', on_delete=django.db.models.deletion.CASCADE, related_name='artifacts', to='project_app.workflowrun')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(help_text="Artifact name", max_length=200)),
+                (
+                    "file_path",
+                    models.CharField(help_text="Path to artifact file", max_length=500),
+                ),
+                (
+                    "file_size",
+                    models.BigIntegerField(
+                        default=0, help_text="Artifact size in bytes"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "expires_at",
+                    models.DateTimeField(help_text="Artifact expiration time"),
+                ),
+                (
+                    "run",
+                    models.ForeignKey(
+                        help_text="Associated workflow run",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="artifacts",
+                        to="project_app.workflowrun",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='WorkflowSecret',
+            name="WorkflowSecret",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Secret name (uppercase, underscores only)', max_length=100)),
-                ('encrypted_value', models.TextField(help_text='Encrypted secret value')),
-                ('scope', models.CharField(choices=[('project', 'Project'), ('organization', 'Organization')], default='project', help_text='Secret scope', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('last_used_at', models.DateTimeField(blank=True, help_text='Last time this secret was used', null=True)),
-                ('created_by', models.ForeignKey(help_text='User who created this secret', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_workflow_secrets', to=settings.AUTH_USER_MODEL)),
-                ('organization', models.ForeignKey(blank=True, help_text='Associated organization (for org-scoped secrets)', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='workflow_secrets', to='organizations_app.organization')),
-                ('project', models.ForeignKey(blank=True, help_text='Associated project (for project-scoped secrets)', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='workflow_secrets', to='project_app.project')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Secret name (uppercase, underscores only)",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "encrypted_value",
+                    models.TextField(help_text="Encrypted secret value"),
+                ),
+                (
+                    "scope",
+                    models.CharField(
+                        choices=[
+                            ("project", "Project"),
+                            ("organization", "Organization"),
+                        ],
+                        default="project",
+                        help_text="Secret scope",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "last_used_at",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="Last time this secret was used",
+                        null=True,
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        help_text="User who created this secret",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="created_workflow_secrets",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Associated organization (for org-scoped secrets)",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workflow_secrets",
+                        to="organizations_app.organization",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Associated project (for project-scoped secrets)",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="workflow_secrets",
+                        to="project_app.project",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='WorkflowStep',
+            name="WorkflowStep",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Step name', max_length=200)),
-                ('step_number', models.IntegerField(help_text='Step number within job (sequential)')),
-                ('command', models.TextField(help_text='Command to execute (shell command or action reference)')),
-                ('working_directory', models.CharField(blank=True, help_text='Working directory for this step', max_length=500)),
-                ('environment_vars', models.JSONField(default=dict, help_text='Environment variables for this step')),
-                ('status', models.CharField(choices=[('queued', 'Queued'), ('in_progress', 'In Progress'), ('completed', 'Completed'), ('failed', 'Failed'), ('skipped', 'Skipped')], default='queued', help_text='Current step status', max_length=20)),
-                ('conclusion', models.CharField(blank=True, help_text='Step conclusion (success, failure, etc.)', max_length=20)),
-                ('output', models.TextField(blank=True, help_text='Step output (stdout)')),
-                ('error_output', models.TextField(blank=True, help_text='Step error output (stderr)')),
-                ('exit_code', models.IntegerField(blank=True, help_text='Process exit code', null=True)),
-                ('started_at', models.DateTimeField(blank=True, help_text='Step start time', null=True)),
-                ('completed_at', models.DateTimeField(blank=True, help_text='Step completion time', null=True)),
-                ('duration_seconds', models.IntegerField(blank=True, help_text='Step duration in seconds', null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('condition', models.CharField(blank=True, help_text='Condition expression (if: always(), if: failure(), etc.)', max_length=200)),
-                ('continue_on_error', models.BooleanField(default=False, help_text='Continue job execution even if this step fails')),
-                ('job', models.ForeignKey(help_text='Associated job', on_delete=django.db.models.deletion.CASCADE, related_name='steps', to='project_app.workflowjob')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(help_text="Step name", max_length=200)),
+                (
+                    "step_number",
+                    models.IntegerField(
+                        help_text="Step number within job (sequential)"
+                    ),
+                ),
+                (
+                    "command",
+                    models.TextField(
+                        help_text="Command to execute (shell command or action reference)"
+                    ),
+                ),
+                (
+                    "working_directory",
+                    models.CharField(
+                        blank=True,
+                        help_text="Working directory for this step",
+                        max_length=500,
+                    ),
+                ),
+                (
+                    "environment_vars",
+                    models.JSONField(
+                        default=dict, help_text="Environment variables for this step"
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("queued", "Queued"),
+                            ("in_progress", "In Progress"),
+                            ("completed", "Completed"),
+                            ("failed", "Failed"),
+                            ("skipped", "Skipped"),
+                        ],
+                        default="queued",
+                        help_text="Current step status",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "conclusion",
+                    models.CharField(
+                        blank=True,
+                        help_text="Step conclusion (success, failure, etc.)",
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "output",
+                    models.TextField(blank=True, help_text="Step output (stdout)"),
+                ),
+                (
+                    "error_output",
+                    models.TextField(
+                        blank=True, help_text="Step error output (stderr)"
+                    ),
+                ),
+                (
+                    "exit_code",
+                    models.IntegerField(
+                        blank=True, help_text="Process exit code", null=True
+                    ),
+                ),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Step start time", null=True
+                    ),
+                ),
+                (
+                    "completed_at",
+                    models.DateTimeField(
+                        blank=True, help_text="Step completion time", null=True
+                    ),
+                ),
+                (
+                    "duration_seconds",
+                    models.IntegerField(
+                        blank=True, help_text="Step duration in seconds", null=True
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "condition",
+                    models.CharField(
+                        blank=True,
+                        help_text="Condition expression (if: always(), if: failure(), etc.)",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "continue_on_error",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Continue job execution even if this step fails",
+                    ),
+                ),
+                (
+                    "job",
+                    models.ForeignKey(
+                        help_text="Associated job",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="steps",
+                        to="project_app.workflowjob",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['step_number'],
+                "ordering": ["step_number"],
             },
         ),
         migrations.AddIndex(
-            model_name='workflow',
-            index=models.Index(fields=['project', 'enabled'], name='project_app_project_de4aa7_idx'),
+            model_name="workflow",
+            index=models.Index(
+                fields=["project", "enabled"], name="project_app_project_de4aa7_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflow',
-            index=models.Index(fields=['project', 'updated_at'], name='project_app_project_15e410_idx'),
+            model_name="workflow",
+            index=models.Index(
+                fields=["project", "updated_at"], name="project_app_project_15e410_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='workflow',
-            unique_together={('project', 'name')},
+            name="workflow",
+            unique_together={("project", "name")},
         ),
         migrations.AddIndex(
-            model_name='workflowrun',
-            index=models.Index(fields=['workflow', 'status'], name='project_app_workflo_9c9e01_idx'),
+            model_name="workflowrun",
+            index=models.Index(
+                fields=["workflow", "status"], name="project_app_workflo_9c9e01_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowrun',
-            index=models.Index(fields=['workflow', '-run_number'], name='project_app_workflo_2b942f_idx'),
+            model_name="workflowrun",
+            index=models.Index(
+                fields=["workflow", "-run_number"],
+                name="project_app_workflo_2b942f_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowrun',
-            index=models.Index(fields=['status', 'created_at'], name='project_app_status_c45247_idx'),
+            model_name="workflowrun",
+            index=models.Index(
+                fields=["status", "created_at"], name="project_app_status_c45247_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='workflowrun',
-            unique_together={('workflow', 'run_number')},
+            name="workflowrun",
+            unique_together={("workflow", "run_number")},
         ),
         migrations.AddIndex(
-            model_name='workflowjob',
-            index=models.Index(fields=['run', 'status'], name='project_app_run_id_4c3ed5_idx'),
+            model_name="workflowjob",
+            index=models.Index(
+                fields=["run", "status"], name="project_app_run_id_4c3ed5_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowjob',
-            index=models.Index(fields=['status', 'created_at'], name='project_app_status_633290_idx'),
+            model_name="workflowjob",
+            index=models.Index(
+                fields=["status", "created_at"], name="project_app_status_633290_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='workflowjob',
-            unique_together={('run', 'job_id')},
+            name="workflowjob",
+            unique_together={("run", "job_id")},
         ),
         migrations.AddIndex(
-            model_name='workflowartifact',
-            index=models.Index(fields=['run', 'created_at'], name='project_app_run_id_dbc8e7_idx'),
+            model_name="workflowartifact",
+            index=models.Index(
+                fields=["run", "created_at"], name="project_app_run_id_dbc8e7_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowsecret',
-            index=models.Index(fields=['project', 'name'], name='project_app_project_bcb505_idx'),
+            model_name="workflowsecret",
+            index=models.Index(
+                fields=["project", "name"], name="project_app_project_bcb505_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowsecret',
-            index=models.Index(fields=['organization', 'name'], name='project_app_organiz_812d5c_idx'),
+            model_name="workflowsecret",
+            index=models.Index(
+                fields=["organization", "name"], name="project_app_organiz_812d5c_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowstep',
-            index=models.Index(fields=['job', 'step_number'], name='project_app_job_id_cdd7d2_idx'),
+            model_name="workflowstep",
+            index=models.Index(
+                fields=["job", "step_number"], name="project_app_job_id_cdd7d2_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='workflowstep',
-            index=models.Index(fields=['status', 'created_at'], name='project_app_status_5ef898_idx'),
+            model_name="workflowstep",
+            index=models.Index(
+                fields=["status", "created_at"], name="project_app_status_5ef898_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='workflowstep',
-            unique_together={('job', 'step_number')},
+            name="workflowstep",
+            unique_together={("job", "step_number")},
         ),
     ]

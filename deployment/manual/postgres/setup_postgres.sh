@@ -170,23 +170,23 @@ parse_args() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -e|--env)
+            -e | --env)
                 ENV="$2"
                 shift 2
                 ;;
-            -d|--database)
+            -d | --database)
                 DB_NAME="$2"
                 shift 2
                 ;;
-            -u|--user)
+            -u | --user)
                 DB_USER="$2"
                 shift 2
                 ;;
-            -p|--password)
+            -p | --password)
                 DB_PASS="$2"
                 shift 2
                 ;;
-            -h|--help)
+            -h | --help)
                 usage
                 ;;
             *)

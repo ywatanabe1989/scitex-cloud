@@ -1,53 +1,100 @@
 {% load static %}
 <!-- GitHub-style Delete Confirmation Modal -->
-<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: var(--color-canvas-default); border-radius: 12px; max-width: 600px; width: 90%; padding: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-        <div style="display: flex; align-items: center; margin-bottom: 16px;">
-            <svg width="48" height="48" viewBox="0 0 16 16" fill="#d73a49" style="margin-right: 12px;">
-                <path d="M6.5 1.75a.25.25 0 01.25-.25h2.5a.25.25 0 01.25.25V3h-3V1.75zm4.5 0V3h2.25a.75.75 0 110 1.5H2.75a.75.75 0 010-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75zM4.496 6.675a.75.75 0 10-1.492.15l.66 6.6A1.75 1.75 0 005.405 15h5.19c.9 0 1.652-.681 1.741-1.576l.66-6.6a.75.75 0 00-1.492-.149l-.66 6.6a.25.25 0 01-.249.225h-5.19a.25.25 0 01-.249-.225l-.66-6.6z"/>
+<div id="deleteModal"
+     style="display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center">
+    <div style="background: var(--color-canvas-default);
+                border-radius: 12px;
+                max-width: 600px;
+                width: 90%;
+                padding: 24px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4)">
+        <div style="display: flex; align-items: center; margin-bottom: 16px">
+            <svg width="48"
+                 height="48"
+                 viewBox="0 0 16 16"
+                 fill="#d73a49"
+                 style="margin-right: 12px">
+                <path d="M6.5 1.75a.25.25 0 01.25-.25h2.5a.25.25 0 01.25.25V3h-3V1.75zm4.5 0V3h2.25a.75.75 0 110 1.5H2.75a.75.75 0 010-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75zM4.496 6.675a.75.75 0 10-1.492.15l.66 6.6A1.75 1.75 0 005.405 15h5.19c.9 0 1.652-.681 1.741-1.576l.66-6.6a.75.75 0 00-1.492-.149l-.66 6.6a.25.25 0 01-.249.225h-5.19a.25.25 0 01-.249-.225l-.66-6.6z" />
             </svg>
-            <h2 style="margin: 0; color: var(--color-fg-default); font-size: 20px; font-weight: 600;">Delete repository</h2>
+            <h2 style="margin: 0;
+                       color: var(--color-fg-default);
+                       font-size: 20px;
+                       font-weight: 600">Delete repository</h2>
         </div>
-
-        <div style="padding: 16px; background: var(--color-danger-subtle); border: 1px solid var(--color-danger-emphasis); border-radius: 6px; margin-bottom: 16px;">
-            <p style="margin: 0 0 12px 0; color: var(--color-fg-default); font-weight: 600;">
-                <img src="{% static 'project_app/icons/warning.svg' %}" alt="" style="width: 16px; height: 16px; vertical-align: text-bottom; margin-right: 4px;">Unexpected bad things will happen if you don't read this!
+        <div style="padding: 16px;
+                    background: var(--color-danger-subtle);
+                    border: 1px solid var(--color-danger-emphasis);
+                    border-radius: 6px;
+                    margin-bottom: 16px">
+            <p style="margin: 0 0 12px 0;
+                      color: var(--color-fg-default);
+                      font-weight: 600">
+                <img src="{% static 'project_app/icons/warning.svg' %}"
+                     alt=""
+                     style="width: 16px;
+                            height: 16px;
+                            vertical-align: text-bottom;
+                            margin-right: 4px" />
+                Unexpected bad things will happen if you don't read this!
             </p>
-            <p style="margin: 0; color: var(--color-fg-default); font-size: 14px;">
-                This action <strong>cannot</strong> be undone. This will permanently delete the <strong>{{ project.name }}</strong> repository, all files, commit history, and remove all collaborator associations.
+            <p style="margin: 0; color: var(--color-fg-default); font-size: 14px">
+                This action <strong>cannot</strong> be undone. This will permanently
+                delete the <strong>{{ project.name }}</strong> repository, all files,
+                commit history, and remove all collaborator associations.
             </p>
         </div>
-
-        <p style="color: var(--color-fg-default); margin-bottom: 8px; font-size: 14px;">
-            Please type <strong style="color: var(--color-danger-fg);">{{ user.username }}/{{ project.name }}</strong> to confirm.
+        <p style="color: var(--color-fg-default);
+                  margin-bottom: 8px;
+                  font-size: 14px">
+            Please type
+            <strong style="color: var(--color-danger-fg)">{{ user.username }}/{{ project.name }}</strong>
+            to confirm.
         </p>
-
-        <input
-            type="text"
-            id="deleteConfirmInput"
-            data-confirm-text="{{ user.username }}/{{ project.name }}"
-            placeholder="{{ user.username }}/{{ project.name }}"
-            oninput="checkDeleteInput()"
-            style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; font-size: 14px; margin-bottom: 16px; background: var(--color-canvas-default); color: var(--color-fg-default);"
-        >
-
-        <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button
-                type="button"
-                onclick="hideDeleteModal()"
-                style="padding: 8px 16px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default); cursor: pointer; font-size: 14px;"
-            >
-                Cancel
-            </button>
-            <button
-                type="button"
-                id="deleteConfirmButton"
-                onclick="submitDelete()"
-                disabled
-                style="padding: 8px 16px; border: none; border-radius: 6px; background: #d73a49; color: white; cursor: pointer; font-size: 14px; font-weight: 600; opacity: 0.5;"
-            >
-                I understand the consequences, delete this repository
-            </button>
+        <input type="text"
+               id="deleteConfirmInput"
+               data-confirm-text="{{ user.username }}/{{ project.name }}"
+               placeholder="{{ user.username }}/{{ project.name }}"
+               oninput="checkDeleteInput()"
+               style="width: 100%;
+                      padding: 8px 12px;
+                      border: 1px solid var(--color-border-default);
+                      border-radius: 6px;
+                      font-size: 14px;
+                      margin-bottom: 16px;
+                      background: var(--color-canvas-default);
+                      color: var(--color-fg-default)" />
+        <div style="display: flex; gap: 12px; justify-content: flex-end">
+            <button type="button"
+                    onclick="hideDeleteModal()"
+                    style="padding: 8px 16px;
+                           border: 1px solid var(--color-border-default);
+                           border-radius: 6px;
+                           background: var(--color-canvas-default);
+                           color: var(--color-fg-default);
+                           cursor: pointer;
+                           font-size: 14px">Cancel</button>
+            <button type="button"
+                    id="deleteConfirmButton"
+                    onclick="submitDelete()"
+                    disabled
+                    style="padding: 8px 16px;
+                           border: none;
+                           border-radius: 6px;
+                           background: #d73a49;
+                           color: white;
+                           cursor: pointer;
+                           font-size: 14px;
+                           font-weight: 600;
+                           opacity: 0.5">I understand the consequences, delete this repository</button>
         </div>
     </div>
 </div>

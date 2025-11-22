@@ -1,12 +1,15 @@
 {% extends "auth_app/auth_base.html" %}
 {% load static %}
-
-{% block title %}Delete Account - SciTeX{% endblock %}
-
-{% block meta_description %}Permanently delete your SciTeX account. This action cannot be undone.{% endblock %}
-
-{% block auth_extra_css %}
-<style>
+{%block title%}
+    Delete Account - SciTeX
+{% endblock %}
+{% block meta_description %}
+    Permanently
+    delete your SciTeX account. This action cannot be undone.
+{% endblock %}
+{% block
+    auth_extra_css %}
+    <style>
   .danger-zone {
     border: 2px solid #dc3545;
     border-radius: 8px;
@@ -37,127 +40,137 @@
     font-family: monospace;
     font-weight: bold;
   }
-</style>
+    </style>
 {% endblock %}
-
 {% block auth_content %}
-<div class="auth-header">
-  <div class="container">
-    <h1 class="display-4 text-center text-danger">Delete Account</h1>
-    <p class="lead text-center">Permanently delete your SciTeX account</p>
-  </div>
-</div>
-
-<div class="container auth-container" style="max-width: 700px;">
-  <div class="auth-form">
-    <div class="danger-icon">
-      <i class="fas fa-exclamation-triangle"></i>
+    <div class="auth-header">
+        <div class="container">
+            <h1 class="display-4 text-center text-danger">Delete Account</h1>
+            <p class="lead text-center">Permanently delete your SciTeX account</p>
+        </div>
     </div>
-
-    <h2 class="text-danger text-center mb-4">Warning: This action cannot be undone</h2>
-
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% else %}success{% endif %}" style="margin-bottom: var(--spacing-md);">
-          <div class="warning-banner-container">
-            <div class="warning-banner-content">
-              <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
-              <div class="warning-banner-text">
-                <div class="warning-banner-description">{{ message }}</div>
-              </div>
+    <div class="container auth-container" style="max-width: 700px">
+        <div class="auth-form">
+            <div class="danger-icon">
+                <i class="fas fa-exclamation-triangle"></i>
             </div>
-          </div>
-        </div>
-      {% endfor %}
-    {% endif %}
-
-    <div class="warning-list">
-      <h5 class="text-danger"><i class="fas fa-exclamation-circle me-2"></i>What will be deleted:</h5>
-      <ul>
-        <li><strong>Your account:</strong> @{{ user.username }}</li>
-        <li><strong>All your projects</strong> and associated data</li>
-        <li><strong>All your manuscripts</strong> and documents</li>
-        <li><strong>Your saved papers</strong> and library</li>
-        <li><strong>All collaboration data</strong></li>
-        <li><strong>Your profile</strong> and settings</li>
-      </ul>
-    </div>
-
-    <div class="alert-banner alert-banner-warning" style="margin-bottom: var(--spacing-md);">
-      <div class="warning-banner-container">
-        <div class="warning-banner-content">
-          <i class="warning-banner-icon fas fa-exclamation-triangle"></i>
-          <div class="warning-banner-text">
-            <div class="warning-banner-title">Important</div>
-            <div class="warning-banner-description">
-              <ul style="margin-left: 1rem; margin-bottom: 0;">
-                <li>This action is <strong>permanent</strong> and cannot be reversed</li>
-                <li>You will be logged out immediately</li>
-                <li>Your username <code>{{ user.username }}</code> may become available for others to use</li>
-                <li>Export any data you want to keep before deleting</li>
-              </ul>
+            <h2 class="text-danger text-center mb-4">Warning: This action cannot be undone</h2>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-banner alert-banner-{% if message.tags == 'error' %}danger{% else %}success{% endif %}"
+                         style="margin-bottom: var(--spacing-md)">
+                        <div class="warning-banner-container">
+                            <div class="warning-banner-content">
+                                <i class="warning-banner-icon fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                                <div class="warning-banner-text">
+                                    <div class="warning-banner-description">{{ message }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="warning-list">
+                <h5 class="text-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>What will be deleted:
+                </h5>
+                <ul>
+                    <li>
+                        <strong>Your account:</strong> @{{ user.username }}
+                    </li>
+                    <li>
+                        <strong>All your projects</strong> and associated data
+                    </li>
+                    <li>
+                        <strong>All your manuscripts</strong> and documents
+                    </li>
+                    <li>
+                        <strong>Your saved papers</strong> and library
+                    </li>
+                    <li>
+                        <strong>All collaboration data</strong>
+                    </li>
+                    <li>
+                        <strong>Your profile</strong> and settings
+                    </li>
+                </ul>
             </div>
-          </div>
+            <div class="alert-banner alert-banner-warning"
+                 style="margin-bottom: var(--spacing-md)">
+                <div class="warning-banner-container">
+                    <div class="warning-banner-content">
+                        <i class="warning-banner-icon fas fa-exclamation-triangle"></i>
+                        <div class="warning-banner-text">
+                            <div class="warning-banner-title">Important</div>
+                            <div class="warning-banner-description">
+                                <ul style="margin-left: 1rem; margin-bottom: 0">
+                                    <li>
+                                        This action is <strong>permanent</strong> and cannot be
+                                        reversed
+                                    </li>
+                                    <li>You will be logged out immediately</li>
+                                    <li>
+                                        Your username <code>{{ user.username }}</code> may become
+                                        available for others to use
+                                    </li>
+                                    <li>Export any data you want to keep before deleting</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="danger-zone">
+                <h4 class="text-danger mb-4">Confirm Account Deletion</h4>
+                <form method="post" id="delete-form">
+                    {% csrf_token %}
+                    <div class="form-group mb-3">
+                        <label for="password" class="form-label">
+                            Enter your password to confirm
+                            <span class="text-danger">*</span>
+                        </label>
+                        <input type="password"
+                               class="form-control"
+                               id="password"
+                               name="password"
+                               required
+                               placeholder="Your current password" />
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="confirm_text" class="form-label">
+                            Type <code class="text-danger">delete {{ user.username }}</code> to
+                            confirm <span class="text-danger">*</span>
+                        </label>
+                        <input type="text"
+                               class="form-control confirm-input"
+                               id="confirm_text"
+                               name="confirm_text"
+                               required
+                               placeholder="delete {{ user.username }}"
+                               autocomplete="off" />
+                        <small class="form-text text-muted">This is case-sensitive and must match exactly.</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg" id="delete-btn" disabled>
+                            <i class="fas fa-trash-alt me-2"></i>Permanently Delete My Account
+                        </button>
+                        <a href="{% url 'public_app:index' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel and Go Back
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-      </div>
     </div>
-
-    <div class="danger-zone">
-      <h4 class="text-danger mb-4">Confirm Account Deletion</h4>
-
-      <form method="post" id="delete-form">
-        {% csrf_token %}
-
-        <div class="form-group mb-3">
-          <label for="password" class="form-label">Enter your password to confirm <span class="text-danger">*</span></label>
-          <input
-            type="password"
-            class="form-control"
-            id="password"
-            name="password"
-            required
-            placeholder="Your current password"
-          >
-        </div>
-
-        <div class="form-group mb-4">
-          <label for="confirm_text" class="form-label">
-            Type <code class="text-danger">delete {{ user.username }}</code> to confirm <span class="text-danger">*</span>
-          </label>
-          <input
-            type="text"
-            class="form-control confirm-input"
-            id="confirm_text"
-            name="confirm_text"
-            required
-            placeholder="delete {{ user.username }}"
-            autocomplete="off"
-          >
-          <small class="form-text text-muted">This is case-sensitive and must match exactly.</small>
-        </div>
-
-        <div class="d-grid gap-2">
-          <button type="submit" class="btn btn-danger btn-lg" id="delete-btn" disabled>
-            <i class="fas fa-trash-alt me-2"></i>Permanently Delete My Account
-          </button>
-          <a href="{% url 'public_app:index' %}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Cancel and Go Back
-          </a>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 {% endblock %}
-
 {% block auth_extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('delete-form');
-    const passwordInput = document.getElementById('password');
-    const confirmTextInput = document.getElementById('confirm_text');
-    const deleteBtn = document.getElementById('delete-btn');
-    const expectedText = 'delete {{ user.username }}';
+    <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("delete-form");
+    const passwordInput = document.getElementById("password");
+    const confirmTextInput = document.getElementById("confirm_text");
+    const deleteBtn = document.getElementById("delete-btn");
+    const expectedText = "delete {{ user.username }}";
 
     // Enable delete button only when both fields are filled correctly
     function checkFormValidity() {
@@ -169,26 +182,26 @@
       // Visual feedback for confirm text
       if (confirmTextInput.value.length > 0) {
         if (confirmTextCorrect) {
-          confirmTextInput.classList.remove('is-invalid');
-          confirmTextInput.classList.add('is-valid');
+          confirmTextInput.classList.remove("is-invalid");
+          confirmTextInput.classList.add("is-valid");
         } else {
-          confirmTextInput.classList.remove('is-valid');
-          confirmTextInput.classList.add('is-invalid');
+          confirmTextInput.classList.remove("is-valid");
+          confirmTextInput.classList.add("is-invalid");
         }
       } else {
-        confirmTextInput.classList.remove('is-valid', 'is-invalid');
+        confirmTextInput.classList.remove("is-valid", "is-invalid");
       }
     }
 
-    passwordInput.addEventListener('input', checkFormValidity);
-    confirmTextInput.addEventListener('input', checkFormValidity);
+    passwordInput.addEventListener("input", checkFormValidity);
+    confirmTextInput.addEventListener("input", checkFormValidity);
 
     // Final confirmation before submit
-    form.addEventListener('submit', function(e) {
+    form.addEventListener("submit", function (e) {
       const confirmed = confirm(
-        'Are you absolutely sure?\n\n' +
-        'This will permanently delete your account @{{ user.username }} and all associated data.\n\n' +
-        'This action CANNOT be undone!'
+        "Are you absolutely sure?\n\n" +
+          "This will permanently delete your account @{{ user.username }} and all associated data.\n\n" +
+          "This action CANNOT be undone!",
       );
 
       if (!confirmed) {
@@ -196,5 +209,5 @@
       }
     });
   });
-</script>
+    </script>
 {% endblock %}

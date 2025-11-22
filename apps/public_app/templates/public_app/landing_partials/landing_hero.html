@@ -1,41 +1,40 @@
 {% load static %}
-
 <!-- Hero Section -->
 <section class="hero-landing" id="home">
-  <div class="container">
-    <div class="hero-wrapper">
-      <div class="hero-content">
-        <h1 class="hero-title">Accelerate Your Research</h1>
-        <p class="hero-bullet-point">• Standardized, one-stop research platform</p>
-        <p class="hero-bullet-point">• Reproducible by defualt</p>
-        <p class="hero-bullet-point">• Easy migration from existing tools</p>                        
-        <p class="hero-bullet-point">• Hostable in local, cloud, and self-hosted</p>
-        <p class="hero-bullet-point">• Built by researchers, for researchers</p>
-        <div class="hero-badges">
-          <span class="hero-badge badge-success">
-            <i class="fab fa-github"></i> 100% Open Source
-          </span>
-          <span class="hero-badge badge-primary">
-            <i class="fas fa-code"></i> AGPLv3 License
-          </span>
-          <span class="hero-badge badge-secondary">
-            <i class="fas fa-users"></i> Community-driven
-          </span>
-        </div>
-      </div>
-      <!-- Hero Image -->
-      <div class="hero-image">
-        <div class="manuscript-preview">
-          <a href="{% static 'shared/images/manuscript/compiled.pdf' %}#page=2" target="_blank" class="manuscript-link">
-            <div class="manuscript-display">
-              <img src="{% static 'shared/images/assets/manuscript/page2-02.jpg' %}" alt="SciTeX Manuscript Preview" class="manuscript-img">
-              <div class="manuscript-overlay">
-                <span class="view-pdf-text">View Full PDF</span>
-              </div>
+    <div class="container">
+        <div class="hero-wrapper">
+            <div class="hero-content">
+                <h1 class="hero-title">SciTeX — Where Research Happens</h1>
+                <p class="hero-bullet-point">From data to publication, all in one platform</p>
+                <div class="hero-badges">
+                    <span class="hero-badge badge-success">
+                        <i class="fab fa-github"></i> 100% Open Source
+                    </span>
+                    <span class="hero-badge badge-primary">
+                        <i class="fas fa-code"></i> AGPL-3.0 License
+                    </span>
+                    <span class="hero-badge badge-secondary">
+                        <i class="fas fa-users"></i> Community-driven
+                    </span>
+                </div>
             </div>
-          </a>
+            <!-- Hero Image -->
+            <div class="hero-image">
+                <div class="manuscript-preview">
+                    <a href="{% static 'shared/images/manuscript/compiled.pdf' %}#page=2"
+                       target="_blank"
+                       class="manuscript-link">
+                        <div class="manuscript-display">
+                            <img src="{% static 'shared/images/assets/manuscript/page2-02.jpg' %}"
+                                 alt="SciTeX Manuscript Preview"
+                                 class="manuscript-img" />
+                            <div class="manuscript-overlay">
+                                <span class="view-pdf-text">View Full PDF</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </section>

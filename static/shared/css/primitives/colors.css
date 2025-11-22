@@ -16,7 +16,7 @@
    * =========================================================================== */
 
   /* Brand colors */
-  --_scitex-01: #1a2a40;  /* Even more bluish - was #1a2332 (adjusted for better blue tone) */
+  --_scitex-01: #1a2a40;
   --_scitex-02: #34495e;
   --_scitex-03: #506b7a;
   --_scitex-04: #6c8ba0;
@@ -24,15 +24,19 @@
   --_scitex-06: #b5c7d1;
   --_scitex-07: #d4e1e8;
 
-  --_white: #fafbfc;  /* Soft off-white to reduce eye strain */
+  --_white: #fafbfc;
   --_gray-subtle: #f6f8fa;
-  --_warm-white: #fefefe;  /* Professional warm off-white for page background */
+  --_warm-white: #fefefe;
 
   /* Status colors */
   --_success: #4a9b7e;
   --_warning: #b8956a;
   --_error: #a67373;
   --_info: #6b8fb3;
+
+  /* CTA colors */
+  --_cta: #3b82f6;
+  --_cta-hover: #2563eb;
 
   /* Legacy brand color references (deprecated - use semantic tokens instead) */
   --scitex-color-01: var(--_scitex-01);
@@ -52,19 +56,25 @@
    * =========================================================================== */
 
   /* Text - Richer, more professional */
-  --text-primary: var(--_scitex-01);      /* Deep bluish-gray for excellent readability */
-  --text-secondary: var(--_scitex-02);    /* Medium for secondary text (was 03, now richer) */
-  --text-muted: var(--_scitex-04);        /* Light for muted text */
+  --text-primary: var(
+    --_scitex-01
+  ); /* Deep bluish-gray for excellent readability */
+  --text-secondary: var(
+    --_scitex-02
+  ); /* Medium for secondary text (was 03, now richer) */
+  --text-muted: var(--_scitex-04); /* Light for muted text */
   --text-inverse: var(--_white);
 
   /* Background - Professional warm tones */
-  --bg-page: var(--_warm-white);          /* Soft warm off-white (was pure white) */
-  --bg-surface: var(--_white);            /* Crisp white for cards (was gray-subtle) */
-  --bg-muted: var(--_gray-subtle);        /* Subtle gray for secondary surfaces */
+  --bg-page: var(--_warm-white); /* Soft warm off-white (was pure white) */
+  --bg-surface: var(--_white); /* Crisp white for cards (was gray-subtle) */
+  --bg-muted: var(--_gray-subtle); /* Subtle gray for secondary surfaces */
 
   /* Border - Slightly stronger for definition */
-  --border-default: var(--_scitex-05);    /* Medium border (was 06, now stronger) */
-  --border-muted: var(--_scitex-06);      /* Subtle border */
+  --border-default: var(
+    --_scitex-05
+  ); /* Medium border (was 06, now stronger) */
+  --border-muted: var(--_scitex-06); /* Subtle border */
 
   /* Status */
   --status-success: var(--_success);
@@ -78,6 +88,11 @@
   --error-color: var(--_error);
   --info-color: var(--_info);
 
+  /* CTA colors */
+  --color-cta: var(--_cta);
+  --color-cta-hover: var(--_cta-hover);
+  --color-cta-subtle: rgba(59, 130, 246, 0.1);
+
   /* GitHub Primer-style aliases for compatibility */
   --color-fg-default: var(--text-primary);
   --color-fg-muted: var(--text-muted);
@@ -89,7 +104,7 @@
   --color-border-muted: var(--border-muted);
   --color-accent-fg: var(--text-primary);
   --color-accent-emphasis: var(--text-primary);
-  --color-accent-subtle: #e8f4f8;  /* Light blue-gray for better visibility (was var(--bg-muted)) */
+  --color-accent-subtle: #e8f4f8; /* Light blue-gray for better visibility (was var(--bg-muted)) */
   --color-danger-fg: var(--status-error);
   --color-danger-emphasis: var(--status-error);
   --color-danger-subtle: var(--status-error);
@@ -131,6 +146,11 @@
   --warning-color: #d4a87a;
   --error-color: #c08888;
   --info-color: #8fa9cc;
+
+  /* CTA colors - same in dark mode */
+  --color-cta: var(--_cta);
+  --color-cta-hover: var(--_cta-hover);
+  --color-cta-subtle: rgba(59, 130, 246, 0.15);
 
   /* GitHub Primer-style aliases for dark mode */
   --color-fg-default: var(--text-primary);

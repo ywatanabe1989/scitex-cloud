@@ -1,69 +1,81 @@
 {% extends "scholar_app/scholar_base.html" %}
 {% load static %}
-
-{% block title %}SciTeX Scholar - Literature Search{% endblock %}
-
+{%block title%}
+    SciTeX Scholar - Literature Search
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/common.css' %}">
-<link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'shared/css/common.css' %}" />
+    <link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css"
+          rel="stylesheet" />
 {% endblock %}
-
 {% block extra_js %}
-<!-- Common Scripts -->
-<script type="module" src="{% static 'scholar_app/js/common/project-selector.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/common/init-tabs.js' %}"></script>
-<!-- External Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
-<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
-<!-- BibTeX Scripts loaded dynamically in bibtex_partials/enrich.html -->
-<!-- Search Scripts -->
-<script type="module" src="{% static 'scholar_app/js/search/nouislider-init.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/panel-toggle.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/scitex-search.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/advanced-sorting.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/drag-sort.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/swarm-plots.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/common/scholar-index-main.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/seekbar-integration.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/search/search-ui.js' %}"></script>
-<!-- Initialization Scripts -->
-<script type="module" src="{% static 'scholar_app/js/init/swarm-plots-init.js' %}"></script>
+    <!-- Common Scripts -->
+    <script type="module"
+            src="{% static 'scholar_app/js/common/project-selector.js' %}"></script>
+    <script type="module" src="{% static 'scholar_app/js/common/init-tabs.js' %}"></script>
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+    <!-- BibTeX Scripts loaded dynamically in bibtex_partials/enrich.html -->
+    <!-- Search Scripts -->
+    <script type="module"
+            src="{% static 'scholar_app/js/search/nouislider-init.js' %}"></script>
+    <script type="module"
+            src="{% static 'scholar_app/js/search/panel-toggle.js' %}"></script>
+    <script type="module"
+            src="{% static 'scholar_app/js/search/scitex-search.js' %}"></script>
+    <script type="module"
+            src="{% static 'scholar_app/js/search/advanced-sorting.js' %}"></script>
+    <script type="module" src="{% static 'scholar_app/js/search/drag-sort.js' %}"></script>
+    <script type="module"
+            src="{% static 'scholar_app/js/search/swarm-plots.js' %}"></script>
+    <script type="module"
+            src="{% static 'scholar_app/js/common/scholar-index-main.js' %}"></script>
+    <script type="module"
+            src="{% static 'scholar_app/js/search/seekbar-integration.js' %}"></script>
+    <script type="module" src="{% static 'scholar_app/js/search/search-ui.js' %}"></script>
+    <!-- Initialization Scripts -->
+    <script type="module"
+            src="{% static 'scholar_app/js/init/swarm-plots-init.js' %}"></script>
 {% endblock %}
-
 {% block content %}
-<!-- Vertical Tab Layout -->
-<div class="u-mt-2 u-mb-3">
-  <div class="vertical-tab-container" style="width: 100%;">
-    <!-- Vertical Tab Navigation -->
-    <div class="scitex-tabs" style="padding: 0 2rem;">
-      <a href="#bibtex" class="scitex-tab tab-link" data-tab="bibtex">
-        <i class="fas fa-file-code"></i>
-        <span>BibTeX Enrichment</span>
-      </a>
-      <a href="#search" class="scitex-tab tab-link" data-tab="search">
-        <i class="fas fa-search"></i>
-        <span>Literature Search</span>
-      </a>
+    <!-- Vertical Tab Layout -->
+    <div class="u-mt-2 u-mb-3">
+        <div class="vertical-tab-container" style="width: 100%">
+            <!-- Vertical Tab Navigation -->
+            <div class="scitex-tabs" style="padding: 0 2rem">
+                <a href="#bibtex" class="scitex-tab tab-link" data-tab="bibtex">
+                    <i class="fas fa-file-code"></i>
+                    <span>BibTeX Enrichment</span>
+                </a>
+                <a href="#search" class="scitex-tab tab-link" data-tab="search">
+                    <i class="fas fa-search"></i>
+                    <span>Literature Search</span>
+                </a>
+            </div>
+            <!-- Tab Content Container -->
+            <div class="vertical-tab-content-container"
+                 style="width: 100%;
+                        overflow-x: auto;
+                        overflow-y: visible">
+                <!-- BibTeX Enrichment Tab -->
+                <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}"
+                     id="bibtex-tab"
+                     data-tab="bibtex"
+                     style="width: 100%;
+                            overflow: visible">{% include "scholar_app/bibtex_partials/enrich.html" %}</div>
+                <!-- Literature Search Tab -->
+                <div class="vertical-tab-content {% if active_tab == 'search' %}active{% endif %}"
+                     id="search-tab"
+                     data-tab="search">
+                    {% include "scholar_app/search_partials/search.html" with show_results=True %}
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Tab Content Container -->
-    <div class="vertical-tab-content-container" style="width: 100%; overflow-x: auto; overflow-y: visible;">
-      <!-- BibTeX Enrichment Tab -->
-      <div class="vertical-tab-content {% if active_tab == 'bibtex' %}active{% endif %}" id="bibtex-tab" data-tab="bibtex" style="width: 100%; overflow: visible;">
-        {% include "scholar_app/bibtex_partials/enrich.html" %}
-      </div>
-
-      <!-- Literature Search Tab -->
-      <div class="vertical-tab-content {% if active_tab == 'search' %}active{% endif %}" id="search-tab" data-tab="search">
-        {% include "scholar_app/search_partials/search.html" with show_results=True %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Configuration for JavaScript -->
-<script>
+    <!-- Configuration for JavaScript -->
+    <script>
   // Django template variables for JavaScript
   window.SCHOLAR_CONFIG = {
   urls: {
@@ -106,7 +118,5 @@
     {% endfor %}
   ];
   {% endif %}
-</script>
-
+    </script>
 {% endblock %}
-

@@ -223,15 +223,17 @@
   height: 20px;
   width: 20px;
   opacity: 0.85;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .nav-icon-svg {
-  color: var(--text-900);  /* Dark in light mode */
+  color: var(--text-900); /* Dark in light mode */
 }
 
 [data-theme="dark"] .nav-icon-svg {
-  color: var(--scitex-color-06);  /* Bluish in dark mode */
+  color: var(--scitex-color-06); /* Bluish in dark mode */
 }
 
 /* Hover effects */
@@ -242,7 +244,7 @@
 }
 
 [data-theme="dark"] .header-nav-item:hover .nav-icon-svg {
-  color: var(--scitex-color-04);  /* More vibrant blue on hover */
+  color: var(--scitex-color-04); /* More vibrant blue on hover */
 }
 
 /* =========================

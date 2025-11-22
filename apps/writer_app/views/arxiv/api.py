@@ -27,13 +27,12 @@ def submit_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
+        project_id = data.get("project_id")
 
         if not project_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id required"}, status=400
+            )
 
         arxiv_service = ArxivService(project_id, request.user.id)
         result = arxiv_service.submit(data)
@@ -42,10 +41,7 @@ def submit_api(request):
 
     except Exception as e:
         logger.error(f"Submission error: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -57,28 +53,21 @@ def status_check_api(request):
         - submission_id: Submission ID
     """
     try:
-        submission_id = request.GET.get('submission_id')
+        submission_id = request.GET.get("submission_id")
 
         if not submission_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'submission_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "submission_id required"}, status=400
+            )
 
         arxiv_service = ArxivService(None, request.user.id)
         status = arxiv_service.check_status(submission_id)
 
-        return JsonResponse({
-            'success': True,
-            'status': status
-        })
+        return JsonResponse({"success": True, "status": status})
 
     except Exception as e:
         logger.error(f"Status check error: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
 @login_required
@@ -93,13 +82,12 @@ def validate_api(request):
     """
     try:
         data = json.loads(request.body)
-        project_id = data.get('project_id')
+        project_id = data.get("project_id")
 
         if not project_id:
-            return JsonResponse({
-                'success': False,
-                'error': 'project_id required'
-            }, status=400)
+            return JsonResponse(
+                {"success": False, "error": "project_id required"}, status=400
+            )
 
         arxiv_service = ArxivService(project_id, request.user.id)
         validation_result = arxiv_service.validate()
@@ -108,7 +96,4 @@ def validate_api(request):
 
     except Exception as e:
         logger.error(f"Validation error: {e}", exc_info=True)
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

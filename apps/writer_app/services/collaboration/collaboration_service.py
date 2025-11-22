@@ -7,7 +7,6 @@ transforms for conflict-free concurrent editing, and real-time synchronization.
 
 from typing import Optional, Dict, Any, List
 from datetime import timedelta
-from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -15,7 +14,7 @@ from django.utils import timezone
 from ...models.collaboration import (
     CollaborativeSession,
     WriterPresence,
-    CollaborativeEdit
+    CollaborativeEdit,
 )
 
 
@@ -25,10 +24,7 @@ class CollaborationService:
     @staticmethod
     @transaction.atomic
     def start_session(
-        manuscript,
-        user: User,
-        session_id: str,
-        section: Optional[str] = None
+        manuscript, user: User, session_id: str, section: Optional[str] = None
     ) -> CollaborativeSession:
         """
         Start a collaborative editing session.
@@ -78,9 +74,9 @@ class CollaborationService:
             List of active CollaborativeSession objects
         """
         return list(
-            CollaborativeSession.objects
-            .filter(manuscript=manuscript, is_active=True)
-            .select_related('user')
+            CollaborativeSession.objects.filter(
+                manuscript=manuscript, is_active=True
+            ).select_related("user")
         )
 
     @staticmethod
@@ -91,7 +87,7 @@ class CollaborationService:
         section: Optional[str] = None,
         cursor_position: Optional[int] = None,
         selection_start: Optional[int] = None,
-        selection_end: Optional[int] = None
+        selection_end: Optional[int] = None,
     ) -> WriterPresence:
         """
         Update user presence in manuscript.
@@ -131,17 +127,16 @@ class CollaborationService:
         active_threshold = timezone.now() - timedelta(seconds=30)
 
         presences = WriterPresence.objects.filter(
-            manuscript=manuscript,
-            last_seen__gte=active_threshold
-        ).select_related('user')
+            manuscript=manuscript, last_seen__gte=active_threshold
+        ).select_related("user")
 
         return [
             {
-                'user': p.user,
-                'section': p.current_section,
-                'cursor_position': p.cursor_position,
-                'last_seen': p.last_seen,
-                'is_editing': p.is_editing,
+                "user": p.user,
+                "section": p.current_section,
+                "cursor_position": p.cursor_position,
+                "last_seen": p.last_seen,
+                "is_editing": p.is_editing,
             }
             for p in presences
         ]
@@ -149,9 +144,7 @@ class CollaborationService:
     @staticmethod
     @transaction.atomic
     def apply_edit(
-        session: CollaborativeSession,
-        edit_data: Dict[str, Any],
-        client_version: int
+        session: CollaborativeSession, edit_data: Dict[str, Any], client_version: int
     ) -> CollaborativeEdit:
         """
         Apply an edit from a collaborative session.
@@ -174,12 +167,13 @@ class CollaborationService:
             ValidationError: If edit cannot be applied
         """
         # TODO: Migrate from operational_transform_service.py
-        raise NotImplementedError("To be migrated from operational_transform_service.py")
+        raise NotImplementedError(
+            "To be migrated from operational_transform_service.py"
+        )
 
     @staticmethod
     def transform_operations(
-        operation1: Dict[str, Any],
-        operation2: Dict[str, Any]
+        operation1: Dict[str, Any], operation2: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         """
         Transform two concurrent operations for conflict-free merge.
@@ -194,13 +188,13 @@ class CollaborationService:
             Tuple of (transformed_op1, transformed_op2)
         """
         # TODO: Migrate from operational_transform_service.py
-        raise NotImplementedError("To be migrated from operational_transform_service.py")
+        raise NotImplementedError(
+            "To be migrated from operational_transform_service.py"
+        )
 
     @staticmethod
     def get_edit_history(
-        manuscript,
-        since: Optional[int] = None,
-        limit: int = 100
+        manuscript, since: Optional[int] = None, limit: int = 100
     ) -> List[CollaborativeEdit]:
         """
         Get edit history for a manuscript.
@@ -215,19 +209,17 @@ class CollaborationService:
         """
         queryset = CollaborativeEdit.objects.filter(
             session__manuscript=manuscript
-        ).select_related('session__user')
+        ).select_related("session__user")
 
         if since is not None:
             queryset = queryset.filter(version__gt=since)
 
-        return list(queryset.order_by('version')[:limit])
+        return list(queryset.order_by("version")[:limit])
 
     @staticmethod
     @transaction.atomic
     def resolve_conflict(
-        manuscript,
-        conflict_data: Dict[str, Any],
-        resolution_strategy: str = 'latest'
+        manuscript, conflict_data: Dict[str, Any], resolution_strategy: str = "latest"
     ) -> None:
         """
         Resolve editing conflict.
@@ -245,9 +237,7 @@ class CollaborationService:
 
     @staticmethod
     def broadcast_change(
-        manuscript,
-        change_data: Dict[str, Any],
-        exclude_user: Optional[User] = None
+        manuscript, change_data: Dict[str, Any], exclude_user: Optional[User] = None
     ) -> None:
         """
         Broadcast change to all active users.
@@ -262,12 +252,7 @@ class CollaborationService:
 
     @staticmethod
     @transaction.atomic
-    def lock_section(
-        manuscript,
-        section: str,
-        user: User,
-        timeout: int = 300
-    ) -> bool:
+    def lock_section(manuscript, section: str, user: User, timeout: int = 300) -> bool:
         """
         Lock a section for exclusive editing.
 
@@ -288,11 +273,7 @@ class CollaborationService:
 
     @staticmethod
     @transaction.atomic
-    def unlock_section(
-        manuscript,
-        section: str,
-        user: User
-    ) -> None:
+    def unlock_section(manuscript, section: str, user: User) -> None:
         """
         Unlock a section.
 

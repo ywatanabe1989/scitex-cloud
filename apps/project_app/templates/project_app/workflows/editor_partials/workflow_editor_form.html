@@ -1,55 +1,53 @@
 <!-- Editor Main -->
 <div class="editor-main">
     <div class="editor-header">
-        <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0">
             <i class="bi bi-file-code"></i> Workflow Configuration
         </h2>
     </div>
-
     <form method="post" id="workflow-form">
         {% csrf_token %}
-        <input type="hidden" name="template" id="template-input" value="">
-
+        <input type="hidden" name="template" id="template-input" value="" />
         <div class="editor-body">
             <!-- Workflow Name -->
             <div class="mb-3">
                 <label for="workflow-name" class="form-label">Workflow Name</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="workflow-name"
-                    name="name"
-                    value="{{ workflow_name }}"
-                    placeholder="e.g., Python Tests, LaTeX Build"
-                    required
-                >
+                <input type="text"
+                       class="form-control"
+                       id="workflow-name"
+                       name="name"
+                       value="{{ workflow_name }}"
+                       placeholder="e.g., Python Tests, LaTeX Build"
+                       required />
             </div>
-
             <!-- YAML Editor -->
             <div class="mb-3">
                 <label for="yaml-editor" class="form-label">Workflow Definition (YAML)</label>
-                <textarea
-                    class="form-control"
-                    id="yaml-editor"
-                    name="yaml_content"
-                    required
-                >{{ yaml_content }}</textarea>
+                <textarea class="form-control" id="yaml-editor" name="yaml_content" required>
+{{ yaml_content }}</textarea>
             </div>
-
             <!-- Help Text -->
             <div class="alert alert-info" role="alert">
                 <i class="bi bi-info-circle"></i>
-                <strong>Tip:</strong> Use the templates on the left to get started, or write your own YAML configuration.
-                See the <a href="https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions" target="_blank">GitHub Actions documentation</a> for syntax reference.
+                <strong>Tip:</strong> Use the templates on the left to get started, or
+                write your own YAML configuration. See the
+                <a href="https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions"
+                   target="_blank">GitHub Actions documentation</a>
+                for syntax reference.
             </div>
         </div>
-
         <div class="editor-actions">
-            <a href="{% if edit_mode %}{% url 'user_projects:workflow_detail' project.owner.username project.slug workflow.id %}{% else %}{% url 'user_projects:actions_list' project.owner.username project.slug %}{% endif %}" class="btn btn-secondary">
-                Cancel
-            </a>
+            <a href="{% if edit_mode %}{% url 'user_projects:workflow_detail' project.owner.username project.slug workflow.id %}{% else %}{% url 'user_projects:actions_list' project.owner.username project.slug %}{% endif %}"
+               class="btn btn-secondary">Cancel</a>
             <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle"></i> {% if edit_mode %}Update{% else %}Create{% endif %} Workflow
+                <i class="bi bi-check-circle"></i>
+                {% if edit_mode %}
+                    Update
+                {% else
+                    %}
+                    Create
+                {% endif %}
+                Workflow
             </button>
         </div>
     </form>

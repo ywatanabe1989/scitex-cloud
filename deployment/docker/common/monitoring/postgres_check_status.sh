@@ -10,7 +10,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 DOCKER_DIR="$GIT_ROOT/deployment/docker/docker_dev"
 
 # Colors
@@ -43,7 +43,7 @@ check_postgres_status() {
     # Container status
     echo_info "Container Status:"
     if docker-compose -f docker-compose.dev.yml ps | grep -q "docker_db_1"; then
-        STATUS=$(docker-compose -f docker-compose.dev.yml ps docker_db_1 2>/dev/null | grep docker_db_1 | awk '{print $4}')
+        STATUS=$(docker-compose -f docker-compose.dev.yml ps docker_db_1 2> /dev/null | grep docker_db_1 | awk '{print $4}')
 
         if echo "$STATUS" | grep -q "Up"; then
             echo_success "  ✓ Container running"
@@ -72,7 +72,7 @@ check_postgres_status() {
 
     # Port bindings
     echo_info "Port Bindings:"
-    docker port docker_db_1 2>/dev/null | while read line; do
+    docker port docker_db_1 2> /dev/null | while read line; do
         echo_info "  $line"
     done
     echo
@@ -83,7 +83,7 @@ check_postgres_status() {
     SCITEX_CLOUD_POSTGRES_DB="${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}"
 
     if docker-compose -f docker-compose.dev.yml exec -T db \
-        psql -U "$SCITEX_CLOUD_POSTGRES_USER" -d "$SCITEX_CLOUD_POSTGRES_DB" -c "SELECT 1;" >/dev/null 2>&1; then
+        psql -U "$SCITEX_CLOUD_POSTGRES_USER" -d "$SCITEX_CLOUD_POSTGRES_DB" -c "SELECT 1;" > /dev/null 2>&1; then
         echo_success "  ✓ Connection successful"
         echo_info "  User: $SCITEX_CLOUD_POSTGRES_USER"
         echo_info "  Database: $SCITEX_CLOUD_POSTGRES_DB"
@@ -97,7 +97,7 @@ check_postgres_status() {
     # Database version
     echo_info "PostgreSQL Version:"
     VERSION=$(docker-compose -f docker-compose.dev.yml exec -T db \
-        psql -U "$SCITEX_CLOUD_POSTGRES_USER" -t -c "SELECT version();" 2>/dev/null | head -1 | xargs)
+        psql -U "$SCITEX_CLOUD_POSTGRES_USER" -t -c "SELECT version();" 2> /dev/null | head -1 | xargs)
     echo_info "  $VERSION"
     echo
 
@@ -105,7 +105,7 @@ check_postgres_status() {
     echo_info "Database Size:"
     DB_SIZE=$(docker-compose -f docker-compose.dev.yml exec -T db \
         psql -U "$SCITEX_CLOUD_POSTGRES_USER" -d "$SCITEX_CLOUD_POSTGRES_DB" -t \
-        -c "SELECT pg_size_pretty(pg_database_size('$SCITEX_CLOUD_POSTGRES_DB'));" 2>/dev/null | xargs)
+        -c "SELECT pg_size_pretty(pg_database_size('$SCITEX_CLOUD_POSTGRES_DB'));" 2> /dev/null | xargs)
     echo_info "  $SCITEX_CLOUD_POSTGRES_DB: $DB_SIZE"
     echo
 
@@ -116,14 +116,14 @@ check_postgres_status() {
         "SELECT datname, count(*) as connections
          FROM pg_stat_activity
          WHERE datname IS NOT NULL
-         GROUP BY datname;" 2>/dev/null | sed 's/^/  /'
+         GROUP BY datname;" 2> /dev/null | sed 's/^/  /'
     echo
 
     # Tables
     echo_info "Tables in $SCITEX_CLOUD_POSTGRES_DB:"
     TABLE_COUNT=$(docker-compose -f docker-compose.dev.yml exec -T db \
         psql -U "$SCITEX_CLOUD_POSTGRES_USER" -d "$SCITEX_CLOUD_POSTGRES_DB" -t \
-        -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | xargs)
+        -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2> /dev/null | xargs)
     echo_info "  Total tables: $TABLE_COUNT"
 
     if [ "$TABLE_COUNT" -gt 0 ]; then
@@ -134,7 +134,7 @@ check_postgres_status() {
              FROM pg_tables
              WHERE schemaname = 'public'
              ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC
-             LIMIT 5;" 2>/dev/null | sed 's/^/    /'
+             LIMIT 5;" 2> /dev/null | sed 's/^/    /'
     fi
     echo
 
@@ -142,17 +142,17 @@ check_postgres_status() {
     echo_info "Resource Usage:"
     docker stats docker_db_1 --no-stream --format \
         "  CPU: {{.CPUPerc}}  |  Memory: {{.MemUsage}}  |  Net I/O: {{.NetIO}}  |  Block I/O: {{.BlockIO}}" \
-        2>/dev/null
+        2> /dev/null
     echo
 
     # Volume
     echo_info "Data Volume:"
-    if docker volume inspect docker_postgres_data >/dev/null 2>&1; then
+    if docker volume inspect docker_postgres_data > /dev/null 2>&1; then
         echo_success "  ✓ Volume exists: docker_postgres_data"
 
-        VOLUME_MOUNTPOINT=$(docker volume inspect docker_postgres_data --format '{{.Mountpoint}}' 2>/dev/null)
+        VOLUME_MOUNTPOINT=$(docker volume inspect docker_postgres_data --format '{{.Mountpoint}}' 2> /dev/null)
         if [ -n "$VOLUME_MOUNTPOINT" ] && [ -d "$VOLUME_MOUNTPOINT" ]; then
-            VOLUME_SIZE=$(sudo du -sh "$VOLUME_MOUNTPOINT" 2>/dev/null | cut -f1 || echo "N/A")
+            VOLUME_SIZE=$(sudo du -sh "$VOLUME_MOUNTPOINT" 2> /dev/null | cut -f1 || echo "N/A")
             echo_info "  Size: $VOLUME_SIZE"
         fi
         echo_info "  Mountpoint: $VOLUME_MOUNTPOINT"

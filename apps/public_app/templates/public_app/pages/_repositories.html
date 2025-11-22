@@ -1,16 +1,13 @@
 {% extends "global_base.html" %}
-
 {% block title %}SciTeX GitHub Repositories{% endblock %}
-
 {% block meta_description %}Explore and contribute to SciTeX's open source repositories on GitHub. Join our community of researchers and developers building the future of scientific research tools.{% endblock %}
-
 {% block extra_css %}
-{% load static %}
-<!-- Page-specific CSS removed - now using utilities and components -->
-<style>
+        {% load static %}
+        <!-- Page-specific CSS removed - now using utilities and components -->
+        <style>
   /* These colors are programming language-specific and should remain as specific hex values */
   .language-python {
-    background-color: #3572A5;
+    background-color: #3572a5;
     color: white;
   }
   .language-javascript {
@@ -51,269 +48,362 @@
     margin-bottom: var(--spacing-xl);
     border-left: 5px solid var(--primary-color);
   }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="repo-header">
-  <div class="container">
-    <h1 class="display-4 text-center">SciTeX GitHub Repositories</h1>
-    <p class="lead text-center">Explore and contribute to our open source ecosystem</p>
-  </div>
-</div>
-
-<div class="container">
-  <!-- Introduction -->
-  <section class="repo-section">
-    <p class="lead">
-      SciTeX is an open-source ecosystem for scientific research. Our code is freely available on GitHub for exploration, use, and contribution.
-    </p>
-    <p>
-      We believe in the power of open collaboration to advance scientific tools. By making our repositories public, we invite researchers and developers from around the world to join in building better research tools for everyone.
-    </p>
-  </section>
-
-  <!-- Main Repositories -->
-  <section class="repo-section">
-    <h2>Core Repositories</h2>
-    <div class="row">
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="repo-card">
-          <span class="repo-language language-elisp">Emacs Lisp</span>
-          <h3>SciTeX-Engine</h3>
-          <p>AI research assistant that orchestrates your workflow</p>
-          <div class="repo-stats">
-            <div class="repo-stat"><i class="fas fa-code-branch"></i> 7</div>
-            <div class="repo-stat"><i class="fas fa-star"></i> 29</div>
-            <div class="repo-stat"><i class="fas fa-eye"></i> 88</div>
-          </div>
-          <div class="repo-actions">
-            <a href="https://github.com/SciTex-AI/SciTeX-Engine" class="btn btn-primary" target="_blank">
-              <i class="fab fa-github"></i> View Repository
-            </a>
-          </div>
+        </style>
+    {% endblock %}
+    {% block content %}
+        <div class="repo-header">
+            <div class="container">
+                <h1 class="display-4 text-center">SciTeX GitHub Repositories</h1>
+                <p class="lead text-center">Explore and contribute to our open source ecosystem</p>
+            </div>
         </div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="repo-card">
-          <span class="repo-language language-python">Python</span>
-          <h3>SciTeX-Search</h3>
-          <p>Semantic literature search for knowledge discovery and research gap identification.</p>
-          <div class="repo-stats">
-            <div class="repo-stat"><i class="fas fa-code-branch"></i> 6</div>
-            <div class="repo-stat"><i class="fas fa-star"></i> 27</div>
-            <div class="repo-stat"><i class="fas fa-eye"></i> 92</div>
-          </div>
-          <div class="repo-actions">
-            <a href="https://github.com/SciTex-AI/SciTeX-Search" class="btn btn-primary" target="_blank">
-              <i class="fab fa-github"></i> View Repository
-            </a>
-          </div>
+        <div class="container">
+            <!-- Introduction -->
+            <section class="repo-section">
+                <p class="lead">
+                    SciTeX is an open-source ecosystem for scientific research. Our code is
+                    freely available on GitHub for exploration, use, and contribution.
+                </p>
+                <p>
+                    We believe in the power of open collaboration to advance scientific tools.
+                    By making our repositories public, we invite researchers and developers
+                    from around the world to join in building better research tools for
+                    everyone.
+                </p>
+            </section>
+            <!-- Main Repositories -->
+            <section class="repo-section">
+                <h2>Core Repositories</h2>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="repo-card">
+                            <span class="repo-language language-elisp">Emacs Lisp</span>
+                            <h3>SciTeX-Engine</h3>
+                            <p>AI research assistant that orchestrates your workflow</p>
+                            <div class="repo-stats">
+                                <div class="repo-stat">
+                                    <i class="fas fa-code-branch"></i> 7
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-star"></i> 29
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-eye"></i> 88
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <a href="https://github.com/SciTex-AI/SciTeX-Engine"
+                                   class="btn btn-primary"
+                                   target="_blank">
+                                    <i class="fab fa-github"></i> View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="repo-card">
+                            <span class="repo-language language-python">Python</span>
+                            <h3>SciTeX-Search</h3>
+                            <p>
+                                Semantic literature search for knowledge discovery and research gap
+                                identification.
+                            </p>
+                            <div class="repo-stats">
+                                <div class="repo-stat">
+                                    <i class="fas fa-code-branch"></i> 6
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-star"></i> 27
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-eye"></i> 92
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <a href="https://github.com/SciTex-AI/SciTeX-Search"
+                                   class="btn btn-primary"
+                                   target="_blank">
+                                    <i class="fab fa-github"></i> View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="repo-card">
+                            <span class="repo-language language-python">Python</span>
+                            <h3>SciTeX-Code</h3>
+                            <p>
+                                Reproducible data analysis workflows with version control and
+                                standardization.
+                            </p>
+                            <div class="repo-stats">
+                                <div class="repo-stat">
+                                    <i class="fas fa-code-branch"></i> 8
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-star"></i> 31
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-eye"></i> 95
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <a href="https://github.com/SciTex-AI/SciTeX-Code"
+                                   class="btn btn-primary"
+                                   target="_blank">
+                                    <i class="fab fa-github"></i> View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="repo-card">
+                            <span class="repo-language language-elisp">Emacs Lisp</span>
+                            <h3>SciTeX-Doc</h3>
+                            <p>LaTeX system enhanced with language model capabilities</p>
+                            <div class="repo-stats">
+                                <div class="repo-stat">
+                                    <i class="fas fa-code-branch"></i> 12
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-star"></i> 37
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-eye"></i> 112
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <a href="https://github.com/SciTex-AI/SciTeX-Doc"
+                                   class="btn btn-primary"
+                                   target="_blank">
+                                    <i class="fab fa-github"></i> View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="repo-card">
+                            <span class="repo-language language-python">Python</span>
+                            <h3>SciTeX-Viz</h3>
+                            <p>
+                                Publication-quality data visualization with customizable templates
+                                and interactive charts.
+                            </p>
+                            <div class="repo-stats">
+                                <div class="repo-stat">
+                                    <i class="fas fa-code-branch"></i> 9
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-star"></i> 33
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-eye"></i> 102
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <a href="https://github.com/SciTex-AI/SciTeX-Viz"
+                                   class="btn btn-primary"
+                                   target="_blank">
+                                    <i class="fab fa-github"></i> View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="repo-card">
+                            <span class="repo-language language-python">Python</span>
+                            <h3>SciTeX-Cloud</h3>
+                            <p>Unified web platform that integrates all SciTeX tools</p>
+                            <div class="repo-stats">
+                                <div class="repo-stat">
+                                    <i class="fas fa-code-branch"></i> 15
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-star"></i> 42
+                                </div>
+                                <div class="repo-stat">
+                                    <i class="fas fa-eye"></i> 128
+                                </div>
+                            </div>
+                            <div class="repo-actions">
+                                <a href="https://github.com/SciTex-AI/SciTeX-Cloud"
+                                   class="btn btn-primary"
+                                   target="_blank">
+                                    <i class="fab fa-github"></i> View Repository
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- How to Contribute -->
+            <section class="repo-section">
+                <h2>How to Contribute</h2>
+                <div class="contribution-card">
+                    <h3>Getting Started</h3>
+                    <p>
+                        New to contributing to open source? Follow these steps to make your
+                        first contribution to SciTeX:
+                    </p>
+                    <ol>
+                        <li>Find a repository that interests you from the list above</li>
+                        <li>Fork the repository to your GitHub account</li>
+                        <li>Clone your fork to your local machine</li>
+                        <li>Create a new branch for your changes</li>
+                        <li>Make your changes following our coding guidelines</li>
+                        <li>Push your changes and create a pull request</li>
+                    </ol>
+                    <p>Our maintainers will review your contribution and provide feedback.</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Ways to Contribute</h3>
+                        <ul>
+                            <li>
+                                <strong>Code Contributions</strong> - Fix bugs, implement new
+                                features, or improve existing ones
+                            </li>
+                            <li>
+                                <strong>Documentation</strong> - Improve or expand documentation,
+                                tutorials, and examples
+                            </li>
+                            <li>
+                                <strong>Bug Reports</strong> - Help identify and document issues
+                            </li>
+                            <li>
+                                <strong>Feature Requests</strong> - Suggest new features or
+                                improvements
+                            </li>
+                            <li>
+                                <strong>Testing</strong> - Help test new features and ensure quality
+                            </li>
+                            <li>
+                                <strong>Design</strong> - Contribute improved UI/UX designs
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h3>Contribution Guidelines</h3>
+                        <ul>
+                            <li>Follow the code style of the specific repository</li>
+                            <li>Write meaningful commit messages</li>
+                            <li>Document your changes thoroughly</li>
+                            <li>Add tests for new functionality</li>
+                            <li>Ensure all tests pass before submitting</li>
+                            <li>Be respectful and constructive in discussions</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <!-- Open Issues -->
+            <section class="repo-section">
+                <h2>Good First Issues</h2>
+                <p>
+                    Looking for a place to start? These issues are tagged as "good first
+                    issue" and are perfect for new contributors:
+                </p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Repository</th>
+                                <th>Issue</th>
+                                <th>Description</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SciTeX-Cloud</td>
+                                <td>#12</td>
+                                <td>Improve accessibility of landing page</td>
+                                <td>
+                                    <a href="https://github.com/SciTex-AI/SciTeX-Cloud/issues/12"
+                                       target="_blank">View Issue</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SciTeX-Doc</td>
+                                <td>#8</td>
+                                <td>Add more LaTeX journal templates</td>
+                                <td>
+                                    <a href="https://github.com/SciTex-AI/SciTeX-Doc/issues/8"
+                                       target="_blank">View Issue</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SciTeX-Viz</td>
+                                <td>#15</td>
+                                <td>Create example Matplotlib style sheet</td>
+                                <td>
+                                    <a href="https://github.com/SciTex-AI/SciTeX-Viz/issues/15"
+                                       target="_blank">View Issue</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SciTeX-Code</td>
+                                <td>#7</td>
+                                <td>Improve documentation for data import functions</td>
+                                <td>
+                                    <a href="https://github.com/SciTex-AI/SciTeX-Code/issues/7"
+                                       target="_blank">View Issue</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <!-- Community -->
+            <section class="repo-section">
+                <h2>Join the Community</h2>
+                <p>
+                    Contributing to code is just one way to get involved. Join our community
+                    to discuss ideas, ask questions, and collaborate:
+                </p>
+                <div class="row text-center mt-4">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <i class="fab fa-slack fa-3x text-primary"></i>
+                        </div>
+                        <h4>Slack</h4>
+                        <p>Join discussions, get help, and connect with other contributors</p>
+                        <a href="https://scitexworkspace.slack.com"
+                           class="btn btn-outline-primary"
+                           target="_blank">Join Slack</a>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <i class="fab fa-github fa-3x text-dark"></i>
+                        </div>
+                        <h4>GitHub Discussions</h4>
+                        <p>Participate in technical discussions and proposals</p>
+                        <a href="https://github.com/orgs/SciTex-AI/discussions"
+                           class="btn btn-outline-dark"
+                           target="_blank">View Discussions</a>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <i class="far fa-envelope fa-3x text-primary"></i>
+                        </div>
+                        <h4>Mailing List</h4>
+                        <p>Subscribe to updates and announcements</p>
+                        <a href="mailto:community@scitex.ai" class="btn btn-outline-primary">Contact Us</a>
+                    </div>
+                </div>
+            </section>
+            <!-- Call to Action -->
+            <section class="repo-section text-center py-5">
+                <h2>Ready to Get Involved?</h2>
+                <p class="lead">Contribute to the future of scientific research tools</p>
+                <div class="mt-4">
+                    <a href="https://github.com/SciTex-AI"
+                       class="btn btn-primary btn-lg mx-2"
+                       target="_blank">
+                        <i class="fab fa-github"></i> View All Repositories
+                    </a>
+                    <a href="{% url 'public_app:about' %}"
+                       class="btn btn-outline-secondary btn-lg mx-2">Learn About Our Vision</a>
+                </div>
+            </section>
         </div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="repo-card">
-          <span class="repo-language language-python">Python</span>
-          <h3>SciTeX-Code</h3>
-          <p>Reproducible data analysis workflows with version control and standardization.</p>
-          <div class="repo-stats">
-            <div class="repo-stat"><i class="fas fa-code-branch"></i> 8</div>
-            <div class="repo-stat"><i class="fas fa-star"></i> 31</div>
-            <div class="repo-stat"><i class="fas fa-eye"></i> 95</div>
-          </div>
-          <div class="repo-actions">
-            <a href="https://github.com/SciTex-AI/SciTeX-Code" class="btn btn-primary" target="_blank">
-              <i class="fab fa-github"></i> View Repository
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="repo-card">
-          <span class="repo-language language-elisp">Emacs Lisp</span>
-          <h3>SciTeX-Doc</h3>
-          <p>LaTeX system enhanced with language model capabilities</p>
-          <div class="repo-stats">
-            <div class="repo-stat"><i class="fas fa-code-branch"></i> 12</div>
-            <div class="repo-stat"><i class="fas fa-star"></i> 37</div>
-            <div class="repo-stat"><i class="fas fa-eye"></i> 112</div>
-          </div>
-          <div class="repo-actions">
-            <a href="https://github.com/SciTex-AI/SciTeX-Doc" class="btn btn-primary" target="_blank">
-              <i class="fab fa-github"></i> View Repository
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="repo-card">
-          <span class="repo-language language-python">Python</span>
-          <h3>SciTeX-Viz</h3>
-          <p>Publication-quality data visualization with customizable templates and interactive charts.</p>
-          <div class="repo-stats">
-            <div class="repo-stat"><i class="fas fa-code-branch"></i> 9</div>
-            <div class="repo-stat"><i class="fas fa-star"></i> 33</div>
-            <div class="repo-stat"><i class="fas fa-eye"></i> 102</div>
-          </div>
-          <div class="repo-actions">
-            <a href="https://github.com/SciTex-AI/SciTeX-Viz" class="btn btn-primary" target="_blank">
-              <i class="fab fa-github"></i> View Repository
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="repo-card">
-          <span class="repo-language language-python">Python</span>
-          <h3>SciTeX-Cloud</h3>
-          <p>Unified web platform that integrates all SciTeX tools</p>
-          <div class="repo-stats">
-            <div class="repo-stat"><i class="fas fa-code-branch"></i> 15</div>
-            <div class="repo-stat"><i class="fas fa-star"></i> 42</div>
-            <div class="repo-stat"><i class="fas fa-eye"></i> 128</div>
-          </div>
-          <div class="repo-actions">
-            <a href="https://github.com/SciTex-AI/SciTeX-Cloud" class="btn btn-primary" target="_blank">
-              <i class="fab fa-github"></i> View Repository
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- How to Contribute -->
-  <section class="repo-section">
-    <h2>How to Contribute</h2>
-    
-    <div class="contribution-card">
-      <h3>Getting Started</h3>
-      <p>New to contributing to open source? Follow these steps to make your first contribution to SciTeX:</p>
-      <ol>
-        <li>Find a repository that interests you from the list above</li>
-        <li>Fork the repository to your GitHub account</li>
-        <li>Clone your fork to your local machine</li>
-        <li>Create a new branch for your changes</li>
-        <li>Make your changes following our coding guidelines</li>
-        <li>Push your changes and create a pull request</li>
-      </ol>
-      <p>Our maintainers will review your contribution and provide feedback.</p>
-    </div>
-
-    <div class="row">
-      <div class="col-md-6">
-        <h3>Ways to Contribute</h3>
-        <ul>
-          <li><strong>Code Contributions</strong> - Fix bugs, implement new features, or improve existing ones</li>
-          <li><strong>Documentation</strong> - Improve or expand documentation, tutorials, and examples</li>
-          <li><strong>Bug Reports</strong> - Help identify and document issues</li>
-          <li><strong>Feature Requests</strong> - Suggest new features or improvements</li>
-          <li><strong>Testing</strong> - Help test new features and ensure quality</li>
-          <li><strong>Design</strong> - Contribute improved UI/UX designs</li>
-        </ul>
-      </div>
-      <div class="col-md-6">
-        <h3>Contribution Guidelines</h3>
-        <ul>
-          <li>Follow the code style of the specific repository</li>
-          <li>Write meaningful commit messages</li>
-          <li>Document your changes thoroughly</li>
-          <li>Add tests for new functionality</li>
-          <li>Ensure all tests pass before submitting</li>
-          <li>Be respectful and constructive in discussions</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- Open Issues -->
-  <section class="repo-section">
-    <h2>Good First Issues</h2>
-    <p>Looking for a place to start? These issues are tagged as "good first issue" and are perfect for new contributors:</p>
-    
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Repository</th>
-            <th>Issue</th>
-            <th>Description</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>SciTeX-Cloud</td>
-            <td>#12</td>
-            <td>Improve accessibility of landing page</td>
-            <td><a href="https://github.com/SciTex-AI/SciTeX-Cloud/issues/12" target="_blank">View Issue</a></td>
-          </tr>
-          <tr>
-            <td>SciTeX-Doc</td>
-            <td>#8</td>
-            <td>Add more LaTeX journal templates</td>
-            <td><a href="https://github.com/SciTex-AI/SciTeX-Doc/issues/8" target="_blank">View Issue</a></td>
-          </tr>
-          <tr>
-            <td>SciTeX-Viz</td>
-            <td>#15</td>
-            <td>Create example Matplotlib style sheet</td>
-            <td><a href="https://github.com/SciTex-AI/SciTeX-Viz/issues/15" target="_blank">View Issue</a></td>
-          </tr>
-          <tr>
-            <td>SciTeX-Code</td>
-            <td>#7</td>
-            <td>Improve documentation for data import functions</td>
-            <td><a href="https://github.com/SciTex-AI/SciTeX-Code/issues/7" target="_blank">View Issue</a></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Community -->
-  <section class="repo-section">
-    <h2>Join the Community</h2>
-    <p>Contributing to code is just one way to get involved. Join our community to discuss ideas, ask questions, and collaborate:</p>
-    
-    <div class="row text-center mt-4">
-      <div class="col-md-4">
-        <div class="mb-3">
-          <i class="fab fa-slack fa-3x text-primary"></i>
-        </div>
-        <h4>Slack</h4>
-        <p>Join discussions, get help, and connect with other contributors</p>
-        <a href="https://scitexworkspace.slack.com" class="btn btn-outline-primary" target="_blank">Join Slack</a>
-      </div>
-      <div class="col-md-4">
-        <div class="mb-3">
-          <i class="fab fa-github fa-3x text-dark"></i>
-        </div>
-        <h4>GitHub Discussions</h4>
-        <p>Participate in technical discussions and proposals</p>
-        <a href="https://github.com/orgs/SciTex-AI/discussions" class="btn btn-outline-dark" target="_blank">View Discussions</a>
-      </div>
-      <div class="col-md-4">
-        <div class="mb-3">
-          <i class="far fa-envelope fa-3x text-primary"></i>
-        </div>
-        <h4>Mailing List</h4>
-        <p>Subscribe to updates and announcements</p>
-        <a href="mailto:community@scitex.ai" class="btn btn-outline-primary">Contact Us</a>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Call to Action -->
-  <section class="repo-section text-center py-5">
-    <h2>Ready to Get Involved?</h2>
-    <p class="lead">Contribute to the future of scientific research tools</p>
-    <div class="mt-4">
-      <a href="https://github.com/SciTex-AI" class="btn btn-primary btn-lg mx-2" target="_blank">
-        <i class="fab fa-github"></i> View All Repositories
-      </a>
-      <a href="{% url 'public_app:about' %}" class="btn btn-outline-secondary btn-lg mx-2">Learn About Our Vision</a>
-    </div>
-  </section>
-</div>
-{% endblock %}
+    {% endblock %}

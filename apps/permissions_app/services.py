@@ -4,7 +4,7 @@ Single source of truth for all authorization decisions.
 """
 
 from typing import Optional
-from .models import Role, ProjectMember, GuestCollaborator
+from .models import Role, ProjectMember
 
 
 class PermissionService:
@@ -28,7 +28,9 @@ class PermissionService:
 
         # Check ProjectMember
         try:
-            member = ProjectMember.objects.get(project=project, user=user, is_active=True)
+            member = ProjectMember.objects.get(
+                project=project, user=user, is_active=True
+            )
             return member.role
         except ProjectMember.DoesNotExist:
             return None
@@ -54,7 +56,7 @@ class PermissionService:
         if module:
             try:
                 member = ProjectMember.objects.get(project=project, user=user)
-                module_perm = getattr(member, f'can_edit_{module}', None)
+                module_perm = getattr(member, f"can_edit_{module}", None)
                 if module_perm is not None:
                     return module_perm  # Explicit override
             except ProjectMember.DoesNotExist:
@@ -93,7 +95,9 @@ class PermissionService:
         return cls.ROLE_HIERARCHY.get(role, 0) >= cls.ROLE_HIERARCHY[Role.REPORTER]
 
     @classmethod
-    def check_permission(cls, user, project, action: str, module: Optional[str] = None) -> bool:
+    def check_permission(
+        cls, user, project, action: str, module: Optional[str] = None
+    ) -> bool:
         """
         Universal permission check.
 
@@ -106,19 +110,19 @@ class PermissionService:
         Returns:
             True if user has permission
         """
-        if action == 'read':
+        if action == "read":
             return cls.can_read(user, project)
-        elif action == 'write':
+        elif action == "write":
             return cls.can_write(user, project, module)
-        elif action == 'delete':
+        elif action == "delete":
             return cls.can_delete(user, project)
-        elif action == 'manage':
+        elif action == "manage":
             return cls.can_manage(user, project)
-        elif action == 'admin':
+        elif action == "admin":
             return cls.can_admin(user, project)
-        elif action == 'invite':
+        elif action == "invite":
             return cls.can_invite(user, project)
-        elif action == 'compile':
+        elif action == "compile":
             return cls.can_compile(user, project)
         else:
             return False

@@ -85,3 +85,15 @@ Thumbs.db
 # Project specific
 demo/
 test-paper-project/
+
+# Runtime data (mounted as volumes, not copied into image)
+data
+logs
+backups
+ssh_keys
+
+# Also exclude with wildcards
+data/**
+logs/**
+backups/**
+ssh_keys/**

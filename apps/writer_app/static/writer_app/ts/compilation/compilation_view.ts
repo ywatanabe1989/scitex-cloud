@@ -3,59 +3,60 @@
  * Corresponds to: templates/writer_app/compilation/compilation_view.html
  */
 
-console.log("[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/compilation/compilation_view.ts loaded");
+console.log(
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/compilation/compilation_view.ts loaded",
+);
 interface CompilationLog {
-    timestamp: string;
-    level: string;
-    message: string;
+  timestamp: string;
+  level: string;
+  message: string;
 }
 
 class CompilationViewPage {
-    private logViewer: HTMLElement | null;
-    private progressBar: HTMLElement | null;
-    // @ts-expect-error - Placeholder for future PDF viewer integration
-    private _pdfViewer: HTMLElement | null;
+  private logViewer: HTMLElement | null;
+  private progressBar: HTMLElement | null;
+  private _pdfViewer: HTMLElement | null;
 
-    constructor() {
-        this.logViewer = document.getElementById('log-viewer');
-        this.progressBar = document.getElementById('progress-bar');
-        this._pdfViewer = document.getElementById('pdf-viewer');
-        this.init();
-    }
+  constructor() {
+    this.logViewer = document.getElementById("log-viewer");
+    this.progressBar = document.getElementById("progress-bar");
+    this._pdfViewer = document.getElementById("pdf-viewer");
+    this.init();
+  }
 
-    private init(): void {
-        console.log('[CompilationView] Initializing compilation view');
-        this.setupLogViewer();
-        this.setupProgressMonitoring();
-    }
+  private init(): void {
+    console.log("[CompilationView] Initializing compilation view");
+    this.setupLogViewer();
+    this.setupProgressMonitoring();
+  }
 
-    private setupLogViewer(): void {
-        console.log('[CompilationView] Setting up log viewer');
-        // Setup log viewing functionality
-    }
+  private setupLogViewer(): void {
+    console.log("[CompilationView] Setting up log viewer");
+    // Setup log viewing functionality
+  }
 
-    private setupProgressMonitoring(): void {
-        console.log('[CompilationView] Setting up progress monitoring');
-        // Monitor compilation progress
-    }
+  private setupProgressMonitoring(): void {
+    console.log("[CompilationView] Setting up progress monitoring");
+    // Monitor compilation progress
+  }
 
-    public updateProgress(percentage: number): void {
-        if (this.progressBar) {
-            (this.progressBar as HTMLElement).style.width = `${percentage}%`;
-        }
+  public updateProgress(percentage: number): void {
+    if (this.progressBar) {
+      (this.progressBar as HTMLElement).style.width = `${percentage}%`;
     }
+  }
 
-    public addLogEntry(log: CompilationLog): void {
-        if (this.logViewer) {
-            const entry = document.createElement('div');
-            entry.className = `log-entry log-${log.level}`;
-            entry.textContent = `[${log.timestamp}] ${log.message}`;
-            this.logViewer.appendChild(entry);
-        }
+  public addLogEntry(log: CompilationLog): void {
+    if (this.logViewer) {
+      const entry = document.createElement("div");
+      entry.className = `log-entry log-${log.level}`;
+      entry.textContent = `[${log.timestamp}] ${log.message}`;
+      this.logViewer.appendChild(entry);
     }
+  }
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    new CompilationViewPage();
+document.addEventListener("DOMContentLoaded", () => {
+  new CompilationViewPage();
 });

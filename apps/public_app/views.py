@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/public_app/views.py"
-)
+
+__FILE__ = "./apps/public_app/views.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -270,11 +269,10 @@ def publications(request):
 
 def donate(request):
     """Donate page view with payment processing."""
-    import json
 
     from django.contrib import messages
 
-    from .forms import DonationForm, EmailVerificationForm, VerifyCodeForm
+    from .forms import DonationForm, EmailVerificationForm
     from .models import Donation, DonationTier
 
     # Get donation tiers
@@ -290,12 +288,10 @@ def donate(request):
             email_form = EmailVerificationForm(request.POST)
             if email_form.is_valid():
                 if email_form.send_verification_email():
-                    messages.success(
-                        request, "Verification code sent to your email!"
-                    )
-                    request.session["verification_email"] = (
-                        email_form.cleaned_data["email"]
-                    )
+                    messages.success(request, "Verification code sent to your email!")
+                    request.session["verification_email"] = email_form.cleaned_data[
+                        "email"
+                    ]
                     return redirect("cloud_app:verify-email")
                 else:
                     messages.error(
@@ -574,7 +570,6 @@ def donation_success(request, donation_id):
 def send_donation_confirmation(donation):
     """Send donation confirmation email."""
     from django.core.mail import send_mail
-    from django.template.loader import render_to_string
 
     subject = "Thank you for supporting SciTeX!"
 
@@ -590,7 +585,7 @@ Transaction Details:
 - Amount: ${donation.amount} USD
 - Payment Method: {donation.get_payment_method_display()}
 - Transaction ID: {donation.transaction_id}
-- Date: {donation.completed_at.strftime('%B %d, %Y')}
+- Date: {donation.completed_at.strftime("%B %d, %Y")}
 
 This email serves as your donation receipt for tax purposes.
 
@@ -697,9 +692,7 @@ def scitex_api_keys(request):
         if action == "create":
             name = request.POST.get("name", "").strip()
             if not name:
-                messages.error(
-                    request, "Please provide a name for your API key"
-                )
+                messages.error(request, "Please provide a name for your API key")
                 return redirect("public_app:scitex_api_keys")
 
             # Create new API key
@@ -711,9 +704,7 @@ def scitex_api_keys(request):
 
             # Store the full key in session to show once
             request.session["new_api_key"] = full_key
-            messages.success(
-                request, f'API key "{name}" created successfully!'
-            )
+            messages.success(request, f'API key "{name}" created successfully!')
             return redirect("public_app:scitex_api_keys")
 
         elif action == "delete":
@@ -751,5 +742,371 @@ def scitex_api_keys(request):
     }
 
     return render(request, "public_app/pages/api_keys.html", context)
+
+
+def tools(request):
+    """Research tools page - bookmarklets and utilities for researchers."""
+    # Organized by research workflow: Data → Plot → Publish
+    domains = [
+        {
+            "name": "📊 Data Tools",
+            "slug": "data",
+            "icon": "📊",
+            "description": "Process, validate, and prepare research data",
+            "tools": [
+                {
+                    "name": "Statistics Calculator",
+                    "description": "Quick statistical analysis for research data with descriptive stats, t-tests, and correlations.",
+                    "use_case": "Verify experimental results before plotting",
+                    "bookmarklet_url": "/tools/statistics-calculator/",
+                    "icon": "📈",
+                },
+                {
+                    "name": "JSON Formatter",
+                    "description": "Format, validate, and beautify JSON data with syntax highlighting.",
+                    "use_case": "Validate plot specifications and configuration files",
+                    "bookmarklet_url": "/tools/json-formatter/",
+                    "icon": "{ }",
+                },
+                {
+                    "name": "Text Diff Checker",
+                    "description": "Compare two text blocks side-by-side with highlighted differences.",
+                    "use_case": "Compare dataset versions or track changes in results",
+                    "bookmarklet_url": "/tools/text-diff-checker/",
+                    "icon": "🔄",
+                },
+                {
+                    "name": "Markdown Renderer",
+                    "description": "Real-time Markdown preview with syntax highlighting and table support.",
+                    "use_case": "Format README files and documentation for data repositories",
+                    "bookmarklet_url": "/tools/markdown-renderer/",
+                    "icon": "📝",
+                },
+            ],
+        },
+        {
+            "name": "📈 Plot Tools",
+            "slug": "plot",
+            "icon": "📈",
+            "description": "Create and refine publication-quality figures",
+            "tools": [
+                {
+                    "name": "Plot Viewer",
+                    "description": "Interactive CSV plot viewer with Nature journal standards. Supports line, scatter, and bar plots with 300 DPI rendering.",
+                    "use_case": "Quick data visualization during analysis",
+                    "bookmarklet_url": "/tools/plot-viewer/",
+                    "icon": "📊",
+                },
+                {
+                    "name": "Plot Backend Test",
+                    "description": "Test matplotlib/scitex.plt backend with JSON specifications. Generate publication-quality SVG plots.",
+                    "use_case": "Design figures with precise journal specifications",
+                    "bookmarklet_url": "/tools/plot-backend-test/",
+                    "icon": "🧪",
+                },
+                {
+                    "name": "Image & PDF Viewer",
+                    "description": "View dimensions, DPI, and unit conversions (mm/inch) for publication figures.",
+                    "use_case": "Verify Figure 2 meets journal dimension requirements",
+                    "bookmarklet_url": "/tools/image-viewer/",
+                    "icon": "📐",
+                },
+                {
+                    "name": "Image Resizer",
+                    "description": "Resize and crop images for journal submissions with preset dimensions.",
+                    "use_case": "Adjust Figure 2 to exact pixel-perfect journal specs",
+                    "bookmarklet_url": "/tools/image-resizer/",
+                    "icon": "📏",
+                },
+                {
+                    "name": "Image Converter",
+                    "description": "Convert images between PNG, JPG, WEBP, TIFF formats with batch conversion.",
+                    "use_case": "Convert PNG figures to TIFF for journal submission",
+                    "bookmarklet_url": "/tools/image-converter/",
+                    "icon": "🔄",
+                },
+                {
+                    "name": "Image Concatenator",
+                    "description": "Combine multiple images into a single tiled multi-panel figure.",
+                    "use_case": "Create Figure 1 panel layouts (A, B, C, D)",
+                    "bookmarklet_url": "/tools/image-concatenator/",
+                    "icon": "🖼️",
+                },
+                {
+                    "name": "Mermaid Diagram Renderer",
+                    "description": "Create flowcharts, sequence diagrams, and concept diagrams from text syntax.",
+                    "use_case": "Design experimental workflow diagrams for Methods section",
+                    "bookmarklet_url": "/tools/mermaid-renderer/",
+                    "icon": "🧜‍♀️",
+                },
+                {
+                    "name": "Images to GIF",
+                    "description": "Convert image sequences into animated GIF with customizable duration.",
+                    "use_case": "Create supplementary animations showing temporal changes",
+                    "bookmarklet_url": "/tools/images-to-gif/",
+                    "icon": "🎬",
+                },
+            ],
+        },
+        {
+            "name": "📄 Publish Tools",
+            "slug": "publish",
+            "icon": "📄",
+            "description": "Prepare documents for journal submission",
+            "tools": [
+                {
+                    "name": "PDF Merger",
+                    "description": "Combine multiple PDF files into a single document with drag-to-reorder.",
+                    "use_case": "Merge manuscript, figures, and supplements for submission",
+                    "bookmarklet_url": "/tools/pdf-merger/",
+                    "icon": "📑",
+                },
+                {
+                    "name": "PDF Compressor",
+                    "description": "Reduce PDF file size while maintaining quality for email and uploads.",
+                    "use_case": "Compress submission files under journal size limits",
+                    "bookmarklet_url": "/tools/pdf-compressor/",
+                    "icon": "🗜️",
+                },
+                {
+                    "name": "PDF Splitter",
+                    "description": "Extract specific pages from PDF files using page ranges.",
+                    "use_case": "Extract figures from compiled manuscript for separate upload",
+                    "bookmarklet_url": "/tools/pdf-splitter/",
+                    "icon": "✂️",
+                },
+                {
+                    "name": "Images to PDF",
+                    "description": "Convert multiple images into a single PDF with custom page orientation.",
+                    "use_case": "Create supplementary figures PDF from multiple images",
+                    "bookmarklet_url": "/tools/images-to-pdf/",
+                    "icon": "📄",
+                },
+                {
+                    "name": "PDF to Images",
+                    "description": "Extract all pages from PDF as PNG or JPG images with adjustable DPI.",
+                    "use_case": "Convert PDF figures to images for presentation slides",
+                    "bookmarklet_url": "/tools/pdf-to-images/",
+                    "icon": "🖼️",
+                },
+            ],
+        },
+        {
+            "name": "🔬 Research Utilities",
+            "slug": "research",
+            "icon": "🔬",
+            "description": "Literature management and citation tools",
+            "tools": [
+                {
+                    "name": "Asta AI Citation Scraper",
+                    "description": "Automatically collect all BibTeX citations from Asta AI search results.",
+                    "use_case": "Build bibliography from AI literature searches",
+                    "bookmarklet_url": "/tools/asta-citation-scraper/",
+                    "icon": "📚",
+                },
+                {
+                    "name": "QR Code Generator",
+                    "description": "Generate QR codes for URLs, DOIs, posters, and presentations.",
+                    "use_case": "Add QR codes to conference posters linking to papers",
+                    "bookmarklet_url": "/tools/qr-code-generator/",
+                    "icon": "📱",
+                },
+            ],
+        },
+        {
+            "name": "💻 Developer Tools",
+            "slug": "development",
+            "icon": "💻",
+            "description": "Web development and debugging utilities",
+            "tools": [
+                {
+                    "name": "Element Inspector",
+                    "description": "Visual debugging tool with AI-ready output format.",
+                    "use_case": "Debug web interface issues in research platforms",
+                    "bookmarklet_url": "/tools/element-inspector/",
+                    "icon": "🔍",
+                },
+                {
+                    "name": "Repository Concatenator",
+                    "description": "Concatenate repository files into AI-ready format for code review.",
+                    "use_case": "Prepare analysis scripts for AI code review",
+                    "bookmarklet_url": "/tools/repo-concatenator/",
+                    "icon": "📦",
+                },
+                {
+                    "name": "Color Picker",
+                    "description": "Advanced color picker with format conversion and palette generation.",
+                    "use_case": "Design consistent color schemes for figure panels",
+                    "bookmarklet_url": "/tools/color-picker/",
+                    "icon": "🎨",
+                },
+            ],
+        },
+        {
+            "name": "🎬 Video Tools",
+            "slug": "video",
+            "icon": "🎬",
+            "description": "Video processing for presentations",
+            "tools": [
+                {
+                    "name": "Video Editor",
+                    "description": "Trim videos by time window with browser-based processing.",
+                    "use_case": "Edit supplementary videos for journal submission",
+                    "bookmarklet_url": "/tools/video-editor/",
+                    "icon": "🎬",
+                },
+            ],
+        },
+    ]
+
+    # Calculate total tools
+    total_tools = sum(len(domain["tools"]) for domain in domains)
+
+    context = {
+        "domains": domains,
+        "total_tools": total_tools,
+    }
+
+    return render(request, "public_app/pages/tools.html", context)
+
+
+def tool_element_inspector(request):
+    """Element Inspector tool detail page."""
+    return render(request, "public_app/tools/element-inspector.html")
+
+
+def tool_asta_citation_scraper(request):
+    """Asta AI Citation Scraper tool detail page."""
+    return render(request, "public_app/tools/asta-citation-scraper.html")
+
+
+def tool_image_concatenator(request):
+    """Image Concatenator tool detail page."""
+    return render(request, "public_app/tools/image-concatenator.html")
+
+
+def tool_qr_code_generator(request):
+    """QR Code Generator tool detail page."""
+    return render(request, "public_app/tools/qr-code-generator.html")
+
+
+def tool_color_picker(request):
+    """Color Picker tool detail page."""
+    return render(request, "public_app/tools/color-picker.html")
+
+
+def tool_markdown_renderer(request):
+    """Markdown Renderer tool detail page."""
+    return render(request, "public_app/tools/markdown-renderer.html")
+
+
+def tool_text_diff_checker(request):
+    """Text Diff Checker tool detail page."""
+    return render(request, "public_app/tools/text-diff-checker.html")
+
+
+def tool_images_to_gif(request):
+    """Images to GIF tool detail page."""
+    return render(request, "public_app/tools/images-to-gif.html")
+
+
+def tool_image_converter(request):
+    """Image Converter tool detail page."""
+    return render(request, "public_app/tools/image-converter.html")
+
+
+def tool_pdf_merger(request):
+    """PDF Merger tool detail page."""
+    return render(request, "public_app/tools/pdf-merger.html")
+
+
+def tool_statistics_calculator(request):
+    """Statistics Calculator tool detail page."""
+    return render(request, "public_app/tools/statistics-calculator.html")
+
+
+def tool_pdf_splitter(request):
+    """PDF Splitter tool detail page."""
+    return render(request, "public_app/tools/pdf-splitter.html")
+
+
+def tool_image_resizer(request):
+    """Image Resizer tool detail page."""
+    return render(request, "public_app/tools/image-resizer.html")
+
+
+def tool_repo_concatenator(request):
+    """Repository Concatenator tool detail page."""
+    return render(request, "public_app/tools/repo-concatenator.html")
+
+
+def tool_json_formatter(request):
+    """JSON Formatter tool detail page."""
+    return render(request, "public_app/tools/json-formatter.html")
+
+
+def tool_images_to_pdf(request):
+    """Images to PDF tool detail page."""
+    return render(request, "public_app/tools/images-to-pdf.html")
+
+
+def tool_pdf_to_images(request):
+    """PDF to Images tool detail page."""
+    return render(request, "public_app/tools/pdf-to-images.html")
+
+
+def tool_pdf_compressor(request):
+    """PDF Compressor tool detail page."""
+    return render(request, "public_app/tools/pdf-compressor.html")
+
+
+def tool_video_editor(request):
+    """Video Editor tool detail page."""
+    return render(request, "public_app/tools/video-editor.html")
+
+
+def tool_plot_viewer(request):
+    """
+    Quick CSV Plot Viewer - renders simple CSV plots using Canvas.
+
+    Accepts CSV files with column naming convention:
+    ax_{axis_index}_{plot_id}_{plot_type}_{variable}
+
+    Example: ax_00_plot_line_0_line_x, ax_00_plot_line_0_line_y
+
+    Supports: line, scatter, bar plots only.
+    For advanced plot types, use the backend plot API.
+    """
+    return render(request, "public_app/tools/plot-viewer.html")
+
+
+def tool_plot_backend_test(request):
+    """
+    Backend Plot Renderer Test - test matplotlib/scitex.plt backend.
+
+    Internal testing tool for the backend plot API.
+    """
+    return render(request, "public_app/tools/plot-backend-test.html")
+
+
+def tool_image_viewer(request):
+    """
+    Image Viewer - Display image with dimension, DPI, and unit conversion info.
+
+    Shows pixel dimensions, DPI, physical size (mm/inch), and conversions
+    to help understand figure dimensions for publications.
+    """
+    return render(request, "public_app/tools/image-viewer.html")
+
+
+def tool_mermaid_renderer(request):
+    """
+    Mermaid Diagram Renderer - Create diagrams from text syntax.
+
+    Supports flowcharts, sequence diagrams, Gantt charts, class diagrams,
+    pie charts, and git graphs using Mermaid.js syntax.
+    """
+    return render(request, "public_app/tools/mermaid-renderer.html")
+
 
 # EOF

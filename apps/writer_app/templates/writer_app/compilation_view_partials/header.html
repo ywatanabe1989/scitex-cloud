@@ -1,20 +1,169 @@
-    <!-- Header -->
-    <div class="compilation-header">
-        <div>
-            <h2>
-                <i class="fas fa-cogs me-2"></i>PDF Compilation
-            </h2>
-            <p>
-                {{ project.name }}
-            </p>
+<!-- Header -->
+<div class="compilation-header">
+    <div>
+        <h2>
+            <i class="fas fa-cogs me-1"></i>PDF Compilation
+        </h2>
+        <p>{{ project.name }}</p>
+    </div>
+    <div>
+        <button id="compile-btn-main" class="btn btn-primary">
+            <i class="fas fa-file-pdf me-1"></i>Compile PDF
+        </button>
+        <button id="generate-ai2-prompt-btn" class="btn btn-outline-primary">
+            <i class="fas fa-brain me-1"></i>AI2 Asta
+        </button>
+        <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=writer"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Editor
+        </a>
+    </div>
+</div>
+<!-- Compilation Options Modal -->
+<div class="scitex-modal-overlay"
+     id="compilationOptionsModal"
+     style="display: none">
+    <div class="scitex-modal-content" style="max-width: 600px">
+        <div class="scitex-modal-header">
+            <h3>
+                <i class="fas fa-cogs me-1"></i>Compilation Options
+            </h3>
+            <button type="button"
+                    class="scitex-modal-close"
+                    onclick="closeCompilationModal()">&times;</button>
         </div>
-        <div>
-            <button id="compile-btn-main" class="btn btn-primary">
-                <i class="fas fa-file-pdf me-2"></i>Compile PDF
+        <div class="scitex-modal-body">
+            <p style="color: var(--text-secondary);
+                      margin-bottom: 1rem;
+                      font-size: 13px">Select compilation options:</p>
+            <!-- Content -->
+            <div class="compilation-option-group" style="margin-bottom: 1rem">
+                <h6 style="margin-bottom: 0.5rem;
+                           color: var(--text-primary);
+                           font-weight: 600;
+                           font-size: 13px">
+                    <i class="fas fa-file-alt me-1"></i>Content
+                </h6>
+                <div class="form-check" style="margin-bottom: 0.4rem">
+                    <input class="form-check-input" type="checkbox" id="option-add-figs" />
+                    <label class="form-check-label"
+                           for="option-add-figs"
+                           style="font-size: 13px">
+                        <strong>Include Figures</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Add figures (slower)</small>
+                    </label>
+                </div>
+                <div class="form-check" style="margin-bottom: 0.4rem">
+                    <input class="form-check-input" type="checkbox" id="option-add-tables" />
+                    <label class="form-check-label"
+                           for="option-add-tables"
+                           style="font-size: 13px">
+                        <strong>Include Tables</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Add tables</small>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="option-add-diff" />
+                    <label class="form-check-label"
+                           for="option-add-diff"
+                           style="font-size: 13px">
+                        <strong>Generate Diff</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Show changes (~10s extra)</small>
+                    </label>
+                </div>
+            </div>
+            <!-- Figure Processing -->
+            <div class="compilation-option-group" style="margin-bottom: 1rem">
+                <h6 style="margin-bottom: 0.5rem;
+                           color: var(--text-primary);
+                           font-weight: 600;
+                           font-size: 13px">
+                    <i class="fas fa-images me-1"></i>Figure Processing
+                </h6>
+                <div class="form-check" style="margin-bottom: 0.4rem">
+                    <input class="form-check-input" type="checkbox" id="option-ppt2tif" />
+                    <label class="form-check-label" for="option-ppt2tif" style="font-size: 13px">
+                        <strong>PowerPoint → TIF</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Convert .pptx to .tif (WSL)</small>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="option-crop-tif" />
+                    <label class="form-check-label"
+                           for="option-crop-tif"
+                           style="font-size: 13px">
+                        <strong>Crop TIF Images</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Remove whitespace</small>
+                    </label>
+                </div>
+            </div>
+            <!-- Performance -->
+            <div class="compilation-option-group" style="margin-bottom: 1rem">
+                <h6 style="margin-bottom: 0.5rem;
+                           color: var(--text-primary);
+                           font-weight: 600;
+                           font-size: 13px">
+                    <i class="fas fa-bolt me-1"></i>Performance
+                </h6>
+                <div class="form-check" style="margin-bottom: 0.4rem">
+                    <input class="form-check-input" type="checkbox" id="option-draft" />
+                    <label class="form-check-label" for="option-draft" style="font-size: 13px">
+                        <strong>Draft Mode</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Single-pass (~5s faster)</small>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="option-quiet" />
+                    <label class="form-check-label" for="option-quiet" style="font-size: 13px">
+                        <strong>Quiet Mode</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Suppress logs</small>
+                    </label>
+                </div>
+            </div>
+            <!-- Appearance Options -->
+            <div class="compilation-option-group" style="margin-bottom: 1rem">
+                <h6 style="margin-bottom: 0.5rem;
+                           color: var(--text-primary);
+                           font-weight: 600;
+                           font-size: 13px">
+                    <i class="fas fa-palette me-1"></i>Appearance
+                </h6>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="option-dark-mode" />
+                    <label class="form-check-label"
+                           for="option-dark-mode"
+                           style="font-size: 13px">
+                        <strong>Dark Mode</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Black bg, white text</small>
+                    </label>
+                </div>
+            </div>
+            <!-- Advanced -->
+            <div class="compilation-option-group">
+                <h6 style="margin-bottom: 0.5rem;
+                           color: var(--text-primary);
+                           font-weight: 600;
+                           font-size: 13px">
+                    <i class="fas fa-tools me-1"></i>Advanced
+                </h6>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="option-force" />
+                    <label class="form-check-label" for="option-force" style="font-size: 13px">
+                        <strong>Force Recompilation</strong>
+                        <small style="display: block; color: var(--text-secondary); font-size: 11px">Ignore cache</small>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="scitex-modal-footer">
+            <button type="button"
+                    class="scitex-btn scitex-btn-secondary"
+                    onclick="closeCompilationModal()">Cancel</button>
+            <button type="button"
+                    class="scitex-btn scitex-btn-primary"
+                    id="confirm-compile-btn">
+                <i class="fas fa-file-pdf me-1"></i>Start Compilation
             </button>
-            <a href="/{{ project.owner.username }}/{{ project.slug }}/?mode=writer" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to Editor
-            </a>
         </div>
     </div>
-
+</div>

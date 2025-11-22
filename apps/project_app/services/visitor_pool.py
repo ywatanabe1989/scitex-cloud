@@ -1,14 +1,16 @@
 """
 Visitor Pool Manager
 
-Pre-allocated visitor accounts (visitor-001 to visitor-032) for anonymous users.
+Pre-allocated visitor accounts (visitor-001 to visitor-004) for anonymous users.
 Each visitor gets a default project that can be claimed on signup.
 
 Architecture:
-- Fixed pool: 32 visitor accounts with default projects
-- Allocation: Session-based with security token
+- Fixed pool: 4 visitor accounts with default projects (rotated automatically)
+- Allocation: Session-based with security token (24h lifetime)
 - Signup: Transfer project ownership (visitor → real user)
 - Reset: Clear workspace, free slot back to pool
+
+With proper rotation and expiration, 4 slots are sufficient for development.
 """
 
 import logging
@@ -18,8 +20,7 @@ from typing import Optional, Tuple
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db import transaction
-from apps.project_app.models import Project, ProjectMembership, VisitorAllocation
-from pathlib import Path
+from apps.project_app.models import Project, VisitorAllocation
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +29,16 @@ class VisitorPool:
     """
     Manages fixed pool of visitor accounts and default projects.
 
-    Pool Size: 32 concurrent visitors
-    Naming: visitor-001 to visitor-032, default-project-001 to default-project-032
+    Pool Size: 4 concurrent visitors (rotated with 24h session lifetime)
+    Naming: visitor-001 to visitor-004
+
+    With proper rotation and 24h expiration, 4 slots are sufficient for development.
+    Slots are automatically freed and reused when sessions expire.
     """
 
     VISITOR_USER_PREFIX = "visitor-"
     DEFAULT_PROJECT_PREFIX = "default-project-"
-    POOL_SIZE = 32
+    POOL_SIZE = 4
     SESSION_LIFETIME_HOURS = 24
     SESSION_KEY_PROJECT_ID = "visitor_project_id"
     SESSION_KEY_VISITOR_ID = "visitor_user_id"
@@ -43,7 +47,7 @@ class VisitorPool:
     @classmethod
     def initialize_pool(cls, pool_size: int = None) -> int:
         """
-        Create visitor pool (visitor-001 to visitor-032).
+        Create visitor pool (visitor-001 to visitor-004 by default).
 
         Run once during deployment: python manage.py create_visitor_pool
 
@@ -52,6 +56,38 @@ class VisitorPool:
         """
         if pool_size is None:
             pool_size = cls.POOL_SIZE
+
+        # Fast-path: Check if pool is already fully initialized
+        # This avoids expensive writer workspace checks on every restart
+        all_ready = True
+        for i in range(1, pool_size + 1):
+            visitor_num = f"{i:03d}"
+            username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
+            project_slug = "default-project"
+
+            try:
+                user = User.objects.get(username=username)
+                project = Project.objects.get(slug=project_slug, owner=user)
+
+                # Check directory exists
+                from apps.project_app.services.project_filesystem import (
+                    get_project_filesystem_manager,
+                )
+                manager = get_project_filesystem_manager(user)
+                project_root = manager.get_project_root_path(project)
+
+                if not (project_root and project_root.exists()):
+                    all_ready = False
+                    break
+            except (User.DoesNotExist, Project.DoesNotExist):
+                all_ready = False
+                break
+
+        if all_ready:
+            logger.info(
+                f"[VisitorPool] Pool already initialized: {pool_size}/{pool_size} visitor accounts ready"
+            )
+            return 0
 
         created_count = 0
 
@@ -88,29 +124,66 @@ class VisitorPool:
                 },
             )
 
-            if project_created:
-                # Initialize project directory
-                from apps.project_app.services.project_filesystem import (
-                    get_project_filesystem_manager,
-                )
+            # Initialize project directory
+            # Always ensure directory exists, not just for new projects
+            from apps.project_app.services.project_filesystem import (
+                get_project_filesystem_manager,
+            )
 
-                manager = get_project_filesystem_manager(user)
+            manager = get_project_filesystem_manager(user)
+            project_root = manager.get_project_root_path(project)
+
+            # Create directory if project is new OR directory doesn't exist
+            if project_created or not (project_root and project_root.exists()):
                 success, project_path = manager.create_project_directory(project)
 
                 if success:
                     logger.info(
                         f"[VisitorPool] Created project: {project_slug} at {project_path}"
                     )
+
+                    # Initialize writer workspace for visitor projects
+                    from pathlib import Path
+
+                    _initialize_visitor_writer_workspace(project, Path(project_path))
+
                     created_count += 1
                 else:
                     logger.error(
                         f"[VisitorPool] Failed to create directory for {project_slug}"
                     )
-                    project.delete()
+                    if project_created:
+                        project.delete()
+            else:
+                logger.info(
+                    f"[VisitorPool] Project directory already exists: {project_root}"
+                )
 
-        logger.info(
-            f"[VisitorPool] Pool initialization complete: {created_count} new projects"
-        )
+                # Initialize writer workspace - let Writer() handle structure validation
+                from pathlib import Path
+
+                logger.info(
+                    f"[VisitorPool] Ensuring writer workspace for {project_slug}..."
+                )
+                _initialize_visitor_writer_workspace(project, project_root)
+
+        # Get actual pool status
+        existing_users = 0
+        for i in range(1, pool_size + 1):
+            visitor_num = f"{i:03d}"
+            username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
+            if User.objects.filter(username=username).exists():
+                existing_users += 1
+
+        if created_count > 0:
+            logger.info(
+                f"[VisitorPool] Pool initialization complete: {created_count} new projects created"
+            )
+        else:
+            logger.info(
+                f"[VisitorPool] Pool already initialized: {existing_users}/{pool_size} visitor accounts ready"
+            )
+
         return created_count
 
     @classmethod
@@ -171,7 +244,14 @@ class VisitorPool:
                 User.DoesNotExist,
                 Project.DoesNotExist,
             ):
-                logger.warning(f"[VisitorPool] Invalid allocation token, reallocating")
+                logger.warning(
+                    f"[VisitorPool] Invalid allocation token, clearing session and reallocating"
+                )
+                # Clear stale session data before reallocating
+                session.pop(cls.SESSION_KEY_PROJECT_ID, None)
+                session.pop(cls.SESSION_KEY_VISITOR_ID, None)
+                session.pop(cls.SESSION_KEY_ALLOCATION_TOKEN, None)
+                session.save()
 
         # Find free visitor slot
         for i in range(1, cls.POOL_SIZE + 1):
@@ -393,6 +473,11 @@ class VisitorPool:
 
             if success:
                 logger.info(f"[VisitorPool] Reset visitor workspace: {project_slug}")
+
+                # Initialize writer workspace for the fresh visitor project
+                from pathlib import Path
+
+                _initialize_visitor_writer_workspace(project, Path(project_path))
             else:
                 logger.error(
                     f"[VisitorPool] Failed to reset visitor workspace: {project_slug}"
@@ -449,6 +534,74 @@ class VisitorPool:
             "free": total - active_allocations,
             "expired": expired,
         }
+
+
+def _initialize_visitor_writer_workspace(project, project_path):
+    """
+    Initialize writer workspace for visitor projects (Gitea-independent).
+
+    This is called during visitor pool initialization to ensure writer workspaces
+    are created even though visitors don't have Gitea accounts.
+
+    Args:
+        project: Project model instance
+        project_path: Path to project root directory
+    """
+    try:
+        writer_dir = project_path / "scitex" / "writer"
+
+        # Let Writer() handle structure validation and initialization
+        # Writer will either create new or attach to existing workspace
+        logger.info(f"[VisitorPool] Initializing writer workspace for {project.slug}")
+
+        # Initialize Writer with git_strategy='none' for visitor projects
+        # Visitors don't have Gitea repos, so we don't use git
+        from scitex.writer import Writer
+        from django.conf import settings
+
+        template_branch = getattr(settings, "SCITEX_WRITER_TEMPLATE_BRANCH", None)
+        template_tag = getattr(settings, "SCITEX_WRITER_TEMPLATE_TAG", None)
+
+        # branch and tag are mutually exclusive - only pass the one that's set
+        writer_kwargs = {
+            "project_dir": writer_dir,
+            "git_strategy": None,  # No git for visitor projects
+        }
+        if template_tag:
+            writer_kwargs["tag"] = template_tag
+        elif template_branch:
+            writer_kwargs["branch"] = template_branch
+
+        writer = Writer(**writer_kwargs)
+
+        # Verify creation
+        manuscript_dir = writer_dir / "01_manuscript"
+        if manuscript_dir.exists():
+            logger.info(
+                f"[VisitorPool] Writer workspace initialized for {project.slug}"
+            )
+
+            # Create manuscript record (writer_initialized is a computed property, not a field)
+            from apps.writer_app.models import Manuscript
+
+            # Since project is OneToOneField, only use project for lookup
+            Manuscript.objects.get_or_create(
+                project=project,
+                defaults={
+                    "owner": project.owner,
+                    "title": f"{project.name} Manuscript"
+                },
+            )
+        else:
+            logger.warning(
+                f"[VisitorPool] Writer workspace incomplete for {project.slug}"
+            )
+
+    except Exception as e:
+        logger.error(
+            f"[VisitorPool] Failed to initialize writer workspace for {project.slug}: {e}"
+        )
+        logger.exception("Full traceback:")
 
 
 # For backward compatibility during migration

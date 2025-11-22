@@ -11,8 +11,10 @@ This module handles views related to:
 - Repository maintenance and health checks
 - Repository synchronization with Gitea
 """
+
 from __future__ import annotations
 import os
+
 __FILE__ = "./apps/project_app/views/integration_views.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
@@ -45,9 +47,11 @@ def repository_maintenance(request, username):
         "username": username,
         "user": user,
         "page_title": "Repository Maintenance",
-        "active_tab": "repositories"
+        "active_tab": "repositories",
     }
-    return render(request, "project_app/repository/admin_repository_maintenance.html", context)
+    return render(
+        request, "project_app/repository/admin_repository_maintenance.html", context
+    )
 
 
 @login_required

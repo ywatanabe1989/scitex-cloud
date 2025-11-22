@@ -9,16 +9,33 @@ body {
 }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--heading-font-family);
   line-height: var(--heading-line-height);
-  margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-xl);    /* 32px top spacing */
+  margin-bottom: var(--spacing-md); /* 16px bottom spacing */
   color: var(--text-primary);
   font-weight: 600;
 }
 
+/* First heading in container should have less top margin */
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+  margin-top: 0;
+}
+
 h1 {
   font-size: 2.5rem;
+  margin-top: var(--spacing-xxl); /* 48px for h1 specifically */
 }
 
 h2 {

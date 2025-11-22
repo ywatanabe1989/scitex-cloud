@@ -1,339 +1,771 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
-{% block title %}SSH Keys - Settings - SciTeX Cloud{% endblock %}
-
+{% block title %}
+    SSH Keys -
+    Settings - SciTeX Cloud
+{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/layouts/settings-layout.css' %}">
-<style>
-/* SSH keys page-specific styles */
-.settings-content {
+    <link rel="stylesheet"
+          href="{% static 'shared/css/layouts/settings-layout.css' %}" />
+    <style>
+  /* SSH keys page-specific styles */
+  .settings-content {
     max-width: 800px;
-}
+  }
 
-.ssh-key-card {
+  .ssh-key-card {
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
     padding: 1.5rem;
     background: var(--color-canvas-default);
     margin-bottom: 1.5rem;
-}
+  }
 
-.settings-header {
+  .settings-header {
     margin-bottom: 24px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--color-border-default);
-}
+  }
 
-.settings-title {
+  .settings-title {
     font-size: 24px;
     font-weight: 600;
     color: var(--color-fg-default);
     margin: 0 0 4px 0;
-}
+  }
 
-.settings-subtitle {
+  .settings-subtitle {
     font-size: 14px;
     color: var(--color-fg-muted);
     margin: 0;
-}
+  }
 
-.danger-zone {
+  .danger-zone {
     border: 1px solid #d73a49;
     border-radius: 6px;
     padding: 1.5rem;
     background: var(--color-canvas-default);
     margin-top: 2rem;
-}
+  }
 
-.danger-zone-title {
+  .danger-zone-title {
     color: #d73a49;
     font-size: 16px;
     font-weight: 600;
     margin: 0 0 1rem 0;
-}
+  }
 
-.danger-zone-content {
+  .danger-zone-content {
     display: flex;
     justify-content: space-between;
     align-items: start;
-}
+  }
 
-.danger-zone-text h4 {
+  .danger-zone-text h4 {
     margin: 0 0 0.25rem 0;
     font-size: 14px;
     font-weight: 600;
-}
+  }
 
-.danger-zone-text p {
+  .danger-zone-text p {
     margin: 0;
     font-size: 12px;
     color: var(--color-fg-muted);
-}
+  }
 
-.key-header {
+  .key-header {
     display: flex;
     justify-content: space-between;
     align-items: start;
     margin-bottom: 1rem;
-}
+  }
 
-.key-fingerprint {
+  .key-fingerprint {
     font-family: monospace;
     font-size: 0.85rem;
     color: var(--color-fg-muted);
     background: var(--color-canvas-subtle);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
-}
+  }
 
-.key-content {
+  .key-content {
     background: var(--color-canvas-subtle);
     padding: 1rem;
     border-radius: 6px;
     margin-bottom: 1rem;
-}
+  }
 
-.key-content pre {
+  .key-content pre {
     margin: 0;
     font-size: 0.85rem;
     overflow-x: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
-}
+  }
 
-.instructions-box {
+  .instructions-box {
     background: var(--color-canvas-subtle);
     border-left: 3px solid #007acc;
     padding: 1rem;
     border-radius: 4px;
     margin: 1rem 0;
-}
+  }
 
-.no-key-message {
+  .no-key-message {
     text-align: center;
     padding: 3rem 2rem;
     border: 2px dashed var(--color-border-default);
     border-radius: 6px;
     background: var(--color-canvas-subtle);
-}
-</style>
+  }
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="settings-page">
-    <div class="settings-layout">
-        <!-- Left Navigation -->
-        <aside class="settings-nav">
-            {% include 'accounts_app/partials/settings_nav.html' with active='ssh_keys' %}
-        </aside>
-
-    <!-- Main Content -->
-    <main class="settings-content">
-        <div class="settings-header">
-            <h1 class="settings-title">SSH and GPG keys</h1>
-            <p class="settings-subtitle">
-                Manage your SSH and GPG keys for secure Git operations
-            </p>
-        </div>
-
-        <!-- Tab Navigation -->
-        <div style="display: flex; gap: 16px; border-bottom: 1px solid var(--color-border-default); margin-bottom: 24px;">
-            <button class="ssh-tab active" onclick="showTab('ssh')" style="padding: 12px 16px; background: none; border: none; border-bottom: 2px solid var(--scitex-color-04); color: var(--color-fg-default); font-weight: 600; cursor: pointer;">
-                SSH Keys
-            </button>
-            <button class="ssh-tab" onclick="showTab('gpg')" style="padding: 12px 16px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--color-fg-muted); cursor: pointer;">
-                GPG Keys
-            </button>
-        </div>
-
-        <!-- SSH Keys Tab -->
-        <div id="ssh-tab-content">
-
-        <!-- Clear Explanation Box -->
-        <div style="background: var(--color-canvas-subtle); border: 1px solid var(--scitex-color-04); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem;">
-            <h3 style="margin: 0 0 1rem 0; font-size: 16px; color: var(--scitex-color-04);">
-                <i class="fas fa-info-circle"></i> How SSH keys work
-            </h3>
-            <div style="font-size: 14px; line-height: 1.6; color: var(--color-fg-default);">
-                <p style="margin: 0 0 1rem 0; color: var(--color-fg-default);"><strong>Step 1: Key Creation (on SciTeX Cloud)</strong></p>
-                <p style="margin: 0 0 1rem 0; padding-left: 1rem; color: var(--color-fg-muted);">
-                    Click "Generate SSH Key" below to create a new key pair on SciTeX Cloud's servers.
-                    This generates:
-                </p>
-                <ul style="margin: 0 0 1rem 1rem; padding-left: 1rem; color: var(--color-fg-muted);">
-                    <li><strong style="color: var(--color-fg-default);">Private key</strong> - Stays securely on SciTeX Cloud (you never see this)</li>
-                    <li><strong style="color: var(--color-fg-default);">Public key</strong> - Displayed to you for registration</li>
-                </ul>
-
-                <p style="margin: 0 0 1rem 0; color: var(--color-fg-default);"><strong>Step 2: Key Registration (on GitHub/GitLab/Bitbucket)</strong></p>
-                <p style="margin: 0 0 1rem 0; padding-left: 1rem; color: var(--color-fg-muted);">
-                    Copy your public key and add it to your Git hosting service:
-                </p>
-                <ul style="margin: 0 0 1rem 1rem; padding-left: 1rem; color: var(--color-fg-muted);">
-                    <li>GitHub: <a href="https://github.com/settings/keys" target="_blank" style="color: var(--scitex-color-04);">Settings → SSH and GPG keys → New SSH key</a></li>
-                    <li>GitLab: <a href="https://gitlab.com/-/profile/keys" target="_blank" style="color: var(--scitex-color-04);">Preferences → SSH Keys → Add new key</a></li>
-                    <li>Bitbucket: <a href="https://bitbucket.org/account/settings/ssh-keys/" target="_blank" style="color: var(--scitex-color-04);">Personal settings → SSH keys → Add key</a></li>
-                </ul>
-
-                <p style="margin: 0; padding: 0.75rem; background: var(--color-canvas-default); border-left: 3px solid var(--scitex-color-04); border-radius: 4px; color: var(--color-fg-default);">
-                    <i class="fas fa-lightbulb" style="color: var(--scitex-warning);"></i> <strong>Important:</strong> You create the key HERE (SciTeX Cloud), then register the PUBLIC part THERE (GitHub/GitLab).
-                </p>
-            </div>
-        </div>
-
-        {% if has_ssh_key %}
-        <!-- Existing Key -->
-        <div class="ssh-key-card">
-            <div class="key-header">
-                <div>
-                    <h3 style="margin: 0;">SciTeX Cloud SSH Key</h3>
-                    <div class="key-fingerprint" style="margin-top: 0.5rem;">{{ ssh_key_fingerprint }}</div>
+    <div class="settings-page">
+        <div class="settings-layout">
+            <!-- Left Navigation -->
+            <aside class="settings-nav">
+                {% include 'accounts_app/partials/settings_nav.html' with active='ssh_keys' %}
+            </aside>
+            <!-- Main Content -->
+            <main class="settings-content">
+                <div class="settings-header">
+                    <h1 class="settings-title">SSH and GPG keys</h1>
+                    <p class="settings-subtitle">Manage SSH keys for workspace access and external Git hosting (GitHub/GitLab/Bitbucket)</p>
                 </div>
-            </div>
-
-            <div class="key-content">
-                <pre><code id="ssh-public-key">{{ ssh_public_key }}</code></pre>
-                <button onclick="copySSHKey(event)" class="btn btn-sm btn-outline-primary" style="margin-top: 0.5rem;">
-                    📋 Copy Public Key
-                </button>
-            </div>
-
-            <div class="instructions-box">
-                <h4 style="margin-top: 0;">How to use this key:</h4>
-                <ol style="margin-bottom: 0;">
-                    <li>Click "Copy Public Key" above</li>
-                    <li>Add it to your Git hosting service:
-                        <ul>
-                            <li><a href="https://github.com/settings/keys" target="_blank">GitHub → Settings → SSH and GPG keys</a></li>
-                            <li><a href="https://gitlab.com/-/profile/keys" target="_blank">GitLab → Preferences → SSH Keys</a></li>
-                            <li><a href="https://bitbucket.org/account/settings/ssh-keys/" target="_blank">Bitbucket → Personal settings → SSH keys</a></li>
-                        </ul>
-                    </li>
-                    <li>Use SSH URLs when cloning: <code>git@github.com:user/repo.git</code></li>
-                </ol>
-            </div>
-
-            <div style="margin: 1rem 0; padding: 1rem; background: var(--color-canvas-subtle); border-radius: 4px;">
-                <p style="margin: 0; font-size: 0.9rem; color: var(--color-fg-muted);">
-                    <strong>Created:</strong> {{ ssh_key_created_at|date:"Y-m-d H:i" }}
-                    {% if ssh_key_last_used_at %}
-                    <br><strong>Last used:</strong> {{ ssh_key_last_used_at|date:"Y-m-d H:i" }}
-                    {% else %}
-                    <br><strong>Last used:</strong> Never
-                    {% endif %}
-                </p>
-            </div>
-        </div>
-
-        <!-- Danger Zone -->
-        <div class="danger-zone">
-            <div class="danger-zone-title">Danger zone</div>
-            <div class="danger-zone-content">
-                <div class="danger-zone-text">
-                    <h4>Delete SSH key</h4>
-                    <p>Once you delete this SSH key, you will need to remove it from your Git hosting services and generate a new one to regain access.</p>
-                </div>
-                <form method="POST" onsubmit="return confirm('Are you sure you want to delete this SSH key? This action cannot be undone.');">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="delete">
-                    <button type="submit" class="btn btn-danger" style="white-space: nowrap;">
-                        Delete SSH key
+                <!-- Tab Navigation -->
+                <div style="display: flex;
+                            gap: 16px;
+                            border-bottom: 1px solid var(--color-border-default);
+                            margin-bottom: 24px">
+                    <button class="key-type-tab active"
+                            onclick="showKeyTypeTab('workspace')"
+                            data-tab="workspace"
+                            style="padding: 12px 16px;
+                                   background: none;
+                                   border: none;
+                                   border-bottom: 2px solid #28a745;
+                                   color: var(--color-fg-default);
+                                   font-weight: 600;
+                                   cursor: pointer">
+                        <i class="fas fa-terminal"></i> Workspace Access
                     </button>
-                </form>
-            </div>
+                    <button class="key-type-tab"
+                            onclick="showKeyTypeTab('git')"
+                            data-tab="git"
+                            style="padding: 12px 16px;
+                                   background: none;
+                                   border: none;
+                                   border-bottom: 2px solid transparent;
+                                   color: var(--color-fg-muted);
+                                   cursor: pointer">
+                        <i class="fab fa-github"></i> External Git (GitHub/GitLab)
+                    </button>
+                    <button class="key-type-tab"
+                            onclick="showKeyTypeTab('gpg')"
+                            data-tab="gpg"
+                            style="padding: 12px 16px;
+                                   background: none;
+                                   border: none;
+                                   border-bottom: 2px solid transparent;
+                                   color: var(--color-fg-muted);
+                                   cursor: pointer">
+                        <i class="fas fa-shield-alt"></i> GPG Keys
+                    </button>
+                </div>
+                <!-- Workspace SSH Keys Tab -->
+                <div id="workspace-tab-content" style="display: block">
+                    <!-- Explanation Box -->
+                    <div style="background: var(--color-canvas-subtle);
+                                border: 1px solid #28a745;
+                                border-radius: 6px;
+                                padding: 1.5rem;
+                                margin-bottom: 2rem">
+                        <h3 style="margin: 0 0 1rem 0;
+                                   font-size: 16px;
+                                   color: #28a745">
+                            <i class="fas fa-info-circle"></i> How Workspace SSH Keys Work
+                        </h3>
+                        <div style="text-align: center; margin: 1.5rem 0">
+                            <div style="display: inline-block;
+                                        padding: 0.75rem 1.25rem;
+                                        background: var(--color-canvas-subtle);
+                                        border: 2px solid var(--color-border-default);
+                                        border-radius: 6px;
+                                        font-weight: 600">
+                                <i class="fas fa-laptop"></i> Your Computer
+                            </div>
+                            <div style="margin: 0.75rem 0; font-size: 1.5rem">
+                                <i class="fas fa-arrow-down" style="color: #28a745"></i>
+                            </div>
+                            <div style="font-size: 0.9rem;
+                                        color: var(--color-fg-default);
+                                        margin-bottom: 0.75rem;
+                                        font-weight: 600">
+                                🔑 Private Key (stays on your computer)
+                            </div>
+                            <div style="margin: 0.75rem 0; font-size: 1.5rem">
+                                <i class="fas fa-arrow-down" style="color: #28a745"></i>
+                            </div>
+                            <div style="display: inline-block;
+                                        padding: 0.75rem 1.25rem;
+                                        background: #28a745;
+                                        color: white;
+                                        border-radius: 6px;
+                                        font-weight: 600">
+                                <i class="fas fa-server"></i> SciTeX Cloud
+                            </div>
+                            <div style="margin: 0.75rem 0; font-size: 1.5rem">
+                                <i class="fas fa-arrow-up" style="color: var(--scitex-color-04)"></i>
+                            </div>
+                            <div style="font-size: 0.9rem;
+                                        color: var(--color-fg-default);
+                                        font-weight: 600">
+                                🔓 Public Key (you upload here)
+                            </div>
+                        </div>
+                        <p style="margin: 1rem 0 0 0;
+                                  text-align: center;
+                                  color: var(--color-fg-default);
+                                  font-size: 14px">
+                            <strong>Purpose:</strong> SSH shell access into your SciTeX Cloud workspace container
+                        </p>
+                    </div>
+                    <div style="background: var(--color-canvas-default);
+                                border-left: 3px solid var(--scitex-color-04);
+                                padding: 1rem;
+                                border-radius: 4px;
+                                margin-bottom: 1.5rem;
+                                font-size: 0.85rem;
+                                color: var(--color-fg-default)">
+                        <i class="fas fa-lightbulb" style="color: var(--scitex-color-04)"></i>
+                        <strong>Two Ways to Use Gitea:</strong>
+                        <ul style="margin: 0.5rem 0 0 1.5rem; color: var(--color-fg-muted); font-size: 0.85rem">
+                            <li>
+                                <strong style="color: var(--color-fg-default)">From your laptop:</strong> Upload your laptop's key here and check "Also register in Gitea"
+                            </li>
+                            <li>
+                                <strong style="color: var(--color-fg-default)">From workspace container:</strong> Use the "External Git" tab (server-generated keys)
+                            </li>
+                        </ul>
+                    </div>
+                    <p style="color: var(--color-fg-muted);
+                              margin: 0 0 1.5rem 0;
+                              font-size: 14px">
+                        Upload your SSH public keys to securely connect to your workspace containers via SSH. Generate keys on your local machine and upload the public key here.
+                    </p>
+                    <!-- Workspace SSH Keys List -->
+                    {% if workspace_ssh_keys %}
+                        <div style="margin-bottom: 2rem">
+                            {% for key in workspace_ssh_keys %}
+                                <div class="ssh-key-card" style="margin-bottom: 1rem">
+                                    <div class="key-header">
+                                        <div>
+                                            <h3 style="margin: 0; font-size: 16px">
+                                                <i class="fas fa-key" style="color: #28a745"></i> {{ key.title }}
+                                            </h3>
+                                            <div style="margin-top: 0.5rem">
+                                                <span class="key-fingerprint">{{ key.fingerprint }}</span>
+                                                <span style="margin-left: 1rem;
+                                                             font-size: 0.85rem;
+                                                             color: var(--color-fg-muted)">
+                                                    <i class="fas fa-tag"></i> {{ key.key_type }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <form method="POST" style="display: inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete_workspace_key" />
+                                            <input type="hidden" name="key_id" value="{{ key.id }}" />
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Delete SSH key {{ key.title }}?')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div style="margin: 1rem 0;
+                                                padding: 1rem;
+                                                background: var(--color-canvas-subtle);
+                                                border-radius: 4px;
+                                                font-size: 0.9rem">
+                                        <div style="margin-bottom: 0.5rem">
+                                            <strong>Added:</strong> {{ key.created_at|date:"Y-m-d H:i" }}
+                                        </div>
+                                        {% if key.last_used_at %}
+                                            <div>
+                                                <strong>Last used:</strong> {{ key.last_used_at|date:"Y-m-d H:i" }}
+                                            </div>
+                                        {% else %}
+                                            <div style="color: var(--color-fg-muted)">
+                                                <strong>Last used:</strong> Never
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div style="border: 1px dashed var(--color-border-default);
+                                    border-radius: 6px;
+                                    padding: 2rem;
+                                    background: var(--color-canvas-subtle);
+                                    text-align: center;
+                                    margin-bottom: 2rem">
+                            <i class="fas fa-key" style="font-size: 3rem; color: var(--color-fg-muted); margin-bottom: 1rem"></i>
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600">
+                                No workspace SSH keys yet
+                            </h3>
+                            <p style="color: var(--color-fg-muted); margin: 0; font-size: 14px">
+                                Add your first SSH key to connect to your workspace securely
+                            </p>
+                        </div>
+                    {% endif %}
+                    <!-- Add New SSH Key Form -->
+                    <div style="border: 1px solid var(--color-border-default);
+                                border-radius: 6px;
+                                padding: 1.5rem;
+                                background: var(--color-canvas-default);
+                                margin-bottom: 2rem">
+                        <h3 style="margin: 0 0 1rem 0; font-size: 16px; font-weight: 600">
+                            <i class="fas fa-plus-circle" style="color: #28a745"></i> Add New SSH Key
+                        </h3>
+                        <form method="POST" id="add-workspace-key-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add_workspace_key" />
+                            <div style="margin-bottom: 1rem">
+                                <label for="key-title"
+                                       style="display: block;
+                                              font-weight: 600;
+                                              margin-bottom: 0.5rem;
+                                              font-size: 14px">Title</label>
+                                <input type="text"
+                                       id="key-title"
+                                       name="title"
+                                       class="form-control"
+                                       placeholder="e.g., Work Laptop, Home PC, MacBook Pro"
+                                       required
+                                       style="width: 100%;
+                                              padding: 0.5rem;
+                                              border: 1px solid var(--color-border-default);
+                                              border-radius: 4px;
+                                              background: var(--color-canvas-default);
+                                              color: var(--color-fg-default)" />
+                                <small style="color: var(--color-fg-muted); font-size: 0.85rem">
+                                    A descriptive name to identify this key
+                                </small>
+                            </div>
+                            <div style="margin-bottom: 1rem">
+                                <label for="public-key"
+                                       style="display: block;
+                                              font-weight: 600;
+                                              margin-bottom: 0.5rem;
+                                              font-size: 14px">Public Key</label>
+                                <textarea id="public-key"
+                                          name="public_key"
+                                          rows="6"
+                                          class="form-control"
+                                          placeholder="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB... user@hostname"
+                                          required
+                                          style="width: 100%;
+                                                 padding: 0.5rem;
+                                                 border: 1px solid var(--color-border-default);
+                                                 border-radius: 4px;
+                                                 background: var(--color-canvas-default);
+                                                 color: var(--color-fg-default);
+                                                 font-family: monospace;
+                                                 font-size: 0.85rem"></textarea>
+                                <small style="color: var(--color-fg-muted); font-size: 0.85rem">
+                                    Paste your public key (id_rsa.pub, id_ed25519.pub, etc.)
+                                </small>
+                            </div>
+                            <div style="background: var(--color-canvas-subtle);
+                                        border-left: 3px solid var(--scitex-color-04);
+                                        padding: 1rem;
+                                        border-radius: 4px;
+                                        margin-bottom: 1rem;
+                                        font-size: 0.85rem">
+                                <strong style="color: var(--color-fg-default)">
+                                    <i class="fas fa-info-circle"></i> How to generate SSH keys:
+                                </strong>
+                                <ol style="margin: 0.5rem 0 0 1rem; padding-left: 1rem; color: var(--color-fg-muted)">
+                                    <li>
+                                        On your computer, run: <code style="background: var(--color-canvas-default);
+                                                                            padding: 0.25rem 0.5rem;
+                                                                            border-radius: 3px;
+                                                                            color: var(--color-fg-default)">ssh-keygen -t ed25519 -C "your_email@example.com"</code>
+                                    </li>
+                                    <li>
+                                        Copy the public key: <code style="background: var(--color-canvas-default);
+                                                                          padding: 0.25rem 0.5rem;
+                                                                          border-radius: 3px;
+                                                                          color: var(--color-fg-default)">cat ~/.ssh/id_ed25519.pub</code>
+                                    </li>
+                                    <li>Paste it in the field above</li>
+                                </ol>
+                            </div>
+                            <div style="margin-bottom: 1rem">
+                                <label style="display: flex;
+                                              align-items: center;
+                                              gap: 0.5rem;
+                                              cursor: pointer;
+                                              padding: 0.75rem;
+                                              background: var(--color-canvas-subtle);
+                                              border: 1px solid var(--color-border-default);
+                                              border-radius: 4px">
+                                    <input type="checkbox"
+                                           name="sync_to_gitea"
+                                           id="sync-to-gitea"
+                                           style="cursor: pointer" />
+                                    <span style="font-size: 14px; color: var(--color-fg-default)">
+                                        <strong>Also register this key in Gitea</strong>
+                                        <div style="font-size: 0.85rem;
+                                                    color: var(--color-fg-muted);
+                                                    margin-top: 0.25rem">
+                                            Check this to use the same key for Git operations from your laptop: <code style="font-size: 0.8rem">git clone ssh://git@127.0.0.1:2222/...</code>
+                                        </div>
+                                    </span>
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add SSH Key
+                            </button>
+                        </form>
+                    </div>
+                    <!-- How to Connect Instructions -->
+                    <div style="background: var(--color-canvas-subtle);
+                                border: 1px solid var(--color-border-default);
+                                border-radius: 6px;
+                                padding: 1.5rem;
+                                margin-bottom: 2rem">
+                        <h3 style="margin: 0 0 1rem 0; font-size: 16px; font-weight: 600">
+                            <i class="fas fa-question-circle" style="color: var(--scitex-color-04)"></i> How to connect to your workspace
+                        </h3>
+                        <ol style="margin: 0; padding-left: 1.5rem; color: var(--color-fg-default)">
+                            <li style="margin-bottom: 0.75rem">
+                                <strong>Add your SSH key above</strong> (make sure it's the public key from your local machine)
+                            </li>
+                            <li style="margin-bottom: 0.75rem">
+                                <strong>Find your workspace ID</strong> from your project page
+                            </li>
+                            <li style="margin-bottom: 0.75rem">
+                                <strong>Connect via SSH:</strong>
+                                <div style="background: var(--color-canvas-default);
+                                            padding: 0.75rem;
+                                            border-radius: 4px;
+                                            margin-top: 0.5rem;
+                                            font-family: monospace;
+                                            font-size: 0.85rem">
+                                    ssh -p 2200 your-username@127.0.0.1
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <!-- Git SSH Keys Tab -->
+                <div id="git-tab-content" style="display: none">
+                    <!-- Explanation Box -->
+                    <div style="background: var(--color-canvas-subtle);
+                                border: 1px solid var(--scitex-color-04);
+                                border-radius: 6px;
+                                padding: 1.5rem;
+                                margin-bottom: 2rem">
+                        <h3 style="margin: 0 0 1rem 0;
+                                   font-size: 16px;
+                                   color: var(--scitex-color-04)">
+                            <i class="fas fa-info-circle"></i> SSH Keys for External Git Hosting
+                        </h3>
+                        <div style="text-align: center; margin: 1.5rem 0">
+                            <div style="display: inline-block;
+                                        padding: 0.75rem 1.25rem;
+                                        background: var(--scitex-color-04);
+                                        color: white;
+                                        border-radius: 6px;
+                                        font-weight: 600">
+                                <i class="fas fa-server"></i> SciTeX Cloud
+                            </div>
+                            <div style="margin: 0.75rem 0; font-size: 1.5rem">
+                                <i class="fas fa-arrow-down" style="color: var(--scitex-color-04)"></i>
+                            </div>
+                            <div style="font-size: 0.9rem;
+                                        color: var(--color-fg-default);
+                                        margin-bottom: 0.75rem;
+                                        font-weight: 600">
+                                🔑 Private Key (stays on SciTeX Cloud)
+                            </div>
+                            <div style="margin: 0.75rem 0; font-size: 1.5rem">
+                                <i class="fas fa-arrow-down" style="color: var(--scitex-color-04)"></i>
+                            </div>
+                            <div style="display: inline-block;
+                                        padding: 0.75rem 1.25rem;
+                                        background: var(--color-canvas-subtle);
+                                        border: 2px solid var(--color-border-default);
+                                        border-radius: 6px;
+                                        font-weight: 600">
+                                <i class="fab fa-github"></i> GitHub/GitLab
+                            </div>
+                            <div style="margin: 0.75rem 0; font-size: 1.5rem">
+                                <i class="fas fa-arrow-up" style="color: #28a745"></i>
+                            </div>
+                            <div style="font-size: 0.9rem;
+                                        color: var(--color-fg-default);
+                                        font-weight: 600">
+                                🔓 Public Key (you register there)
+                            </div>
+                        </div>
+                        <p style="margin: 1rem 0 0 0;
+                                  text-align: center;
+                                  color: var(--color-fg-default);
+                                  font-size: 14px">
+                            <strong>Purpose:</strong> Push/pull from external Git hosting services (GitHub, GitLab, Bitbucket) from your workspace
+                        </p>
+                    </div>
+                    <div style="background: var(--color-canvas-default);
+                                border-left: 3px solid #28a745;
+                                padding: 1rem;
+                                border-radius: 4px;
+                                margin-bottom: 1.5rem;
+                                font-size: 0.9rem;
+                                color: var(--color-fg-default)">
+                        <i class="fas fa-check-circle" style="color: #28a745"></i>
+                        <strong>Bonus:</strong> SSH keys generated here are automatically synced to SciTeX Gitea! You can use them for both external Git hosting (GitHub/GitLab/Bitbucket) AND SciTeX's internal Gitea repositories.
+                    </div>
+                    <div style="background: var(--color-canvas-subtle);
+                                border: 1px solid var(--color-border-default);
+                                border-radius: 6px;
+                                padding: 1rem;
+                                margin-bottom: 1.5rem;
+                                font-size: 0.85rem">
+                        <strong style="color: var(--color-fg-default)">Using SciTeX Gitea:</strong>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted)">
+                            Once you generate an SSH key here, you can clone SciTeX repositories via SSH:
+                        </div>
+                        <div style="background: var(--color-canvas-default);
+                                    padding: 0.75rem;
+                                    border-radius: 4px;
+                                    margin-top: 0.5rem;
+                                    font-family: monospace;
+                                    font-size: 0.85rem;
+                                    color: var(--color-fg-default)">
+                            git clone ssh://git@127.0.0.1:2222/username/repository.git
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--color-fg-muted); font-size: 0.8rem">
+                            <strong>Note:</strong> SSH port for Gitea is <strong>2222</strong>, not the default 22
+                        </div>
+                    </div>
+                    <p style="color: var(--color-fg-muted);
+                              margin: 0 0 1.5rem 0;
+                              font-size: 14px">
+                        Generate SSH keys on SciTeX Cloud to authenticate with external Git hosting services (GitHub, GitLab, Bitbucket) when working from your workspace.
+                    </p>
+                    {% if has_ssh_key %}
+                        <!-- Existing Key -->
+                        <div class="ssh-key-card">
+                            <div class="key-header">
+                                <div>
+                                    <h3 style="margin: 0">SciTeX Cloud SSH Key</h3>
+                                    <div class="key-fingerprint" style="margin-top: 0.5rem">{{ ssh_key_fingerprint }}</div>
+                                </div>
+                            </div>
+                            <div class="key-content">
+                                <pre><code id="ssh-public-key">{{ ssh_public_key }}</code></pre>
+                                <button onclick="copySSHKey(event)"
+                                        class="btn btn-sm btn-outline-primary"
+                                        style="margin-top: 0.5rem">📋 Copy Public Key</button>
+                            </div>
+                            <div class="instructions-box">
+                                <h4 style="margin-top: 0">How to use this key:</h4>
+                                <ol style="margin-bottom: 0">
+                                    <li>Click "Copy Public Key" above</li>
+                                    <li>
+                                        Add it to your Git hosting service:
+                                        <ul>
+                                            <li>
+                                                <a href="https://github.com/settings/keys" target="_blank">GitHub → Settings → SSH and GPG keys</a>
+                                            </li>
+                                            <li>
+                                                <a href="https://gitlab.com/-/profile/keys" target="_blank">GitLab → Preferences → SSH Keys</a>
+                                            </li>
+                                            <li>
+                                                <a href="https://bitbucket.org/account/settings/ssh-keys/"
+                                                   target="_blank">Bitbucket → Personal settings → SSH keys</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        Use SSH URLs when cloning:
+                                        <code>git@github.com:user/repo.git</code>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div style="margin: 1rem 0;
+                                        padding: 1rem;
+                                        background: var(--color-canvas-subtle);
+                                        border-radius: 4px">
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--color-fg-muted)">
+                                    <strong>Created:</strong> {{ ssh_key_created_at|date:"Y-m-d H:i" }}
+                                    {% if ssh_key_last_used_at %}
+                                        <br />
+                                        <strong>Last used:</strong>
+                                        {{ ssh_key_last_used_at|date:"Y-m-d H:i" }}
+                                    {% else %}
+                                        <br />
+                                        <strong>Last used:</strong> Never
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Danger Zone -->
+                        <div class="danger-zone">
+                            <div class="danger-zone-title">Danger zone</div>
+                            <div class="danger-zone-content">
+                                <div class="danger-zone-text">
+                                    <h4>Delete SSH key</h4>
+                                    <p>
+                                        Once you delete this SSH key, you will need to remove it from
+                                        your Git hosting services and generate a new one to regain
+                                        access.
+                                    </p>
+                                </div>
+                                <form method="POST"
+                                      onsubmit="return confirm('Are you sure you want to delete this SSH key? This action cannot be undone.');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete" />
+                                    <button type="submit" class="btn btn-danger" style="white-space: nowrap">Delete SSH key</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- No Key Yet - GitHub Style -->
+                        <div style="border: 1px solid var(--color-border-default);
+                                    border-radius: 6px;
+                                    padding: 2rem;
+                                    background: var(--color-canvas-default);
+                                    margin-bottom: 2rem">
+                            <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600">
+                                There are no SSH keys associated with your account.
+                            </h3>
+                            <p style="color: var(--color-fg-muted);
+                                      margin: 0 0 1.5rem 0;
+                                      font-size: 14px">
+                                SSH keys allow you to securely connect to external Git hosting services (GitHub, GitLab, Bitbucket). Generate
+                                a new SSH key to get started.
+                            </p>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="generate" />
+                                <button type="submit" class="btn btn-primary">New SSH key</button>
+                            </form>
+                        </div>
+                        <!-- Information Section -->
+                        <div class="instructions-box">
+                            <h4 style="margin-top: 0">About SSH keys</h4>
+                            <p>
+                                SSH keys provide a secure way of accessing Git repositories. When
+                                you generate an SSH key, you create a key pair containing:
+                            </p>
+                            <ul style="margin: 0.5rem 0">
+                                <li>
+                                    <strong>Private key</strong> - Stored securely on SciTeX Cloud
+                                    servers (never shared)
+                                </li>
+                                <li>
+                                    <strong>Public key</strong> - Added to your GitHub, GitLab, or
+                                    Bitbucket account
+                                </li>
+                            </ul>
+                            <p style="margin-bottom: 0">
+                                Once configured, you can clone and push to your repositories without
+                                entering passwords.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- GPG Keys Tab -->
+                <div id="gpg-tab-content" style="display: none">
+                    <div style="border: 1px solid var(--color-border-default);
+                                border-radius: 6px;
+                                padding: 2rem;
+                                background: var(--color-canvas-default);
+                                text-align: center">
+                        <h3 style="margin: 0 0 0.5rem 0;
+                                   font-size: 16px;
+                                   font-weight: 600;
+                                   color: var(--color-fg-default)">GPG Keys</h3>
+                        <p style="color: var(--color-fg-muted);
+                                  margin: 0 0 1.5rem 0;
+                                  font-size: 14px">
+                            GPG key management coming soon. You'll be able to sign commits and
+                            verify authenticity.
+                        </p>
+                    </div>
+                </div>
+            </main>
         </div>
-        {% else %}
-        <!-- No Key Yet - GitHub Style -->
-        <div style="border: 1px solid var(--color-border-default); border-radius: 6px; padding: 2rem; background: var(--color-canvas-default); margin-bottom: 2rem;">
-            <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600;">There are no SSH keys associated with your account.</h3>
-            <p style="color: var(--color-fg-muted); margin: 0 0 1.5rem 0; font-size: 14px;">
-                SSH keys allow you to securely connect to Git repositories. Generate a new SSH key to get started.
-            </p>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="generate">
-                <button type="submit" class="btn btn-primary">
-                    New SSH key
-                </button>
-            </form>
-        </div>
-
-        <!-- Information Section -->
-        <div class="instructions-box">
-            <h4 style="margin-top: 0;">About SSH keys</h4>
-            <p>SSH keys provide a secure way of accessing Git repositories. When you generate an SSH key, you create a key pair containing:</p>
-            <ul style="margin: 0.5rem 0;">
-                <li><strong>Private key</strong> - Stored securely on SciTeX Cloud servers (never shared)</li>
-                <li><strong>Public key</strong> - Added to your GitHub, GitLab, or Bitbucket account</li>
-            </ul>
-            <p style="margin-bottom: 0;">Once configured, you can clone and push to your repositories without entering passwords.</p>
-        </div>
-        {% endif %}
-        </div>
-
-        <!-- GPG Keys Tab -->
-        <div id="gpg-tab-content" style="display: none;">
-            <div style="border: 1px solid var(--color-border-default); border-radius: 6px; padding: 2rem; background: var(--color-canvas-default); text-align: center;">
-                <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600; color: var(--color-fg-default);">GPG Keys</h3>
-                <p style="color: var(--color-fg-muted); margin: 0 0 1.5rem 0; font-size: 14px;">
-                    GPG key management coming soon. You'll be able to sign commits and verify authenticity.
-                </p>
-            </div>
-        </div>
-
-        </main>
     </div>
-</div>
+    <script>
+  // Tab switching for key types
+  function showKeyTypeTab(tabName) {
+      // Hide all tabs
+      document.getElementById('workspace-tab-content').style.display = 'none';
+      document.getElementById('git-tab-content').style.display = 'none';
+      document.getElementById('gpg-tab-content').style.display = 'none';
 
-<script>
-// Tab switching
-function showTab(tabName) {
-    const sshTab = document.getElementById('ssh-tab-content');
-    const gpgTab = document.getElementById('gpg-tab-content');
-    const tabs = document.querySelectorAll('.ssh-tab');
+      // Show selected tab
+      if (tabName === 'workspace') {
+          document.getElementById('workspace-tab-content').style.display = 'block';
+      } else if (tabName === 'git') {
+          document.getElementById('git-tab-content').style.display = 'block';
+      } else if (tabName === 'gpg') {
+          document.getElementById('gpg-tab-content').style.display = 'block';
+      }
 
-    if (tabName === 'ssh') {
-        sshTab.style.display = 'block';
-        gpgTab.style.display = 'none';
-        tabs[0].classList.add('active');
-        tabs[0].style.borderBottomColor = 'var(--scitex-color-04)';
-        tabs[0].style.color = 'var(--color-fg-default)';
-        tabs[0].style.fontWeight = '600';
-        tabs[1].classList.remove('active');
-        tabs[1].style.borderBottomColor = 'transparent';
-        tabs[1].style.color = 'var(--color-fg-muted)';
-        tabs[1].style.fontWeight = '400';
-    } else {
-        sshTab.style.display = 'none';
-        gpgTab.style.display = 'block';
-        tabs[1].classList.add('active');
-        tabs[1].style.borderBottomColor = 'var(--scitex-color-04)';
-        tabs[1].style.color = 'var(--color-fg-default)';
-        tabs[1].style.fontWeight = '600';
-        tabs[0].classList.remove('active');
-        tabs[0].style.borderBottomColor = 'transparent';
-        tabs[0].style.color = 'var(--color-fg-muted)';
-        tabs[0].style.fontWeight = '400';
-    }
-}
+      // Update tab button styles
+      const tabs = document.querySelectorAll('.key-type-tab');
+      tabs.forEach(tab => {
+          const isActive = tab.dataset.tab === tabName;
+          tab.classList.toggle('active', isActive);
 
-<script>
-function copySSHKey(event) {
-    event.preventDefault();
-    const keyElement = document.getElementById('ssh-public-key');
-    const keyText = keyElement.textContent;
+          if (isActive) {
+              // Active tab styling
+              tab.style.fontWeight = '600';
+              tab.style.color = 'var(--color-fg-default)';
 
-    navigator.clipboard.writeText(keyText).then(() => {
-        const btn = event.target;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✓ Copied!';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-        }, 2000);
-    }).catch(err => {
-        alert('Failed to copy: ' + err);
-    });
-}
+              // Different colors for different tabs
+              if (tabName === 'workspace') {
+                  tab.style.borderBottomColor = '#28a745';
+              } else if (tabName === 'git') {
+                  tab.style.borderBottomColor = 'var(--scitex-color-04)';
+              } else {
+                  tab.style.borderBottomColor = 'var(--scitex-color-04)';
+              }
+          } else {
+              // Inactive tab styling
+              tab.style.borderBottomColor = 'transparent';
+              tab.style.color = 'var(--color-fg-muted)';
+              tab.style.fontWeight = '400';
+          }
+      });
+  }
+  </script>
+
+  <script>
+  function copySSHKey(event) {
+      event.preventDefault();
+      const keyElement = document.getElementById('ssh-public-key');
+      const keyText = keyElement.textContent;
+
+      navigator.clipboard.writeText(keyText).then(() => {
+          const btn = event.target;
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '✓ Copied!';
+          setTimeout(() => {
+              btn.innerHTML = originalText;
+          }, 2000);
+      }).catch(err => {
+          alert('Failed to copy: ' + err);
+      });
+  }
 </script>
 {% endblock %}

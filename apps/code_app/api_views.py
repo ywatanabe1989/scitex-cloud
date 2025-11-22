@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/code_app/api_views.py"
-)
+
+__FILE__ = "./apps/code_app/api_views.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -103,9 +102,7 @@ class NotebookListAPI(NotebookAPIView):
 
         except Exception as e:
             logger.error(f"Error listing notebooks: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
     def post(self, request):
         """Create a new notebook."""
@@ -122,9 +119,7 @@ class NotebookListAPI(NotebookAPIView):
                 )
 
             # Check for duplicate titles
-            if Notebook.objects.filter(
-                user=request.user, title=title
-            ).exists():
+            if Notebook.objects.filter(user=request.user, title=title).exists():
                 return JsonResponse(
                     {
                         "status": "error",
@@ -137,17 +132,11 @@ class NotebookListAPI(NotebookAPIView):
 
             # Create notebook with template
             if template == "data_analysis":
-                notebook_content = (
-                    NotebookTemplates.get_data_analysis_template()
-                )
+                notebook_content = NotebookTemplates.get_data_analysis_template()
             elif template == "machine_learning":
-                notebook_content = (
-                    NotebookTemplates.get_machine_learning_template()
-                )
+                notebook_content = NotebookTemplates.get_machine_learning_template()
             elif template == "visualization":
-                notebook_content = (
-                    NotebookTemplates.get_visualization_template()
-                )
+                notebook_content = NotebookTemplates.get_visualization_template()
             else:
                 # Create blank notebook
                 notebook = manager.create_notebook(title, description)
@@ -193,9 +182,7 @@ class NotebookListAPI(NotebookAPIView):
             )
         except Exception as e:
             logger.error(f"Error creating notebook: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 class NotebookDetailAPI(NotebookAPIView):
@@ -232,8 +219,7 @@ class NotebookDetailAPI(NotebookAPIView):
                         "created_at": notebook.created_at.isoformat(),
                         "updated_at": notebook.updated_at.isoformat(),
                         "shared_with": [
-                            user.username
-                            for user in notebook.shared_with.all()
+                            user.username for user in notebook.shared_with.all()
                         ],
                     },
                 }
@@ -241,9 +227,7 @@ class NotebookDetailAPI(NotebookAPIView):
 
         except Exception as e:
             logger.error(f"Error getting notebook {notebook_id}: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
     def put(self, request, notebook_id):
         """Update notebook content."""
@@ -326,9 +310,7 @@ class NotebookDetailAPI(NotebookAPIView):
             )
         except Exception as e:
             logger.error(f"Error updating notebook {notebook_id}: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
     def delete(self, request, notebook_id):
         """Delete a notebook."""
@@ -368,9 +350,7 @@ class NotebookDetailAPI(NotebookAPIView):
 
         except Exception as e:
             logger.error(f"Error deleting notebook {notebook_id}: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 class NotebookExecutionAPI(NotebookAPIView):
@@ -380,9 +360,7 @@ class NotebookExecutionAPI(NotebookAPIView):
         """Execute a notebook or specific cell."""
         try:
             data = json.loads(request.body)
-            cell_index = data.get(
-                "cell_index"
-            )  # If specified, execute only this cell
+            cell_index = data.get("cell_index")  # If specified, execute only this cell
             timeout = min(int(data.get("timeout", 300)), 600)
             memory_limit = min(int(data.get("memory_limit", 512)), 2048)
 
@@ -404,16 +382,12 @@ class NotebookExecutionAPI(NotebookAPIView):
                 max_memory_mb=memory_limit,
             )
 
-            executor = NotebookExecutor(
-                timeout=timeout, memory_limit=memory_limit
-            )
+            executor = NotebookExecutor(timeout=timeout, memory_limit=memory_limit)
 
             if cell_index is not None:
                 # Execute single cell
                 def execute_cell():
-                    success, result = executor.execute_cell(
-                        notebook, cell_index
-                    )
+                    success, result = executor.execute_cell(notebook, cell_index)
 
                     job.status = "completed" if success else "failed"
                     from datetime import timezone
@@ -462,9 +436,7 @@ class NotebookExecutionAPI(NotebookAPIView):
             )
         except Exception as e:
             logger.error(f"Error executing notebook {notebook_id}: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 class NotebookConversionAPI(NotebookAPIView):
@@ -528,9 +500,7 @@ class NotebookConversionAPI(NotebookAPIView):
             logger.error(
                 f"Error converting notebook {notebook_id} to {format_type}: {e}"
             )
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 class NotebookSharingAPI(NotebookAPIView):
@@ -581,9 +551,7 @@ class NotebookSharingAPI(NotebookAPIView):
             )
         except Exception as e:
             logger.error(f"Error sharing notebook {notebook_id}: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 class NotebookTemplatesAPI(NotebookAPIView):
@@ -623,9 +591,7 @@ class NotebookTemplatesAPI(NotebookAPIView):
 
         except Exception as e:
             logger.error(f"Error getting templates: {e}")
-            return JsonResponse(
-                {"status": "error", "message": str(e)}, status=500
-            )
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 # REST Framework API Views
@@ -655,14 +621,10 @@ def notebook_status_api(request, job_id):
         )
 
     except CodeExecutionJob.DoesNotExist:
-        return Response(
-            {"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND
-        )
+        return Response({"error": "Job not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         logger.error(f"Error getting job status {job_id}: {e}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -703,8 +665,7 @@ def duplicate_notebook_api(request, notebook_id):
 
     except Exception as e:
         logger.error(f"Error duplicating notebook {notebook_id}: {e}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 # EOF

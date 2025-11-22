@@ -6,21 +6,23 @@ Anonymous User Storage Management
 Provides temporary storage for anonymous users using /tmp directory.
 Sessions expire after a configured time period and are automatically cleaned up.
 """
+
 from __future__ import annotations
 import os
 import json
 import shutil
 import logging
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Optional, Tuple
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 # Configuration
-ANONYMOUS_STORAGE_ROOT = getattr(settings, 'ANONYMOUS_STORAGE_ROOT', '/tmp/scitex_anonymous')
-SESSION_EXPIRY_HOURS = getattr(settings, 'ANONYMOUS_SESSION_EXPIRY_HOURS', 24)
+ANONYMOUS_STORAGE_ROOT = getattr(
+    settings, "ANONYMOUS_STORAGE_ROOT", "/tmp/scitex_anonymous"
+)
+SESSION_EXPIRY_HOURS = getattr(settings, "ANONYMOUS_SESSION_EXPIRY_HOURS", 24)
 
 
 def get_anonymous_storage_path(session_key: str) -> str:
@@ -38,30 +40,34 @@ def get_anonymous_storage_path(session_key: str) -> str:
 
     path = os.path.join(ANONYMOUS_STORAGE_ROOT, session_key)
     os.makedirs(path, exist_ok=True)
-    os.makedirs(os.path.join(path, 'uploads'), exist_ok=True)
+    os.makedirs(os.path.join(path, "uploads"), exist_ok=True)
 
     # Create metadata on first access
     metadata_path = os.path.join(path, "metadata.json")
     if not os.path.exists(metadata_path):
         metadata = {
             "created_at": datetime.now().isoformat(),
-            "expires_at": (datetime.now() + timedelta(hours=SESSION_EXPIRY_HOURS)).isoformat(),
+            "expires_at": (
+                datetime.now() + timedelta(hours=SESSION_EXPIRY_HOURS)
+            ).isoformat(),
             "session_key": session_key,
             "last_accessed": datetime.now().isoformat(),
         }
-        with open(metadata_path, 'w') as f:
+        with open(metadata_path, "w") as f:
             json.dump(metadata, f, indent=2)
         logger.info(f"Created anonymous storage for session {session_key[:8]}...")
     else:
         # Update last accessed time
         try:
-            with open(metadata_path, 'r') as f:
+            with open(metadata_path, "r") as f:
                 metadata = json.load(f)
             metadata["last_accessed"] = datetime.now().isoformat()
-            with open(metadata_path, 'w') as f:
+            with open(metadata_path, "w") as f:
                 json.dump(metadata, f, indent=2)
         except Exception as e:
-            logger.warning(f"Failed to update last_accessed for session {session_key[:8]}...: {e}")
+            logger.warning(
+                f"Failed to update last_accessed for session {session_key[:8]}...: {e}"
+            )
 
     return path
 
@@ -81,7 +87,7 @@ def save_session_data(session_key: str, data: dict) -> bool:
         storage_path = get_anonymous_storage_path(session_key)
         data_path = os.path.join(storage_path, "scholar_data.json")
 
-        with open(data_path, 'w') as f:
+        with open(data_path, "w") as f:
             json.dump(data, f, indent=2)
 
         logger.debug(f"Saved session data for {session_key[:8]}...")
@@ -106,7 +112,7 @@ def load_session_data(session_key: str) -> Optional[dict]:
         data_path = os.path.join(storage_path, "scholar_data.json")
 
         if os.path.exists(data_path):
-            with open(data_path, 'r') as f:
+            with open(data_path, "r") as f:
                 return json.load(f)
         return None
     except Exception as e:
@@ -137,7 +143,7 @@ def cleanup_expired_sessions() -> Tuple[int, int]:
 
         try:
             if os.path.exists(metadata_path):
-                with open(metadata_path, 'r') as f:
+                with open(metadata_path, "r") as f:
                     metadata = json.load(f)
 
                 expires_at = datetime.fromisoformat(metadata["expires_at"])
@@ -145,10 +151,14 @@ def cleanup_expired_sessions() -> Tuple[int, int]:
                 if now > expires_at:
                     shutil.rmtree(session_path)
                     cleaned += 1
-                    logger.info(f"Cleaned up expired session: {session_dir[:8]}... (expired {(now - expires_at).days} days ago)")
+                    logger.info(
+                        f"Cleaned up expired session: {session_dir[:8]}... (expired {(now - expires_at).days} days ago)"
+                    )
             else:
                 # No metadata file - clean up orphaned directory
-                logger.warning(f"No metadata found for {session_dir[:8]}..., removing orphaned directory")
+                logger.warning(
+                    f"No metadata found for {session_dir[:8]}..., removing orphaned directory"
+                )
                 shutil.rmtree(session_path)
                 cleaned += 1
 
@@ -211,7 +221,9 @@ def migrate_to_user_storage(session_key: str, user) -> bool:
         # Clean up anonymous directory
         shutil.rmtree(anonymous_path)
 
-        logger.info(f"Migrated {len(migrated_files)} items from session {session_key[:8]}... to user {user.username}")
+        logger.info(
+            f"Migrated {len(migrated_files)} items from session {session_key[:8]}... to user {user.username}"
+        )
         logger.info(f"Files available at: {import_project_path}")
 
         return True
@@ -232,9 +244,11 @@ def get_session_info(session_key: str) -> Optional[dict]:
         Dictionary with session metadata, or None if not found
     """
     try:
-        metadata_path = os.path.join(ANONYMOUS_STORAGE_ROOT, session_key, "metadata.json")
+        metadata_path = os.path.join(
+            ANONYMOUS_STORAGE_ROOT, session_key, "metadata.json"
+        )
         if os.path.exists(metadata_path):
-            with open(metadata_path, 'r') as f:
+            with open(metadata_path, "r") as f:
                 return json.load(f)
         return None
     except Exception as e:
@@ -262,5 +276,6 @@ def delete_anonymous_session(session_key: str) -> bool:
     except Exception as e:
         logger.error(f"Failed to delete anonymous session: {e}")
         return False
+
 
 # EOF

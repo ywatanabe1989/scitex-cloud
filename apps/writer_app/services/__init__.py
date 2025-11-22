@@ -33,10 +33,10 @@ except ImportError:
     CollaborationService = None
 
 __all__ = [
-    'WriterService',
-    'DocumentService',
-    'CompilerService',
-    'VersionControlService',
-    'ArxivService',
-    'CollaborationService',
+    "WriterService",
+    "DocumentService",
+    "CompilerService",
+    "VersionControlService",
+    "ArxivService",
+    "CollaborationService",
 ]

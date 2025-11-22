@@ -79,20 +79,20 @@ check_file_exists() {
 # Check for critical variables in dotenv file
 check_critical_vars() {
     local file=$1
-    local env_suffix=$2  # Either "_DEV" or "_PROD"
+    local env_suffix=$2 # Either "_DEV" or "_PROD"
     local missing_vars=()
 
     echo_info "  Critical Variables:"
 
     # Check Django settings
-    if grep -q "^export SCITEX_CLOUD_DJANGO_SECRET_KEY=" "$file" 2>/dev/null; then
+    if grep -q "^export SCITEX_CLOUD_DJANGO_SECRET_KEY=" "$file" 2> /dev/null; then
         echo_success "    ✓ SCITEX_CLOUD_DJANGO_SECRET_KEY is set"
     else
         echo_error "    ✗ SCITEX_CLOUD_DJANGO_SECRET_KEY is missing"
         missing_vars+=("SCITEX_CLOUD_DJANGO_SECRET_KEY")
     fi
 
-    if grep -q "^export SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=" "$file" 2>/dev/null; then
+    if grep -q "^export SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=" "$file" 2> /dev/null; then
         echo_success "    ✓ SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE is set"
     else
         echo_error "    ✗ SCITEX_CLOUD_SCITEX_CLOUD_DJANGO_SETTINGS_MODULE is missing"
@@ -101,7 +101,7 @@ check_critical_vars() {
 
     # Check database variables with environment suffix
     for var in "SCITEX_CLOUD_DB_NAME" "SCITEX_CLOUD_DB_USER" "SCITEX_CLOUD_DB_PASSWORD"; do
-        if grep -q "^export ${var}${env_suffix}=" "$file" 2>/dev/null; then
+        if grep -q "^export ${var}${env_suffix}=" "$file" 2> /dev/null; then
             echo_success "    ✓ ${var}${env_suffix} is set"
         else
             echo_error "    ✗ ${var}${env_suffix} is missing"
@@ -130,7 +130,7 @@ check_development() {
         echo
 
         # Check if this is development environment
-        if grep -q "settings_dev" "$PROJECT_ROOT/deployment/dotenvs/dotenv.dev" 2>/dev/null; then
+        if grep -q "settings_dev" "$PROJECT_ROOT/deployment/dotenvs/dotenv.dev" 2> /dev/null; then
             echo_success "  ✓ Configured for development environment"
         else
             echo_warning "  ⚠ Environment configuration unclear"
@@ -154,14 +154,14 @@ check_production() {
         echo
 
         # Check if this is production environment
-        if grep -q "settings_prod" "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" 2>/dev/null; then
+        if grep -q "settings_prod" "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" 2> /dev/null; then
             echo_success "  ✓ Configured for production environment"
         else
             echo_warning "  ⚠ Environment configuration unclear"
         fi
 
         # Check for production database
-        if grep -q "SCITEX_CLOUD_DB_NAME_PROD" "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" 2>/dev/null; then
+        if grep -q "SCITEX_CLOUD_DB_NAME_PROD" "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" 2> /dev/null; then
             echo_success "  ✓ Production database configured"
         else
             echo_warning "  ⚠ Production database configuration not found"
@@ -192,7 +192,7 @@ check_root_env() {
         echo
 
         # Determine which environment it's configured for
-        DEBUG_VALUE=$(grep "^DEBUG=" "$PROJECT_ROOT/.env" 2>/dev/null | cut -d'=' -f2)
+        DEBUG_VALUE=$(grep "^DEBUG=" "$PROJECT_ROOT/.env" 2> /dev/null | cut -d'=' -f2)
         if [ "$DEBUG_VALUE" = "True" ] || [ "$DEBUG_VALUE" = "true" ] || [ "$DEBUG_VALUE" = "1" ]; then
             echo_info "  Environment: Development (DEBUG=True)"
         else
@@ -216,8 +216,8 @@ check_consistency() {
 
     for var in "SCITEX_CLOUD_DB_NAME" "SCITEX_CLOUD_DB_USER"; do
         if [ -f "$PROJECT_ROOT/deployment/dotenvs/dotenv.dev" ] && [ -f "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" ]; then
-            DEV_VAL=$(grep "^export ${var}_DEV=" "$PROJECT_ROOT/deployment/dotenvs/dotenv.dev" 2>/dev/null | cut -d'=' -f2)
-            PROD_VAL=$(grep "^export ${var}_PROD=" "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" 2>/dev/null | cut -d'=' -f2)
+            DEV_VAL=$(grep "^export ${var}_DEV=" "$PROJECT_ROOT/deployment/dotenvs/dotenv.dev" 2> /dev/null | cut -d'=' -f2)
+            PROD_VAL=$(grep "^export ${var}_PROD=" "$PROJECT_ROOT/deployment/dotenvs/dotenv.prod" 2> /dev/null | cut -d'=' -f2)
 
             if [ -n "$DEV_VAL" ] && [ -n "$PROD_VAL" ]; then
                 if [ "$DEV_VAL" = "$PROD_VAL" ]; then
@@ -276,4 +276,3 @@ main() {
 }
 
 main "$@" > >(tee -a "$LOG_PATH") 2> >(tee -a "$ERR_PATH" >&2)
-

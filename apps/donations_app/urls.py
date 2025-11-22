@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/donations_app/urls.py"
-)
+
+__FILE__ = "./apps/donations_app/urls.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 from django.urls import path

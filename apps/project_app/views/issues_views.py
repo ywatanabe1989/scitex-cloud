@@ -6,9 +6,8 @@ GitHub-style issue management system
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse, Http404
-from django.db.models import Q, Count, Max
-from django.utils import timezone
+from django.http import Http404
+from django.db.models import Q, Count
 from django.core.paginator import Paginator
 
 from apps.project_app.models import Project
@@ -26,6 +25,7 @@ from apps.project_app.models import (
 # Issue List View
 # =============================================================================
 
+
 def issues_list(request, username, slug):
     """
     List all issues for a project with filtering
@@ -39,79 +39,80 @@ def issues_list(request, username, slug):
 
     # Base queryset
     issues = project.issues.select_related(
-        'author', 'milestone', 'closed_by'
-    ).prefetch_related('labels', 'assignees')
+        "author", "milestone", "closed_by"
+    ).prefetch_related("labels", "assignees")
 
     # Filtering
-    state_filter = request.GET.get('state', 'open')  # open, closed, all
-    if state_filter == 'open':
-        issues = issues.filter(state='open')
-    elif state_filter == 'closed':
-        issues = issues.filter(state='closed')
+    state_filter = request.GET.get("state", "open")  # open, closed, all
+    if state_filter == "open":
+        issues = issues.filter(state="open")
+    elif state_filter == "closed":
+        issues = issues.filter(state="closed")
 
     # Label filter
-    label_filter = request.GET.getlist('label')
+    label_filter = request.GET.getlist("label")
     if label_filter:
         for label in label_filter:
             issues = issues.filter(labels__name=label)
 
     # Assignee filter
-    assignee_filter = request.GET.get('assignee')
+    assignee_filter = request.GET.get("assignee")
     if assignee_filter:
-        if assignee_filter == 'none':
+        if assignee_filter == "none":
             issues = issues.filter(assignees__isnull=True)
         else:
             issues = issues.filter(assignees__username=assignee_filter)
 
     # Milestone filter
-    milestone_filter = request.GET.get('milestone')
+    milestone_filter = request.GET.get("milestone")
     if milestone_filter:
-        if milestone_filter == 'none':
+        if milestone_filter == "none":
             issues = issues.filter(milestone__isnull=True)
         else:
             issues = issues.filter(milestone__title=milestone_filter)
 
     # Author filter
-    author_filter = request.GET.get('author')
+    author_filter = request.GET.get("author")
     if author_filter:
         issues = issues.filter(author__username=author_filter)
 
     # Search
-    search_query = request.GET.get('q', '').strip()
+    search_query = request.GET.get("q", "").strip()
     if search_query:
         issues = issues.filter(
-            Q(title__icontains=search_query) |
-            Q(description__icontains=search_query)
+            Q(title__icontains=search_query) | Q(description__icontains=search_query)
         )
 
     # Sorting
-    sort = request.GET.get('sort', 'newest')
-    if sort == 'newest':
-        issues = issues.order_by('-created_at')
-    elif sort == 'oldest':
-        issues = issues.order_by('created_at')
-    elif sort == 'most_commented':
-        issues = issues.annotate(
-            comment_count=Count('comments')
-        ).order_by('-comment_count')
-    elif sort == 'recently_updated':
-        issues = issues.order_by('-updated_at')
+    sort = request.GET.get("sort", "newest")
+    if sort == "newest":
+        issues = issues.order_by("-created_at")
+    elif sort == "oldest":
+        issues = issues.order_by("created_at")
+    elif sort == "most_commented":
+        issues = issues.annotate(comment_count=Count("comments")).order_by(
+            "-comment_count"
+        )
+    elif sort == "recently_updated":
+        issues = issues.order_by("-updated_at")
 
     # Pagination
     paginator = Paginator(issues, 25)  # 25 issues per page
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
     # Get labels and milestones for filtering UI
     labels = project.issue_labels.all()
-    milestones = project.issue_milestones.filter(state='open')
+    milestones = project.issue_milestones.filter(state="open")
 
     # Count statistics
-    open_count = project.issues.filter(state='open').count()
-    closed_count = project.issues.filter(state='closed').count()
+    open_count = project.issues.filter(state="open").count()
+    closed_count = project.issues.filter(state="closed").count()
 
     # Get branches for branch selector
-    from apps.project_app.services.project_filesystem import get_project_filesystem_manager
+    from apps.project_app.services.project_filesystem import (
+        get_project_filesystem_manager,
+    )
     import subprocess
     import logging
 
@@ -120,26 +121,26 @@ def issues_list(request, username, slug):
     project_path = manager.get_project_root_path(project)
 
     branches = []
-    current_branch = project.current_branch or 'develop'
+    current_branch = project.current_branch or "develop"
     if project_path and project_path.exists():
         try:
             result = subprocess.run(
-                ['git', 'branch', '-a'],
+                ["git", "branch", "-a"],
                 cwd=project_path,
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             if result.returncode == 0:
-                for line in result.stdout.split('\n'):
+                for line in result.stdout.split("\n"):
                     if line.strip():
                         # Remove * prefix and remotes/origin/ prefix
-                        branch = line.replace('*', '').strip()
-                        branch = branch.replace('remotes/origin/', '')
+                        branch = line.replace("*", "").strip()
+                        branch = branch.replace("remotes/origin/", "")
                         if branch and branch not in branches:
                             branches.append(branch)
                         # Check if this is the current branch
-                        if line.startswith('*'):
+                        if line.startswith("*"):
                             current_branch = branch
         except Exception as e:
             logger.debug(f"Error getting branches: {e}")
@@ -148,31 +149,32 @@ def issues_list(request, username, slug):
         branches = [current_branch]
 
     context = {
-        'project': project,
-        'issues': page_obj,
-        'labels': labels,
-        'milestones': milestones,
-        'open_count': open_count,
-        'closed_count': closed_count,
-        'state_filter': state_filter,
-        'search_query': search_query,
-        'sort': sort,
-        'current_filters': {
-            'label': label_filter,
-            'assignee': assignee_filter,
-            'milestone': milestone_filter,
-            'author': author_filter,
+        "project": project,
+        "issues": page_obj,
+        "labels": labels,
+        "milestones": milestones,
+        "open_count": open_count,
+        "closed_count": closed_count,
+        "state_filter": state_filter,
+        "search_query": search_query,
+        "sort": sort,
+        "current_filters": {
+            "label": label_filter,
+            "assignee": assignee_filter,
+            "milestone": milestone_filter,
+            "author": author_filter,
         },
-        'branches': branches,
-        'current_branch': current_branch,
+        "branches": branches,
+        "current_branch": current_branch,
     }
 
-    return render(request, 'project_app/issues/list.html', context)
+    return render(request, "project_app/issues/list.html", context)
 
 
 # =============================================================================
 # Issue Detail View
 # =============================================================================
+
 
 def issue_detail(request, username, slug, issue_number):
     """
@@ -181,9 +183,9 @@ def issue_detail(request, username, slug, issue_number):
     """
     project = get_object_or_404(Project, owner__username=username, slug=slug)
     issue = get_object_or_404(
-        Issue.objects.select_related('author', 'milestone', 'closed_by'),
+        Issue.objects.select_related("author", "milestone", "closed_by"),
         project=project,
-        number=issue_number
+        number=issue_number,
     )
 
     # Check permissions
@@ -191,40 +193,44 @@ def issue_detail(request, username, slug, issue_number):
         raise Http404("Issue not found")
 
     # Get comments
-    comments = issue.comments.select_related('author').order_by('created_at')
+    comments = issue.comments.select_related("author").order_by("created_at")
 
     # Get events (optional - for timeline)
-    events = issue.events.select_related('actor').order_by('created_at')
+    events = issue.events.select_related("actor").order_by("created_at")
 
     # Get labels and milestones for editing
     labels = project.issue_labels.all()
-    milestones = project.issue_milestones.filter(state='open')
+    milestones = project.issue_milestones.filter(state="open")
 
     # Get potential assignees (project collaborators)
-    potential_assignees = project.memberships.select_related('user').values_list('user', flat=True)
+    potential_assignees = project.memberships.select_related("user").values_list(
+        "user", flat=True
+    )
     from django.contrib.auth.models import User
+
     assignable_users = User.objects.filter(
         Q(id__in=potential_assignees) | Q(id=project.owner.id)
     ).distinct()
 
     context = {
-        'project': project,
-        'issue': issue,
-        'comments': comments,
-        'events': events,
-        'labels': labels,
-        'milestones': milestones,
-        'assignable_users': assignable_users,
-        'can_edit': issue.can_edit(request.user),
-        'can_comment': issue.can_comment(request.user),
+        "project": project,
+        "issue": issue,
+        "comments": comments,
+        "events": events,
+        "labels": labels,
+        "milestones": milestones,
+        "assignable_users": assignable_users,
+        "can_edit": issue.can_edit(request.user),
+        "can_comment": issue.can_comment(request.user),
     }
 
-    return render(request, 'project_app/issues/detail.html', context)
+    return render(request, "project_app/issues/detail.html", context)
 
 
 # =============================================================================
 # Issue Create View
 # =============================================================================
+
 
 @login_required
 def issue_create(request, username, slug):
@@ -237,17 +243,17 @@ def issue_create(request, username, slug):
     if not project.can_view(request.user):
         raise Http404("Project not found")
 
-    if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
-        label_ids = request.POST.getlist('labels')
-        milestone_id = request.POST.get('milestone')
-        assignee_ids = request.POST.getlist('assignees')
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
+        label_ids = request.POST.getlist("labels")
+        milestone_id = request.POST.get("milestone")
+        assignee_ids = request.POST.getlist("assignees")
 
         # Validation
         if not title:
-            messages.error(request, 'Issue title is required')
-            return redirect('user_projects:issue_create', username=username, slug=slug)
+            messages.error(request, "Issue title is required")
+            return redirect("user_projects:issue_create", username=username, slug=slug)
 
         # Create issue
         issue = Issue.objects.create(
@@ -276,49 +282,48 @@ def issue_create(request, username, slug):
             for user_id in assignee_ids:
                 try:
                     from django.contrib.auth.models import User
+
                     user = User.objects.get(id=user_id)
                     IssueAssignment.objects.create(
-                        issue=issue,
-                        user=user,
-                        assigned_by=request.user
+                        issue=issue, user=user, assigned_by=request.user
                     )
                 except User.DoesNotExist:
                     pass
 
         # Create event
-        IssueEvent.objects.create(
-            issue=issue,
-            event_type='created',
-            actor=request.user
-        )
+        IssueEvent.objects.create(issue=issue, event_type="created", actor=request.user)
 
-        messages.success(request, f'Issue #{issue.number} created successfully')
+        messages.success(request, f"Issue #{issue.number} created successfully")
         return redirect(issue.get_absolute_url())
 
     # GET request - show form
     labels = project.issue_labels.all()
-    milestones = project.issue_milestones.filter(state='open')
+    milestones = project.issue_milestones.filter(state="open")
 
     # Get potential assignees
-    potential_assignees = project.memberships.select_related('user').values_list('user', flat=True)
+    potential_assignees = project.memberships.select_related("user").values_list(
+        "user", flat=True
+    )
     from django.contrib.auth.models import User
+
     assignable_users = User.objects.filter(
         Q(id__in=potential_assignees) | Q(id=project.owner.id)
     ).distinct()
 
     context = {
-        'project': project,
-        'labels': labels,
-        'milestones': milestones,
-        'assignable_users': assignable_users,
+        "project": project,
+        "labels": labels,
+        "milestones": milestones,
+        "assignable_users": assignable_users,
     }
 
-    return render(request, 'project_app/issues/form.html', context)
+    return render(request, "project_app/issues/form.html", context)
 
 
 # =============================================================================
 # Issue Edit View
 # =============================================================================
+
 
 @login_required
 def issue_edit(request, username, slug, issue_number):
@@ -330,18 +335,23 @@ def issue_edit(request, username, slug, issue_number):
 
     # Check permissions
     if not issue.can_edit(request.user):
-        messages.error(request, 'You do not have permission to edit this issue')
+        messages.error(request, "You do not have permission to edit this issue")
         return redirect(issue.get_absolute_url())
 
-    if request.method == 'POST':
+    if request.method == "POST":
         old_title = issue.title
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
 
         # Validation
         if not title:
-            messages.error(request, 'Issue title is required')
-            return redirect('user_projects:issue_edit', username=username, slug=slug, issue_number=issue_number)
+            messages.error(request, "Issue title is required")
+            return redirect(
+                "user_projects:issue_edit",
+                username=username,
+                slug=slug,
+                issue_number=issue_number,
+            )
 
         # Update issue
         issue.title = title
@@ -352,27 +362,28 @@ def issue_edit(request, username, slug, issue_number):
         if old_title != title:
             IssueEvent.objects.create(
                 issue=issue,
-                event_type='renamed',
+                event_type="renamed",
                 actor=request.user,
-                metadata={'old_title': old_title, 'new_title': title}
+                metadata={"old_title": old_title, "new_title": title},
             )
 
-        messages.success(request, f'Issue #{issue.number} updated successfully')
+        messages.success(request, f"Issue #{issue.number} updated successfully")
         return redirect(issue.get_absolute_url())
 
     # GET request - show form
     context = {
-        'project': project,
-        'issue': issue,
-        'edit_mode': True,
+        "project": project,
+        "issue": issue,
+        "edit_mode": True,
     }
 
-    return render(request, 'project_app/issues/form.html', context)
+    return render(request, "project_app/issues/form.html", context)
 
 
 # =============================================================================
 # Issue Comment Create
 # =============================================================================
+
 
 @login_required
 def issue_comment_create(request, username, slug, issue_number):
@@ -384,25 +395,23 @@ def issue_comment_create(request, username, slug, issue_number):
 
     # Check permissions
     if not issue.can_comment(request.user):
-        messages.error(request, 'You do not have permission to comment on this issue')
+        messages.error(request, "You do not have permission to comment on this issue")
         return redirect(issue.get_absolute_url())
 
-    if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
 
         if not content:
-            messages.error(request, 'Comment content is required')
+            messages.error(request, "Comment content is required")
             return redirect(issue.get_absolute_url())
 
         # Create comment
         comment = IssueComment.objects.create(
-            issue=issue,
-            author=request.user,
-            content=content
+            issue=issue, author=request.user, content=content
         )
 
-        messages.success(request, 'Comment added successfully')
-        return redirect(issue.get_absolute_url() + f'#comment-{comment.id}')
+        messages.success(request, "Comment added successfully")
+        return redirect(issue.get_absolute_url() + f"#comment-{comment.id}")
 
     return redirect(issue.get_absolute_url())
 
@@ -410,6 +419,7 @@ def issue_comment_create(request, username, slug, issue_number):
 # =============================================================================
 # Label Management
 # =============================================================================
+
 
 @login_required
 def issue_label_manage(request, username, slug):
@@ -422,34 +432,31 @@ def issue_label_manage(request, username, slug):
     if not project.can_edit(request.user):
         raise Http404("Project not found")
 
-    if request.method == 'POST':
-        action = request.POST.get('action')
+    if request.method == "POST":
+        action = request.POST.get("action")
 
-        if action == 'create':
-            name = request.POST.get('name', '').strip()
-            color = request.POST.get('color', '#0366d6')
-            description = request.POST.get('description', '').strip()
+        if action == "create":
+            name = request.POST.get("name", "").strip()
+            color = request.POST.get("color", "#0366d6")
+            description = request.POST.get("description", "").strip()
 
             if not name:
-                messages.error(request, 'Label name is required')
+                messages.error(request, "Label name is required")
             else:
                 # Check if label already exists
                 if IssueLabel.objects.filter(project=project, name=name).exists():
                     messages.error(request, f'Label "{name}" already exists')
                 else:
                     IssueLabel.objects.create(
-                        project=project,
-                        name=name,
-                        color=color,
-                        description=description
+                        project=project, name=name, color=color, description=description
                     )
                     messages.success(request, f'Label "{name}" created successfully')
 
-        elif action == 'edit':
-            label_id = request.POST.get('label_id')
-            name = request.POST.get('name', '').strip()
-            color = request.POST.get('color', '#0366d6')
-            description = request.POST.get('description', '').strip()
+        elif action == "edit":
+            label_id = request.POST.get("label_id")
+            name = request.POST.get("name", "").strip()
+            color = request.POST.get("color", "#0366d6")
+            description = request.POST.get("description", "").strip()
 
             try:
                 label = IssueLabel.objects.get(id=label_id, project=project)
@@ -459,35 +466,36 @@ def issue_label_manage(request, username, slug):
                 label.save()
                 messages.success(request, f'Label "{name}" updated successfully')
             except IssueLabel.DoesNotExist:
-                messages.error(request, 'Label not found')
+                messages.error(request, "Label not found")
 
-        elif action == 'delete':
-            label_id = request.POST.get('label_id')
+        elif action == "delete":
+            label_id = request.POST.get("label_id")
             try:
                 label = IssueLabel.objects.get(id=label_id, project=project)
                 label.delete()
-                messages.success(request, 'Label deleted successfully')
+                messages.success(request, "Label deleted successfully")
             except IssueLabel.DoesNotExist:
-                messages.error(request, 'Label not found')
+                messages.error(request, "Label not found")
 
-        return redirect('user_projects:issue_label_manage', username=username, slug=slug)
+        return redirect(
+            "user_projects:issue_label_manage", username=username, slug=slug
+        )
 
     # GET request
-    labels = project.issue_labels.annotate(
-        issue_count=Count('issues')
-    ).order_by('name')
+    labels = project.issue_labels.annotate(issue_count=Count("issues")).order_by("name")
 
     context = {
-        'project': project,
-        'labels': labels,
+        "project": project,
+        "labels": labels,
     }
 
-    return render(request, 'project_app/issues/label_manage.html', context)
+    return render(request, "project_app/issues/label_manage.html", context)
 
 
 # =============================================================================
 # Milestone Management
 # =============================================================================
+
 
 @login_required
 def issue_milestone_manage(request, username, slug):
@@ -500,37 +508,38 @@ def issue_milestone_manage(request, username, slug):
     if not project.can_edit(request.user):
         raise Http404("Project not found")
 
-    if request.method == 'POST':
-        action = request.POST.get('action')
+    if request.method == "POST":
+        action = request.POST.get("action")
 
-        if action == 'create':
-            title = request.POST.get('title', '').strip()
-            description = request.POST.get('description', '').strip()
-            due_date = request.POST.get('due_date')
+        if action == "create":
+            title = request.POST.get("title", "").strip()
+            description = request.POST.get("description", "").strip()
+            due_date = request.POST.get("due_date")
 
             if not title:
-                messages.error(request, 'Milestone title is required')
+                messages.error(request, "Milestone title is required")
             else:
                 # Check if milestone already exists
                 if IssueMilestone.objects.filter(project=project, title=title).exists():
                     messages.error(request, f'Milestone "{title}" already exists')
                 else:
                     milestone = IssueMilestone.objects.create(
-                        project=project,
-                        title=title,
-                        description=description
+                        project=project, title=title, description=description
                     )
                     if due_date:
                         from django.utils.dateparse import parse_datetime
+
                         milestone.due_date = parse_datetime(due_date)
                         milestone.save()
-                    messages.success(request, f'Milestone "{title}" created successfully')
+                    messages.success(
+                        request, f'Milestone "{title}" created successfully'
+                    )
 
-        elif action == 'edit':
-            milestone_id = request.POST.get('milestone_id')
-            title = request.POST.get('title', '').strip()
-            description = request.POST.get('description', '').strip()
-            due_date = request.POST.get('due_date')
+        elif action == "edit":
+            milestone_id = request.POST.get("milestone_id")
+            title = request.POST.get("title", "").strip()
+            description = request.POST.get("description", "").strip()
+            due_date = request.POST.get("due_date")
 
             try:
                 milestone = IssueMilestone.objects.get(id=milestone_id, project=project)
@@ -538,47 +547,50 @@ def issue_milestone_manage(request, username, slug):
                 milestone.description = description
                 if due_date:
                     from django.utils.dateparse import parse_datetime
+
                     milestone.due_date = parse_datetime(due_date)
                 else:
                     milestone.due_date = None
                 milestone.save()
                 messages.success(request, f'Milestone "{title}" updated successfully')
             except IssueMilestone.DoesNotExist:
-                messages.error(request, 'Milestone not found')
+                messages.error(request, "Milestone not found")
 
-        elif action == 'close':
-            milestone_id = request.POST.get('milestone_id')
+        elif action == "close":
+            milestone_id = request.POST.get("milestone_id")
             try:
                 milestone = IssueMilestone.objects.get(id=milestone_id, project=project)
                 milestone.close()
                 messages.success(request, f'Milestone "{milestone.title}" closed')
             except IssueMilestone.DoesNotExist:
-                messages.error(request, 'Milestone not found')
+                messages.error(request, "Milestone not found")
 
-        elif action == 'reopen':
-            milestone_id = request.POST.get('milestone_id')
+        elif action == "reopen":
+            milestone_id = request.POST.get("milestone_id")
             try:
                 milestone = IssueMilestone.objects.get(id=milestone_id, project=project)
                 milestone.reopen()
                 messages.success(request, f'Milestone "{milestone.title}" reopened')
             except IssueMilestone.DoesNotExist:
-                messages.error(request, 'Milestone not found')
+                messages.error(request, "Milestone not found")
 
-        elif action == 'delete':
-            milestone_id = request.POST.get('milestone_id')
+        elif action == "delete":
+            milestone_id = request.POST.get("milestone_id")
             try:
                 milestone = IssueMilestone.objects.get(id=milestone_id, project=project)
                 milestone.delete()
-                messages.success(request, 'Milestone deleted successfully')
+                messages.success(request, "Milestone deleted successfully")
             except IssueMilestone.DoesNotExist:
-                messages.error(request, 'Milestone not found')
+                messages.error(request, "Milestone not found")
 
-        return redirect('user_projects:issue_milestone_manage', username=username, slug=slug)
+        return redirect(
+            "user_projects:issue_milestone_manage", username=username, slug=slug
+        )
 
     # GET request
     milestones = project.issue_milestones.annotate(
-        issue_count=Count('issues')
-    ).order_by('-created_at')
+        issue_count=Count("issues")
+    ).order_by("-created_at")
 
     # Add progress to each milestone
     for milestone in milestones:
@@ -588,8 +600,8 @@ def issue_milestone_manage(request, username, slug):
         milestone.progress_percentage = percentage
 
     context = {
-        'project': project,
-        'milestones': milestones,
+        "project": project,
+        "milestones": milestones,
     }
 
-    return render(request, 'project_app/issues/milestone_manage.html', context)
+    return render(request, "project_app/issues/milestone_manage.html", context)

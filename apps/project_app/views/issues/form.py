@@ -31,17 +31,17 @@ def issue_create(request, username, slug):
     if not project.can_view(request.user):
         raise Http404("Project not found")
 
-    if request.method == 'POST':
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
-        label_ids = request.POST.getlist('labels')
-        milestone_id = request.POST.get('milestone')
-        assignee_ids = request.POST.getlist('assignees')
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
+        label_ids = request.POST.getlist("labels")
+        milestone_id = request.POST.get("milestone")
+        assignee_ids = request.POST.getlist("assignees")
 
         # Validation
         if not title:
-            messages.error(request, 'Issue title is required')
-            return redirect('user_projects:issue_create', username=username, slug=slug)
+            messages.error(request, "Issue title is required")
+            return redirect("user_projects:issue_create", username=username, slug=slug)
 
         # Create issue
         issue = Issue.objects.create(
@@ -71,41 +71,37 @@ def issue_create(request, username, slug):
                 try:
                     user = User.objects.get(id=user_id)
                     IssueAssignment.objects.create(
-                        issue=issue,
-                        user=user,
-                        assigned_by=request.user
+                        issue=issue, user=user, assigned_by=request.user
                     )
                 except User.DoesNotExist:
                     pass
 
         # Create event
-        IssueEvent.objects.create(
-            issue=issue,
-            event_type='created',
-            actor=request.user
-        )
+        IssueEvent.objects.create(issue=issue, event_type="created", actor=request.user)
 
-        messages.success(request, f'Issue #{issue.number} created successfully')
+        messages.success(request, f"Issue #{issue.number} created successfully")
         return redirect(issue.get_absolute_url())
 
     # GET request - show form
     labels = project.issue_labels.all()
-    milestones = project.issue_milestones.filter(state='open')
+    milestones = project.issue_milestones.filter(state="open")
 
     # Get potential assignees
-    potential_assignees = project.memberships.select_related('user').values_list('user', flat=True)
+    potential_assignees = project.memberships.select_related("user").values_list(
+        "user", flat=True
+    )
     assignable_users = User.objects.filter(
         Q(id__in=potential_assignees) | Q(id=project.owner.id)
     ).distinct()
 
     context = {
-        'project': project,
-        'labels': labels,
-        'milestones': milestones,
-        'assignable_users': assignable_users,
+        "project": project,
+        "labels": labels,
+        "milestones": milestones,
+        "assignable_users": assignable_users,
     }
 
-    return render(request, 'project_app/issues/form.html', context)
+    return render(request, "project_app/issues/form.html", context)
 
 
 @login_required
@@ -118,18 +114,23 @@ def issue_edit(request, username, slug, issue_number):
 
     # Check permissions
     if not issue.can_edit(request.user):
-        messages.error(request, 'You do not have permission to edit this issue')
+        messages.error(request, "You do not have permission to edit this issue")
         return redirect(issue.get_absolute_url())
 
-    if request.method == 'POST':
+    if request.method == "POST":
         old_title = issue.title
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
 
         # Validation
         if not title:
-            messages.error(request, 'Issue title is required')
-            return redirect('user_projects:issue_edit', username=username, slug=slug, issue_number=issue_number)
+            messages.error(request, "Issue title is required")
+            return redirect(
+                "user_projects:issue_edit",
+                username=username,
+                slug=slug,
+                issue_number=issue_number,
+            )
 
         # Update issue
         issue.title = title
@@ -140,22 +141,22 @@ def issue_edit(request, username, slug, issue_number):
         if old_title != title:
             IssueEvent.objects.create(
                 issue=issue,
-                event_type='renamed',
+                event_type="renamed",
                 actor=request.user,
-                metadata={'old_title': old_title, 'new_title': title}
+                metadata={"old_title": old_title, "new_title": title},
             )
 
-        messages.success(request, f'Issue #{issue.number} updated successfully')
+        messages.success(request, f"Issue #{issue.number} updated successfully")
         return redirect(issue.get_absolute_url())
 
     # GET request - show form
     context = {
-        'project': project,
-        'issue': issue,
-        'edit_mode': True,
+        "project": project,
+        "issue": issue,
+        "edit_mode": True,
     }
 
-    return render(request, 'project_app/issues/form.html', context)
+    return render(request, "project_app/issues/form.html", context)
 
 
 @login_required
@@ -168,24 +169,22 @@ def issue_comment_create(request, username, slug, issue_number):
 
     # Check permissions
     if not issue.can_comment(request.user):
-        messages.error(request, 'You do not have permission to comment on this issue')
+        messages.error(request, "You do not have permission to comment on this issue")
         return redirect(issue.get_absolute_url())
 
-    if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
 
         if not content:
-            messages.error(request, 'Comment content is required')
+            messages.error(request, "Comment content is required")
             return redirect(issue.get_absolute_url())
 
         # Create comment
         comment = IssueComment.objects.create(
-            issue=issue,
-            author=request.user,
-            content=content
+            issue=issue, author=request.user, content=content
         )
 
-        messages.success(request, 'Comment added successfully')
-        return redirect(issue.get_absolute_url() + f'#comment-{comment.id}')
+        messages.success(request, "Comment added successfully")
+        return redirect(issue.get_absolute_url() + f"#comment-{comment.id}")
 
     return redirect(issue.get_absolute_url())

@@ -1,68 +1,64 @@
 <!-- Progressive Loading Status - Search Engine Queue -->
 <div id="progressiveLoadingStatus" class="u-hidden mb-4">
-  <div class="scitex-card">
-    <div class="scitex-card-header d-flex justify-content-between align-items-center">
-      <h4 class="mb-0">
-        Search Engine Queue Status
-      </h4>
-      <small class="text-muted" id="searchQueueTimestamp">Loading...</small>
+    <div class="scitex-card">
+        <div class="scitex-card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Search Engine Queue Status</h4>
+            <small class="text-muted" id="searchQueueTimestamp">Loading...</small>
+        </div>
+        <div class="scitex-card-body">
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <span class="fw-bold">Active Searches</span>
+                        <span class="badge bg-primary" id="activeSearchCount">0</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <span class="fw-bold">Total Results</span>
+                        <span class="badge bg-success" id="totalResultsCount">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-3">
+                <div class="progress-source" data-source="crossref">
+                    <span class="badge bg-secondary">CrossRef</span>
+                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="count ms-2 fw-bold">0</span>
+                </div>
+                <div class="progress-source" data-source="pubmed">
+                    <span class="badge bg-secondary">PubMed</span>
+                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="count ms-2 fw-bold">0</span>
+                </div>
+                <div class="progress-source" data-source="semantic">
+                    <span class="badge bg-secondary">Semantic Scholar</span>
+                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="count ms-2 fw-bold">0</span>
+                </div>
+                <div class="progress-source" data-source="arxiv">
+                    <span class="badge bg-secondary">arXiv</span>
+                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="count ms-2 fw-bold">0</span>
+                </div>
+                <div class="progress-source" data-source="openalex">
+                    <span class="badge bg-secondary">OpenAlex</span>
+                    <div class="spinner-border spinner-border-sm ms-2" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="count ms-2 fw-bold">0</span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="scitex-card-body">
-      <div class="row g-2 mb-3">
-        <div class="col-md-6">
-          <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-            <span class="fw-bold">Active Searches</span>
-            <span class="badge bg-primary" id="activeSearchCount">0</span>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
-            <span class="fw-bold">Total Results</span>
-            <span class="badge bg-success" id="totalResultsCount">0</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex flex-wrap gap-3">
-        <div class="progress-source" data-source="crossref">
-          <span class="badge bg-secondary">CrossRef</span>
-          <div class="spinner-border spinner-border-sm ms-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <span class="count ms-2 fw-bold">0</span>
-        </div>
-        <div class="progress-source" data-source="pubmed">
-          <span class="badge bg-secondary">PubMed</span>
-          <div class="spinner-border spinner-border-sm ms-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <span class="count ms-2 fw-bold">0</span>
-        </div>
-        <div class="progress-source" data-source="semantic">
-          <span class="badge bg-secondary">Semantic Scholar</span>
-          <div class="spinner-border spinner-border-sm ms-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <span class="count ms-2 fw-bold">0</span>
-        </div>
-        <div class="progress-source" data-source="arxiv">
-          <span class="badge bg-secondary">arXiv</span>
-          <div class="spinner-border spinner-border-sm ms-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <span class="count ms-2 fw-bold">0</span>
-        </div>
-        <div class="progress-source" data-source="openalex">
-          <span class="badge bg-secondary">OpenAlex</span>
-          <div class="spinner-border spinner-border-sm ms-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <span class="count ms-2 fw-bold">0</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-
 <!-- Progressive Results Container -->
 <div id="progressiveResults" class="u-hidden"></div>

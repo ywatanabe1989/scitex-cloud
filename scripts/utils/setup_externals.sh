@@ -23,7 +23,7 @@ for component in "${!COMPONENTS[@]}"; do
     if [ -d "$component" ]; then
         echo "📦 Updating $component..."
         cd "$component"
-        git pull origin main 2>/dev/null || git pull origin master 2>/dev/null || echo "⚠️  Could not update $component"
+        git pull origin main 2> /dev/null || git pull origin master 2> /dev/null || echo "⚠️  Could not update $component"
         cd ..
     else
         echo "📥 Cloning $component..."

@@ -1,0 +1,207 @@
+/* =============================================================================
+ * CTA (Call to Action) Components
+ * =============================================================================
+ * Reusable button styles for primary actions like Sign Up, Get Started, etc.
+ * Uses --color-cta from primitives/colors.css
+ * ============================================================================= */
+
+/* Base CTA Button */
+.btn-cta {
+  /* display: inline-flex;
+   * align-items: center;
+   * justify-content: center;
+   * gap: 0.5rem;
+   * padding: 0.75rem 1.75rem; */
+  background: var(--color-cta) !important;
+  color: white !important;
+  /* border: none;
+   * border-radius: 8px;
+   * font-size: 1rem;
+   * font-weight: 600;
+   * text-decoration: none;
+   * cursor: pointer;
+   * transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+   * box-shadow: 0 2px 8px var(--color-cta-subtle);
+   * white-space: nowrap; */
+}
+
+.btn-cta:hover {
+  background: var(--color-cta-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px var(--color-cta-subtle) !important;
+  color: white;
+}
+
+.btn-cta:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 4px var(--color-cta-subtle) !important;
+}
+
+.btn-cta:focus-visible {
+  outline: 2px solid var(--color-cta) !important;
+  outline-offset: 2px;
+}
+
+/* /\* CTA Sizes *\/
+ * .btn-cta-sm {
+ *   padding: 0.5rem 1.25rem;
+ *   font-size: 0.875rem;
+ * }
+ *
+ * .btn-cta-lg {
+ *   padding: 1rem 2.25rem;
+ *   font-size: 1.125rem;
+ * }
+ *
+ * .btn-cta-xl {
+ *   padding: 1.25rem 2.75rem;
+ *   font-size: 1.25rem;
+ * } */
+
+/* CTA Variants */
+
+/* Outline CTA */
+.btn-cta-outline {
+  background: transparent;
+  color: var(--color-cta);
+  border: 2px solid var(--color-cta);
+  box-shadow: none;
+}
+
+.btn-cta-outline:hover {
+  background: var(--color-cta-subtle);
+  color: var(--color-cta);
+  border-color: var(--color-cta-hover);
+  box-shadow: 0 4px 12px var(--color-cta-subtle);
+}
+
+/* Subtle/Soft CTA */
+.btn-cta-soft {
+  background: var(--color-cta-subtle);
+  color: var(--color-cta);
+  box-shadow: none;
+}
+
+.btn-cta-soft:hover {
+  background: var(--color-cta);
+  color: white;
+  box-shadow: 0 4px 12px var(--color-cta-subtle);
+}
+
+/* Full Width CTA */
+.btn-cta-full {
+  width: 100%;
+}
+
+/* CTA with Icon */
+.btn-cta i {
+  font-size: 1.1em;
+  transition: transform 0.2s ease;
+}
+
+.btn-cta:hover i.fa-arrow-right {
+  transform: translateX(3px);
+}
+
+.btn-cta:hover i.fa-external-link-alt {
+  transform: translate(2px, -2px);
+}
+
+/* Disabled State */
+.btn-cta:disabled,
+.btn-cta.disabled {
+  background: var(--color-border-muted);
+  color: var(--color-fg-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.btn-cta:disabled:hover,
+.btn-cta.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* CTA Group - Multiple CTAs side by side */
+.cta-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.cta-group-center {
+  justify-content: center;
+}
+
+.cta-group-start {
+  justify-content: flex-start;
+}
+
+.cta-group-end {
+  justify-content: flex-end;
+}
+
+/* Loading State */
+.btn-cta.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.btn-cta.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid white;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: btn-cta-spin 0.6s linear infinite;
+}
+
+@keyframes btn-cta-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .btn-cta {
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+[data-theme="dark"] .btn-cta:hover {
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+[data-theme="dark"] .btn-cta-soft {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-cta {
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .btn-cta-lg {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+
+  .cta-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cta-group .btn-cta {
+    width: 100%;
+  }
+}

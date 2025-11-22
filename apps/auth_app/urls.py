@@ -5,9 +5,8 @@
 # ----------------------------------------
 from __future__ import annotations
 import os
-__FILE__ = (
-    "./apps/auth_app/urls.py"
-)
+
+__FILE__ = "./apps/auth_app/urls.py"
 __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
@@ -51,12 +50,14 @@ urlpatterns = [
         views.api_save_theme_preference,
         name="api-save-theme",
     ),
-    path(
-        "api/get-theme/", views.api_get_theme_preference, name="api-get-theme"
-    ),
+    path("api/get-theme/", views.api_get_theme_preference, name="api-get-theme"),
     # Account switcher (multi-account support)
     path("switch/<int:user_id>/", views.switch_account, name="switch-account"),
-    path("api/authenticated-accounts/", views.get_authenticated_accounts, name="api-authenticated-accounts"),
+    path(
+        "api/authenticated-accounts/",
+        views.get_authenticated_accounts,
+        name="api-authenticated-accounts",
+    ),
 ]
 
 # EOF

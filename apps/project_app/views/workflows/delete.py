@@ -5,6 +5,7 @@ Workflow Delete View
 
 Handle workflow deletion.
 """
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -12,6 +13,7 @@ from django.http import HttpResponseForbidden
 import logging
 
 from apps.project_app.models import Project
+
 # TODO: Uncomment when workflow models are available
 # from apps.project_app.models import Workflow
 from .utils import delete_workflow_from_filesystem
@@ -33,7 +35,7 @@ def workflow_delete(request, username, slug, workflow_id):
     if not project.can_edit(request.user):
         return HttpResponseForbidden("You don't have permission to edit this project")
 
-    if request.method == 'POST':
+    if request.method == "POST":
         workflow_name = workflow.name
         workflow.delete()
 
@@ -41,14 +43,14 @@ def workflow_delete(request, username, slug, workflow_id):
         delete_workflow_from_filesystem(project, workflow)
 
         messages.success(request, f"Workflow '{workflow_name}' deleted successfully")
-        return redirect('user_projects:actions_list', username=username, slug=slug)
+        return redirect("user_projects:actions_list", username=username, slug=slug)
 
     context = {
-        'project': project,
-        'workflow': workflow,
+        "project": project,
+        "workflow": workflow,
     }
 
-    return render(request, 'project_app/workflows/delete_confirm.html', context)
+    return render(request, "project_app/workflows/delete_confirm.html", context)
 
 
 # EOF

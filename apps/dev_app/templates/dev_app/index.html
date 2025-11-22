@@ -1,142 +1,173 @@
 {% extends "global_base.html" %}
 {% load static %}
-
-{% block title %}Developer Tools - SciTeX{% endblock %}
-
-{% block meta_description %}Developer tools and resources for the SciTeX platform{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'dev_app/css/dev-index.css' %}">
+{% block title %}
+    Developer
+    Tools - SciTeX
 {% endblock %}
-
+{% block meta_description %}
+    Developer tools and
+    resources for the SciTeX platform
+{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'dev_app/css/dev-index.css' %}" />
+{% endblock %}
 {% block content %}
-<!-- Hero Section -->
-<section class="dev-hero">
-  <div class="container">
-    <h1 class="display-4 mb-3">
-      <i class="fas fa-tools"></i> Developer Tools
-    </h1>
-    <p class="lead">Resources and tools for building with SciTeX</p>
-  </div>
-</section>
-
-<!-- Tools Grid -->
-<div class="container py-5">
-  <div class="row">
-    <!-- Design System -->
-    <div class="col-md-6 col-lg-4">
-      <div class="dev-card">
-        <h3>
-          <i class="fas fa-palette dev-icon"></i>
-          Design System
-        </h3>
-        <p>Comprehensive design guidelines, color palettes, components, and patterns for consistent SciTeX interfaces.</p>
-        <a href="/dev/design/" class="btn btn-primary">
-          <i class="fas fa-arrow-right"></i> View Design System
-        </a>
-      </div>
-    </div>
-
-    <!-- API Documentation -->
-    <div class="col-md-6 col-lg-4">
-      <div class="dev-card">
-        <h3>
-          <i class="fas fa-code dev-icon"></i>
-          API Docs
-        </h3>
-        <p>RESTful API endpoints, authentication, request/response formats, and integration examples.</p>
-        <a href="/api-docs/" class="btn btn-outline-primary">
-          <i class="fas fa-arrow-right"></i> View API Docs
-        </a>
-      </div>
-    </div>
-
-    <!-- Component Library -->
-    <div class="col-md-6 col-lg-4">
-      <div class="dev-card">
-        <h3>
-          <i class="fas fa-puzzle-piece dev-icon"></i>
-          Components
-        </h3>
-        <p>Reusable UI components, code snippets, and templates for rapid development.</p>
-        <a href="/dev/design/#components" class="btn btn-outline-primary">
-          <i class="fas fa-arrow-right"></i> View Components
-        </a>
-      </div>
-    </div>
-
-    <!-- GitHub Repository -->
-    <div class="col-md-6 col-lg-4">
-      <div class="dev-card">
-        <h3>
-          <i class="fab fa-github dev-icon"></i>
-          Source Code
-        </h3>
-        <p>Explore the SciTeX ecosystem on GitHub. Contribute, report issues, or fork for your own projects.</p>
-        <a href="https://github.com/SciTeX-AI" target="_blank" class="btn btn-outline-primary">
-          <i class="fab fa-github"></i> Visit GitHub
-        </a>
-      </div>
-    </div>
-
-    <!-- Module Icons -->
-    <div class="col-md-6 col-lg-4">
-      <div class="dev-card">
-        <h3>
-          <i class="fas fa-icons dev-icon"></i>
-          Module Icons
-        </h3>
-        <p>Official SciTeX module icons (SVG & emoji), usage guidelines, and branding assets.</p>
-        <a href="/dev/design/#module-icons" class="btn btn-outline-primary">
-          <i class="fas fa-arrow-right"></i> View Icons
-        </a>
-      </div>
-    </div>
-
-    <!-- Theme System -->
-    <div class="col-md-6 col-lg-4">
-      <div class="dev-card">
-        <h3>
-          <i class="fas fa-adjust dev-icon"></i>
-          Theme System
-        </h3>
-        <p>Light/dark mode implementation, CSS variables, and theme customization guide.</p>
-        <a href="/dev/design/#theme" class="btn btn-outline-primary">
-          <i class="fas fa-arrow-right"></i> View Theme
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Links -->
-  <div class="row mt-5">
-    <div class="col-12">
-      <div class="dev-quick-links">
-        <h2 class="mb-4">
-          <i class="fas fa-link"></i> Quick Links
-        </h2>
-        <div class="row">
-          <div class="col-md-6">
-            <h4>Design Resources</h4>
-            <ul>
-              <li><a href="/dev/design/#colors">Color Palette</a></li>
-              <li><a href="/dev/design/#typography">Typography</a></li>
-              <li><a href="/dev/design/#spacing">Spacing System</a></li>
-              <li><a href="/dev/design/#hero-designs">Hero Designs</a></li>
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <h4>Developer Resources</h4>
-            <ul>
-              <li><a href="https://github.com/SciTeX-AI" target="_blank">GitHub Organization</a></li>
-              <li><a href="/api-docs/">API Documentation</a></li>
-              <li><a href="/dev/design/#guidelines">Usage Guidelines</a></li>
-              <li><a href="/contact/">Contact Support</a></li>
-            </ul>
-          </div>
+    <!-- Hero Section -->
+    <section class="dev-hero">
+        <div class="container">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-tools"></i> Developer Tools
+            </h1>
+            <p class="lead">Resources and tools for building with SciTeX</p>
         </div>
-      </div>
+    </section>
+    <!-- Tools Grid -->
+    <div class="container py-5">
+        <div class="row">
+            <!-- Design System -->
+            <div class="col-md-6 col-lg-4">
+                <div class="dev-card">
+                    <h3>
+                        <i class="fas fa-palette dev-icon"></i>
+                        Design System
+                    </h3>
+                    <p>
+                        Comprehensive design guidelines, color palettes, components, and
+                        patterns for consistent SciTeX interfaces.
+                    </p>
+                    <a href="/dev/design/" class="btn btn-primary">
+                        <i class="fas fa-arrow-right"></i> View Design System
+                    </a>
+                </div>
+            </div>
+            <!-- API Documentation -->
+            <div class="col-md-6 col-lg-4">
+                <div class="dev-card">
+                    <h3>
+                        <i class="fas fa-code dev-icon"></i>
+                        API Docs
+                    </h3>
+                    <p>
+                        RESTful API endpoints, authentication, request/response formats, and
+                        integration examples.
+                    </p>
+                    <a href="/api-docs/" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right"></i> View API Docs
+                    </a>
+                </div>
+            </div>
+            <!-- Component Library -->
+            <div class="col-md-6 col-lg-4">
+                <div class="dev-card">
+                    <h3>
+                        <i class="fas fa-puzzle-piece dev-icon"></i>
+                        Components
+                    </h3>
+                    <p>
+                        Reusable UI components, code snippets, and templates for rapid
+                        development.
+                    </p>
+                    <a href="/dev/design/#components" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right"></i> View Components
+                    </a>
+                </div>
+            </div>
+            <!-- GitHub Repository -->
+            <div class="col-md-6 col-lg-4">
+                <div class="dev-card">
+                    <h3>
+                        <i class="fab fa-github dev-icon"></i>
+                        Source Code
+                    </h3>
+                    <p>
+                        Explore the SciTeX ecosystem on GitHub. Contribute, report issues, or
+                        fork for your own projects.
+                    </p>
+                    <a href="https://github.com/SciTeX-AI"
+                       target="_blank"
+                       class="btn btn-outline-primary">
+                        <i class="fab fa-github"></i> Visit GitHub
+                    </a>
+                </div>
+            </div>
+            <!-- Module Icons -->
+            <div class="col-md-6 col-lg-4">
+                <div class="dev-card">
+                    <h3>
+                        <i class="fas fa-icons dev-icon"></i>
+                        Module Icons
+                    </h3>
+                    <p>
+                        Official SciTeX module icons (SVG & emoji), usage guidelines, and
+                        branding assets.
+                    </p>
+                    <a href="/dev/design/#module-icons" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right"></i> View Icons
+                    </a>
+                </div>
+            </div>
+            <!-- Theme System -->
+            <div class="col-md-6 col-lg-4">
+                <div class="dev-card">
+                    <h3>
+                        <i class="fas fa-adjust dev-icon"></i>
+                        Theme System
+                    </h3>
+                    <p>
+                        Light/dark mode implementation, CSS variables, and theme customization
+                        guide.
+                    </p>
+                    <a href="/dev/design/#theme" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right"></i> View Theme
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Quick Links -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="dev-quick-links">
+                    <h2 class="mb-4">
+                        <i class="fas fa-link"></i> Quick Links
+                    </h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4>Design Resources</h4>
+                            <ul>
+                                <li>
+                                    <a href="/dev/design/#colors">Color Palette</a>
+                                </li>
+                                <li>
+                                    <a href="/dev/design/#typography">Typography</a>
+                                </li>
+                                <li>
+                                    <a href="/dev/design/#spacing">Spacing System</a>
+                                </li>
+                                <li>
+                                    <a href="/dev/design/#hero-designs">Hero Designs</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>Developer Resources</h4>
+                            <ul>
+                                <li>
+                                    <a href="https://github.com/SciTeX-AI" target="_blank">GitHub Organization</a>
+                                </li>
+                                <li>
+                                    <a href="/api-docs/">API Documentation</a>
+                                </li>
+                                <li>
+                                    <a href="/dev/design/#guidelines">Usage Guidelines</a>
+                                </li>
+                                <li>
+                                    <a href="/contact/">Contact Support</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 {% endblock %}

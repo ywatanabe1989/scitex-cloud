@@ -1,11 +1,10 @@
 {% extends 'global_base.html' %}
 {% load static %}
-
 {% block title %}API Keys - Settings - SciTeX Cloud{% endblock %}
-
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'shared/css/layouts/settings-layout.css' %}">
-<style>
+    <link rel="stylesheet"
+          href="{% static 'shared/css/layouts/settings-layout.css' %}">
+    <style>
 /* API keys page-specific styles */
 .settings-content {
     max-width: 800px;
@@ -124,188 +123,196 @@
     color: var(--color-fg-muted);
     margin: 0;
 }
-</style>
+    </style>
 {% endblock %}
-
 {% block content %}
-<div class="settings-page">
-    <div class="settings-layout">
-        <!-- Left Navigation -->
-        <aside class="settings-nav">
-            {% include 'accounts_app/partials/settings_nav.html' with active='api_keys' %}
-        </aside>
-
-    <!-- Main Content -->
-    <main class="settings-content">
-        <div class="settings-header">
-            <h1 class="settings-title">Personal access tokens</h1>
-            <p class="settings-subtitle">
-                Tokens you have generated that can be used to access the SciTeX Cloud API.
-            </p>
-        </div>
-
-        <!-- New Key Alert (shown once after creation) -->
-        {% if new_api_key %}
-        <div class="alert-banner alert-banner-success" style="margin-bottom: 2rem;">
-          <div class="warning-banner-container">
-            <div class="warning-banner-content">
-              <i class="warning-banner-icon fas fa-check-circle"></i>
-              <div class="warning-banner-text">
-                <div class="warning-banner-title">API Key Created: {{ new_api_key_name }}</div>
-                <div class="warning-banner-description">
-                  Copy this key now. You won't be able to see it again!
-                  <div class="new-key-display" id="new-api-key" style="margin: 1rem 0;">{{ new_api_key }}</div>
-                  <button onclick="copyNewAPIKey(event)" class="btn btn-sm btn-primary">
-                    <i class="fas fa-copy"></i> Copy Key
-                  </button>
+    <div class="settings-page">
+        <div class="settings-layout">
+            <!-- Left Navigation -->
+            <aside class="settings-nav">
+                {% include 'accounts_app/partials/settings_nav.html' with active='api_keys' %}
+            </aside>
+            <!-- Main Content -->
+            <main class="settings-content">
+                <div class="settings-header">
+                    <h1 class="settings-title">Personal access tokens</h1>
+                    <p class="settings-subtitle">Tokens you have generated that can be used to access the SciTeX Cloud API.</p>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-
-        <!-- Create New Key Form -->
-        <details {% if not api_keys %}open{% endif %} style="margin-bottom: 2rem;">
-            <summary style="cursor: pointer; font-weight: 600; padding: 1rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 6px;">
-                <i class="fas fa-plus" style="margin-right: 0.5rem;"></i> Generate new token
-            </summary>
-            <div class="create-form" style="margin-top: 1rem;">
-                <form method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="create">
-
-                    <div class="form-group">
-                        <label for="key-name">Key Name *</label>
-                        <input type="text" class="form-control" id="key-name" name="name" required
-                               placeholder="e.g., CLI Tool, GitHub Actions, Personal Script">
-                        <small style="color: var(--color-fg-muted);">A descriptive name to help you remember what this key is for.</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Permissions (Scopes)</label>
-                        <div class="checkbox-group">
-                            <label>
-                                <input type="checkbox" name="scopes" value="*" checked>
-                                <span>Full Access (All permissions)</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" name="scopes" value="project:read">
-                                <span>Read Projects</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" name="scopes" value="project:write">
-                                <span>Write Projects</span>
-                            </label>
-                            <label>
-                                <input type="checkbox" name="scopes" value="scholar:read">
-                                <span>Read Scholar Data</span>
-                            </label>
+                <!-- New Key Alert (shown once after creation) -->
+                {% if new_api_key %}
+                    <div class="alert-banner alert-banner-success" style="margin-bottom: 2rem">
+                        <div class="warning-banner-container">
+                            <div class="warning-banner-content">
+                                <i class="warning-banner-icon fas fa-check-circle"></i>
+                                <div class="warning-banner-text">
+                                    <div class="warning-banner-title">API Key Created: {{ new_api_key_name }}</div>
+                                    <div class="warning-banner-description">
+                                        Copy this key now. You won't be able to see it again!
+                                        <div class="new-key-display" id="new-api-key" style="margin: 1rem 0;">{{ new_api_key }}</div>
+                                        <button onclick="copyNewAPIKey(event)" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-copy"></i> Copy Key
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <small style="color: var(--color-fg-muted);">Select which parts of your account this key can access.</small>
                     </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        Generate token
-                    </button>
-                </form>
-            </div>
-        </details>
-
-        <!-- Existing Keys List -->
-        {% if api_keys %}
-        <h2 style="margin-bottom: 1rem; font-size: 16px; font-weight: 600;">Active tokens</h2>
-        {% endif %}
-
-        {% if api_keys %}
-        {% for key in api_keys %}
-        <div class="api-key-card">
-            <div class="key-header">
-                <div>
-                    <h3 style="margin: 0;">{{ key.name }}</h3>
-                    <div class="key-prefix" style="margin-top: 0.5rem;">{{ key.key_prefix }}••••••••••••••••</div>
-                </div>
-                <span class="key-status {% if key.is_active %}active{% else %}inactive{% endif %}">
-                    {% if key.is_active %}Active{% else %}Inactive{% endif %}
-                </span>
-            </div>
-
-            <div style="font-size: 0.9rem; color: var(--color-fg-muted); margin-bottom: 1rem;">
-                <strong>Scopes:</strong>
-                {% if '*' in key.scopes %}
-                    Full Access
+                {% endif %}
+                <!-- Create New Key Form -->
+                <details {% if not api_keys %}open{% endif %} style="margin-bottom: 2rem;">
+                    <summary style="cursor: pointer;
+                                    font-weight: 600;
+                                    padding: 1rem;
+                                    background: var(--color-canvas-subtle);
+                                    border: 1px solid var(--color-border-default);
+                                    border-radius: 6px">
+                        <i class="fas fa-plus" style="margin-right: 0.5rem;"></i> Generate new token
+                    </summary>
+                    <div class="create-form" style="margin-top: 1rem;">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="create">
+                            <div class="form-group">
+                                <label for="key-name">Key Name *</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="key-name"
+                                       name="name"
+                                       required
+                                       placeholder="e.g., CLI Tool, GitHub Actions, Personal Script">
+                                <small style="color: var(--color-fg-muted);">A descriptive name to help you remember what this key is for.</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Permissions (Scopes)</label>
+                                <div class="checkbox-group">
+                                    <label>
+                                        <input type="checkbox" name="scopes" value="*" checked>
+                                        <span>Full Access (All permissions)</span>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="scopes" value="project:read">
+                                        <span>Read Projects</span>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="scopes" value="project:write">
+                                        <span>Write Projects</span>
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="scopes" value="scholar:read">
+                                        <span>Read Scholar Data</span>
+                                    </label>
+                                </div>
+                                <small style="color: var(--color-fg-muted);">Select which parts of your account this key can access.</small>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Generate token</button>
+                        </form>
+                    </div>
+                </details>
+                <!-- Existing Keys List -->
+                {% if api_keys %}<h2 style="margin-bottom: 1rem; font-size: 16px; font-weight: 600;">Active tokens</h2>{% endif %}
+                {% if api_keys %}
+                    {% for key in api_keys %}
+                        <div class="api-key-card">
+                            <div class="key-header">
+                                <div>
+                                    <h3 style="margin: 0;">{{ key.name }}</h3>
+                                    <div class="key-prefix" style="margin-top: 0.5rem;">{{ key.key_prefix }}••••••••••••••••</div>
+                                </div>
+                                <span class="key-status {% if key.is_active %}active{% else %}inactive{% endif %}">
+                                    {% if key.is_active %}
+                                        Active
+                                    {% else %}
+                                        Inactive
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div style="font-size: 0.9rem;
+                                        color: var(--color-fg-muted);
+                                        margin-bottom: 1rem">
+                                <strong>Scopes:</strong>
+                                {% if '*' in key.scopes %}
+                                    Full Access
+                                {% else %}
+                                    {{ key.scopes|join:", " }}
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 0.85rem;
+                                        color: var(--color-fg-muted);
+                                        margin-bottom: 1rem">
+                                <p style="margin: 0.25rem 0;">
+                                    <strong>Created:</strong> {{ key.created_at|date:"Y-m-d H:i" }}
+                                </p>
+                                {% if key.last_used_at %}
+                                    <p style="margin: 0.25rem 0;">
+                                        <strong>Last used:</strong> {{ key.last_used_at|date:"Y-m-d H:i" }}
+                                    </p>
+                                {% else %}
+                                    <p style="margin: 0.25rem 0;">
+                                        <strong>Last used:</strong> Never
+                                    </p>
+                                {% endif %}
+                                {% if key.expires_at %}
+                                    <p style="margin: 0.25rem 0;">
+                                        <strong>Expires:</strong> {{ key.expires_at|date:"Y-m-d H:i" }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <form method="POST" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="toggle">
+                                    <input type="hidden" name="key_id" value="{{ key.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        {% if key.is_active %}
+                                            ⏸️ Deactivate
+                                        {% else %}
+                                            ▶️ Activate
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <form method="POST"
+                                      style="display: inline"
+                                      onsubmit="return confirm('Are you sure you want to delete this API key? Applications using it will stop working.');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="key_id" value="{{ key.id }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
                 {% else %}
-                    {{ key.scopes|join:", " }}
+                    <div style="padding: 2rem;
+                                border: 1px solid var(--color-border-default);
+                                border-radius: 6px;
+                                background: var(--color-canvas-default);
+                                margin-bottom: 2rem">
+                        <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600;">
+                            You don't have any personal access tokens yet.
+                        </h3>
+                        <p style="color: var(--color-fg-muted); margin: 0; font-size: 14px;">
+                            Generate a token above to access the SciTeX Cloud API programmatically.
+                        </p>
+                    </div>
                 {% endif %}
-            </div>
-
-            <div style="font-size: 0.85rem; color: var(--color-fg-muted); margin-bottom: 1rem;">
-                <p style="margin: 0.25rem 0;">
-                    <strong>Created:</strong> {{ key.created_at|date:"Y-m-d H:i" }}
-                </p>
-                {% if key.last_used_at %}
-                <p style="margin: 0.25rem 0;">
-                    <strong>Last used:</strong> {{ key.last_used_at|date:"Y-m-d H:i" }}
-                </p>
-                {% else %}
-                <p style="margin: 0.25rem 0;">
-                    <strong>Last used:</strong> Never
-                </p>
-                {% endif %}
-                {% if key.expires_at %}
-                <p style="margin: 0.25rem 0;">
-                    <strong>Expires:</strong> {{ key.expires_at|date:"Y-m-d H:i" }}
-                </p>
-                {% endif %}
-            </div>
-
-            <div style="display: flex; gap: 0.5rem;">
-                <form method="POST" style="display: inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="toggle">
-                    <input type="hidden" name="key_id" value="{{ key.id }}">
-                    <button type="submit" class="btn btn-sm btn-outline-primary">
-                        {% if key.is_active %}⏸️ Deactivate{% else %}▶️ Activate{% endif %}
-                    </button>
-                </form>
-
-                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this API key? Applications using it will stop working.');">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="key_id" value="{{ key.id }}">
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        🗑️ Delete
-                    </button>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div style="padding: 2rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); margin-bottom: 2rem;">
-            <h3 style="margin: 0 0 0.5rem 0; font-size: 16px; font-weight: 600;">You don't have any personal access tokens yet.</h3>
-            <p style="color: var(--color-fg-muted); margin: 0; font-size: 14px;">
-                Generate a token above to access the SciTeX Cloud API programmatically.
-            </p>
-        </div>
-        {% endif %}
-
-        <!-- Usage Instructions -->
-        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--color-canvas-subtle); border-radius: 6px; border-left: 3px solid #007acc;">
-            <h3 style="margin-top: 0;">How to use API keys</h3>
-            <p>Include your API key in the Authorization header of your HTTP requests:</p>
-            <pre style="background: #000; color: #0f0; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>curl -H "Authorization: Bearer scitex_your_key_here" \
-     https://scitex.ai/api/projects/</code></pre>
-
-            <p style="margin-top: 1rem;">Or in Python:</p>
-            <pre style="background: #000; color: #0f0; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>import requests
-
+                <!-- Usage Instructions -->
+                <div style="margin-top: 2rem;
+                            padding: 1.5rem;
+                            background: var(--color-canvas-subtle);
+                            border-radius: 6px;
+                            border-left: 3px solid #007acc">
+                    <h3 style="margin-top: 0;">How to use API keys</h3>
+                    <p>Include your API key in the Authorization header of your HTTP requests:</p>
+                    <pre style="background: #000; color: #0f0; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>curl -H "Authorization: Bearer scitex_your_key_here" \
+https://scitex.ai/api/projects/</code></pre>
+                    <p style="margin-top: 1rem;">Or in Python:</p>
+                    <pre style="background: #000; color: #0f0; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>import requests
 headers = {"Authorization": "Bearer scitex_your_key_here"}
 response = requests.get("https://scitex.ai/api/projects/", headers=headers)</code></pre>
-        </main>
-    </div>
-</div>
-
-<script>
+                </main>
+            </div>
+        </div>
+        <script>
 function copyNewAPIKey(event) {
     event.preventDefault();
     const keyElement = document.getElementById('new-api-key');
@@ -322,5 +329,5 @@ function copyNewAPIKey(event) {
         alert('Failed to copy: ' + err);
     });
 }
-</script>
-{% endblock %}
+        </script>
+    {% endblock %}

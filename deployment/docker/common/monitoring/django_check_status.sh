@@ -10,7 +10,7 @@ THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
 LOG_PATH="$THIS_DIR/.$(basename $0).log"
 echo > "$LOG_PATH"
 
-GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+GIT_ROOT="$(git rev-parse --show-toplevel 2> /dev/null)"
 DOCKER_DIR="$GIT_ROOT/deployment/docker/docker_dev"
 
 # Colors
@@ -43,7 +43,7 @@ check_django_status() {
     # Container status
     echo_info "Container Status:"
     if docker-compose -f docker-compose.dev.yml ps | grep -q "docker_web_1"; then
-        STATUS=$(docker-compose -f docker-compose.dev.yml ps docker_web_1 2>/dev/null | grep docker_web_1 | awk '{print $4}')
+        STATUS=$(docker-compose -f docker-compose.dev.yml ps docker_web_1 2> /dev/null | grep docker_web_1 | awk '{print $4}')
 
         if echo "$STATUS" | grep -q "Up"; then
             echo_success "  ✓ Container running"
@@ -72,7 +72,7 @@ check_django_status() {
 
     # Port bindings
     echo_info "Port Bindings:"
-    docker port docker_web_1 2>/dev/null | while read line; do
+    docker port docker_web_1 2> /dev/null | while read line; do
         echo_info "  $line"
     done
     echo
@@ -81,7 +81,7 @@ check_django_status() {
     echo_info "Web Server:"
     HTTP_PORT="${SCITEX_CLOUD_HTTP_PORT_DEV:-8000}"
 
-    if curl -f -s "http://localhost:$HTTP_PORT" >/dev/null 2>&1; then
+    if curl -f -s "http://localhost:$HTTP_PORT" > /dev/null 2>&1; then
         echo_success "  ✓ Django accessible at http://localhost:$HTTP_PORT"
 
         # Check admin
@@ -98,11 +98,11 @@ check_django_status() {
     # Django settings
     echo_info "Django Configuration:"
     SETTINGS_MODULE=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python -c "import os; print(os.getenv('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'Not set'))" 2>/dev/null)
+        python -c "import os; print(os.getenv('SCITEX_CLOUD_DJANGO_SETTINGS_MODULE', 'Not set'))" 2> /dev/null)
     echo_info "  Settings module: $SETTINGS_MODULE"
 
     DEBUG_MODE=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python manage.py shell -c "from django.conf import settings; print(settings.DEBUG)" 2>/dev/null | tail -1)
+        python manage.py shell -c "from django.conf import settings; print(settings.DEBUG)" 2> /dev/null | tail -1)
     echo_info "  Debug mode: $DEBUG_MODE"
     echo
 
@@ -117,7 +117,7 @@ try:
     print('Connected')
 except Exception as e:
     print(f'Failed: {e}')
-" 2>/dev/null | tail -1)
+" 2> /dev/null | tail -1)
 
     if echo "$DB_CHECK" | grep -q "Connected"; then
         echo_success "  ✓ Database connection successful"
@@ -130,7 +130,7 @@ except Exception as e:
     # Migrations status
     echo_info "Migrations:"
     UNAPPLIED=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python manage.py showmigrations --plan 2>/dev/null | grep -c "\[ \]" || echo "0")
+        python manage.py showmigrations --plan 2> /dev/null | grep -c "\[ \]" || echo "0")
 
     if [ "$UNAPPLIED" -eq 0 ]; then
         echo_success "  ✓ All migrations applied"
@@ -143,7 +143,7 @@ except Exception as e:
     # Installed apps
     echo_info "Installed Apps:"
     APP_COUNT=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python manage.py shell -c "from django.conf import settings; print(len(settings.INSTALLED_APPS))" 2>/dev/null | tail -1)
+        python manage.py shell -c "from django.conf import settings; print(len(settings.INSTALLED_APPS))" 2> /dev/null | tail -1)
     echo_info "  Total apps: $APP_COUNT"
 
     # Custom apps (apps under 'apps' directory)
@@ -154,17 +154,17 @@ from django.conf import settings
 custom_apps = [app for app in settings.INSTALLED_APPS if app.startswith('apps.')]
 for app in custom_apps:
     print(f'    - {app}')
-" 2>/dev/null | grep "apps\."
+" 2> /dev/null | grep "apps\."
     echo
 
     # Static files
     echo_info "Static Files:"
     STATIC_ROOT=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python manage.py shell -c "from django.conf import settings; print(settings.STATIC_ROOT)" 2>/dev/null | tail -1)
+        python manage.py shell -c "from django.conf import settings; print(settings.STATIC_ROOT)" 2> /dev/null | tail -1)
     echo_info "  Static root: $STATIC_ROOT"
 
     STATIC_URL=$(docker-compose -f docker-compose.dev.yml exec -T web \
-        python manage.py shell -c "from django.conf import settings; print(settings.STATIC_URL)" 2>/dev/null | tail -1)
+        python manage.py shell -c "from django.conf import settings; print(settings.STATIC_URL)" 2> /dev/null | tail -1)
     echo_info "  Static URL: $STATIC_URL"
     echo
 
@@ -175,7 +175,7 @@ for app in custom_apps:
 from django.contrib.auth import get_user_model
 User = get_user_model()
 print(User.objects.count())
-" 2>/dev/null | tail -1)
+" 2> /dev/null | tail -1)
     echo_info "  Total users: $USER_COUNT"
 
     ADMIN_COUNT=$(docker-compose -f docker-compose.dev.yml exec -T web \
@@ -183,7 +183,7 @@ print(User.objects.count())
 from django.contrib.auth import get_user_model
 User = get_user_model()
 print(User.objects.filter(is_superuser=True).count())
-" 2>/dev/null | tail -1)
+" 2> /dev/null | tail -1)
     echo_info "  Superusers: $ADMIN_COUNT"
     echo
 
@@ -191,7 +191,7 @@ print(User.objects.filter(is_superuser=True).count())
     echo_info "Resource Usage:"
     docker stats docker_web_1 --no-stream --format \
         "  CPU: {{.CPUPerc}}  |  Memory: {{.MemUsage}}  |  Net I/O: {{.NetIO}}  |  Block I/O: {{.BlockIO}}" \
-        2>/dev/null
+        2> /dev/null
     echo
 
     # Recent logs

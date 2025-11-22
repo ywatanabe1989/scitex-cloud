@@ -11,7 +11,7 @@ Contains business logic and service classes.
 # from apps.code_app.services.visualization_pipeline import VisualizationPipeline
 
 __all__ = [
-    'jupyter_service',
-    'environment_manager',
-    'visualization_pipeline',
+    "jupyter_service",
+    "environment_manager",
+    "visualization_pipeline",
 ]

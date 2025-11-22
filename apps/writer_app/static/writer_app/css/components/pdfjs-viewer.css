@@ -1,0 +1,284 @@
+/**
+ * PDF.js Viewer Styles
+ * Theme-responsive PDF rendering with custom scrollbars
+ */
+
+/* PDF Preview Container - direct container for iframe (no custom scrollbar) */
+.pdf-preview-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.pdf-preview-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.pdf-preview-viewer iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Note: The iframe's internal scrollbar cannot be styled from CSS due to browser
+   security restrictions. The scrollbar appearance is controlled by the browser's
+   native PDF viewer and will use the browser's default scrollbar styling. */
+
+/* PDF.js scroll container - replaces iframe */
+.pdfjs-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #525659;
+}
+
+/* Pages container - scrollable area */
+.pdfjs-pages-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #525659;
+  padding: 0; /* No padding - PDF fills entire space */
+}
+
+/* Individual page container */
+.pdfjs-page-container {
+  margin: 0 auto 1rem auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+/* Remove top margin from first page */
+.pdfjs-page-container:first-child {
+  margin-top: 0;
+}
+
+.pdfjs-page {
+  margin: 0 auto 1rem auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Remove top margin from first page */
+.pdfjs-page:first-child {
+  margin-top: 0;
+}
+
+/* Theme-responsive scrollbar for PDF.js */
+.pdfjs-pages-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-track {
+  background: var(--color-canvas-subtle);
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: 6px;
+  border: 2px solid var(--color-canvas-subtle);
+}
+
+.pdfjs-pages-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fg-muted);
+}
+
+/* Firefox scrollbar */
+.pdfjs-pages-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+}
+
+/* Dark mode adjustments for PDF pages */
+[data-theme="dark"] .pdfjs-page-container,
+[data-theme="dark"] .pdfjs-page {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Loading state */
+.pdfjs-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-fg-muted);
+}
+
+/* Error state */
+.pdf-error {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-danger-fg);
+}
+
+/* Ensure PDF.js container takes full space */
+.pdf-preview-container .pdfjs-scroll-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+/* Note: PDF Preview Container scrollbar styles are defined above */
+
+/* PDF.js Viewer - Main scrollable container */
+.pdfjs-viewer {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll; /* Always show scrollbar to make width predictable */
+  overflow-x: hidden;
+  background: #525659;
+  padding: 0; /* No padding - PDF fills entire space */
+  position: relative;
+}
+
+/* Theme-responsive scrollbar for pdfjs-viewer */
+.pdfjs-viewer::-webkit-scrollbar {
+  width: 12px;
+}
+
+.pdfjs-viewer::-webkit-scrollbar-track {
+  background: var(--color-canvas-subtle);
+}
+
+.pdfjs-viewer::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: 6px;
+  border: 2px solid var(--color-canvas-subtle);
+}
+
+.pdfjs-viewer::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fg-muted);
+}
+
+/* Firefox scrollbar for pdfjs-viewer */
+.pdfjs-viewer {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+}
+
+/* Dark mode background for pdfjs-viewer */
+[data-theme="dark"].pdfjs-viewer {
+  background: #2b2b2b;
+}
+
+/* Text Layer Styles for Text Selection */
+.textLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0; /* Invisible - only for selection */
+  line-height: 1.0;
+  pointer-events: auto; /* Enable text selection */
+  z-index: 2; /* Above canvas */
+  font-size: 1px; /* Will be scaled by PDF.js */
+}
+
+.textLayer > span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text; /* Enable text selection */
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  /* Prevent text from wrapping or breaking */
+  word-break: keep-all;
+  word-wrap: normal;
+}
+
+/* Text selection highlight */
+.textLayer ::selection {
+  background: rgba(0, 102, 204, 0.3);
+}
+
+[data-theme="dark"] .textLayer ::selection {
+  background: rgba(100, 149, 237, 0.3);
+}
+
+/* ============================================================================
+ * WARNING: THE FOLLOWING STYLES ARE NOT CURRENTLY USED
+ * ============================================================================
+ *
+ * This application uses IFRAME-based PDF viewing, NOT PDF.js canvas rendering.
+ *
+ * Reason: After extensive testing, iframe proved superior due to:
+ * - Better browser compatibility and native PDF rendering
+ * - Lower memory usage and better performance
+ * - Native browser PDF features (print, search, zoom)
+ * - Fewer cross-browser rendering issues
+ *
+ * The styles below were developed for PDF.js link annotation overlays but are
+ * NOT IN USE. They are kept for reference purposes only.
+ *
+ * For link highlighting in PDFs, we use LaTeX hyperref package configuration
+ * in latex-wrapper.ts instead, which works with iframe viewing.
+ *
+ * DO NOT REMOVE: These may be useful if we ever switch back to PDF.js.
+ * ============================================================================ */
+
+/* Link annotation layer - NOT USED (iframe-based viewing) */
+.pdfjs-annotation-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Individual link annotations - NOT USED (iframe-based viewing) */
+.pdfjs-link-annotation {
+  display: block;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  border: 1.5px solid rgba(0, 102, 204, 0.5);
+  background: rgba(0, 102, 204, 0.08);
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+/* Dark theme link annotations - NOT USED (iframe-based viewing) */
+[data-theme="dark"] .pdfjs-link-annotation {
+  border-color: rgba(100, 149, 237, 0.6);
+  background: rgba(100, 149, 237, 0.1);
+}
+
+/* Hover state - NOT USED (iframe-based viewing) */
+.pdfjs-link-annotation:hover {
+  background: rgba(0, 102, 204, 0.15);
+  border-color: rgba(0, 102, 204, 0.8);
+}
+
+[data-theme="dark"] .pdfjs-link-annotation:hover {
+  background: rgba(100, 149, 237, 0.2);
+  border-color: rgba(100, 149, 237, 0.9);
+}
+
+/* Active state (when clicking) - NOT USED (iframe-based viewing) */
+.pdfjs-link-annotation:active {
+  background: rgba(0, 102, 204, 0.25);
+  border-color: rgba(0, 102, 204, 1);
+}
+
+[data-theme="dark"] .pdfjs-link-annotation:active {
+  background: rgba(100, 149, 237, 0.3);
+  border-color: rgba(100, 149, 237, 1);
+}
+
+/* EOF */

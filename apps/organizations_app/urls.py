@@ -2,9 +2,7 @@
 URL Configuration for organizations_app.
 """
 
-from django.urls import path
-
-app_name = 'organizations_app'
+app_name = "organizations_app"
 
 # URL patterns will be added as views are implemented
 urlpatterns = [

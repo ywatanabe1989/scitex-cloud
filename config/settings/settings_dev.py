@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-02 18:25:23 (ywatanabe)"
-# File: /ssh:scitex:/home/ywatanabe/proj/scitex-cloud/config/settings/settings_dev.py
+# Timestamp: "2025-11-10 15:46:56 (ywatanabe)"
+# File: /home/ywatanabe/proj/scitex-cloud/config/settings/settings_dev.py
 # ----------------------------------------
 from __future__ import annotations
 import os
@@ -58,6 +58,15 @@ DEBUG = os.getenv("SCITEX_CLOUD_DJANGO_DEBUG", "True").lower() in [
     "1",
     "yes",
 ]
+
+# ---------------------------------------
+# SciTeX Settings
+# ---------------------------------------
+# Use develp for writer template in development
+SCITEX_WRITER_TEMPLATE_BRANCH = os.getenv(
+    "SCITEX_WRITER_TEMPLATE_BRANCH", "develop"
+)
+SCITEX_WRITER_TEMPLATE_TAG = os.getenv("SCITEX_WRITER_TEMPLATE_TAG", None)
 SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = os.getenv(
     "SCITEX_CLOUD_ALLOWED_HOSTS",
@@ -68,17 +77,41 @@ ALLOWED_HOSTS = os.getenv(
 # Hot reload settings
 INTERNAL_IPS = [
     "127.0.0.1",
+    "172.20.0.1",  # Docker network gateway (for browser requests from host)
 ]
+
+# django-browser-reload configuration
+# Note: Templates, CSS, and JS files are watched to trigger browser reload
+# Visitor pool initialization is now optimized with fast-path check
+def _get_extra_watch_files():
+    """Dynamically get files to watch for browser reload."""
+    import glob
+    files = []
+    # Watch templates for browser reload (visitor pool init is now fast)
+    files.extend(glob.glob(str(BASE_DIR / "apps/*/templates/**/*.html"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "templates/**/*.html"), recursive=True))
+    # Watch compiled CSS/JS from TypeScript
+    files.extend(glob.glob(str(BASE_DIR / "static/**/*.css"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "apps/*/static/**/*.css"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "static/**/*.js"), recursive=True))
+    files.extend(glob.glob(str(BASE_DIR / "apps/*/static/**/*.js"), recursive=True))
+    return files
+
+DJANGO_BROWSER_RELOAD_EXTRA_FILES = _get_extra_watch_files()
 
 # ---------------------------------------
 # Applications
 # ---------------------------------------
 DEVELOPMENT_APPS = [
+    "daphne",  # Must be first for runserver integration
     "django_browser_reload",
     "django_extensions",
 ]
 
-INSTALLED_APPS += DEVELOPMENT_APPS
+INSTALLED_APPS = DEVELOPMENT_APPS + INSTALLED_APPS  # Daphne must be before django.contrib.staticfiles
+
+# ASGI Application
+ASGI_APPLICATION = "config.asgi.application"
 MIDDLEWARE += [
     "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
@@ -133,12 +166,19 @@ GITEA_API_URL = f"{GITEA_URL}/api/v1"
 GITEA_TOKEN = os.environ.get("SCITEX_CLOUD_GITEA_TOKEN_DEV", "")
 GITEA_INTEGRATION_ENABLED = True  # Core feature, always enabled
 
+# Gitea Clone URLs (for user-facing clone button)
+SCITEX_CLOUD_GITEA_URL = os.environ.get(
+    "SCITEX_CLOUD_GITEA_URL_DEV", "http://127.0.0.1:3000"
+)
+SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "127.0.0.1")
+SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
+    "SCITEX_CLOUD_GITEA_SSH_PORT_DEV", "2222"
+)
+
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available
 if not test_redis_connection():
-    print(
-        "⚠️  Redis not available in development, using local memory cache"
-    )
+    print("⚠️  Redis not available in development, using local memory cache")
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

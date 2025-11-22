@@ -1,38 +1,40 @@
 {% extends "public_app/cloud_base.html" %}
 {% load static %}
-
-{% block title %}SciTeX Engine - AI Research Assistant for Emacs{% endblock %}
-
-{% block meta_description %}SciTeX Engine - AI-powered research assistant integrated with Emacs for intelligent code generation, document editing, and research workflow automation.{% endblock %}
-
-{% block extra_css %}
-<!-- Page-specific CSS removed - now using utilities and components -->
+{%block title%}
+    SciTeX Engine - AI Research Assistant for Emacs
 {% endblock %}
-
+{% block
+    meta_description %}
+    SciTeX Engine - AI-powered research assistant integrated with
+    Emacs for intelligent code generation, document editing, and research workflow
+    automation.
+{% endblock %}
+{% block extra_css %}<!-- Page-specific CSS removed - now using utilities and components -->{% endblock %}
 {% block content %}
-<div class="product-detail">
-    <div class="container">
-        <div class="product-header">
-            <h1>SciTeX Engine</h1>
-            <p class="tagline">AI-powered research assistant integrated directly into Emacs</p>
-        </div>
-
-        <div class="product-overview">
-            <div class="overview-content">
-                <h2>Your AI Research Companion in Emacs</h2>
-                <p>
-                    SciTeX Engine brings advanced AI capabilities directly into your Emacs workflow. 
-                    Seamlessly integrating with your existing setup, it provides intelligent assistance 
-                    for code generation, scientific document writing, literature review, data analysis, 
-                    and research methodology suggestions.
-                </p>
-                <div class="location-info">
-                    <strong>Project Location:</strong> <code>~/.emacs.d/lisp/emacs-claude-code</code>
-                </div>
+    <div class="product-detail">
+        <div class="container">
+            <div class="product-header">
+                <h1>SciTeX Engine</h1>
+                <p class="tagline">AI-powered research assistant integrated directly into Emacs</p>
             </div>
-            <div class="overview-visual">
-                <div class="code-demo">
-                    <pre><code class="language-elisp">;; Example: Using SciTeX Engine in Emacs
+            <div class="product-overview">
+                <div class="overview-content">
+                    <h2>Your AI Research Companion in Emacs</h2>
+                    <p>
+                        SciTeX Engine brings advanced AI capabilities directly into your Emacs
+                        workflow. Seamlessly integrating with your existing setup, it provides
+                        intelligent assistance for code generation, scientific document
+                        writing, literature review, data analysis, and research methodology
+                        suggestions.
+                    </p>
+                    <div class="location-info">
+                        <strong>Project Location:</strong>
+                        <code>~/.emacs.d/lisp/emacs-claude-code</code>
+                    </div>
+                </div>
+                <div class="overview-visual">
+                    <div class="code-demo">
+                        <pre><code class="language-elisp">;; Example: Using SciTeX Engine in Emacs
 (require 'scitex-engine)
 
 ;; Generate analysis code
@@ -43,107 +45,160 @@
 ;; Get research suggestions
 (scitex-engine-suggest-methods
   "neural signal processing")</code></pre>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>Intelligent Code Generation</h3>
-                <ul>
-                    <li>Generate scientific analysis code</li>
-                    <li>Create data processing pipelines</li>
-                    <li>Build visualization scripts</li>
-                    <li>Natural language instructions</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <h3>Document Enhancement</h3>
-                <ul>
-                    <li>Grammar and style correction</li>
-                    <li>Journal-specific formatting</li>
-                    <li>Citation management</li>
-                    <li>Structure suggestions</li>
-                </ul>
-            </div>
-            <div class="feature-card">
-                <h3>Research Insights</h3>
-                <ul>
-                    <li>Experimental design suggestions</li>
-                    <li>Statistical method recommendations</li>
-                    <li>Research direction guidance</li>
-                    <li>Literature connections</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="requirements-section">
-            <h2>System Requirements</h2>
-            <div class="requirements-grid">
-                <div class="req-card">
-                    <h3><i class="fas fa-server"></i> Platform Compatibility</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Intelligent Code Generation</h3>
                     <ul>
-                        <li><strong>Operating Systems:</strong> Linux, macOS, Windows (with WSL)</li>
-                        <li><strong>Emacs Version:</strong> 26.1 or higher</li>
-                        <li><strong>Network:</strong> Internet connection required for AI features</li>
+                        <li>Generate scientific analysis code</li>
+                        <li>Create data processing pipelines</li>
+                        <li>Build visualization scripts</li>
+                        <li>Natural language instructions</li>
                     </ul>
                 </div>
-                <div class="req-card">
-                    <h3><i class="fas fa-cube"></i> Key Dependencies</h3>
+                <div class="feature-card">
+                    <h3>Document Enhancement</h3>
                     <ul>
-                        <li><strong>Emacs Packages:</strong> json-mode, request.el (auto-installed)</li>
-                        <li><strong>Python:</strong> 3.8+ (optional, for enhanced features)</li>
-                        <li><strong>API Access:</strong> SciTeX API key (free tier available)</li>
+                        <li>Grammar and style correction</li>
+                        <li>Journal-specific formatting</li>
+                        <li>Citation management</li>
+                        <li>Structure suggestions</li>
                     </ul>
                 </div>
-                <div class="req-card">
-                    <h3><i class="fas fa-box"></i> Container Availability</h3>
+                <div class="feature-card">
+                    <h3>Research Insights</h3>
                     <ul>
-                        <li><strong>Docker:</strong> Pre-configured Emacs environment available</li>
-                        <li><strong>Container Image:</strong> <code>scitex/engine:latest</code></li>
-                        <li><strong>Includes:</strong> Emacs 29, all dependencies, example configurations</li>
-                    </ul>
-                </div>
-                <div class="req-card">
-                    <h3><i class="fas fa-certificate"></i> Licensing</h3>
-                    <ul>
-                        <li><strong>SciTeX Engine:</strong> MIT License</li>
-                        <li><strong>Emacs:</strong> GPL v3</li>
-                        <li><strong>API Usage:</strong> Free tier: 1000 requests/month</li>
-                        <li><strong>Commercial:</strong> Unlimited usage plans available</li>
+                        <li>Experimental design suggestions</li>
+                        <li>Statistical method recommendations</li>
+                        <li>Research direction guidance</li>
+                        <li>Literature connections</li>
                     </ul>
                 </div>
             </div>
-        </div>
-
-        <div class="workflow-section">
-            <h2>Integrated Research Workflow</h2>
-            <p>SciTeX Engine enhances every stage of your research process:</p>
-            <div class="workflow-grid">
-                <div class="workflow-card">
-                    <h4>1. Literature Review</h4>
-                    <p>Summarize papers directly in Emacs, extract key findings, generate citation-ready notes, and compare multiple papers side-by-side.</p>
-                </div>
-                <div class="workflow-card">
-                    <h4>2. Experiment Design</h4>
-                    <p>Generate experimental protocols, suggest statistical power calculations, create data collection templates, and design control conditions.</p>
-                </div>
-                <div class="workflow-card">
-                    <h4>3. Data Analysis</h4>
-                    <p>Generate analysis scripts in Python/R, suggest appropriate statistical tests, create visualization code, and debug existing code.</p>
-                </div>
-                <div class="workflow-card">
-                    <h4>4. Paper Writing</h4>
-                    <p>Draft sections based on results, format for target journals, generate response letters, and check citation consistency.</p>
+            <div class="requirements-section">
+                <h2>System Requirements</h2>
+                <div class="requirements-grid">
+                    <div class="req-card">
+                        <h3>
+                            <i class="fas fa-server"></i> Platform Compatibility
+                        </h3>
+                        <ul>
+                            <li>
+                                <strong>Operating Systems:</strong> Linux, macOS, Windows (with
+                                WSL)
+                            </li>
+                            <li>
+                                <strong>Emacs Version:</strong> 26.1 or higher
+                            </li>
+                            <li>
+                                <strong>Network:</strong> Internet connection required for AI
+                                features
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="req-card">
+                        <h3>
+                            <i class="fas fa-cube"></i> Key Dependencies
+                        </h3>
+                        <ul>
+                            <li>
+                                <strong>Emacs Packages:</strong> json-mode, request.el
+                                (auto-installed)
+                            </li>
+                            <li>
+                                <strong>Python:</strong> 3.8+ (optional, for enhanced features)
+                            </li>
+                            <li>
+                                <strong>API Access:</strong> SciTeX API key (free tier available)
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="req-card">
+                        <h3>
+                            <i class="fas fa-box"></i> Container Availability
+                        </h3>
+                        <ul>
+                            <li>
+                                <strong>Docker:</strong> Pre-configured Emacs environment
+                                available
+                            </li>
+                            <li>
+                                <strong>Container Image:</strong>
+                                <code>scitex/engine:latest</code>
+                            </li>
+                            <li>
+                                <strong>Includes:</strong> Emacs 29, all dependencies, example
+                                configurations
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="req-card">
+                        <h3>
+                            <i class="fas fa-certificate"></i> Licensing
+                        </h3>
+                        <ul>
+                            <li>
+                                <strong>SciTeX Engine:</strong> MIT License
+                            </li>
+                            <li>
+                                <strong>Emacs:</strong> GPL v3
+                            </li>
+                            <li>
+                                <strong>API Usage:</strong> Free tier: 1000 requests/month
+                            </li>
+                            <li>
+                                <strong>Commercial:</strong> Unlimited usage plans available
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="installation-section">
-            <h2>Easy Installation</h2>
-            <p>SciTeX Engine is designed to integrate seamlessly with your Emacs configuration:</p>
-            <div class="code-demo">
-                <pre><code class="language-elisp">;; Add to your Emacs init file
+            <div class="workflow-section">
+                <h2>Integrated Research Workflow</h2>
+                <p>SciTeX Engine enhances every stage of your research process:</p>
+                <div class="workflow-grid">
+                    <div class="workflow-card">
+                        <h4>1. Literature Review</h4>
+                        <p>
+                            Summarize papers directly in Emacs, extract key findings, generate
+                            citation-ready notes, and compare multiple papers side-by-side.
+                        </p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>2. Experiment Design</h4>
+                        <p>
+                            Generate experimental protocols, suggest statistical power
+                            calculations, create data collection templates, and design control
+                            conditions.
+                        </p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>3. Data Analysis</h4>
+                        <p>
+                            Generate analysis scripts in Python/R, suggest appropriate
+                            statistical tests, create visualization code, and debug existing
+                            code.
+                        </p>
+                    </div>
+                    <div class="workflow-card">
+                        <h4>4. Paper Writing</h4>
+                        <p>
+                            Draft sections based on results, format for target journals,
+                            generate response letters, and check citation consistency.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="installation-section">
+                <h2>Easy Installation</h2>
+                <p>
+                    SciTeX Engine is designed to integrate seamlessly with your Emacs
+                    configuration:
+                </p>
+                <div class="code-demo">
+                    <pre><code class="language-elisp">;; Add to your Emacs init file
 (add-to-list 'load-path "~/.emacs.d/lisp/emacs-claude-code")
 (require 'scitex-engine)
 
@@ -154,30 +209,36 @@
 (global-set-key (kbd "C-c s g") 'scitex-engine-generate)
 (global-set-key (kbd "C-c s e") 'scitex-engine-explain)
 (global-set-key (kbd "C-c s r") 'scitex-engine-refactor)</code></pre>
+                </div>
+                <div class="supported-modes">
+                    <h3>Supported Modes</h3>
+                    <p>
+                        Works with Python, LaTeX/AUCTeX, Org, R/ESS, Markdown, and many more
+                        Emacs modes.
+                    </p>
+                </div>
             </div>
-            <div class="supported-modes">
-                <h3>Supported Modes</h3>
-                <p>Works with Python, LaTeX/AUCTeX, Org, R/ESS, Markdown, and many more Emacs modes.</p>
+            <div class="integration-section">
+                <h2>Part of the SciTeX Ecosystem</h2>
+                <p>
+                    SciTeX Engine works seamlessly with other SciTeX components. Generate
+                    LaTeX content directly in your documents with SciTeX-Doc, and access the
+                    mngs package functions with SciTeX-Code to create analysis pipelines
+                    that follow best practices.
+                </p>
             </div>
-        </div>
-
-        <div class="integration-section">
-            <h2>Part of the SciTeX Ecosystem</h2>
-            <p>
-                SciTeX Engine works seamlessly with other SciTeX components. Generate LaTeX content 
-                directly in your documents with SciTeX-Doc, and access the mngs package functions 
-                with SciTeX-Code to create analysis pipelines that follow best practices.
-            </p>
-        </div>
-
-        <div class="cta-section">
-            <h2>Enhance Your Emacs with AI</h2>
-            <p>Join researchers who are accelerating their work with intelligent assistance.</p>
-            <div class="cta-buttons">
-                <a href="https://github.com/ywatanabe1989/emacs-claude-code" class="btn btn-black">View on GitHub</a>
-                <a href="{% url 'public_app:signup' %}" class="btn btn-secondary">Get Started</a>
+            <div class="cta-section">
+                <h2>Enhance Your Emacs with AI</h2>
+                <p>
+                    Join researchers who are accelerating their work with intelligent
+                    assistance.
+                </p>
+                <div class="cta-buttons">
+                    <a href="https://github.com/ywatanabe1989/emacs-claude-code"
+                       class="btn btn-black">View on GitHub</a>
+                    <a href="{% url 'public_app:signup' %}" class="btn btn-secondary">Get Started</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}

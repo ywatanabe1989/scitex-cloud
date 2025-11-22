@@ -1,1 +1,0 @@
-../../deployment/dotenvs/setup_env.sh
