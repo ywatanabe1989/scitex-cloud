@@ -749,7 +749,7 @@ def tools(request):
     # Organized by research workflow: Data → Plot → Publish
     domains = [
         {
-            "name": "📊 Data Tools",
+            "name": "Data Tools",
             "slug": "data",
             "icon": "📊",
             "description": "Process, validate, and prepare research data",
@@ -785,7 +785,7 @@ def tools(request):
             ],
         },
         {
-            "name": "📈 Plot Tools",
+            "name": "Plot Tools",
             "slug": "plot",
             "icon": "📈",
             "description": "Create and refine publication-quality figures",
@@ -849,7 +849,7 @@ def tools(request):
             ],
         },
         {
-            "name": "📄 Publish Tools",
+            "name": "Publish Tools",
             "slug": "publish",
             "icon": "📄",
             "description": "Prepare documents for journal submission",
@@ -892,7 +892,7 @@ def tools(request):
             ],
         },
         {
-            "name": "🔬 Research Utilities",
+            "name": "Research Utilities",
             "slug": "research",
             "icon": "🔬",
             "description": "Literature management and citation tools",
