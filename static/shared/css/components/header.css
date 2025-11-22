@@ -107,12 +107,25 @@
 .header-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+/* Project selector inline (in header-left) */
+.header-project-selector-inline {
+  position: relative;
+  margin-right: 8px;
 }
 
 .header-center {
   flex: 1;
   max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Hide the old project selector that was in the center */
+.header-project-selector {
+  display: none !important;
 }
 
 .header-right {
@@ -143,8 +156,9 @@
 /* Tooltip styling is now handled by common/tooltips.css */
 
 .header-logo-img {
-  height: 40px;
+  height: 44px;
   width: auto;
+  max-width: 200px;
   object-fit: contain;
 }
 
@@ -154,6 +168,7 @@
 .nav-icon-fa {
   height: 20px;
   width: 20px;
+  min-width: 20px; /* Ensure icons don't shrink */
   opacity: 0.85;
   transition:
     opacity 0.2s ease,
@@ -162,6 +177,7 @@
     color 0.2s ease;
   display: inline-block;
   vertical-align: middle;
+  flex-shrink: 0; /* Prevent icons from shrinking in flex container */
 }
 
 /* SVG icons with currentColor inherit color from this */
@@ -185,18 +201,18 @@
   filter: none;
 }
 
-/* Dark mode: Make ALL icons bluish using filters for IMG and color for SVG */
+/* Dark mode: Make ALL icons consistent bluish-yellowish */
 [data-theme="dark"] .nav-icon-svg {
   color: var(--scitex-color-05); /* Brighter bluish: #8fa4b0 */
 }
 
-/* FontAwesome icons in dark mode - yellowish color to match IMG filter effect */
+/* FontAwesome icons in dark mode - match IMG filter effect */
 [data-theme="dark"] .nav-icon-fa {
-  color: rgb(184, 164, 130); /* Warm yellowish-bluish */
+  color: rgb(184, 164, 130); /* Warm bluish-yellowish to match IMG filter */
   opacity: 0.9;
 }
 
-/* IMG icons in dark mode: Apply bluish filter */
+/* IMG icons in dark mode: Apply matching bluish-yellowish filter */
 [data-theme="dark"] .nav-icon {
   filter: brightness(1.2) sepia(0.3) saturate(1.5) hue-rotate(180deg);
   opacity: 0.9;
@@ -501,8 +517,9 @@
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px; /* Increased from 6px for better spacing */
   text-decoration: none;
+  min-width: fit-content; /* Ensure adequate space */
 }
 
 .header-nav-item:hover {
