@@ -907,13 +907,13 @@ function displayBibtexDiff(diffData: any[], stats: any, files?: any): void {
 
   if (!diffData || diffData.length === 0) {
     html +=
-      '<div style="text-align: center; padding: 3rem; color: #586069; background: #ffffff;">';
+      '<div class="enrichment-complete-message">';
     html +=
-      '<i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 1rem; display: block; color: #28a745;"></i>';
+      '<i class="fas fa-check-circle enrichment-complete-icon"></i>';
     html +=
-      '<p style="font-size: 1.1rem;">All entries are already complete!</p>';
+      '<p class="enrichment-complete-title">All entries are already complete!</p>';
     html +=
-      '<p style="font-size: 0.9rem;">No new fields were added during enrichment.</p>';
+      '<p class="enrichment-complete-subtitle">No new fields were added during enrichment.</p>';
     html += "</div>";
     const content = document.getElementById(
       "bibtexDiffContent",

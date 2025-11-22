@@ -192,3 +192,26 @@
 #totalResultsCount {
   padding: 0.5rem 0.75rem;
 }
+
+/* Enrichment completion message */
+.enrichment-complete-message {
+  text-align: center;
+  padding: 3rem;
+  color: #586069;
+  background: #ffffff;
+}
+
+.enrichment-complete-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+  color: #28a745;
+}
+
+.enrichment-complete-title {
+  font-size: 1.1rem;
+}
+
+.enrichment-complete-subtitle {
+  font-size: 0.9rem;
+}
