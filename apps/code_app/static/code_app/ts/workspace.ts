@@ -62,10 +62,13 @@ class CodeWorkspace {
 
   constructor(config: EditorConfig) {
     this.config = config;
-    this.init();
+    // Fire and forget - init runs asynchronously
+    this.init().catch(err => {
+      console.error("[CodeWorkspace] Initialization failed:", err);
+    });
   }
 
-  private init(): void {
+  private async init(): Promise<void> {
     console.log("[CodeWorkspace] Initializing...");
 
     if (!this.config.currentProject) {
@@ -73,25 +76,38 @@ class CodeWorkspace {
       return;
     }
 
-    this.loadFileTree();
+    // Synchronous DOM setup first (fast, no blocking)
     this.attachEventListeners();
-    this.initMonaco();
-    this.initPTYTerminal(); // PTY only - removed simple terminal
+    this.initMonaco(); // Just sets up the waiting logic
     this.initContextMenu();
+    this.initResizers();
 
-    // Show scratch buffer by default (like Emacs)
-    this.initScratchBuffer();
+    // Parallel async initialization of independent components
+    console.log("[CodeWorkspace] Starting parallel initialization...");
+    const startTime = performance.now();
+
+    await Promise.all([
+      this.loadFileTree(),           // Network: fetch file tree
+      this.initScratchBuffer(),      // CDN: wait for Monaco + create editor
+      this.initPTYTerminalAsync(),   // CDN: wait for xterm + create terminal
+    ]);
+
+    const endTime = performance.now();
+    console.log(`[CodeWorkspace] All components initialized in ${Math.round(endTime - startTime)}ms`);
   }
 
-  private initPTYTerminal(): void {
+  private async initPTYTerminalAsync(): Promise<void> {
     const ptyTerminalEl = document.getElementById("pty-terminal");
     if (!ptyTerminalEl || !this.config.currentProject) return;
 
-    // Create PTY terminal immediately
+    // Create PTY terminal and wait for it to initialize
     this.ptyTerminal = new PTYTerminal(
       ptyTerminalEl,
       this.config.currentProject.id,
     );
+
+    // Wait for xterm to be fully initialized
+    await this.ptyTerminal.waitForReady();
     console.log("[CodeWorkspace] PTY terminal initialized");
   }
 
@@ -236,6 +252,16 @@ class CodeWorkspace {
         const modal = document.getElementById("terminal-shortcuts-modal");
         if (modal) {
           modal.classList.add("active");
+        }
+      });
+    }
+
+    // Close terminal shortcuts modal on Escape
+    const terminalShortcutsModal = document.getElementById("terminal-shortcuts-modal");
+    if (terminalShortcutsModal) {
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && terminalShortcutsModal.classList.contains("active")) {
+          terminalShortcutsModal.classList.remove("active");
         }
       });
     }
@@ -2375,6 +2401,110 @@ if __name__ == "__main__":
     if (toolbarFilePath) {
       toolbarFilePath.textContent = filePath;
     }
+  }
+
+  /**
+   * Initialize panel resizers for adjusting panel widths
+   */
+  private initResizers(): void {
+    console.log("[CodeWorkspace] Initializing panel resizers...");
+
+    // Sidebar resizer (between file tree and editor)
+    const sidebarResizer = document.getElementById("sidebar-resizer");
+    const sidebar = document.querySelector(".code-sidebar") as HTMLElement;
+    const editorPanel = document.querySelector(".code-editor-area") as HTMLElement;
+
+    if (sidebarResizer && sidebar && editorPanel) {
+      this.setupResizer(sidebarResizer, sidebar, "sidebar", 200, 600);
+    }
+
+    // Editor resizer (between editor and terminal)
+    const editorResizer = document.getElementById("editor-resizer");
+    const terminal = document.querySelector(".code-terminal-panel") as HTMLElement;
+
+    if (editorResizer && editorPanel && terminal) {
+      this.setupResizer(editorResizer, editorPanel, "editor", 300, 1200);
+    }
+  }
+
+  /**
+   * Setup a resizer for a specific panel
+   * @param resizer The resizer element
+   * @param panel The panel to resize
+   * @param storageKey Key for localStorage to persist width
+   * @param minWidth Minimum width in pixels
+   * @param maxWidth Maximum width in pixels
+   */
+  private setupResizer(
+    resizer: HTMLElement,
+    panel: HTMLElement,
+    storageKey: string,
+    minWidth: number,
+    maxWidth: number,
+  ): void {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    // Load saved width from localStorage
+    const savedWidth = localStorage.getItem(`code-${storageKey}-width`);
+    if (savedWidth) {
+      panel.style.width = `${savedWidth}px`;
+    }
+
+    // Mouse down on resizer
+    resizer.addEventListener("mousedown", (e: MouseEvent) => {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = panel.offsetWidth;
+
+      // Add resizing class for visual feedback
+      resizer.classList.add("resizing");
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+
+      e.preventDefault();
+    });
+
+    // Mouse move - resize panel
+    document.addEventListener("mousemove", (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const deltaX = e.clientX - startX;
+      let newWidth = startWidth + deltaX;
+
+      // Enforce min/max constraints
+      newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+      panel.style.width = `${newWidth}px`;
+
+      // Trigger Monaco editor layout update when resizing any panel
+      // (both sidebar and editor resizing affect Monaco's viewport)
+      if (this.editor) {
+        this.editor.layout();
+      }
+    });
+
+    // Mouse up - finish resizing
+    document.addEventListener("mouseup", () => {
+      if (!isResizing) return;
+
+      isResizing = false;
+      resizer.classList.remove("resizing");
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+
+      // Save width to localStorage
+      const finalWidth = panel.offsetWidth;
+      localStorage.setItem(`code-${storageKey}-width`, finalWidth.toString());
+
+      // Trigger final Monaco layout update
+      if (this.editor) {
+        this.editor.layout();
+      }
+
+      console.log(`[CodeWorkspace] ${storageKey} panel resized to ${finalWidth}px`);
+    });
   }
 }
 
