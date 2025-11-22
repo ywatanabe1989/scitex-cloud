@@ -164,20 +164,10 @@
                 <a href="/code/"
                    class="header-nav-item {% if 'code' in request.path %}active{% endif %}"
                    data-tooltip="Code workspace">
-                    <img src="{% static 'shared/images/icons_svg/scitex-code-icon.svg' %}"
-                         alt=""
-                         class="nav-icon" />
+                    <i class="fas fa-terminal nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Code</span>
                 </a>
-                <!-- <a href="/vis/"
-                 !--    class="header-nav-item {% if 'vis' in request.path %}active{% endif %}"
-                 !--    data-tooltip="Scientific Figure Editor">
-                 !--     <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
-                 !--          alt=""
-                 !--          class="nav-icon" />
-                 !--     <span class="nav-label">Vis</span>
-                 !-- </a> -->
-                <a href="/vis/sigma/"
+                <a href="/vis/"
                    class="header-nav-item {% if 'vis' in request.path %}active{% endif %}"
                    data-tooltip="Scientific Figure Editor">
                     <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
