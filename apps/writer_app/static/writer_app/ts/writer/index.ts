@@ -16,7 +16,11 @@
 export * from "./compilation/index.js";
 
 // Initialization modules
-export { ComponentInitializer, EventHandlerSetup } from "./initialization/index.js";
+export {
+  ComponentInitializer,
+  EventHandlerSetup,
+  FileTreeSetup,
+} from "./initialization/index.js";
 export type { InitializedComponents } from "./initialization/index.js";
 
 // Section modules

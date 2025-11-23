@@ -40,6 +40,12 @@ export {
   StatePersistenceManager,
   statePersistence,
 } from "./state-persistence.js";
+export {
+  PDFScrollZoomHandler,
+  type PDFScrollZoomOptions,
+  type PDFColorMode,
+  type PDFColorTheme,
+} from "./pdf-scroll-zoom.js";
 
 // New modular exports
 export {

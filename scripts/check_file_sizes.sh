@@ -1,4 +1,27 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
+# Timestamp: "2025-11-23 18:18:36 (ywatanabe)"
+# File: ./scripts/check_file_sizes.sh
+
+ORIG_DIR="$(pwd)"
+THIS_DIR="$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)"
+LOG_PATH="$THIS_DIR/.$(basename $0).log"
+echo > "$LOG_PATH"
+
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+GRAY='\033[0;90m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+echo_info() { echo -e "${GRAY}INFO: $1${NC}"; }
+echo_success() { echo -e "${GREEN}SUCC: $1${NC}"; }
+echo_warning() { echo -e "${YELLOW}WARN: $1${NC}"; }
+echo_error() { echo -e "${RED}ERRO: $1${NC}"; }
+echo_header() { echo_info "=== $1 ==="; }
+# ---------------------------------------
 # ============================================
 # Check File Sizes - Detect files >300 lines
 # ============================================
@@ -13,10 +36,7 @@
 #   ./scripts/check_file_sizes.sh --verbose # Detailed report
 
 # Colors
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
-GREEN='\033[0;32m'
 NC='\033[0m'
 
 # Configuration - Powers of 2 thresholds
@@ -98,6 +118,8 @@ count_by_severity() {
 
 # Main check
 check_files() {
+    date
+
     # Count large files by type
     ts_count=$(count_large_files "ts" $THRESHOLD_TS)
     py_count=$(count_large_files "py" $THRESHOLD_PY)
@@ -253,3 +275,5 @@ check_files() {
 
 # Run check
 check_files
+
+# EOF
