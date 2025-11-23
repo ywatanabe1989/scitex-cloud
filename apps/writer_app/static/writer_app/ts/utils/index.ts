@@ -63,3 +63,28 @@ export {
   updatePDFPreviewTitle,
   updateCommitButtonVisibility,
 } from "./ui.js";
+
+// Compilation UI utilities
+export {
+  showCompilationProgress,
+  hideCompilationProgress,
+  updateCompilationProgress,
+  appendCompilationLog,
+  updateCompilationLog,
+  showCompilationSuccess,
+  showCompilationError,
+  minimizeCompilationOutput,
+  restoreCompilationOutput,
+  compilationLogs,
+  toggleCompilationPanel,
+  togglePreviewLog,
+  toggleFullLog,
+  handleCompilationLogStart,
+  handleCompilationLogStop,
+  handleCompilationLogClose,
+  updateMinimizedStatus,
+  updateStatusLamp,
+  updateSlimProgress,
+  toggleCompilationDetails,
+  restoreCompilationStatus,
+} from "./compilation-ui.js";

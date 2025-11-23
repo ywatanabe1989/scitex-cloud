@@ -1,0 +1,267 @@
+/**
+ * Monaco Editor Manager
+ * Handles Monaco editor initialization, keybindings, and language detection
+ */
+
+import { LANGUAGE_MAP, type EditorConfig, type OpenFile } from "../core/types.js";
+
+export class MonacoManager {
+  private editor: any = null;
+  private config: EditorConfig;
+
+  constructor(config: EditorConfig) {
+    this.config = config;
+  }
+
+  async initialize(language: string = "python"): Promise<void> {
+    await this.createMonacoEditor(language);
+  }
+
+  getEditor(): any {
+    return this.editor;
+  }
+
+  detectLanguage(filePath: string, content?: string): string {
+    // First try to detect from shebang if content is provided
+    if (content) {
+      const firstLine = content.split("\n")[0];
+      if (firstLine.startsWith("#!")) {
+        const shebang = firstLine.toLowerCase();
+        if (shebang.includes("python")) return "python";
+        if (shebang.includes("bash") || shebang.includes("/sh")) return "shell";
+        if (shebang.includes("node")) return "javascript";
+        if (shebang.includes("ruby")) return "ruby";
+        if (shebang.includes("perl")) return "perl";
+      }
+    }
+
+    // Fallback to extension detection
+    const ext = filePath.substring(filePath.lastIndexOf("."));
+    return LANGUAGE_MAP[ext] || "plaintext";
+  }
+
+  private async createMonacoEditor(language: string = "python"): Promise<void> {
+    // Wait for Monaco to be available
+    await this.waitForMonaco();
+
+    const monaco = (window as any).monaco;
+    if (!monaco) {
+      console.warn("[MonacoManager] Monaco not available - keeping welcome screen");
+      return;
+    }
+
+    const container = document.getElementById("monaco-editor");
+    if (!container) {
+      console.error("[MonacoManager] Monaco container not found");
+      return;
+    }
+
+    // Hide welcome screen
+    const welcomeScreen = document.getElementById("welcome-screen");
+    if (welcomeScreen) {
+      welcomeScreen.style.display = "none";
+    }
+
+    // Create Monaco editor
+    this.editor = monaco.editor.create(container, {
+      value: "",
+      language: language,
+      theme: document.documentElement.getAttribute("data-theme") === "dark" ? "vs-dark" : "vs",
+      automaticLayout: true,
+      fontSize: 14,
+      fontFamily: "'JetBrains Mono', 'Monaco', 'Menlo', monospace",
+      minimap: { enabled: true },
+      lineNumbers: "on",
+      renderWhitespace: "selection",
+      scrollBeyondLastLine: false,
+      wordWrap: "on",
+      tabSize: 4,
+      insertSpaces: true,
+      glyphMargin: true,
+      suggest: {
+        showKeywords: true,
+        showSnippets: true,
+      },
+      quickSuggestions: true,
+      parameterHints: { enabled: true },
+      formatOnPaste: true,
+      formatOnType: true,
+    });
+
+    console.log("[MonacoManager] Monaco editor created successfully");
+
+    // Apply saved keybinding mode
+    const savedMode = localStorage.getItem("code-keybinding-mode") || "emacs";
+    this.setKeybindingMode(savedMode);
+  }
+
+  private async waitForMonaco(): Promise<void> {
+    return new Promise<void>((resolve) => {
+      if ((window as any).monaco) {
+        console.log("[MonacoManager] Monaco already available");
+        resolve();
+        return;
+      }
+
+      if ((window as any).monacoReady) {
+        console.log("[MonacoManager] Monaco ready flag set, waiting for object...");
+        setTimeout(() => resolve(), 100);
+        return;
+      }
+
+      let attempts = 0;
+      const maxAttempts = 100;
+      const checkInterval = 100;
+
+      const checkMonaco = () => {
+        attempts++;
+
+        if ((window as any).monaco) {
+          console.log(`[MonacoManager] Monaco loaded after ${attempts * checkInterval}ms`);
+          resolve();
+        } else if ((window as any).monacoReady && attempts > 5) {
+          console.error("[MonacoManager] monacoReady flag set but window.monaco is undefined");
+          resolve();
+        } else if (attempts < maxAttempts) {
+          setTimeout(checkMonaco, checkInterval);
+        } else {
+          console.error(`[MonacoManager] Monaco timeout after ${attempts * checkInterval}ms`);
+          resolve();
+        }
+      };
+
+      const eventHandler = () => {
+        console.log("[MonacoManager] monaco-ready event received");
+        setTimeout(() => resolve(), 50);
+      };
+      window.addEventListener("monaco-ready", eventHandler, { once: true });
+
+      checkMonaco();
+    });
+  }
+
+  setKeybindingMode(mode: string): void {
+    if (!this.editor) return;
+
+    const monaco = (window as any).monaco;
+    if (!monaco) return;
+
+    // Remove previous Emacs event listener if exists
+    if ((this.editor as any)._emacsPreventDefaultHandler) {
+      document.removeEventListener(
+        "keydown",
+        (this.editor as any)._emacsPreventDefaultHandler,
+        true
+      );
+      (this.editor as any)._emacsPreventDefaultHandler = null;
+    }
+
+    // Remove all custom keybindings
+    if ((this.editor as any)._standaloneKeybindingService) {
+      (this.editor as any)._standaloneKeybindingService._dynamicKeybindings = [];
+    }
+
+    if (mode === "vim") {
+      console.log("[Keybindings] Vim mode selected (requires monaco-vim extension)");
+    } else if (mode === "emacs") {
+      console.log("[Keybindings] Emacs mode selected");
+      this.addEmacsKeybindings(monaco);
+    } else {
+      console.log("[Keybindings] VS Code mode selected");
+    }
+
+    this.updateTooltipsForMode(mode);
+    localStorage.setItem("code-keybinding-mode", mode);
+  }
+
+  private updateTooltipsForMode(mode: string): void {
+    const btnSave = document.getElementById("btn-save") as HTMLButtonElement;
+    const btnNewFileTab = document.getElementById("btn-new-file-tab") as HTMLButtonElement;
+    const btnDelete = document.getElementById("btn-delete") as HTMLButtonElement;
+    const btnRun = document.getElementById("btn-run") as HTMLButtonElement;
+
+    if (mode === "emacs") {
+      if (btnSave) btnSave.title = "Save (C-x C-s or C-s)";
+      if (btnNewFileTab) btnNewFileTab.title = "New file (C-x C-f)";
+      if (btnDelete) btnDelete.title = "Delete file";
+      if (btnRun) btnRun.title = "Run Python script (Ctrl+Enter)";
+    } else if (mode === "vim") {
+      if (btnSave) btnSave.title = "Save (:w or Ctrl+S)";
+      if (btnNewFileTab) btnNewFileTab.title = "New file (:e filename)";
+      if (btnDelete) btnDelete.title = "Delete file (:bd)";
+      if (btnRun) btnRun.title = "Run Python script (Ctrl+Enter)";
+    } else {
+      if (btnSave) btnSave.title = "Save (Ctrl+S)";
+      if (btnNewFileTab) btnNewFileTab.title = "New file (Ctrl+N)";
+      if (btnDelete) btnDelete.title = "Delete file";
+      if (btnRun) btnRun.title = "Run Python script (Ctrl+Enter)";
+    }
+
+    console.log("[Tooltips] Updated for", mode, "mode");
+  }
+
+  private addEmacsKeybindings(monaco: any): void {
+    if (!this.editor) return;
+
+    // Global event listener to prevent Chrome shortcuts
+    const preventDefaultForEmacs = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInEditor =
+        activeElement?.classList?.contains("inputarea") ||
+        activeElement?.closest(".monaco-editor") !== null;
+
+      if (!isInEditor) return;
+
+      if (e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey) {
+        const key = e.key.toLowerCase();
+        if (["n", "p", "w", "t", "y"].includes(key)) {
+          console.log("[Emacs] Preventing default for Ctrl+" + key.toUpperCase());
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", preventDefaultForEmacs, true);
+    (this.editor as any)._emacsPreventDefaultHandler = preventDefaultForEmacs;
+
+    // Character navigation
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
+      this.editor.trigger("keyboard", "cursorRight", {});
+    });
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, () => {
+      this.editor.trigger("keyboard", "cursorLeft", {});
+    });
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyN, () => {
+      this.editor.trigger("keyboard", "cursorDown", {});
+    });
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP, () => {
+      this.editor.trigger("keyboard", "cursorUp", {});
+    });
+
+    // Alternative bindings (fallback for Chrome-blocked)
+    this.editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyN, () => {
+      this.editor.trigger("keyboard", "cursorDown", {});
+    });
+    this.editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyP, () => {
+      this.editor.trigger("keyboard", "cursorUp", {});
+    });
+
+    // Word navigation
+    this.editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyF, () => {
+      this.editor.trigger("keyboard", "cursorWordRight", {});
+    });
+    this.editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.KeyB, () => {
+      this.editor.trigger("keyboard", "cursorWordLeft", {});
+    });
+
+    // Line beginning/end
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA, () => {
+      this.editor.trigger("keyboard", "cursorHome", {});
+    });
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE, () => {
+      this.editor.trigger("keyboard", "cursorEnd", {});
+    });
+
+    console.log("[Emacs] Keybindings installed (abbreviated set)");
+  }
+}
