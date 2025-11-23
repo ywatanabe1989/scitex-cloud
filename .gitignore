@@ -804,3 +804,5 @@ RULES/
 
 # Internal documents directory (local only)
 GITIGNORED/
+.legacy/
+**/*_before_*.ts

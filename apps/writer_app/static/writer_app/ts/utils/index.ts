@@ -88,3 +88,38 @@ export {
   toggleCompilationDetails,
   restoreCompilationStatus,
 } from "./compilation-ui.js";
+
+// Section dropdown utilities
+export {
+  populateSectionDropdownDirect,
+  syncDropdownToSection,
+  handleDocTypeSwitch,
+  toggleSectionVisibility,
+} from "./section-dropdown.js";
+
+// Section management utilities
+export {
+  setupSectionListeners,
+  loadSectionContent,
+  switchSection,
+  updateSectionUI,
+  loadCompiledPDF,
+  setupSectionManagementButtons,
+  clearCompileTimeout,
+} from "./section-management.js";
+
+// Compilation handler utilities
+export {
+  setupCompilationListeners,
+  handleCompileFull,
+  handleCompile,
+} from "./compilation-handlers.js";
+
+// Panel management utilities
+export {
+  setupSidebarButtons,
+  setupPDFZoomControls,
+  openPDF,
+  loadPanelCSS,
+  switchRightPanel,
+} from "./panel-management.js";
