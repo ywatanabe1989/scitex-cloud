@@ -6,10 +6,10 @@
 import { FileTreeManager } from "../../modules/index.js";
 import {
   switchSection,
-  loadTexFile,
   handleDocTypeSwitch,
   populateSectionDropdownDirect,
 } from "../../utils/index.js";
+import { loadTexFile } from "../files/FileLoader.js";
 
 export class FileTreeSetup {
   private config: any;
