@@ -40,3 +40,33 @@ export {
   StatePersistenceManager,
   statePersistence,
 } from "./state-persistence.js";
+
+// New modular exports
+export {
+  setupDragAndDrop,
+  setupPDFScrollPriority,
+} from "./drag-drop.js";
+export {
+  getPageTheme,
+  filterThemeOptions,
+  applyCodeEditorTheme,
+  setupThemeListener,
+  setupKeybindingListener,
+} from "./theme-manager.js";
+export {
+  scheduleSave,
+  scheduleAutoCompile,
+  saveSections,
+  setLoadingContent,
+  getLoadingContent,
+} from "./auto-save.js";
+export {
+  showCommitModal,
+  closeCommitModal,
+  handleGitCommit,
+  showCompilationOptionsModal,
+} from "./modals.js";
+export {
+  setupWorkspaceInitialization,
+  waitForMonaco,
+} from "./workspace-init.js";

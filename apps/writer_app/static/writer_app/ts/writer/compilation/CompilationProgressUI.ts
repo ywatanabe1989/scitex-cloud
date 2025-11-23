@@ -1,8 +1,14 @@
 /**
  * CompilationProgressUI.ts
  * Manages the compilation progress UI display, including progress bars,
- * status indicators, and visual feedback for compilation state.
+ * modals, and success/error messages.
  */
+
+import {
+  updateMinimizedStatus,
+  updateStatusLamp,
+  updateSlimProgress,
+} from "./CompilationStatusDisplay.js";
 
 /**
  * Show compilation progress modal
@@ -185,8 +191,8 @@ export function showCompilationSuccess(pdfUrl: string): void {
  * Show compilation error
  */
 export function showCompilationError(
-  error: string,
-  details?: { stdout?: string; stderr?: string },
+  errorMessage: string,
+  errorDetails: string = "",
 ): void {
   const icon = document.getElementById("compilation-icon");
   const progressContainer = document.getElementById(
@@ -211,14 +217,15 @@ export function showCompilationError(
   // Show error alert banner
   if (alertBanner) {
     alertBanner.style.display = "block";
-    alertBanner.className = "alert-banner alert-banner-error";
+    alertBanner.className = "alert-banner alert-banner-danger";
     alertBanner.innerHTML = `
             <div class="warning-banner-content">
-                <i class="fas fa-exclamation-triangle warning-banner-icon"></i>
+                <i class="fas fa-exclamation-circle warning-banner-icon"></i>
                 <div class="warning-banner-text">
                     <div class="warning-banner-title">Compilation Failed</div>
                     <div class="warning-banner-description">
-                        ${error}
+                        ${errorMessage}
+                        ${errorDetails ? "<br><small>Check the compilation log below for details.</small>" : ""}
                     </div>
                 </div>
             </div>
@@ -230,8 +237,6 @@ export function showCompilationError(
     resultDiv.style.display = "none";
   }
 
-  updateCompilationProgress(100, "Failed");
-
   // Update status lamp to error
   updateStatusLamp("error", "Failed");
 
@@ -241,119 +246,18 @@ export function showCompilationError(
   if (startBtn) startBtn.style.display = "inline-block";
   if (stopBtn) stopBtn.style.display = "none";
 
-  // Update minimized status icon to error
+  // Update minimized status icon to error and make it clickable to see details
   if (minimizedStatus) {
     const icon = minimizedStatus.querySelector("i");
+    const text = minimizedStatus.querySelector("#minimized-compilation-text");
     if (icon) {
       icon.className = "fas fa-exclamation-circle";
       icon.style.color = "var(--color-danger-emphasis)";
     }
-  }
-}
-
-/**
- * Update minimized status text and progress
- */
-export function updateMinimizedStatus(progress: number, status: string): void {
-  const minimizedText = document.getElementById("minimized-compilation-text");
-  const minimizedProgress = document.getElementById(
-    "minimized-compilation-progress",
-  );
-
-  if (minimizedText) {
-    minimizedText.textContent = status;
-  }
-  if (minimizedProgress) {
-    minimizedProgress.textContent = `${progress}%`;
-  }
-}
-
-/**
- * Update status lamp (LED indicator)
- */
-export function updateStatusLamp(
-  status: "idle" | "compiling" | "success" | "error",
-  text: string,
-): void {
-  const lamp = document.querySelector(".status-lamp-indicator") as HTMLElement;
-  const lampText = document.querySelector(".status-lamp-text") as HTMLElement;
-
-  if (lamp) {
-    lamp.setAttribute("data-status", status);
-  }
-  if (lampText) {
-    lampText.textContent = text;
-  }
-
-  // Persist status to localStorage
-  localStorage.setItem(
-    "scitex-compilation-status",
-    JSON.stringify({ status, text, timestamp: Date.now() }),
-  );
-}
-
-/**
- * Update slim progress bar (tqdm-style)
- */
-export function updateSlimProgress(
-  progress: number,
-  status: string,
-  eta?: string,
-): void {
-  const slimProgress = document.getElementById("compilation-slim-progress");
-  const slimFill = document.getElementById("slim-progress-fill");
-  const slimPercent = document.getElementById("slim-progress-percent");
-  const slimStatus = document.getElementById("slim-progress-status");
-  const slimEta = document.getElementById("slim-progress-eta");
-
-  if (!slimProgress) return;
-
-  if (slimFill) {
-    slimFill.style.width = `${progress}%`;
-  }
-  if (slimPercent) {
-    slimPercent.textContent = `${progress}%`;
-  }
-  if (slimStatus) {
-    slimStatus.textContent = status;
-  }
-  if (slimEta && eta) {
-    slimEta.textContent = eta;
-  }
-
-  // Hide after completion (with delay)
-  if (progress === 100) {
-    setTimeout(() => {
-      if (slimProgress) {
-        slimProgress.style.display = "none";
-      }
-    }, 2000);
-  }
-}
-
-/**
- * Restore compilation status from previous session
- */
-export function restoreCompilationStatus(): void {
-  const stored = localStorage.getItem("scitex-compilation-status");
-  if (!stored) {
-    updateStatusLamp("idle", "Ready");
-    return;
-  }
-
-  try {
-    const { status, text, timestamp } = JSON.parse(stored);
-    const ageMinutes = Math.floor((Date.now() - timestamp) / 1000 / 60);
-
-    // Show status if less than 5 minutes old
-    if (ageMinutes < 5) {
-      updateStatusLamp(status, text);
-    } else if (status === "success") {
-      updateStatusLamp("success", `Done (${ageMinutes}m ago)`);
-    } else {
-      updateStatusLamp("idle", "Ready");
+    if (text) {
+      text.textContent = "Failed";
     }
-  } catch (e) {
-    updateStatusLamp("idle", "Ready");
+    // Keep minimized status visible so user can click to see error details
+    minimizedStatus.title = "Click to view error details";
   }
 }

@@ -53,3 +53,13 @@ export {
   wait,
   createTimeout,
 } from "./timer.utils.js";
+
+// UI utilities
+export {
+  showToast,
+  getUserContext,
+  updateWordCountDisplay,
+  updateSectionTitleLabel,
+  updatePDFPreviewTitle,
+  updateCommitButtonVisibility,
+} from "./ui.js";
