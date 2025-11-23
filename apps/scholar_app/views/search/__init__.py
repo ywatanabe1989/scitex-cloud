@@ -21,6 +21,19 @@ from .preferences import (
     save_source_preferences,
 )
 
+from .citations import (
+    get_impact_factor_instance,
+    get_journal_impact_factor,
+    is_open_access_journal,
+    get_pubmed_citations,
+    validate_citation_count,
+)
+
+from .recommendations import (
+    paper_recommendations,
+    user_recommendations,
+)
+
 # Make all imports available at package level
 __all__ = [
     # Page views
@@ -36,4 +49,13 @@ __all__ = [
     "get_user_preferences",
     "save_user_preferences",
     "save_source_preferences",
+    # Citations
+    "get_impact_factor_instance",
+    "get_journal_impact_factor",
+    "is_open_access_journal",
+    "get_pubmed_citations",
+    "validate_citation_count",
+    # Recommendations
+    "paper_recommendations",
+    "user_recommendations",
 ]
