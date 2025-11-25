@@ -121,6 +121,9 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "channels",
+    # Celery (async task queue with fair scheduling)
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 # This installs all the apps (./apps/*_app)
@@ -283,6 +286,43 @@ except (ImportError, Exception):
     CHANNEL_LAYERS = {
         "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"},
     }
+
+# ---------------------------------------
+# Celery Configuration (Async Task Queue)
+# ---------------------------------------
+CELERY_BROKER_URL = os.getenv("SCITEX_CLOUD_REDIS_URL", "redis://localhost:6379/1")
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes max per task
+CELERY_RESULT_EXTENDED = True
+
+# Task routing to dedicated queues
+CELERY_TASK_ROUTES = {
+    "apps.writer_app.tasks.*": {"queue": "ai_queue"},
+    "apps.scholar_app.tasks.*": {"queue": "search_queue"},
+    "apps.code_app.tasks.*": {"queue": "compute_queue"},
+    "apps.vis_app.tasks.*": {"queue": "vis_queue"},
+}
+
+# Fair scheduling: Rate limits per task (can be overridden per-user in code)
+CELERY_TASK_ANNOTATIONS = {
+    "apps.writer_app.tasks.ai_suggest": {"rate_limit": "10/m"},
+    "apps.writer_app.tasks.ai_generate": {"rate_limit": "5/m"},
+    "apps.scholar_app.tasks.search_papers": {"rate_limit": "30/m"},
+    "apps.scholar_app.tasks.process_pdf": {"rate_limit": "20/m"},
+}
+
+# Worker configuration for fairness
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1  # One task at a time for fair scheduling
+CELERY_WORKER_CONCURRENCY = 4  # Parallel workers
+
+# Beat scheduler for periodic tasks (optional)
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 # ---------------------------------------
 # Logging
