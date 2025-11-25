@@ -2,6 +2,13 @@
 
 > Quick navigation to all architecture documents
 
+## Overview
+
+| Document | Description |
+|----------|-------------|
+| [OVERVIEW.md](./OVERVIEW.md) | Architecture diagram and tech stack |
+| [MONITORING.md](./MONITORING.md) | Monitoring services and dashboards |
+
 ## Core Architecture
 
 | Document | Description | Key Topics |

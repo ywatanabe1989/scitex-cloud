@@ -5,6 +5,33 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2025-11-26
+
+### Added
+- **Celery Async Task Processing**: Fair-share resource allocation for I/O-bound tasks
+  - 4 dedicated task queues (ai_queue, search_queue, compute_queue, vis_queue)
+  - Per-task rate limiting (10/min AI, 30/min search)
+  - Per-user rate limiting via token bucket algorithm
+  - Flower monitoring dashboard (http://localhost:5555)
+- **Three-Tier Resource Management**:
+  - Django: Interactive requests (<1s)
+  - Celery: Async I/O tasks (AI API, search, PDF processing)
+  - SLURM: Heavy compute (user scripts, ML training)
+- **SLURM + Apptainer Integration**: Container-based user code execution
+  - SciTeX 2.3.0 pre-installed in containers
+  - Fair-share job scheduling with partitions
+
+### Infrastructure
+- Added celery_worker, celery_beat, flower Docker services
+- Redis as Celery broker (redis://redis:6379/1)
+- django-celery-results for task result storage
+- Comprehensive deployment documentation in `deployment/docs/`
+
+### Documentation
+- Created 8 organized deployment docs (00_INDEX to 07_OPERATIONS_GUIDE)
+- Added RESOURCE_ALLOCATION_STRATEGY.md
+- Added FAIR_RESOURCE_SYSTEM.md
+
 ## [0.3.3-alpha] - 2025-11-23
 
 ### Performance
