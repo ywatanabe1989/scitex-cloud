@@ -6,7 +6,7 @@ Each visitor gets a default project that can be claimed on signup.
 
 Architecture:
 - Fixed pool: 4 visitor accounts with default projects (rotated automatically)
-- Allocation: Session-based with security token (24h lifetime)
+- Allocation: Session-based with security token (1h lifetime)
 - Signup: Transfer project ownership (visitor → real user)
 - Reset: Clear workspace, free slot back to pool
 
@@ -29,17 +29,18 @@ class VisitorPool:
     """
     Manages fixed pool of visitor accounts and default projects.
 
-    Pool Size: 4 concurrent visitors (rotated with 24h session lifetime)
+    Pool Size: 4 concurrent visitors (rotated with 1h session lifetime)
     Naming: visitor-001 to visitor-004
 
-    With proper rotation and 24h expiration, 4 slots are sufficient for development.
+    With 1-hour sessions, 4 slots support up to 96 visitors per day.
+    When visitors sign up, their data is automatically migrated to their new account.
     Slots are automatically freed and reused when sessions expire.
     """
 
     VISITOR_USER_PREFIX = "visitor-"
     DEFAULT_PROJECT_PREFIX = "default-project-"
     POOL_SIZE = 4
-    SESSION_LIFETIME_HOURS = 24
+    SESSION_LIFETIME_HOURS = 1  # 1-hour sessions with data migration on signup
     SESSION_KEY_PROJECT_ID = "visitor_project_id"
     SESSION_KEY_VISITOR_ID = "visitor_user_id"
     SESSION_KEY_ALLOCATION_TOKEN = "visitor_allocation_token"
@@ -87,6 +88,8 @@ class VisitorPool:
             logger.info(
                 f"[VisitorPool] Pool already initialized: {pool_size}/{pool_size} visitor accounts ready"
             )
+            # Still ensure Gitea users exist (idempotent)
+            cls._ensure_gitea_users_exist(pool_size)
             return 0
 
         created_count = 0
@@ -110,6 +113,31 @@ class VisitorPool:
                 user.set_unusable_password()
                 user.save()
                 logger.info(f"[VisitorPool] Created user: {username}")
+
+            # Ensure visitor user exists in Gitea for Git SSH access
+            try:
+                from apps.gitea_app.api_client import GiteaClient
+                client = GiteaClient()
+
+                # Check if user exists in Gitea
+                try:
+                    client._request("GET", f"/users/{username}")
+                    logger.debug(f"[VisitorPool] Gitea user already exists: {username}")
+                except:
+                    # User doesn't exist, create it
+                    visitor_password = secrets.token_urlsafe(32)  # Random password, never to be used
+                    user_data = {
+                        "username": username,
+                        "email": f"{username}@visitor.scitex.local",
+                        "password": visitor_password,
+                        "full_name": f"Visitor {visitor_num}",
+                        "send_notify": False,
+                        "must_change_password": False,
+                    }
+                    client._request("POST", "/admin/users", json=user_data)
+                    logger.info(f"[VisitorPool] Created Gitea user: {username}")
+            except Exception as e:
+                logger.warning(f"[VisitorPool] Failed to ensure Gitea user {username}: {e}")
 
             # Create default project if doesn't exist
             # Name and slug match logged-in user convention: "default-project"
@@ -238,6 +266,7 @@ class VisitorPool:
                 logger.info(
                     f"[VisitorPool] Reusing allocation: visitor-{visitor_num:03d}"
                 )
+                # Note: Caller should handle login() if needed, as we don't have access to request here
                 return project, user
             except (
                 VisitorAllocation.DoesNotExist,
@@ -510,6 +539,44 @@ class VisitorPool:
             )
 
         return count
+
+    @classmethod
+    def _ensure_gitea_users_exist(cls, pool_size: int = None):
+        """
+        Ensure all visitor users exist in Gitea for Git SSH access.
+
+        This is idempotent - safe to call multiple times.
+        """
+        if pool_size is None:
+            pool_size = cls.POOL_SIZE
+
+        try:
+            from apps.gitea_app.api_client import GiteaClient
+            client = GiteaClient()
+
+            for i in range(1, pool_size + 1):
+                visitor_num = f"{i:03d}"
+                username = f"{cls.VISITOR_USER_PREFIX}{visitor_num}"
+
+                try:
+                    # Check if user exists in Gitea
+                    client._request("GET", f"/users/{username}")
+                    logger.debug(f"[VisitorPool] Gitea user already exists: {username}")
+                except:
+                    # User doesn't exist, create it
+                    visitor_password = secrets.token_urlsafe(32)  # Random password, never to be used
+                    user_data = {
+                        "username": username,
+                        "email": f"{username}@visitor.scitex.local",
+                        "password": visitor_password,
+                        "full_name": f"Visitor {visitor_num}",
+                        "send_notify": False,
+                        "must_change_password": False,
+                    }
+                    client._request("POST", "/admin/users", json=user_data)
+                    logger.info(f"[VisitorPool] Created Gitea user: {username}")
+        except Exception as e:
+            logger.warning(f"[VisitorPool] Failed to ensure Gitea users: {e}")
 
     @classmethod
     def get_pool_status(cls) -> dict:

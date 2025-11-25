@@ -96,17 +96,16 @@
 
 {% block content %}
   <!-- Config data for TypeScript -->
-  <script type="application/json" id="workspace-config">
-    {
-      "currentProject": {% if current_project %}{
-        "id": {{ current_project.id }},
-        "name": "{{ current_project.name|escapejs }}",
-        "owner": "{{ current_project.owner.username|escapejs }}",
-        "slug": "{{ current_project.slug|escapejs }}"
-      }{% else %}null{% endif %},
-      "csrfToken": "{{ csrf_token }}"
-    }
-  </script>
+  <div id="project-data"
+       {% if current_project %}
+       data-project-id="{{ current_project.id }}"
+       data-project-name="{{ current_project.name }}"
+       data-project-owner="{{ current_project.owner.username }}"
+       data-project-slug="{{ current_project.slug }}"
+       {% endif %}
+       style="display: none;">
+  </div>
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
   {% if pool_exhausted %}
     <!-- Visitor pool exhausted message -->
@@ -140,18 +139,34 @@
   {% else %}
     <div class="code-workspace">
       <!-- Left Sidebar: File Tree -->
-      <aside class="code-sidebar repo-sidebar">
+      <aside id="code-sidebar" class="code-sidebar repo-sidebar">
         <div class="sidebar-header">
           {% if current_project %}
-            <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
-               class="sidebar-title-link"
-               title="{{ current_project.name }}"
-               style="display: inline-flex;">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
-              </svg>
-              <span>{{ current_project.name }}</span>
-            </a>
+            {% if current_project.owner.username|slice:":8" == "visitor-" %}
+              <!-- Visitor: Show non-clickable project name with signup prompt -->
+              <div class="sidebar-title-link" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+                    <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
+                  </svg>
+                  <span>{{ current_project.name }}</span>
+                </div>
+                <a href="/accounts/signup/" class="sidebar-signup-link">
+                  Create account to save files →
+                </a>
+              </div>
+            {% else %}
+              <!-- Authenticated user: Show clickable link -->
+              <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
+                 class="sidebar-title-link"
+                 title="{{ current_project.name }}"
+                 style="display: inline-flex;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+                  <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
+                </svg>
+                <span>{{ current_project.name }}</span>
+              </a>
+            {% endif %}
           {% else %}
             <div class="sidebar-title-link">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
@@ -175,30 +190,29 @@
     <div class="code-editor-area">
       <!-- Toolbar -->
       <div class="code-toolbar">
-        <span id="toolbar-file-path" class="code-toolbar-file">No file selected</span>
+        <button id="btn-save" class="btn-code-action" disabled title="Save (Ctrl+S)">
+          <i class="fas fa-save"></i>
+          <span>Save</span>
+        </button>
+        <button id="btn-commit" class="btn-code-action" title="Commit changes">
+          <i class="fas fa-code-branch"></i>
+          <span>Commit</span>
+        </button>
+        <button id="btn-run" class="btn-code-action" disabled title="Run Python script (Ctrl+Enter)">
+          <i class="fas fa-play"></i>
+          <span>Run</span>
+        </button>
+        <button id="btn-delete" class="btn-code-action" disabled title="Delete current file">
+          <i class="fas fa-trash"></i>
+        </button>
         <div class="code-toolbar-spacer"></div>
         <select id="keybinding-mode" class="btn-code-action" title="Editor keybindings" style="padding: 6px 8px;">
           <option value="vscode">VS Code</option>
           <option value="vim">Vim</option>
           <option value="emacs" selected>Emacs</option>
         </select>
-        <button id="btn-editor-shortcuts" class="btn-code-action" title="Emacs Shortcuts" style="padding: 4px 8px; font-size: 12px;">
-          ⌨
-        </button>
-        <button id="btn-save" class="btn-code-action btn-code-primary" disabled title="Save (Ctrl+S)">
-          <i class="fas fa-save btn-code-icon"></i>
-          Save
-        </button>
-        <button id="btn-commit" class="btn-code-action" title="Commit changes" style="background: #238636; color: white;">
-          <i class="fas fa-code-branch btn-code-icon"></i>
-          Commit
-        </button>
-        <button id="btn-run" class="btn-code-action" disabled title="Run Python script (Ctrl+Enter)">
-          <i class="fas fa-play btn-code-icon"></i>
-          Run
-        </button>
-        <button id="btn-delete" class="btn-code-action" disabled title="Delete current file">
-          <i class="fas fa-trash btn-code-icon"></i>
+        <button id="btn-editor-shortcuts" class="btn-code-action" title="Emacs Shortcuts">
+          <i class="fas fa-keyboard"></i>
         </button>
       </div>
 
@@ -283,14 +297,14 @@
     <div class="panel-resizer" id="editor-resizer"></div>
 
     <!-- Right: Terminal Panel (PTY with xterm.js) -->
-    <div class="code-terminal-panel">
+    <div id="code-terminal-panel" class="code-terminal-panel">
       <!-- Terminal Header -->
       <div class="terminal-header">
         <div class="terminal-title">
           <i class="fas fa-terminal"></i>
           Terminal
-          <button id="btn-terminal-shortcuts" class="btn-code-action" title="Terminal Shortcuts" style="margin-left: 8px; padding: 4px 8px; font-size: 12px;">
-            ⌨
+          <button id="btn-terminal-shortcuts" class="btn-code-action" title="Terminal Shortcuts" style="margin-left: 8px;">
+            <i class="fas fa-keyboard"></i>
           </button>
         </div>
       </div>
@@ -411,13 +425,65 @@
     </div>
   </div>
 
+  <!-- Signup Warning Modal (for visitor users) -->
+  <div id="signup-warning-modal" class="file-modal-overlay">
+    <div class="file-modal" style="max-width: 500px;">
+      <div class="file-modal-header">
+        <span class="file-modal-title">
+          <i class="fas fa-save" style="color: var(--workspace-icon-primary);"></i>
+          Save Your Work
+        </span>
+        <button class="file-modal-close" onclick="document.getElementById('signup-warning-modal').classList.remove('active')">×</button>
+      </div>
+      <div class="file-modal-body">
+        <div style="text-align: center; padding: 1rem 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; margin: 0 auto 1rem; color: var(--workspace-icon-primary);">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21" stroke="currentColor" stroke-width="2" fill="none"/>
+            <polyline points="7 3 7 8 15 8" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+
+          <h3 style="margin-bottom: 1rem; color: var(--text-default); font-size: 1.25rem;">
+            Create an Account to Save Files
+          </h3>
+
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">
+            You're currently using a guest session. To create files, save your work,
+            and access your projects anytime, you'll need a free SciTeX account.
+          </p>
+
+          <div style="background: var(--workspace-bg-secondary); border-left: 3px solid var(--workspace-icon-primary); padding: 1rem; border-radius: 6px; text-align: left; margin-bottom: 1rem;">
+            <strong style="color: var(--text-default); display: block; margin-bottom: 0.5rem;">
+              <i class="fas fa-check-circle" style="color: var(--status-success);"></i> With a free account you get:
+            </strong>
+            <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-muted); font-size: 14px;">
+              <li>Save and organize your code files</li>
+              <li>Create unlimited projects</li>
+              <li>Access your work from anywhere</li>
+              <li>Collaborate with your team</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="file-modal-footer" style="gap: 12px;">
+        <button class="file-modal-btn" onclick="document.getElementById('signup-warning-modal').classList.remove('active')">
+          Continue Browsing
+        </button>
+        <a href="/accounts/signup/" class="file-modal-btn file-modal-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+          <i class="fas fa-user-plus" style="margin-right: 6px;"></i>
+          Sign Up Free
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- xterm.js for real PTY terminal with addons -->
   <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-image@0.6.0/lib/xterm-addon-image.js"></script>
 
   <!-- Panel Resizer for sidebar/editor/terminal -->
-  <script src="{% static 'code_app/js/resizer-manager.js' %}"></script>
+  <script src="{% static 'code_app/js/resizer-manager.js' %}?v=2.1.4"></script>
 
   <!-- Load compiled TypeScript with cache-busting -->
   <script>
@@ -425,7 +491,7 @@
     const timestamp = new Date().getTime();
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = '{% static "code_app/js/workspace.js" %}?v=2.1.1&t=' + timestamp;
+    script.src = '{% static "code_app/js/workspace.js" %}?v=2.1.5&t=' + timestamp;
     document.currentScript.parentNode.insertBefore(script, document.currentScript.nextSibling);
   </script>
 {% endblock %}

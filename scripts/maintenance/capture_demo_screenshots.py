@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-17 01:07:32 (ywatanabe)"
+# Timestamp: "2025-11-24 19:52:00 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
 
 
@@ -8,6 +8,10 @@
 SciTeX Demo Screenshot Capture Script
 
 Captures screenshots of SciTeX pages after logging in as test-user.
+
+Credentials are automatically loaded from SECRET/.env.dev:
+    - SCITEX_CLOUD_TEST_USER_USERNAME (default: test-user)
+    - SCITEX_CLOUD_TEST_USER_PASSWORD (default: Password123!)
 
 Usage:
     python scripts/maintenance/capture_demo_screenshots.py [OPTIONS]
@@ -24,7 +28,9 @@ Examples:
 """
 
 import asyncio
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 from playwright.async_api import async_playwright
 from playwright.async_api import Page
 from scitex.session import session
@@ -39,9 +45,21 @@ logger = getLogger(__name__)
 # Configuration
 # ============================================================================
 
+# Load environment variables from .env file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+ENV_FILE = PROJECT_ROOT / "SECRET" / ".env.dev"
+
+if ENV_FILE.exists():
+    load_dotenv(ENV_FILE)
+    logger.info(f"Loaded environment variables from {ENV_FILE}")
+else:
+    logger.warning(f"Environment file not found: {ENV_FILE}")
+
 BASE_URL = "http://127.0.0.1:8000"
-TEST_USER = "test-user"
-TEST_PASSWORD = "Password1234!"
+
+# Load test user credentials from environment variables
+TEST_USER = os.getenv("SCITEX_CLOUD_TEST_USER_USERNAME", "test-user")
+TEST_PASSWORD = os.getenv("SCITEX_CLOUD_TEST_USER_PASSWORD", "Password123!")
 
 # Pages to capture after login
 PAGES_TO_CAPTURE = [
@@ -373,7 +391,7 @@ def main(
 
     logger.info("Starting SciTeX demo screenshot capture")
 
-    output_dir = Path(CONFIG["SDIR"]) / "screenshots"
+    output_dir = Path(CONFIG["SDIR_OUT"]) / "screenshots"
 
     # Run async workflow
     exit_code = asyncio.run(

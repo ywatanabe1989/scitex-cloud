@@ -223,14 +223,17 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </p>
 
         <!-- Export Controls -->
-        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; align-items: center;">
-            <select id="exportTimeRange" class="form-select" style="width: auto;">
-                <option value="1">Last 1 hour</option>
-                <option value="6">Last 6 hours</option>
-                <option value="24" selected>Last 24 hours</option>
-                <option value="168">Last 7 days</option>
-                <option value="720">Last 30 days</option>
-            </select>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-clock" style="color: var(--scitex-color-04);"></i>
+                <select id="exportTimeRange" class="form-select" style="width: auto;">
+                    <option value="1">Last 1 hour</option>
+                    <option value="6">Last 6 hours</option>
+                    <option value="24" selected>Last 24 hours</option>
+                    <option value="168">Last 7 days</option>
+                    <option value="720">Last 30 days</option>
+                </select>
+            </div>
             <a href="/api/server-metrics/export/?hours=24" id="exportButton" class="btn btn-primary" download>
                 <i class="fas fa-download me-2"></i>Export Metrics as CSV
             </a>
@@ -289,18 +292,21 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- CPU Information -->
             {% if status_data.system.cpu_percent %}
             <div class="metric-card">
-                <div class="metric-value">{{ status_data.system.cpu_percent|floatformat:1 }}%</div>
-                <div class="metric-label">CPU Usage</div>
+                <div class="metric-value">
+                    <i class="fas fa-microchip" style="font-size: 1.2rem; color: var(--scitex-color-04); margin-right: 0.5rem;"></i>
+                    {{ status_data.system.cpu_percent|floatformat:1 }}%
+                </div>
+                <div class="metric-label"><i class="fas fa-microchip"></i> CPU Usage</div>
                 <div class="progress-bar">
                     <div class="progress-fill {% if status_data.system.cpu_percent > 90 %}critical{% elif status_data.system.cpu_percent > 75 %}warning{% endif %}"
                          style="width: {{ status_data.system.cpu_percent }}%"></div>
                 </div>
                 <div style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
                     {% if status_data.system.cpu_cores %}
-                    <div><strong>Cores:</strong> {{ status_data.system.cpu_cores }} physical ({{ status_data.system.cpu_cores_logical }} logical)</div>
+                    <div><i class="fas fa-layer-group"></i> <strong>Cores:</strong> {{ status_data.system.cpu_cores }} physical ({{ status_data.system.cpu_cores_logical }} logical)</div>
                     {% endif %}
                     {% if status_data.system.cpu_name %}
-                    <div style="margin-top: 0.5rem;"><strong>Model:</strong> {{ status_data.system.cpu_name|truncatechars:40 }}</div>
+                    <div style="margin-top: 0.5rem;"><i class="fas fa-tag"></i> <strong>Model:</strong> {{ status_data.system.cpu_name|truncatechars:40 }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -309,14 +315,17 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Memory Usage -->
             {% if status_data.system.memory_percent %}
             <div class="metric-card">
-                <div class="metric-value">{{ status_data.system.memory_percent|floatformat:1 }}%</div>
-                <div class="metric-label">Memory Usage</div>
+                <div class="metric-value">
+                    <i class="fas fa-memory" style="font-size: 1.2rem; color: var(--scitex-color-04); margin-right: 0.5rem;"></i>
+                    {{ status_data.system.memory_percent|floatformat:1 }}%
+                </div>
+                <div class="metric-label"><i class="fas fa-memory"></i> Memory Usage</div>
                 <div class="progress-bar">
                     <div class="progress-fill {% if status_data.system.memory_percent > 90 %}critical{% elif status_data.system.memory_percent > 75 %}warning{% endif %}"
                          style="width: {{ status_data.system.memory_percent }}%"></div>
                 </div>
                 <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
-                    {{ status_data.system.memory_available_gb }} GB / {{ status_data.system.memory_total_gb }} GB available
+                    <i class="fas fa-database"></i> {{ status_data.system.memory_available_gb }} GB / {{ status_data.system.memory_total_gb }} GB available
                 </div>
             </div>
             {% endif %}
@@ -324,14 +333,17 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Disk Usage -->
             {% if status_data.disk.total_gb %}
             <div class="metric-card">
-                <div class="metric-value">{{ status_data.disk.percent_used|floatformat:1 }}%</div>
-                <div class="metric-label">Disk Usage</div>
+                <div class="metric-value">
+                    <i class="fas fa-hdd" style="font-size: 1.2rem; color: var(--scitex-color-04); margin-right: 0.5rem;"></i>
+                    {{ status_data.disk.percent_used|floatformat:1 }}%
+                </div>
+                <div class="metric-label"><i class="fas fa-hdd"></i> Disk Usage</div>
                 <div class="progress-bar">
                     <div class="progress-fill {% if status_data.disk.percent_used > 90 %}critical{% elif status_data.disk.percent_used > 75 %}warning{% endif %}"
                          style="width: {{ status_data.disk.percent_used }}%"></div>
                 </div>
                 <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
-                    {{ status_data.disk.used_gb }} GB / {{ status_data.disk.total_gb }} GB used
+                    <i class="fas fa-chart-pie"></i> {{ status_data.disk.used_gb }} GB / {{ status_data.disk.total_gb }} GB used
                 </div>
             </div>
             {% endif %}
@@ -343,12 +355,16 @@ Check the current status of SciTeX Cloud services and infrastructure.
                     {% if status_data.system.gpu_info == "None available" %}
                     <i class="fas fa-times-circle" style="color: var(--text-muted);"></i>
                     {% else %}
-                    <i class="fas fa-check-circle" style="color: var(--status-success);"></i>
+                    <i class="fas fa-desktop" style="color: var(--status-success);"></i>
                     {% endif %}
                 </div>
-                <div class="metric-label">GPU</div>
+                <div class="metric-label"><i class="fas fa-desktop"></i> GPU</div>
                 <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
-                    {{ status_data.system.gpu_info }}
+                    {% if status_data.system.gpu_info == "None available" %}
+                    <i class="fas fa-info-circle"></i> {{ status_data.system.gpu_info }}
+                    {% else %}
+                    <i class="fas fa-check-circle" style="color: var(--status-success);"></i> {{ status_data.system.gpu_info }}
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -356,13 +372,13 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Disk I/O -->
             {% if status_data.system.disk_read_mb %}
             <div class="metric-card">
-                <div class="metric-value" style="font-size: 1.5rem;">
-                    <i class="fas fa-hdd"></i>
+                <div class="metric-value" style="font-size: 1.5rem; color: var(--scitex-color-04);">
+                    <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="metric-label">Disk I/O (Total)</div>
+                <div class="metric-label"><i class="fas fa-hdd"></i> Disk I/O (Total)</div>
                 <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
-                    <div><strong>Read:</strong> {{ status_data.system.disk_read_mb }} MB</div>
-                    <div style="margin-top: 0.3rem;"><strong>Write:</strong> {{ status_data.system.disk_write_mb }} MB</div>
+                    <div><i class="fas fa-download"></i> <strong>Read:</strong> {{ status_data.system.disk_read_mb }} MB</div>
+                    <div style="margin-top: 0.3rem;"><i class="fas fa-upload"></i> <strong>Write:</strong> {{ status_data.system.disk_write_mb }} MB</div>
                 </div>
             </div>
             {% endif %}
@@ -370,13 +386,13 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Network I/O -->
             {% if status_data.system.net_sent_mb %}
             <div class="metric-card">
-                <div class="metric-value" style="font-size: 1.5rem;">
+                <div class="metric-value" style="font-size: 1.5rem; color: var(--scitex-color-04);">
                     <i class="fas fa-network-wired"></i>
                 </div>
-                <div class="metric-label">Network I/O (Total)</div>
+                <div class="metric-label"><i class="fas fa-network-wired"></i> Network I/O (Total)</div>
                 <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
-                    <div><strong>Sent:</strong> {{ status_data.system.net_sent_mb }} MB</div>
-                    <div style="margin-top: 0.3rem;"><strong>Received:</strong> {{ status_data.system.net_recv_mb }} MB</div>
+                    <div><i class="fas fa-arrow-up"></i> <strong>Sent:</strong> {{ status_data.system.net_sent_mb }} MB</div>
+                    <div style="margin-top: 0.3rem;"><i class="fas fa-arrow-down"></i> <strong>Received:</strong> {{ status_data.system.net_recv_mb }} MB</div>
                 </div>
             </div>
             {% endif %}

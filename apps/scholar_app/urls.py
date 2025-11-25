@@ -44,8 +44,8 @@ urlpatterns = [
         name="user_default_workspace",
     ),
     # MVP Simple Interface - Separate pages instead of tabs
-    path("", search_views.index, name="index"),
-    path("bibtex/", search_views.scholar_bibtex, name="scholar_bibtex"),
+    path("", search_views.scholar_bibtex, name="index"),
+    path("bibtex/", search_views.scholar_bibtex, name="scholar_bibtex"),  # Keep for backwards compatibility
     path("search/", search_views.scholar_search, name="scholar_search"),
     # path('search/', search_views.simple_search, name='simple_search'),
     # path('project/<int:project_id>/search/', search_views.project_search, name='project_search'),
