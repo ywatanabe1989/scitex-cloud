@@ -22,13 +22,13 @@ squeue
 sinfo
 ```
 
-### URLs
+### URLs (Development)
 
-| Service | URL |
-|---------|-----|
-| Django | http://localhost:8000 |
-| Flower (Celery) | http://localhost:5555 |
-| Gitea | http://localhost:3001 |
+| Service | URL | Purpose |
+|---------|-----|---------|
+| Django | http://localhost:8000 | Web application |
+| Flower | http://localhost:5555 | Celery task monitoring |
+| Gitea | http://localhost:3001 | Git server |
 
 ---
 

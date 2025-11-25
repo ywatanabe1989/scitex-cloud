@@ -14,15 +14,23 @@
 | 06 | [Docker Services](./06_DOCKER_SERVICES.md) | Development/production services |
 | 07 | [Operations Guide](./07_OPERATIONS_GUIDE.md) | Commands, monitoring, troubleshooting |
 
+## Service URLs (Development)
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| Django | http://localhost:8000 | Web application |
+| Flower | http://localhost:5555 | Celery task monitoring |
+| Gitea | http://localhost:3001 | Git server |
+
 ## Quick Start
 
 ```bash
 # Start all services
 cd deployment/docker/docker_dev
-docker-compose up -d
+docker compose up -d
 
 # Check status
-docker-compose ps
+docker compose ps
 squeue
 ```
 
