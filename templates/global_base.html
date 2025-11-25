@@ -2,9 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>
-            {% block title %}SciTeX - Scientific Research Platform{% endblock %}
-        </title>
+        <title>{% include 'global_base_partials/page_title.html' %}</title>
         {% include 'global_base_partials/global_head_meta.html' %}
         {% include 'global_base_partials/global_head_styles.html' %}
         {% block head_extra %}{% endblock %}

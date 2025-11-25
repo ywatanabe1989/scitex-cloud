@@ -45,23 +45,32 @@ ports:
 
 ## Usage
 
+### Prerequisites
+
+**SSH Key Setup Required**: The SSH gateway only accepts public key authentication for security. You must first:
+
+1. Register your SSH public key at `http://127.0.0.1:8000/accounts/settings/ssh-keys/`
+2. Or generate a new key pair through the web interface
+
 ### Connecting via SSH
 
 ```bash
-# Basic connection
+# Basic connection (uses default SSH key ~/.ssh/id_rsa)
 ssh -p 2200 your-username@127.0.0.1
+
+# Specify a specific key
+ssh -p 2200 -i ~/.ssh/scitex_key your-username@127.0.0.1
 
 # Skip host key checking (for development)
 ssh -p 2200 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null your-username@127.0.0.1
 ```
 
-You'll be prompted for your SciTeX Cloud password.
+**Note**: Password authentication is disabled. You must use SSH keys.
 
 ### Example Session
 
 ```bash
 $ ssh -p 2200 test-user@127.0.0.1
-test-user@127.0.0.1's password: ****
 
 Welcome to SciTeX Cloud Workspace, test-user!
 Container: scitex-workspace-test-user
@@ -98,9 +107,12 @@ The SSH gateway uses RSA host keys for security:
 
 ### Authentication
 
-- Users authenticate with their Django username and password
-- Only active users can connect
+- **Public key authentication only** - Password authentication is disabled for security
+- Users must register SSH keys through the web interface (`/accounts/settings/ssh-keys/`)
+- Keys are validated against the `WorkspaceSSHKey` model in the database
+- Only active users with registered SSH keys can connect
 - Failed authentication attempts are logged
+- Key usage is tracked (last_used_at timestamp)
 
 ### Network Security
 
@@ -132,17 +144,33 @@ SciTeX Cloud uses the following SSH ports:
 
 ### Authentication Failures
 
-1. Verify user credentials in Django:
+1. Verify SSH key is registered:
    ```bash
    python manage.py shell
-   >>> from django.contrib.auth import authenticate
-   >>> user = authenticate(username='test-user', password='your-password')
-   >>> print(user)
+   >>> from django.contrib.auth import get_user_model
+   >>> from apps.accounts_app.models import WorkspaceSSHKey
+   >>> User = get_user_model()
+   >>> user = User.objects.get(username='test-user')
+   >>> keys = WorkspaceSSHKey.objects.filter(user=user)
+   >>> for key in keys:
+   ...     print(f"{key.title}: {key.fingerprint}")
    ```
 
-2. Check logs for auth attempts:
+2. Check SSH key fingerprint matches:
    ```bash
-   tail -f /app/logs/django.log | grep SSH
+   # Get fingerprint of your local key
+   ssh-keygen -lf ~/.ssh/id_rsa.pub
+   # Compare with registered key in Django
+   ```
+
+3. Check logs for auth attempts:
+   ```bash
+   tail -f /app/logs/ssh-gateway.log | grep -E "(authentication|Public key)"
+   ```
+
+4. Test with verbose SSH output:
+   ```bash
+   ssh -vvv -p 2200 test-user@127.0.0.1
    ```
 
 ### Container Not Starting
@@ -225,12 +253,13 @@ tail -f /app/logs/django.log | grep -E "(SSHGateway|run_ssh_gateway)"
 
 Potential improvements:
 
-1. **Public key authentication**: Support SSH key-based auth
+1. ✅ **Public key authentication**: Implemented - SSH key-based auth is now the only method
 2. **Session recording**: Record SSH sessions for auditing
 3. **Rate limiting**: Prevent brute force attacks
 4. **Session management**: View/terminate active sessions from web UI
 5. **SFTP support**: File transfer via SFTP protocol
 6. **Port forwarding**: SSH tunneling capabilities
+7. **Certificate-based authentication**: Support SSH certificates for advanced key management
 
 ## API Reference
 

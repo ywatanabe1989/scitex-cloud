@@ -197,7 +197,7 @@ services:
       - GITEA__server__DOMAIN=gitea
       - GITEA__server__ROOT_URL=http://gitea:3000/
       - GITEA__server__HTTP_PORT=3000
-      
+
       # Security
       - GITEA__security__INSTALL_LOCK=true
       - GITEA__service__DISABLE_REGISTRATION=false
