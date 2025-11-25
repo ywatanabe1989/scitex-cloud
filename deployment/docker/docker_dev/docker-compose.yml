@@ -196,7 +196,7 @@ services:
 
     # Run Celery worker with all queues
     command: >
-      celery -A config worker
+      celery -A config --broker=redis://redis:6379/1 worker
       --loglevel=info
       --queues=celery,ai_queue,search_queue,compute_queue,vis_queue
       --concurrency=4
@@ -237,7 +237,7 @@ services:
         condition: service_started
 
     # Run Celery beat scheduler
-    command: celery -A config beat --loglevel=info --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+    command: celery -A config --broker=redis://redis:6379/1 beat --loglevel=info --scheduler=django_celery_beat.schedulers:DatabaseScheduler
 
     restart: unless-stopped
 
@@ -273,8 +273,8 @@ services:
       - redis
       - celery_worker
 
-    # Run Flower monitoring
-    command: celery -A config flower --port=5555 --broker=redis://redis:6379/1
+    # Run Flower monitoring (--broker must come before flower subcommand)
+    command: celery -A config --broker=redis://redis:6379/1 flower --port=5555
 
     restart: unless-stopped
 
