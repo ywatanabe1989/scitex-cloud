@@ -4,21 +4,23 @@
  * change tracking, and button interactions
  */
 
-import { WriterEditor } from "../../modules/index.js";
 import {
-  showToast,
-  updateWordCountDisplay,
+  WriterEditor,
   scheduleSave,
   scheduleAutoCompile,
   saveSections,
   showCommitModal,
   handleGitCommit,
+  statusLamp,
+} from "../../modules/index.js";
+import {
+  showToast,
+  updateWordCountDisplay,
   hideCompilationProgress,
   minimizeCompilationOutput,
   restoreCompilationOutput,
   restoreCompilationStatus,
 } from "../../utils/index.js";
-import { statusLamp } from "../../modules/index.js";
 
 export class EditorListeners {
   private editor: WriterEditor | null;

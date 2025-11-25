@@ -47,30 +47,7 @@ export class PTYTerminal {
       cursorBlink: true,
       fontSize: 14,
       fontFamily: "'JetBrains Mono', 'Monaco', 'Menlo', monospace",
-      theme: {
-        // Eye-friendly pure dark gray/black background (neutral, no blue tint)
-        background: '#1e1e1e',
-        foreground: '#e8e8e8',
-        cursor: '#6c8ba0',
-        cursorAccent: '#1e1e1e',
-        // Higher contrast color palette with distinct colors
-        black: '#34495e',
-        red: '#d49191',
-        green: '#5fc9a4',
-        yellow: '#e8c88c',
-        blue: '#6eb5ff',
-        magenta: '#b89cd9',
-        cyan: '#72c7d1',
-        white: '#e8e8e8',
-        brightBlack: '#506b7a',
-        brightRed: '#e8a5a5',
-        brightGreen: '#6fd9b5',
-        brightYellow: '#f5d8a0',
-        brightBlue: '#85c5ff',
-        brightMagenta: '#c9b0e8',
-        brightCyan: '#8cd9e0',
-        brightWhite: '#f5f5f5',
-      },
+      theme: this.getThemeFromCSS(),
       allowProposedApi: true,
     });
 
@@ -87,6 +64,17 @@ export class PTYTerminal {
         fitAddon.fit();
         this.sendResize();
       });
+
+      // Resize when terminal container size changes (e.g., panel resizing)
+      const resizeObserver = new ResizeObserver(() => {
+        // Debounce to avoid excessive resizes
+        clearTimeout((this as any).resizeTimeout);
+        (this as any).resizeTimeout = setTimeout(() => {
+          fitAddon.fit();
+          this.sendResize();
+        }, 100);
+      });
+      resizeObserver.observe(containerEl);
     }
 
     // Image addon for inline images (matplotlib, PIL, etc.)
@@ -207,6 +195,51 @@ export class PTYTerminal {
       this.imageContainer.style.display = 'none';
       console.log('[PTY] Inline images cleared');
     }
+  }
+
+  /**
+   * Get terminal theme from CSS custom properties
+   */
+  private getThemeFromCSS(): any {
+    const root = document.documentElement;
+    const style = getComputedStyle(root);
+
+    return {
+      background: style.getPropertyValue('--terminal-bg').trim(),
+      foreground: style.getPropertyValue('--terminal-fg').trim(),
+      cursor: style.getPropertyValue('--terminal-cursor').trim(),
+      cursorAccent: style.getPropertyValue('--terminal-cursor-accent').trim(),
+      black: style.getPropertyValue('--terminal-black').trim(),
+      red: style.getPropertyValue('--terminal-red').trim(),
+      green: style.getPropertyValue('--terminal-green').trim(),
+      yellow: style.getPropertyValue('--terminal-yellow').trim(),
+      blue: style.getPropertyValue('--terminal-blue').trim(),
+      magenta: style.getPropertyValue('--terminal-magenta').trim(),
+      cyan: style.getPropertyValue('--terminal-cyan').trim(),
+      white: style.getPropertyValue('--terminal-white').trim(),
+      brightBlack: style.getPropertyValue('--terminal-bright-black').trim(),
+      brightRed: style.getPropertyValue('--terminal-bright-red').trim(),
+      brightGreen: style.getPropertyValue('--terminal-bright-green').trim(),
+      brightYellow: style.getPropertyValue('--terminal-bright-yellow').trim(),
+      brightBlue: style.getPropertyValue('--terminal-bright-blue').trim(),
+      brightMagenta: style.getPropertyValue('--terminal-bright-magenta').trim(),
+      brightCyan: style.getPropertyValue('--terminal-bright-cyan').trim(),
+      brightWhite: style.getPropertyValue('--terminal-bright-white').trim(),
+    };
+  }
+
+  /**
+   * Update terminal theme when global theme changes
+   */
+  public updateTheme(): void {
+    if (!this.term) {
+      console.warn('[PTY] Cannot update theme - terminal not initialized');
+      return;
+    }
+
+    const newTheme = this.getThemeFromCSS();
+    this.term.options.theme = newTheme;
+    console.log('[PTY] Terminal theme updated from CSS');
   }
 
   public executeCommand(command: string): void {

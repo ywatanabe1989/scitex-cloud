@@ -20,7 +20,7 @@ import {
   CitationsPanel,
   FiguresPanel,
   TablesPanel,
-  TablePreviewModal,
+  TablePreviewModalOrchestrator,
   statusLamp,
   compilationSettings,
   setupDragAndDrop,
@@ -322,8 +322,8 @@ const globalPanelSwitcher = new PanelSwitcher();
   globalPanelSwitcher.switchPanel(view);
 };
 
-// Re-export handleCompileFull for modules that import from index.js
-export { handleCompileFull };
+// Re-export functions for modules that import from index.js
+export { handleCompileFull, switchSection };
 (window as any).showCompilationProgress = showCompilationProgress;
 (window as any).hideCompilationProgress = hideCompilationProgress;
 (window as any).updateCompilationProgress = updateCompilationProgress;

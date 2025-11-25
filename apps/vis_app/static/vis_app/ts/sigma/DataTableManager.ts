@@ -48,8 +48,7 @@ export class DataTableManager {
             updateRulersAreaTransformCallback
         );
 
-        // Set column widths reference
-        this.tableRendering.setColumnWidths(new Map());
+        // Set display options
         this.tableRendering.setFirstColIsIndex(false);
 
         // Initialize TableSelection module

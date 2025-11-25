@@ -175,6 +175,27 @@ export function showCompilationOptionsModal(
         // Cleanup listeners
         confirmBtn?.removeEventListener("click", handleConfirm);
         modal.removeEventListener("click", handleCancel);
+        document.removeEventListener("keydown", handleEscape);
+
+        reject(new Error("User cancelled"));
+      }
+    };
+
+    // Handle ESC key to close modal
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        modal.classList.remove("scitex-modal-visible");
+        modal.classList.add("scitex-modal-closing");
+        setTimeout(() => {
+          modal.style.display = "none";
+          modal.classList.remove("scitex-modal-closing");
+        }, 300);
+
+        // Cleanup listeners
+        confirmBtn?.removeEventListener("click", handleConfirm);
+        modal.removeEventListener("click", handleCancel);
+        document.removeEventListener("keydown", handleEscape);
 
         reject(new Error("User cancelled"));
       }
@@ -182,6 +203,7 @@ export function showCompilationOptionsModal(
 
     confirmBtn?.addEventListener("click", handleConfirm);
     modal.addEventListener("click", handleCancel);
+    document.addEventListener("keydown", handleEscape);
   });
 }
 
@@ -243,9 +265,22 @@ export function showCommitModal(state: any): void {
         e.preventDefault();
         handleGitCommit(state);
         messageInput?.removeEventListener("keydown", handleEnter);
+        document.removeEventListener("keydown", handleEscape);
       }
     };
     messageInput?.addEventListener("keydown", handleEnter);
+
+    // Handle ESC key to close modal
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeCommitModal();
+        messageInput?.removeEventListener("keydown", handleEnter);
+        document.removeEventListener("keydown", handleEscape);
+        modalEl.removeEventListener("click", handleCancel);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
   }
 }
 

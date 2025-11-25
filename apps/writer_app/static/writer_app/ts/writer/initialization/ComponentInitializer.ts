@@ -9,7 +9,7 @@ import {
   CitationsPanel,
   FiguresPanel,
   TablesPanel,
-  TablePreviewModal,
+  TablePreviewModalOrchestrator,
   SectionsManager,
   CompilationManager,
   EnhancedEditor,
@@ -34,7 +34,7 @@ export interface InitializedComponents {
   citationsPanel: CitationsPanel;
   figuresPanel: FiguresPanel;
   tablesPanel: TablesPanel;
-  tablePreviewModal: TablePreviewModal;
+  tablePreviewModal: TablePreviewModalOrchestrator;
   panelResizer: PanelResizer;
   editorControls: any;
 }
@@ -105,7 +105,7 @@ export class ComponentInitializer {
       Promise.resolve(new CitationsPanel()),
       Promise.resolve(new FiguresPanel()),
       Promise.resolve(new TablesPanel()),
-      Promise.resolve(new TablePreviewModal()),
+      Promise.resolve(new TablePreviewModalOrchestrator()),
       Promise.resolve(new SectionsManager()),
       Promise.resolve(new CompilationManager("")),
     ]);

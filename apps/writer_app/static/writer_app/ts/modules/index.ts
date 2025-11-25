@@ -25,7 +25,7 @@ export {
 export { CitationsPanel, type Citation } from "./citations-panel.js";
 export { FiguresPanel, type Figure } from "./figures-panel.js";
 export { TablesPanel, type Table } from "./tables-panel.js";
-export { TablePreviewModal } from "./table-preview-modal.js";
+export { TablePreviewModalOrchestrator } from "./table-preview-modal.js";
 export {
   StatusLampManager,
   statusLamp,
@@ -46,6 +46,7 @@ export {
   type PDFColorMode,
   type PDFColorTheme,
 } from "./pdf-scroll-zoom.js";
+export { GitHistoryManager } from "./git-history.js";
 
 // New modular exports
 export {

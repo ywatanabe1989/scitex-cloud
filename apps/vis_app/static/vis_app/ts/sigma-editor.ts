@@ -385,8 +385,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup canvas-specific theme toggle (independent from global theme)
     const themeToggle = document.getElementById('canvas-theme-toggle');
     if (themeToggle) {
-        // Canvas has its own theme state, independent from global theme
-        let canvasIsDark = localStorage.getItem('canvas-theme') === 'dark';
+        // Get global theme first to use as default
+        const globalTheme = localStorage.getItem('scitex-theme-preference') || 'dark';
+
+        // Canvas has its own theme state, but defaults to global theme
+        const canvasThemeValue = localStorage.getItem('canvas-theme') || globalTheme;
+        let canvasIsDark = canvasThemeValue === 'dark';
 
         // Function to update theme icon
         const updateThemeIcon = (isDark: boolean) => {
@@ -418,11 +422,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Apply saved global theme (for website UI)
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    // Use the correct key that matches the global theme system
+    const savedTheme = localStorage.getItem('scitex-theme-preference') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    // Apply saved canvas theme (independent from global theme)
-    const savedCanvasTheme = localStorage.getItem('canvas-theme') || 'light';
+    // Apply saved canvas theme (independent from global theme, but defaults to global theme)
+    const savedCanvasTheme = localStorage.getItem('canvas-theme') || savedTheme;
     const canvasDarkMode = savedCanvasTheme === 'dark';
     editorInstance.updateCanvasTheme(canvasDarkMode);
 

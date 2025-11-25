@@ -14,11 +14,33 @@ export class MonacoManager {
   }
 
   async initialize(language: string = "python"): Promise<void> {
+    console.log(`[MonacoManager] Initializing with language: ${language}`);
     await this.createMonacoEditor(language);
+    console.log("[MonacoManager] Initialization complete");
   }
 
   getEditor(): any {
     return this.editor;
+  }
+
+  /**
+   * Update Monaco editor theme when global theme changes
+   */
+  updateTheme(theme: string): void {
+    if (!this.editor) {
+      console.warn("[MonacoManager] Cannot update theme - editor not initialized");
+      return;
+    }
+
+    const monaco = (window as any).monaco;
+    if (!monaco) {
+      console.warn("[MonacoManager] Cannot update theme - Monaco not available");
+      return;
+    }
+
+    const monacoTheme = theme === "dark" ? "vs-dark" : "vs";
+    this.editor.updateOptions({ theme: monacoTheme });
+    console.log(`[MonacoManager] Theme updated to: ${monacoTheme}`);
   }
 
   detectLanguage(filePath: string, content?: string): string {
@@ -90,9 +112,29 @@ export class MonacoManager {
 
     console.log("[MonacoManager] Monaco editor created successfully");
 
+    // Add Ctrl+Enter keybinding to run code (works in all modes)
+    this.addRunCodeKeybinding(monaco);
+
     // Apply saved keybinding mode
     const savedMode = localStorage.getItem("code-keybinding-mode") || "emacs";
     this.setKeybindingMode(savedMode);
+  }
+
+  private addRunCodeKeybinding(monaco: any): void {
+    if (!this.editor) return;
+
+    // Add Ctrl+Enter to trigger the Run button
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      const runBtn = document.getElementById("btn-run") as HTMLButtonElement;
+      if (runBtn && !runBtn.disabled) {
+        console.log("[Keybinding] Ctrl+Enter pressed - triggering Run button");
+        runBtn.click();
+      } else if (runBtn?.disabled) {
+        console.log("[Keybinding] Ctrl+Enter pressed but Run button is disabled");
+      }
+    });
+
+    console.log("[Keybinding] Ctrl+Enter keybinding for Run added");
   }
 
   private async waitForMonaco(): Promise<void> {
