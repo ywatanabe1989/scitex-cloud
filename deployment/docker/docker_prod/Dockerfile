@@ -89,6 +89,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     jq \
     git \
+    cron \
+    # Useful CLI tools
+    tree \
+    htop \
+    vim \
+    nano \
     # Database runtime library (not dev package)
     libpq5 \
     # LaTeX runtime

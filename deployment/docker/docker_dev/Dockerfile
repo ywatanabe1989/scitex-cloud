@@ -38,6 +38,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     openssh-client \
     jq \
+    cron \
+    # Useful CLI tools for development
+    tree \
+    htop \
+    vim \
+    nano \
     # Database (rarely change)
     libpq-dev \
     # LaTeX suite (large, rarely change - install early for caching)

@@ -8,10 +8,13 @@ import { PTYManager } from "./terminal/PTYManager.js";
 import { FileTreeManager } from "./files/FileTreeManager.js";
 import { FileOperations } from "./files/FileOperations.js";
 import { FileTabManager } from "./files/FileTabManager.js";
+import { FileStateManager } from "./files/FileStateManager.js";
+import { FileCommandHandler } from "./files/FileCommandHandler.js";
 import { GitStatusManager } from "./git/GitStatusManager.js";
 import { GitOperations } from "./git/GitOperations.js";
 import { UIComponents } from "./ui/UIComponents.js";
-import { DEFAULT_SCRATCH_CONTENT, type EditorConfig, type OpenFile } from "./core/types.js";
+import { VisitorManager } from "./auth/VisitorManager.js";
+import { DEFAULT_SCRATCH_CONTENT, type EditorConfig } from "./core/types.js";
 
 export class WorkspaceOrchestrator {
   private config: EditorConfig;
@@ -22,13 +25,12 @@ export class WorkspaceOrchestrator {
   private fileTreeManager: FileTreeManager;
   private fileOperations: FileOperations;
   private fileTabManager: FileTabManager;
+  private fileStateManager: FileStateManager;
+  private fileCommandHandler: FileCommandHandler;
   private gitStatusManager: GitStatusManager;
   private gitOperations: GitOperations;
   private uiComponents: UIComponents;
-
-  // State
-  private openFiles: Map<string, OpenFile> = new Map();
-  private currentFile: string | null = null;
+  private visitorManager: VisitorManager;
 
   constructor(config: EditorConfig) {
     this.config = config;
@@ -39,16 +41,48 @@ export class WorkspaceOrchestrator {
     this.fileOperations = new FileOperations(config);
     this.gitStatusManager = new GitStatusManager(config);
     this.gitOperations = new GitOperations(config);
+    this.visitorManager = new VisitorManager(config);
 
-    this.fileTreeManager = new FileTreeManager(config, this.handleFileClick.bind(this));
+    // Initialize FileTabManager with temporary callbacks (will be updated after FileStateManager)
     this.fileTabManager = new FileTabManager(
-      this.openFiles,
-      this.switchToFile.bind(this),
-      this.closeTab.bind(this)
+      new Map(), // Temporary, will be replaced
+      () => {}, // Temporary
+      () => {}  // Temporary
     );
+
+    // Initialize FileStateManager (manages file state and switching)
+    this.fileStateManager = new FileStateManager(
+      this.monacoManager,
+      this.fileOperations,
+      this.fileTabManager,
+      this.gitStatusManager
+    );
+
+    // Update FileTabManager with actual callbacks from FileStateManager
+    this.fileTabManager = new FileTabManager(
+      this.fileStateManager.getOpenFiles(),
+      this.fileStateManager.switchToFile.bind(this.fileStateManager),
+      this.fileStateManager.closeTab.bind(this.fileStateManager)
+    );
+
+    this.fileTreeManager = new FileTreeManager(
+      config,
+      this.fileStateManager.handleFileClick.bind(this.fileStateManager)
+    );
+
+    // Initialize UIComponents with placeholder callback (will delegate to fileCommandHandler)
     this.uiComponents = new UIComponents(
       config,
       this.handleContextMenuAction.bind(this)
+    );
+
+    // Initialize FileCommandHandler after all dependencies are ready
+    this.fileCommandHandler = new FileCommandHandler(
+      this.fileOperations,
+      this.fileTreeManager,
+      this.fileStateManager,
+      this.uiComponents,
+      this.visitorManager
     );
 
     // Start initialization
@@ -73,21 +107,63 @@ export class WorkspaceOrchestrator {
     console.log("[WorkspaceOrchestrator] Starting parallel initialization...");
     const startTime = performance.now();
 
-    await Promise.all([
-      this.fileTreeManager.loadFileTree(),
-      this.initScratchBuffer(),
-      this.ptyManager.initialize(),
-    ]);
+    try {
+      await Promise.all([
+        this.fileTreeManager.loadFileTree().catch(err => {
+          console.error("[WorkspaceOrchestrator] File tree initialization failed:", err);
+        }),
+        this.initScratchBuffer().catch(err => {
+          console.error("[WorkspaceOrchestrator] Scratch buffer initialization failed:", err);
+        }),
+        this.ptyManager.initialize().catch(err => {
+          console.error("[WorkspaceOrchestrator] PTY initialization failed:", err);
+        }),
+      ]);
 
-    const endTime = performance.now();
-    console.log(`[WorkspaceOrchestrator] All components initialized in ${Math.round(endTime - startTime)}ms`);
+      const endTime = performance.now();
+      console.log(`[WorkspaceOrchestrator] All components initialized in ${Math.round(endTime - startTime)}ms`);
+
+      // Set up theme change listeners
+      this.setupThemeListeners();
+    } catch (err) {
+      console.error("[WorkspaceOrchestrator] Critical initialization error:", err);
+    }
+  }
+
+  /**
+   * Setup theme change listeners for Monaco editor and terminal
+   */
+  private setupThemeListeners(): void {
+    document.addEventListener('theme-changed', (event: Event) => {
+      const customEvent = event as CustomEvent<{ theme: string }>;
+      const theme = customEvent.detail.theme;
+
+      console.log(`[WorkspaceOrchestrator] Theme changed to: ${theme}`);
+
+      // Update Monaco editor theme
+      if (this.monacoManager) {
+        this.monacoManager.updateTheme(theme);
+      }
+
+      // Update terminal theme
+      if (this.ptyManager) {
+        this.ptyManager.updateTheme();
+      }
+    });
+
+    console.log('[WorkspaceOrchestrator] Theme change listeners registered');
   }
 
   private async initScratchBuffer(): Promise<void> {
+    console.log("[WorkspaceOrchestrator] Initializing scratch buffer...");
+
     await this.monacoManager.initialize("python");
 
     const editor = this.monacoManager.getEditor();
-    if (!editor) return;
+    if (!editor) {
+      console.error("[WorkspaceOrchestrator] Editor not available after initialization");
+      return;
+    }
 
     // Show monaco editor, hide media preview
     const monacoEditor = document.getElementById("monaco-editor");
@@ -99,13 +175,8 @@ export class WorkspaceOrchestrator {
     const scratchContent = this.getScratchContent();
     editor.setValue(scratchContent);
 
-    // Add scratch buffer to open files
-    this.currentFile = "*scratch*";
-    this.openFiles.set("*scratch*", {
-      path: "*scratch*",
-      content: scratchContent,
-      language: "python",
-    });
+    // Initialize scratch buffer in file state manager
+    this.fileStateManager.initializeScratchBuffer(scratchContent);
 
     const toolbarFilePath = document.getElementById("toolbar-file-path");
     if (toolbarFilePath) {
@@ -119,8 +190,7 @@ export class WorkspaceOrchestrator {
       btnRun.title = "Run: python .scratch_temp.py (Ctrl+Enter)";
     }
 
-    this.fileTabManager.setCurrentFile(this.currentFile);
-    this.fileTabManager.updateTabs();
+    console.log("[WorkspaceOrchestrator] Scratch buffer initialized");
   }
 
   private getScratchContent(): string {
@@ -136,7 +206,7 @@ export class WorkspaceOrchestrator {
 
     const isDev = host.includes("127.0.0.1") || host.includes("localhost");
     const sshHost = isDev ? "127.0.0.1" : "scitex.cloud";
-    const sshPort = isDev ? "2222" : "2222";
+    const sshPort = isDev ? "2200" : "2200";
 
     return `#!/usr/bin/env python3
 # SciTeX Code Workspace
@@ -173,210 +243,44 @@ if __name__ == "__main__":
     `;
   }
 
-  private handleFileClick(filePath: string): void {
-    this.loadFile(filePath);
-  }
 
-  private async loadFile(filePath: string): Promise<void> {
-    // Check if already open
-    if (this.openFiles.has(filePath)) {
-      this.switchToFile(filePath);
-      return;
-    }
-
-    // Load from server
-    const result = await this.fileOperations.loadFile(filePath);
-    if (!result.success) {
-      console.error(`[WorkspaceOrchestrator] Failed to load file: ${filePath}`);
-      return;
-    }
-
-    const language = this.monacoManager.detectLanguage(filePath, result.content);
-
-    // Add to open files
-    this.openFiles.set(filePath, {
-      path: filePath,
-      content: result.content,
-      language: language,
-    });
-
-    // Switch to the file
-    await this.switchToFile(filePath);
-  }
-
-  private async switchToFile(filePath: string): Promise<void> {
-    const fileData = this.openFiles.get(filePath);
-    if (!fileData) return;
-
-    const editor = this.monacoManager.getEditor();
-    if (!editor) return;
-
-    // Save current file content before switching
-    if (this.currentFile && this.currentFile !== filePath) {
-      const currentData = this.openFiles.get(this.currentFile);
-      if (currentData) {
-        currentData.content = editor.getValue();
-      }
-    }
-
-    // Switch to new file
-    this.currentFile = filePath;
-    editor.setValue(fileData.content);
-
-    // Update Monaco language
-    const monaco = (window as any).monaco;
-    if (monaco) {
-      const model = editor.getModel();
-      if (model) {
-        monaco.editor.setModelLanguage(model, fileData.language);
-      }
-    }
-
-    // Update UI
-    const toolbarFilePath = document.getElementById("toolbar-file-path");
-    if (toolbarFilePath) {
-      toolbarFilePath.textContent = filePath;
-    }
-
-    // Update tabs
-    this.fileTabManager.setCurrentFile(filePath);
-
-    // Update git decorations
-    await this.gitStatusManager.updateGitDecorations(filePath, editor);
-
-    console.log(`[WorkspaceOrchestrator] Switched to file: ${filePath}`);
-  }
-
-  private closeTab(filePath: string): void {
-    this.fileTabManager.closeTab(filePath);
-  }
-
-  private async saveFile(): Promise<void> {
-    if (!this.currentFile || this.currentFile === "*scratch*") {
-      console.log("[WorkspaceOrchestrator] Cannot save scratch buffer");
-      return;
-    }
-
-    const editor = this.monacoManager.getEditor();
-    if (!editor) return;
-
-    const content = editor.getValue();
-    const success = await this.fileOperations.saveFile(this.currentFile, content);
-
-    if (success) {
-      // Update in-memory content
-      const fileData = this.openFiles.get(this.currentFile);
-      if (fileData) {
-        fileData.content = content;
-      }
-
-      // Update git status and decorations
-      await this.gitStatusManager.updateGitStatus();
-      await this.gitStatusManager.updateGitDecorations(this.currentFile, editor);
-    }
-  }
-
+  /**
+   * Delegate context menu actions to FileCommandHandler
+   */
   private handleContextMenuAction(action: string, target: string | null): void {
-    // Fire and forget - async operations handled internally
-    switch (action) {
-      case "new-file":
-        this.createNewFile();
-        break;
-      case "new-folder":
-        this.createNewFolder();
-        break;
-      case "rename":
-        if (target) this.renameFile(target);
-        break;
-      case "delete":
-        if (target) this.deleteFile(target);
-        break;
-    }
+    this.fileCommandHandler.handleContextMenuAction(action, target);
   }
 
-  private async createNewFile(): Promise<void> {
-    const fileName = await this.uiComponents.showFileModal(
-      "New File",
-      "File name:",
-      "example.py"
-    );
 
-    if (!fileName) return;
-
-    const success = await this.fileOperations.createFile(fileName, "");
-    if (success) {
-      await this.fileTreeManager.loadFileTree();
-      await this.loadFile(fileName);
-    }
+  /**
+   * Create file in a specific folder (exposed globally for file tree buttons)
+   */
+  public async createFileInFolder(folderPath: string): Promise<void> {
+    await this.fileCommandHandler.createFileInFolder(folderPath);
   }
 
-  private async createNewFolder(): Promise<void> {
-    const folderName = await this.uiComponents.showFileModal(
-      "New Folder",
-      "Folder name:",
-      "my-folder"
-    );
-
-    if (!folderName) return;
-
-    const success = await this.fileOperations.createFolder(folderName);
-    if (success) {
-      await this.fileTreeManager.loadFileTree();
-    }
-  }
-
-  private async renameFile(oldPath: string): Promise<void> {
-    const newPath = await this.uiComponents.showFileModal(
-      "Rename File",
-      "New name:",
-      oldPath
-    );
-
-    if (!newPath || newPath === oldPath) return;
-
-    const success = await this.fileOperations.renameFile(oldPath, newPath);
-    if (success) {
-      // Update open files map
-      if (this.openFiles.has(oldPath)) {
-        const fileData = this.openFiles.get(oldPath)!;
-        this.openFiles.delete(oldPath);
-        fileData.path = newPath;
-        this.openFiles.set(newPath, fileData);
-      }
-
-      if (this.currentFile === oldPath) {
-        this.currentFile = newPath;
-      }
-
-      await this.fileTreeManager.loadFileTree();
-      this.fileTabManager.setCurrentFile(this.currentFile);
-    }
-  }
-
-  private async deleteFile(filePath: string): Promise<void> {
-    if (!confirm(`Delete ${filePath}?`)) return;
-
-    const success = await this.fileOperations.deleteFile(filePath);
-    if (success) {
-      this.closeTab(filePath);
-      await this.fileTreeManager.loadFileTree();
-    }
+  /**
+   * Create folder in a specific folder (exposed globally for file tree buttons)
+   */
+  public async createFolderInFolder(parentPath: string): Promise<void> {
+    await this.fileCommandHandler.createFolderInFolder(parentPath);
   }
 
   private attachEventListeners(): void {
     // Save button
     const btnSave = document.getElementById("btn-save");
-    btnSave?.addEventListener("click", () => this.saveFile());
+    btnSave?.addEventListener("click", () => this.fileStateManager.saveCurrentFile());
 
     // New file button
     const btnNewFile = document.getElementById("btn-new-file-tab");
-    btnNewFile?.addEventListener("click", () => this.createNewFile());
+    btnNewFile?.addEventListener("click", () => this.fileCommandHandler.createNewFile());
 
     // Delete button
     const btnDelete = document.getElementById("btn-delete");
     btnDelete?.addEventListener("click", () => {
-      if (this.currentFile && this.currentFile !== "*scratch*") {
-        this.deleteFile(this.currentFile);
+      const currentFile = this.fileStateManager.getCurrentFile();
+      if (currentFile && currentFile !== "*scratch*") {
+        this.fileCommandHandler.deleteFile(currentFile);
       }
     });
 
@@ -385,13 +289,13 @@ if __name__ == "__main__":
       // Ctrl+S: Save
       if (e.ctrlKey && e.key === "s") {
         e.preventDefault();
-        this.saveFile();
+        this.fileStateManager.saveCurrentFile();
       }
 
       // Ctrl+N: New file
       if (e.ctrlKey && e.key === "n") {
         e.preventDefault();
-        this.createNewFile();
+        this.fileCommandHandler.createNewFile();
       }
 
       // Ctrl+Tab: Next tab
@@ -411,3 +315,6 @@ if __name__ == "__main__":
     console.log("[WorkspaceOrchestrator] Event listeners attached");
   }
 }
+
+// Note: Initialization is handled by workspace.ts
+// This module only exports the WorkspaceOrchestrator class and utilities

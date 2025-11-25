@@ -31,6 +31,17 @@ def index(request):
     Shows the landing page to all visitors, including authenticated users.
     This allows the logo to always return to the landing page.
     """
+    # Auto-allocate visitor slot if user is a visitor without an allocation
+    if request.user.is_authenticated and request.user.username.startswith("visitor-"):
+        from apps.project_app.services.visitor_pool import VisitorPool
+
+        # Check if visitor has an active allocation
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if not allocation_token:
+            # No allocation - allocate one now
+            project, user = VisitorPool.allocate_visitor(request.session)
+            logger.info(f"[Landing] Auto-allocated visitor slot for {request.user.username}")
+
     # Show landing page to all users (removed auto-redirect for logged-in users)
     # Users can navigate to their profile via the header navigation
 
@@ -621,6 +632,306 @@ def releases_view(request):
 def demo(request):
     """Demo page."""
     return render(request, "public_app/demo.html")
+
+
+def server_status(request):
+    """
+    Server Status Page.
+
+    Shows comprehensive server health status:
+    - Docker containers status
+    - SSH services (workspace gateway, Gitea)
+    - Database connection
+    - Redis connection
+    - Disk usage
+    """
+    import socket
+    import psutil
+    from pathlib import Path
+    from django.db import connection
+    from django.core.cache import cache
+
+    status_data = {
+        "services": [],
+        "ssh_services": [],
+        "database": {},
+        "redis": {},
+        "disk": {},
+        "system": {},
+    }
+
+    # Check Docker containers
+    try:
+        import docker
+        client = docker.from_env()
+        containers = client.containers.list(all=True, filters={"name": "scitex-cloud-dev"})
+
+        for container in containers:
+            status_data["services"].append({
+                "name": container.name.replace("scitex-cloud-dev-", "").replace("-1", ""),
+                "status": container.status,
+                "is_running": container.status == "running",
+                "image": container.image.tags[0] if container.image.tags else "unknown",
+            })
+    except Exception as e:
+        logger.warning(f"Could not check Docker containers: {e}")
+        status_data["services"].append({
+            "name": "Docker",
+            "status": "unavailable",
+            "is_running": False,
+            "error": str(e),
+        })
+
+    # Check SSH services
+    # Workspace SSH Gateway (port 2200)
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('127.0.0.1', 2200))
+        sock.close()
+        status_data["ssh_services"].append({
+            "name": "Workspace SSH Gateway",
+            "port": 2200,
+            "is_running": result == 0,
+            "status": "running" if result == 0 else "down",
+        })
+    except Exception as e:
+        status_data["ssh_services"].append({
+            "name": "Workspace SSH Gateway",
+            "port": 2200,
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        })
+
+    # Gitea SSH (port 2222)
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('127.0.0.1', 2222))
+        sock.close()
+        status_data["ssh_services"].append({
+            "name": "Gitea SSH (Git operations)",
+            "port": 2222,
+            "is_running": result == 0,
+            "status": "running" if result == 0 else "down",
+        })
+    except Exception as e:
+        status_data["ssh_services"].append({
+            "name": "Gitea SSH",
+            "port": 2222,
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        })
+
+    # Check database
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            status_data["database"] = {
+                "is_running": True,
+                "status": "connected",
+                "backend": connection.settings_dict['ENGINE'].split('.')[-1],
+                "name": connection.settings_dict['NAME'],
+            }
+    except Exception as e:
+        status_data["database"] = {
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        }
+
+    # Check Redis
+    try:
+        cache.set('health_check', 'ok', 10)
+        test_value = cache.get('health_check')
+        status_data["redis"] = {
+            "is_running": test_value == 'ok',
+            "status": "connected" if test_value == 'ok' else "error",
+        }
+    except Exception as e:
+        status_data["redis"] = {
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        }
+
+    # Check disk usage
+    try:
+        disk = psutil.disk_usage('/')
+        status_data["disk"] = {
+            "total_gb": round(disk.total / (1024**3), 2),
+            "used_gb": round(disk.used / (1024**3), 2),
+            "free_gb": round(disk.free / (1024**3), 2),
+            "percent_used": disk.percent,
+            "is_healthy": disk.percent < 90,
+        }
+    except Exception as e:
+        status_data["disk"] = {
+            "is_healthy": False,
+            "error": str(e),
+        }
+
+    # System resources
+    try:
+        status_data["system"] = {
+            "cpu_percent": psutil.cpu_percent(interval=1),
+            "memory_percent": psutil.virtual_memory().percent,
+            "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 2),
+        }
+    except Exception as e:
+        status_data["system"] = {"error": str(e)}
+
+    context = {
+        "status_data": status_data,
+    }
+
+    return render(request, "public_app/server_status.html", context)
+
+
+def visitor_status(request):
+    """
+    Visitor Mode Status Page.
+
+    Shows visitor pool status without exposing privacy information.
+    Displays:
+    - Total slots available
+    - Currently allocated slots
+    - Free slots
+    - User's personal countdown timer (if in visitor mode)
+    - Allocation expiration times (without identifying information)
+    """
+    from apps.project_app.services.visitor_pool import VisitorPool
+    from apps.project_app.models import VisitorAllocation
+    from django.utils import timezone
+    from datetime import datetime, time as dt_time
+
+    # Check if current user has a visitor allocation, allocate if they don't
+    user_allocation = None
+    user_time_until_reset = None
+
+    # Check for authenticated visitors without allocations
+    if request.user.is_authenticated and request.user.username.startswith("visitor-"):
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                user_allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+            except VisitorAllocation.DoesNotExist:
+                allocation_token = None
+
+        # If no valid allocation, allocate one now
+        if not allocation_token:
+            project, user = VisitorPool.allocate_visitor(request.session)
+            logger.info(f"[VisitorStatus] Re-allocated visitor slot for {request.user.username}")
+
+            # Get the new allocation
+            allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+            if allocation_token:
+                try:
+                    user_allocation = VisitorAllocation.objects.get(
+                        allocation_token=allocation_token,
+                        is_active=True,
+                        expires_at__gt=timezone.now()
+                    )
+                except VisitorAllocation.DoesNotExist:
+                    pass
+
+    elif not request.user.is_authenticated:
+        # Check for existing allocation token
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                user_allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+            except VisitorAllocation.DoesNotExist:
+                allocation_token = None
+
+        # If no valid allocation, allocate one now
+        if not allocation_token:
+            from django.contrib.auth import login
+            project, user = VisitorPool.allocate_visitor(request.session)
+            if user:  # Successfully allocated
+                # Log in the visitor user to make them authenticated
+                if not request.user.is_authenticated:
+                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    logger.info(f"[VisitorStatus] Logged in visitor: {user.username}")
+
+                # Get the new allocation
+                allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+                if allocation_token:
+                    try:
+                        user_allocation = VisitorAllocation.objects.get(
+                            allocation_token=allocation_token,
+                            is_active=True,
+                            expires_at__gt=timezone.now()
+                        )
+                    except VisitorAllocation.DoesNotExist:
+                        pass
+
+        # Calculate time until session expires if we have an allocation
+        if user_allocation:
+            now = timezone.now()
+            time_until_expiry = user_allocation.expires_at - now
+            user_time_until_reset = {
+                "hours": int(time_until_expiry.total_seconds() / 3600),
+                "minutes": int((time_until_expiry.total_seconds() % 3600) / 60),
+                "seconds": int(time_until_expiry.total_seconds() % 60),
+                "total_seconds": int(time_until_expiry.total_seconds()),
+                "reset_time": user_allocation.expires_at,
+            }
+
+    # Get pool status
+    status = VisitorPool.get_pool_status()
+
+    # Get allocation information (anonymized)
+    allocations = []
+    user_visitor_number = user_allocation.visitor_number if user_allocation else None
+
+    for i in range(1, VisitorPool.POOL_SIZE + 1):
+        allocation = VisitorAllocation.objects.filter(visitor_number=i).first()
+        is_current_user = (user_visitor_number == i)
+
+        if allocation and allocation.is_active and allocation.expires_at > timezone.now():
+            # Active allocation
+            time_remaining = allocation.expires_at - timezone.now()
+            total_minutes = int(time_remaining.total_seconds() / 60)
+
+            allocations.append({
+                "slot_number": i,
+                "status": "allocated",
+                "expires_at": allocation.expires_at,
+                "minutes_remaining": total_minutes,
+                "visitor_username": f"visitor-{allocation.visitor_number:03d}",
+                "is_current_user": is_current_user,
+            })
+        else:
+            # Free slot
+            allocations.append({
+                "slot_number": i,
+                "status": "free",
+                "expires_at": None,
+                "minutes_remaining": None,
+                "visitor_username": None,
+                "is_current_user": False,
+            })
+
+    context = {
+        "pool_status": status,
+        "allocations": allocations,
+        "session_lifetime_hours": VisitorPool.SESSION_LIFETIME_HOURS,
+        "user_allocation": user_allocation,
+        "user_time_until_reset": user_time_until_reset,
+    }
+
+    return render(request, "public_app/visitor_status.html", context)
 
 
 def contributors(request):
