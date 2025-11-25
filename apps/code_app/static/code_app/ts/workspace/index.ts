@@ -312,6 +312,12 @@ if __name__ == "__main__":
       this.monacoManager.setKeybindingMode(mode);
     });
 
+    // Monaco theme toggle button
+    const monacoThemeToggle = document.getElementById("monaco-theme-toggle");
+    monacoThemeToggle?.addEventListener("click", () => {
+      this.monacoManager.toggleEditorTheme();
+    });
+
     console.log("[WorkspaceOrchestrator] Event listeners attached");
   }
 }

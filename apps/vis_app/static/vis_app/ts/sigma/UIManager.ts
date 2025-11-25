@@ -59,6 +59,7 @@ export class UIManager {
     ) {
         // Initialize direct dependencies
         this.resizerManager = new ResizerManager();
+        this.resizerManager.initializeSigmaResizers();  // Initialize panel resizers
         this.plotDataManager = new PlotDataManager();
 
         // Initialize PanelControls module

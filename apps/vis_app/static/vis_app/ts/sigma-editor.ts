@@ -392,12 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvasThemeValue = localStorage.getItem('canvas-theme') || globalTheme;
         let canvasIsDark = canvasThemeValue === 'dark';
 
-        // Function to update theme icon
-        const updateThemeIcon = (isDark: boolean) => {
-            const icon = themeToggle.querySelector('i');
-            if (icon) {
-                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-            }
+        // Function to update theme emoji (☀️ for light mode, 🌙 for dark mode)
+        const updateThemeEmoji = (isDark: boolean) => {
+            themeToggle.textContent = isDark ? '🌙' : '☀️';
         };
 
         themeToggle.addEventListener('click', () => {
@@ -409,14 +406,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update canvas theme (grid and rulers)
             editorInstance.updateCanvasTheme(canvasIsDark);
 
-            // Update button icon
-            updateThemeIcon(canvasIsDark);
+            // Update emoji
+            updateThemeEmoji(canvasIsDark);
 
             console.log(`[SigmaEditor] Canvas theme toggled to ${canvasTheme} (independent from global theme)`);
         });
 
-        // Set initial icon based on canvas theme
-        updateThemeIcon(canvasIsDark);
+        // Set initial emoji based on canvas theme (starts as 🌓, then updates)
+        updateThemeEmoji(canvasIsDark);
     } else {
         console.warn('[SigmaEditor] Canvas theme toggle button not found');
     }
