@@ -55,16 +55,34 @@ function getCSRFToken(): string {
 }
 
 // Initialize workspace when DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
+function initWorkspace() {
   console.log("[workspace.ts] Initializing Code Workspace...");
 
   const config = getEditorConfig();
 
   // Create the workspace orchestrator
-  new WorkspaceOrchestrator(config);
+  const orchestrator = new WorkspaceOrchestrator(config);
+
+  // Expose global functions for file tree buttons
+  (window as any).createFileInFolder = (folderPath: string) => {
+    orchestrator.createFileInFolder(folderPath);
+  };
+
+  (window as any).createFolderInFolder = (parentPath: string) => {
+    orchestrator.createFolderInFolder(parentPath);
+  };
 
   console.log("[workspace.ts] Workspace orchestrator created");
-});
+}
+
+// Check if DOM is already loaded (script loaded dynamically)
+if (document.readyState === "loading") {
+  // DOM not ready yet, wait for it
+  document.addEventListener("DOMContentLoaded", initWorkspace);
+} else {
+  // DOM already loaded, initialize immediately
+  initWorkspace();
+}
 
 // Export for debugging
 (window as any).getEditorConfig = getEditorConfig;

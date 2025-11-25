@@ -23,7 +23,7 @@
         </div>
         <div class="stats-box">
             <div class="stat-item">
-                <span class="stat-number">920+</span>
+                <span class="stat-number">1,200+</span>
                 <span class="stat-label">Total Commits</span>
             </div>
             <div class="stat-item">
@@ -45,6 +45,53 @@
             <div class="chart-wrapper">
                 <canvas id="commitTimeline"></canvas>
             </div>
+        </div>
+        <div class="release-month">
+            <div class="month-header">
+                <h2>November 2025 — v0.4.0</h2>
+                <span class="month-badge">Latest Release</span>
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <h3>👤 Visitor Mode UI Improvements</h3>
+                    <p>
+                        Completely redesigned visitor experience with distinct visual identity.
+                        Visitors now see an orange menu icon instead of regular user avatar,
+                        with dedicated dropdown showing Sign Up and Sign In CTAs. Clear warning
+                        about temporary workspace encourages account creation to preserve work.
+                        Visitor Mode badge with countdown timer shows session expiration in real-time.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>🔧 Auto-Allocation System</h3>
+                    <p>
+                        Fixed critical bug where authenticated visitors had no slot allocations,
+                        leaving them in limbo state. Auto-allocation now triggers at 4 key entry
+                        points: landing page (/), visitor status page (/visitor-status/), code
+                        workspace (/code/), and writer workspace (/writer/). Context processor
+                        detects authenticated visitors and provides is_visitor flag to all templates.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>📦 TypeScript Refactoring</h3>
+                    <p>
+                        Major workspace modularization reducing workspace/index.ts from 607 to 320 lines
+                        (47% reduction). Created three new managers: FileCommandHandler (178 lines)
+                        for file CRUD operations, FileStateManager (201 lines) for state management,
+                        and VisitorManager (103 lines) for visitor detection/warnings. Added comprehensive
+                        REFACTORING_PLAN.md documenting modularization strategy and future steps.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>🐳 Docker Infrastructure</h3>
+                    <p>
+                        Pre-installed essential CLI tools (tree, htop, vim, nano) in both dev and
+                        prod Docker images. Users maintain full apt package installation capability
+                        by running 'apt update' first. Image size reduction through removal of
+                        /var/lib/apt/lists/* while preserving package installation functionality.
+                    </p>
+                </li>
+            </ul>
         </div>
         <div class="release-month">
             <div class="month-header">

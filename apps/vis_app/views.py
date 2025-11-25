@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 
 from .models import ScientificFigure, JournalPreset
+from apps.project_app.services.project_utils import get_current_project
 
 
 def figure_editor(request):
@@ -16,12 +17,15 @@ def figure_editor(request):
     # Allow visitor access with limited functionality
     if request.user.is_authenticated:
         figures = ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at")
+        current_project = get_current_project(request, user=request.user)
     else:
         figures = []
+        current_project = None
 
     context = {
         "figures": figures,
         "journal_presets": JournalPreset.objects.filter(is_active=True),
+        "current_project": current_project,
     }
 
     return render(request, "vis_app/editor.html", context)
@@ -62,11 +66,13 @@ def create_figure(request):
 def figure_detail(request, figure_id):
     """Edit a specific figure"""
     figure = get_object_or_404(ScientificFigure, id=figure_id, owner=request.user)
+    current_project = get_current_project(request, user=request.user)
 
     context = {
         "figure": figure,
         "figures": ScientificFigure.objects.filter(owner=request.user).order_by("-updated_at"),
         "journal_presets": JournalPreset.objects.filter(is_active=True),
+        "current_project": current_project,
     }
 
     return render(request, "vis_app/editor.html", context)

@@ -183,23 +183,17 @@ export class UIManager {
     // ========================================
 
     public updateStatusBar(message?: string): void {
+        const statusEl = document.getElementById('status-message');
+        if (!statusEl) return;
+
         if (!message) {
-            const statusEl = document.getElementById('status-message');
-            if (statusEl) {
-                const zoomLevel = document.getElementById('canvas-zoom')?.textContent || '100%';
-                statusEl.textContent = `Zoom: ${zoomLevel} | Ready`;
-            }
+            const zoomLevel = document.getElementById('canvas-zoom')?.textContent || '100%';
+            statusEl.textContent = `Zoom: ${zoomLevel} | Ready`;
             return;
         }
 
-        if (this.statusBarCallback) {
-            this.statusBarCallback(message);
-        }
-
-        const statusEl = document.getElementById('status-message');
-        if (statusEl) {
-            statusEl.textContent = message;
-        }
+        // Update status bar directly (removed callback to prevent infinite recursion)
+        statusEl.textContent = message;
     }
 
     // ========================================

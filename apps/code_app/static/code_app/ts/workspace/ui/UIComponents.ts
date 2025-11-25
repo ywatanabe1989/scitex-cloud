@@ -68,8 +68,8 @@ export class UIComponents {
   }
 
   private initResizers(): void {
-    this.setupResizer("sidebar-resizer", "sidebar", "horizontal");
-    this.setupResizer("terminal-resizer", "pty-terminal", "vertical");
+    this.setupResizer("sidebar-resizer", "code-sidebar", "horizontal");
+    this.setupResizer("editor-resizer", "code-terminal-panel", "horizontal");
   }
 
   private setupResizer(
@@ -80,11 +80,20 @@ export class UIComponents {
     const resizer = document.getElementById(resizerId);
     const target = document.getElementById(targetId);
 
-    if (!resizer || !target) return;
+    if (!resizer || !target) {
+      console.warn(`[UIComponents] Resizer setup failed: resizer=${resizerId}, target=${targetId}`);
+      return;
+    }
 
     let isResizing = false;
     let startPos = 0;
     let startSize = 0;
+
+    // Set minimum sizes based on target
+    const MIN_SIDEBAR_WIDTH = 200;
+    const MIN_TERMINAL_WIDTH = 300;
+    const minSize = targetId === "code-sidebar" ? MIN_SIDEBAR_WIDTH :
+                    targetId === "code-terminal-panel" ? MIN_TERMINAL_WIDTH : 100;
 
     resizer.addEventListener("mousedown", (e) => {
       isResizing = true;
@@ -101,14 +110,17 @@ export class UIComponents {
 
       const currentPos = direction === "horizontal" ? e.clientX : e.clientY;
       const delta = currentPos - startPos;
-      const newSize = startSize + delta;
 
-      if (newSize > 100) {
-        if (direction === "horizontal") {
-          target.style.width = `${newSize}px`;
-        } else {
-          target.style.height = `${newSize}px`;
-        }
+      // For terminal panel on the right, invert delta (dragging left = wider)
+      // For sidebar on the left, use normal delta (dragging right = wider)
+      const isTerminal = targetId === "code-terminal-panel";
+      const adjustedDelta = isTerminal ? -delta : delta;
+      const newSize = Math.max(minSize, startSize + adjustedDelta);
+
+      if (direction === "horizontal") {
+        target.style.width = `${newSize}px`;
+      } else {
+        target.style.height = `${newSize}px`;
       }
     });
 

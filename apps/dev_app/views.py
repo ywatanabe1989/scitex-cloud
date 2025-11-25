@@ -67,6 +67,16 @@ class DesignSectionView(View):
                 "description": "Color palette and semantic color system.",
                 "partial": "dev_app/design_partial/colors.html",
             },
+            "workspace-colors": {
+                "title": "Workspace Colors",
+                "description": "Professional workspace colors for Code, Writer, and Vis apps.",
+                "partial": "dev_app/design_partial/workspace_colors.html",
+            },
+            "workspace-icons": {
+                "title": "Workspace Icons",
+                "description": "Icon system for Code, Writer, and Vis workspaces.",
+                "partial": "dev_app/design_partial/workspace_icons.html",
+            },
             "theme": {
                 "title": "Theme",
                 "description": "Theme system and color mode support.",
@@ -81,6 +91,16 @@ class DesignSectionView(View):
                 "title": "Terminal Log",
                 "description": "Terminal-style log display for process monitoring.",
                 "partial": "dev_app/design_partial/terminal-log.html",
+            },
+            "terminal": {
+                "title": "Terminal",
+                "description": "XTerm.js interactive terminal with CSS-based theming.",
+                "partial": "dev_app/design_partial/terminal.html",
+            },
+            "icons": {
+                "title": "Icons",
+                "description": "Icon system using FontAwesome and custom SVG icons.",
+                "partial": "dev_app/design_partial/icons.html",
             },
             "spacing": {
                 "title": "Spacing",
@@ -168,6 +188,11 @@ class DesignSectionView(View):
                 "description": "Alert messages for contextual feedback.",
                 "partial": "dev_app/design_partial/alerts.html",
             },
+            "resizer": {
+                "title": "Panel Resizer",
+                "description": "Draggable panel resizer with expanded hit area.",
+                "partial": "dev_app/design_partial/resizer.html",
+            },
         }
 
         if section not in sections:
@@ -188,6 +213,16 @@ class DesignSectionView(View):
 class DesignColorsView(DesignSectionView):
     def get(self, request):
         return super().get(request, "colors")
+
+
+class DesignWorkspaceColorsView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "workspace-colors")
+
+
+class DesignWorkspaceIconsView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "workspace-icons")
 
 
 class DesignTypographyView(DesignSectionView):
@@ -218,6 +253,11 @@ class DesignGuidelinesView(DesignSectionView):
 class DesignTerminalLogView(DesignSectionView):
     def get(self, request):
         return super().get(request, "terminal-log")
+
+
+class DesignTerminalView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "terminal")
 
 
 # Component Views
@@ -294,6 +334,16 @@ class DesignAlertsView(DesignSectionView):
 class DesignHeroView(DesignSectionView):
     def get(self, request):
         return super().get(request, "hero-guideline")
+
+
+class DesignResizerView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "resizer")
+
+
+class DesignIconsView(DesignSectionView):
+    def get(self, request):
+        return super().get(request, "icons")
 
 
 # EOF

@@ -78,7 +78,7 @@
                                                       width: 20px;
                                                       height: 20px;
                                                       border-radius: 3px;
-                                                      color: var(--color-fg-muted);
+                                                      color: var(--text-muted);
                                                       text-decoration: none;
                                                       transition: all 0.15s ease">
                                                 <i class="fas fa-folder-open" style="font-size: 11px"></i>
@@ -140,12 +140,21 @@
                         <span class="nav-label">Files</span>
                     </a>
                 {% else %}
-                    <a href="/auth/signup/"
-                       class="header-nav-item"
-                       data-tooltip="Sign up to manage your files">
-                        <i class="fas fa-book-open nav-icon-fa" style="font-size: 16px"></i>
-                        <span class="nav-label">Files</span>
-                    </a>
+                    {% if visitor_username %}
+                        <a href="/{{ visitor_username }}/"
+                           class="header-nav-item"
+                           data-tooltip="Your files">
+                            <i class="fas fa-book-open nav-icon-fa" style="font-size: 16px"></i>
+                            <span class="nav-label">Files</span>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'auth_app:signup' %}"
+                           class="header-nav-item"
+                           data-tooltip="Sign up to access files">
+                            <i class="fas fa-book-open nav-icon-fa" style="font-size: 16px; opacity: 0.5;"></i>
+                            <span class="nav-label">Files</span>
+                        </a>
+                    {% endif %}
                 {% endif %}
                 {% comment %} Module links - All users now navigate to dedicated module
         endpoints: - /scholar/ - Scholar app with project selector - /code/ -
@@ -153,12 +162,10 @@
         (project-centric via sessionStorage) - /writer/ - Writer module
                 (project-centric via sessionStorage) {% endcomment %}
                 <!-- Scholar Module -->
-                <a href="/scholar/bibtex/"
+                <a href="/scholar/"
                    class="header-nav-item {% if 'scholar' in request.path %}active{% endif %}"
                    data-tooltip="Citation Management">
-                    <img src="{% static 'shared/images/icons_svg/scitex-scholar-icon.svg' %}"
-                         alt=""
-                         class="nav-icon" />
+                    <i class="fas fa-graduation-cap nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Scholar</span>
                 </a>
                 <a href="/code/"
@@ -170,15 +177,13 @@
                 <a href="/vis/"
                    class="header-nav-item {% if 'vis' in request.path %}active{% endif %}"
                    data-tooltip="Scientific Figure Editor">
-                    <img src="{% static 'shared/images/icons_svg/scitex-viz-icon.svg' %}"
-                         alt=""
-                         class="nav-icon" />
+                    <i class="fas fa-chart-line nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Vis</span>
                 </a>                
                 <a href="/writer/"
                    class="header-nav-item {% if 'writer' in request.path %}active{% endif %}"
                    data-tooltip="Manuscript writing">
-                    <i class="fas fa-pen-nib nav-icon-fa" style="font-size: 16px"></i>
+                    <i class="fas fa-pen nav-icon-fa" style="font-size: 16px"></i>
                     <span class="nav-label">Writer</span>
                 </a>
                 <a href="/tools/"
@@ -264,7 +269,7 @@
                                                   width: 20px;
                                                   height: 20px;
                                                   border-radius: 3px;
-                                                  color: var(--color-fg-muted);
+                                                  color: var(--text-muted);
                                                   text-decoration: none;
                                                   transition: all 0.15s ease">
                                             <i class="fas fa-folder-open" style="font-size: 11px"></i>
@@ -309,7 +314,7 @@
                             </div>
                             <div style="padding: 12px;
                                         font-size: 12px;
-                                        color: var(--color-fg-muted);
+                                        color: var(--text-muted);
                                         line-height: 1.5">
                                 <svg width="14"
                                      height="14"
@@ -393,10 +398,15 @@
                     style="font-size: 18px;">
                 <i class="fas fa-sync-alt"></i>
             </button>
-            {% if not user.is_authenticated %}
-                <!-- Visitor Mode indicator -->
-                <span class="header-visitor-badge"
-                      data-tooltip="Your work won't be saved. Sign up to save permanently.">
+            {% if is_visitor %}
+                <!-- Visitor Mode indicator with countdown -->
+                <a href="{% url 'public_app:visitor_status' %}"
+                   class="header-visitor-badge"
+                   id="visitor-mode-badge"
+                   data-tooltip="Click to view visitor mode status"
+                   {% if visitor_expires_at %}
+                   data-expires-at="{{ visitor_expires_at.isoformat }}"
+                   {% endif %}>
                     <svg width="14"
                          height="14"
                          viewBox="0 0 16 16"
@@ -405,10 +415,80 @@
                                 vertical-align: text-bottom">
                         <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z" />
                     </svg>
-                    Visitor Mode
-                </span>
+                    <span id="visitor-mode-text">Visitor Mode</span>
+                    {% if visitor_expires_at %}
+                    <span id="visitor-countdown" style="margin-left: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 600;">
+                        ⏰ --:--
+                    </span>
+                    {% endif %}
+                </a>
             {% endif %}
-            {% if user.is_authenticated %}
+            {% if is_visitor %}
+                <!-- Visitor Menu (Sign up / Sign in) -->
+                <div class="header-user-menu">
+                    <button class="header-user-toggle" id="visitor-menu-toggle" style="background: var(--color-attention-emphasis); color: white;">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z" />
+                        </svg>
+                        <svg width="12"
+                             height="12"
+                             viewBox="0 0 16 16"
+                             fill="currentColor"
+                             style="margin-left: 4px">
+                            <path d="M4 6l4 4 4-4H4z" />
+                        </svg>
+                    </button>
+                    <div class="header-dropdown" id="visitor-menu-dropdown" style="display: none">
+                        <!-- Visitor Info Header -->
+                        <div class="dropdown-header">
+                            <div class="dropdown-user-info">
+                                <strong>Visitor Mode</strong>
+                                <div class="dropdown-user-username">{{ user.username }}</div>
+                            </div>
+                        </div>
+                        <div style="padding: 12px 16px; font-size: 13px; color: var(--text-muted); line-height: 1.5; background: var(--color-attention-subtle); border-radius: 6px; margin: 8px;">
+                            <svg width="14"
+                                 height="14"
+                                 viewBox="0 0 16 16"
+                                 fill="currentColor"
+                                 style="margin-right: 4px; vertical-align: text-bottom; color: var(--color-attention-fg);">
+                                <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z" />
+                            </svg>
+                            Your work won't be saved permanently. Create an account to keep it!
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <!-- Primary CTA: Sign Up -->
+                        <a href="/auth/signup/" class="dropdown-item" style="background: var(--color-accent-emphasis); color: white; font-weight: 600; text-align: center;">
+                            <svg width="16"
+                                 height="16"
+                                 viewBox="0 0 16 16"
+                                 fill="currentColor"
+                                 style="margin-right: 8px; vertical-align: text-bottom;">
+                                <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
+                            </svg>
+                            Sign Up (Free)
+                        </a>
+                        <a href="/auth/signin/" class="dropdown-item" style="text-align: center;">
+                            <svg width="16"
+                                 height="16"
+                                 viewBox="0 0 16 16"
+                                 fill="currentColor"
+                                 style="margin-right: 8px; vertical-align: text-bottom;">
+                                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z" />
+                                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+                            </svg>
+                            Already have an account? Sign In
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'public_app:visitor_status' %}" class="dropdown-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px; vertical-align: text-bottom;">
+                                <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z" />
+                            </svg>
+                            Visitor Status
+                        </a>
+                    </div>
+                </div>
+            {% elif user.is_authenticated %}
                 <!-- User Menu -->
                 <div class="header-user-menu">
                     <button class="header-user-toggle" id="user-menu-toggle">
@@ -441,7 +521,7 @@
                             <!-- Switcher dropdown (only shown when multiple accounts) -->
                             <div id="account-switcher-dropdown-wrapper" style="display: none">
                                 <div style="font-size: 12px;
-                                            color: var(--color-fg-muted);
+                                            color: var(--text-muted);
                                             margin-bottom: 8px;
                                             font-weight: 600">
                                     <svg width="14"
@@ -457,10 +537,10 @@
                                 <select id="account-switcher"
                                         style="width: 100%;
                                                padding: 6px 8px;
-                                               border: 1px solid var(--color-border-default);
+                                               border: 1px solid var(--border-default);
                                                border-radius: 6px;
-                                               background: var(--color-canvas-default);
-                                               color: var(--color-fg-default);
+                                               background: var(--bg-page);
+                                               color: var(--text-primary);
                                                margin-bottom: 8px">
                                     <option value="">Loading...</option>
                                 </select>
@@ -652,6 +732,7 @@
       }
     });
 
+    // User menu dropdown (regular users)
     const userMenuToggle = document.getElementById("user-menu-toggle");
     const userMenuDropdown = document.getElementById("user-menu-dropdown");
 
@@ -676,6 +757,35 @@
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") {
           userMenuDropdown.style.display = "none";
+        }
+      });
+    }
+
+    // Visitor menu dropdown (visitors)
+    const visitorMenuToggle = document.getElementById("visitor-menu-toggle");
+    const visitorMenuDropdown = document.getElementById("visitor-menu-dropdown");
+
+    if (visitorMenuToggle && visitorMenuDropdown) {
+      visitorMenuToggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const isVisible = visitorMenuDropdown.style.display !== "none";
+        visitorMenuDropdown.style.display = isVisible ? "none" : "block";
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", function (e) {
+        if (
+          !visitorMenuToggle.contains(e.target) &&
+          !visitorMenuDropdown.contains(e.target)
+        ) {
+          visitorMenuDropdown.style.display = "none";
+        }
+      });
+
+      // Close dropdown when pressing Escape
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          visitorMenuDropdown.style.display = "none";
         }
       });
     }
@@ -729,8 +839,8 @@
         top: 100%;
         left: 0;
         right: 0;
-        background: var(--color-canvas-default);
-        border: 1px solid var(--color-border-default);
+        background: var(--bg-page);
+        border: 1px solid var(--border-default);
         border-radius: 6px;
         box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         max-height: 500px;
@@ -765,20 +875,20 @@
       Object.keys(grouped).forEach((type) => {
         const label = typeLabels[type] || type;
         html += `
-        <div style="padding: 8px 12px 4px; font-size: 11px; font-weight: 600; color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+        <div style="padding: 8px 12px 4px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
           ${label}
         </div>
       `;
 
         grouped[type].forEach((s) => {
           html += `
-          <a href="${s.url}" class="search-result-item" style=" display: flex; align-items: center; gap: 12px; padding: 8px 12px; color: var(--color-fg-default); text-decoration: none; border-bottom: 1px solid var(--color-border-muted); " onmouseover="this.style.background='var(--color-canvas-subtle)'" onmouseout="this.style.background='transparent'">
+          <a href="${s.url}" class="search-result-item" style=" display: flex; align-items: center; gap: 12px; padding: 8px 12px; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--border-muted); " onmouseover="this.style.background='var(--bg-muted)'" onmouseout="this.style.background='transparent'">
             <span style="font-size: 16px; opacity: 0.7;">${s.icon || "📄"}</span>
             <div style="flex: 1; min-width: 0;">
               <div style="font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.title}</div>
-              ${s.subtitle ? `<div style="font-size: 12px; color: var(--color-fg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.subtitle}</div>` : ""}
+              ${s.subtitle ? `<div style="font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${s.subtitle}</div>` : ""}
             </div>
-            <div style="font-size: 12px; color: var(--color-fg-muted); white-space: nowrap;">Jump to</div>
+            <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">Jump to</div>
           </a>
         `;
         });
@@ -1049,7 +1159,7 @@
 
       if (suggestions.length === 0) {
         searchModalResults.innerHTML =
-          '<div style="padding: 24px; text-align: center; color: var(--color-fg-muted);">No results found</div>';
+          '<div style="padding: 24px; text-align: center; color: var(--text-muted);">No results found</div>';
         return;
       }
 
@@ -1107,6 +1217,60 @@
         // Hard refresh (bypass cache) like Ctrl+Shift+R
         window.location.reload(true);
       });
+    }
+
+    // Visitor mode Files link - no longer needed, visitors have full access
+
+    // Visitor Mode Countdown Timer
+    const visitorBadge = document.getElementById("visitor-mode-badge");
+    if (visitorBadge && visitorBadge.dataset.expiresAt) {
+      const expiresAt = new Date(visitorBadge.dataset.expiresAt);
+      const countdownSpan = document.getElementById("visitor-countdown");
+
+      function updateCountdown() {
+        const now = new Date();
+        const timeLeft = expiresAt - now;
+
+        if (timeLeft <= 0) {
+          // Session expired - reload to get new allocation or show message
+          countdownSpan.textContent = "⏰ EXPIRED";
+          countdownSpan.style.color = "#f44336";
+          setTimeout(() => {
+            window.location.href = "{% url 'public_app:visitor_status' %}";
+          }, 2000);
+          return;
+        }
+
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        // Format: MM:SS or HH:MM:SS
+        let timeString;
+        if (hours > 0) {
+          timeString = `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        } else {
+          timeString = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        }
+
+        countdownSpan.textContent = `⏰ ${timeString}`;
+
+        // Color coding based on time remaining
+        if (timeLeft < 5 * 60 * 1000) {
+          // < 5 minutes: Red (urgent)
+          countdownSpan.style.color = "#f44336";
+        } else if (timeLeft < 15 * 60 * 1000) {
+          // < 15 minutes: Orange (warning)
+          countdownSpan.style.color = "#ff9800";
+        } else {
+          // > 15 minutes: Default color
+          countdownSpan.style.color = "inherit";
+        }
+      }
+
+      // Update immediately and then every second
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
     }
   });
 </script>

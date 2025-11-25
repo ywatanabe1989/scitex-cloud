@@ -1,5 +1,6 @@
 {% extends "writer_app/writer_base.html" %}
 {% load static %}
+{% block title %}SciTeX Writer{% if project %} - {{ project.name }}{% endif %}{% endblock %}
 {% block extra_css %}
     <!-- Critical CSS - loaded immediately (editor, PDF, core UI) -->
     <link rel="stylesheet"

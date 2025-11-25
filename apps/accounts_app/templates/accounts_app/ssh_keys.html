@@ -232,6 +232,28 @@
                             <strong>Purpose:</strong> SSH shell access into your SciTeX Cloud workspace container
                         </p>
                     </div>
+                    <!-- Important Notice -->
+                    <div style="background: var(--color-attention-subtle);
+                                border: 1px solid var(--scitex-color-04);
+                                border-radius: 6px;
+                                padding: 1.25rem;
+                                margin-bottom: 1.5rem">
+                        <div style="display: flex; align-items: start; gap: 1rem">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--scitex-color-04); font-size: 1.5rem; margin-top: 0.1rem"></i>
+                            <div>
+                                <h3 style="margin: 0 0 0.75rem 0; font-size: 16px; font-weight: 600; color: var(--color-fg-default)">
+                                    SSH Key Required
+                                </h3>
+                                <p style="margin: 0 0 0.75rem 0; color: var(--color-fg-default); font-size: 14px; line-height: 1.5">
+                                    <strong>Password authentication is disabled for security.</strong> You must add an SSH key to:
+                                </p>
+                                <ul style="margin: 0 0 0 1.5rem; padding: 0; color: var(--color-fg-default); font-size: 14px; line-height: 1.6">
+                                    <li>Connect to your workspace via SSH (<code style="background: rgba(0,0,0,0.1); padding: 0.15rem 0.4rem; border-radius: 3px">ssh -p 2200</code>)</li>
+                                    <li>Clone/push Git repositories (<code style="background: rgba(0,0,0,0.1); padding: 0.15rem 0.4rem; border-radius: 3px">git clone ssh://git@...:</code>)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     <div style="background: var(--color-canvas-default);
                                 border-left: 3px solid var(--scitex-color-04);
                                 padding: 1rem;

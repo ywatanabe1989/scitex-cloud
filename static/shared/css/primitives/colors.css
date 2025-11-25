@@ -76,6 +76,27 @@
   ); /* Medium border (was 06, now stronger) */
   --border-muted: var(--_scitex-06); /* Subtle border */
 
+  /* Workspace-specific colors - professional light theme for Code/Writer/Vis */
+  --workspace-bg-primary: #f8f9fa;    /* Soft gray - main panels */
+  --workspace-bg-secondary: #f3f4f6;  /* Medium gray - secondary panels */
+  --workspace-bg-tertiary: #ebedef;   /* Subtle gray - hover states */
+  --workspace-bg-elevated: #ffffff;   /* Pure white - elevated surfaces (stands out) */
+  --workspace-border-subtle: #e0e4e8; /* Very subtle borders */
+  --workspace-border-default: #b5c7d1; /* Default borders - increased contrast (was #d0d7de) */
+  --workspace-border-hover: #8fa4b0;  /* Hover state - darker */
+  --workspace-border-active: #6c8ba0; /* Active/dragging - even darker */
+  --workspace-slider-hover: #6c8ba0;  /* Slider handle hover */
+  --workspace-slider-active: #506b7a; /* Slider handle active */
+  --workspace-ruler-bg: #f3f4f6;      /* Rulers and guides background */
+  --workspace-ruler-border: #d0d7de;  /* Ruler borders */
+
+  /* Workspace icons - softer green tones matching status-success */
+  --workspace-icon-primary: #4a9b7e;   /* Soft green - primary actions (matches status-success) */
+  --workspace-icon-secondary: #6b7280; /* Gray - secondary actions */
+  --workspace-icon-muted: #9ca3af;     /* Light gray - muted/inactive */
+  --workspace-icon-hover: #3d8269;     /* Darker soft green - hover state */
+  --workspace-icon-active: #306854;    /* Deep soft green - active state */
+
   /* Status */
   --status-success: var(--_success);
   --status-warning: var(--_warning);
@@ -92,6 +113,28 @@
   --color-cta: var(--_cta);
   --color-cta-hover: var(--_cta-hover);
   --color-cta-subtle: rgba(59, 130, 246, 0.1);
+
+  /* Terminal colors - light theme */
+  --terminal-bg: #ffffff;
+  --terminal-fg: #24292f;
+  --terminal-cursor: #0969da;
+  --terminal-cursor-accent: #ffffff;
+  --terminal-black: #24292f;
+  --terminal-red: #cf222e;
+  --terminal-green: #116329;
+  --terminal-yellow: #4d2d00;
+  --terminal-blue: #0969da;
+  --terminal-magenta: #8250df;
+  --terminal-cyan: #1b7c83;
+  --terminal-white: #6e7781;
+  --terminal-bright-black: #57606a;
+  --terminal-bright-red: #a40e26;
+  --terminal-bright-green: #1a7f37;
+  --terminal-bright-yellow: #633c01;
+  --terminal-bright-blue: #218bff;
+  --terminal-bright-magenta: #a475f9;
+  --terminal-bright-cyan: #3192aa;
+  --terminal-bright-white: #8c959f;
 
   /* GitHub Primer-style aliases for compatibility */
   --color-fg-default: var(--text-primary);
@@ -141,13 +184,42 @@
   --workspace-bg-tertiary: #1a1a1a;   /* Subtle lighter - hover states */
   --workspace-bg-elevated: #1f1f1f;   /* Slightly elevated surfaces */
   --workspace-border-subtle: #1a1a1a; /* Subtle borders between panels */
-  --workspace-border-default: #252525; /* Default borders - resizer/slider base */
-  --workspace-border-hover: #3a3a3a;  /* Hover state - slightly lighter gray */
-  --workspace-border-active: #4a4a4a; /* Active/dragging - even lighter */
-  --workspace-slider-hover: #5a5a5a;  /* Slider handle hover */
-  --workspace-slider-active: #6a6a6a; /* Slider handle active */
+  --workspace-border-default: #3a3a3a; /* Default borders - increased contrast (was #252525) */
+  --workspace-border-hover: #4a4a4a;  /* Hover state - slightly lighter gray */
+  --workspace-border-active: #5a5a5a; /* Active/dragging - even lighter */
+  --workspace-slider-hover: #6a6a6a;  /* Slider handle hover */
+  --workspace-slider-active: #7a7a7a; /* Slider handle active */
   --workspace-ruler-bg: #0a0a0a;      /* Rulers and guides background */
   --workspace-ruler-border: #1a1a1a;  /* Ruler borders */
+
+  /* Workspace icons - softer green tones matching status-success for dark mode */
+  --workspace-icon-primary: #6ba89a;   /* Soft green - primary actions (matches status-success) */
+  --workspace-icon-secondary: #9ca3af; /* Light gray - secondary actions */
+  --workspace-icon-muted: #6b7280;     /* Medium gray - muted/inactive */
+  --workspace-icon-hover: #7eb8aa;     /* Lighter soft green - hover state */
+  --workspace-icon-active: #91c8ba;    /* Very light soft green - active state */
+
+  /* Terminal colors - dark theme */
+  --terminal-bg: #1e1e1e;
+  --terminal-fg: #e8e8e8;
+  --terminal-cursor: #6c8ba0;
+  --terminal-cursor-accent: #1e1e1e;
+  --terminal-black: #34495e;
+  --terminal-red: #d49191;
+  --terminal-green: #5fc9a4;
+  --terminal-yellow: #e8c88c;
+  --terminal-blue: #6eb5ff;
+  --terminal-magenta: #b89cd9;
+  --terminal-cyan: #72c7d1;
+  --terminal-white: #e8e8e8;
+  --terminal-bright-black: #506b7a;
+  --terminal-bright-red: #e8a5a5;
+  --terminal-bright-green: #6fd9b5;
+  --terminal-bright-yellow: #f5d8a0;
+  --terminal-bright-blue: #85c5ff;
+  --terminal-bright-magenta: #c9b0e8;
+  --terminal-bright-cyan: #8cd9e0;
+  --terminal-bright-white: #f5f5f5;
 
   /* Status colors - adjust for dark mode readability */
   --status-success: #6ba89a;

@@ -28,6 +28,22 @@ def code_workspace(request):
     }
     
     if request.user.is_authenticated:
+        # Check if this is a visitor without an allocation
+        if request.user.username.startswith("visitor-"):
+            from apps.project_app.services.visitor_pool import VisitorPool
+
+            allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+            if not allocation_token:
+                # Visitor without allocation - allocate one now
+                try:
+                    visitor_project, visitor_user = VisitorPool.allocate_visitor(request.session)
+                    logger.info(f"[Code] Auto-allocated visitor slot for {request.user.username}")
+                    if visitor_project:
+                        context["current_project"] = visitor_project
+                        context["project"] = visitor_project
+                except Exception as e:
+                    logger.error(f"[Code] Visitor re-allocation failed: {e}", exc_info=True)
+
         # Get current project from header dropdown
         current_project = get_current_project(request, user=request.user)
 
@@ -53,7 +69,8 @@ def code_workspace(request):
     else:
         # Anonymous user - allocate from visitor pool
         from apps.project_app.services.visitor_pool import VisitorPool
-        
+        from django.contrib.auth import login
+
         try:
             visitor_project, visitor_user = VisitorPool.allocate_visitor(
                 request.session
@@ -66,14 +83,19 @@ def code_workspace(request):
             )
             context["is_demo"] = True
             return render(request, "code_app/workspace.html", context)
-        
+
         if not visitor_project:
             # Pool exhausted
             logger.warning("[Code] Visitor pool exhausted - all slots in use")
             context["pool_exhausted"] = True
             context["is_demo"] = True
             return render(request, "code_app/workspace.html", context)
-        
+
+        # Log in the visitor user to make them authenticated
+        if visitor_user and not request.user.is_authenticated:
+            login(request, visitor_user, backend='django.contrib.auth.backends.ModelBackend')
+            logger.info(f"[Code] Logged in visitor: {visitor_user.username}")
+
         context["is_demo"] = True
         context["project"] = visitor_project
         context["current_project"] = visitor_project

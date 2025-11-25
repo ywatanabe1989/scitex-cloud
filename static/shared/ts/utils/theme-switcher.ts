@@ -113,6 +113,13 @@ function applyTheme(theme: Theme): void {
 
   // Update toggle button if exists
   updateToggleButton();
+
+  // Dispatch custom event for Monaco editor and terminal to listen to
+  const event = new CustomEvent("theme-changed", {
+    detail: { theme },
+  });
+  document.dispatchEvent(event);
+  console.log(`[Theme] Dispatched theme-changed event: ${theme}`);
 }
 
 /**

@@ -3,7 +3,10 @@
  * Handles section loading, switching, and UI updates
  */
 
-import { WriterEditor } from "../../modules/index.js";
+import {
+  WriterEditor,
+  setLoadingContent,
+} from "../../modules/index.js";
 import {
   showToast,
   getUserContext,
@@ -11,7 +14,6 @@ import {
   updatePDFPreviewTitle,
   updateCommitButtonVisibility,
   syncDropdownToSection,
-  setLoadingContent,
 } from "../../utils/index.js";
 import { getWriterConfig } from "../../helpers.js";
 

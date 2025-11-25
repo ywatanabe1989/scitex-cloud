@@ -4,6 +4,7 @@ Context processors for making common variables available in all templates.
 
 import re
 from django.conf import settings
+from django.utils import timezone
 from apps.project_app.models import Project
 
 
@@ -13,6 +14,84 @@ def version_context(request):
         "SCITEX_CLOUD_VERSION": getattr(
             settings, "SCITEX_CLOUD_VERSION", "0.1.0-alpha"
         ),
+    }
+
+
+def visitor_expiration_context(request):
+    """
+    Add visitor session expiration time and username to context.
+
+    Returns:
+        dict: visitor_expires_at, visitor_username, and is_visitor flag
+    """
+    from apps.project_app.services.visitor_pool import VisitorPool
+    from apps.project_app.models import VisitorAllocation
+    from django.contrib.auth.models import User
+
+    # Check if user is an authenticated visitor (username starts with "visitor-")
+    is_visitor = False
+    if request.user.is_authenticated:
+        is_visitor = request.user.username.startswith("visitor-")
+
+    # For authenticated visitors, get allocation from session
+    if is_visitor:
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+                return {
+                    "visitor_expires_at": allocation.expires_at,
+                    "visitor_username": request.user.username,
+                    "is_visitor": True,
+                }
+            except VisitorAllocation.DoesNotExist:
+                pass
+
+        # Authenticated visitor but no valid allocation
+        return {
+            "visitor_expires_at": None,
+            "visitor_username": request.user.username,
+            "is_visitor": True,
+        }
+
+    # For non-authenticated users
+    if not request.user.is_authenticated:
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+
+                # Get visitor username
+                visitor_user_id = request.session.get(VisitorPool.SESSION_KEY_VISITOR_ID)
+                visitor_username = None
+                if visitor_user_id:
+                    try:
+                        visitor_user = User.objects.get(id=visitor_user_id)
+                        visitor_username = visitor_user.username
+                    except User.DoesNotExist:
+                        pass
+
+                return {
+                    "visitor_expires_at": allocation.expires_at,
+                    "visitor_username": visitor_username,
+                    "is_visitor": True,
+                }
+            except VisitorAllocation.DoesNotExist:
+                pass
+
+    # Not a visitor
+    return {
+        "visitor_expires_at": None,
+        "visitor_username": None,
+        "is_visitor": False,
     }
 
 

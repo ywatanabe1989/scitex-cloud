@@ -133,20 +133,30 @@ export class PDFEventHandlers {
       console.log("[PDFEventHandlers] Spacebar pressed - Hand tool activated");
     }
 
-    // Ctrl + Plus: zoom in
-    if (this.isCtrlPressed && (e.key === "+" || e.key === "=")) {
+    // Only handle zoom shortcuts when focus is on PDF viewer or preview panel
+    const activeElement = document.activeElement;
+    const previewPanel = document.querySelector('.preview-panel');
+    const isOverPDF = this.pdfViewer && (
+      activeElement === this.pdfViewer ||
+      activeElement?.closest('.preview-panel') !== null ||
+      this.pdfViewer.contains(activeElement) ||
+      (previewPanel && previewPanel.contains(activeElement))
+    );
+
+    // Ctrl + Plus: zoom in (only when over PDF)
+    if (this.isCtrlPressed && (e.key === "+" || e.key === "=") && isOverPDF) {
       e.preventDefault();
       this.zoomControl.zoomIn();
     }
 
-    // Ctrl + Minus: zoom out
-    if (this.isCtrlPressed && e.key === "-") {
+    // Ctrl + Minus: zoom out (only when over PDF)
+    if (this.isCtrlPressed && e.key === "-" && isOverPDF) {
       e.preventDefault();
       this.zoomControl.zoomOut();
     }
 
-    // Ctrl + 0: reset zoom
-    if (this.isCtrlPressed && e.key === "0") {
+    // Ctrl + 0: reset zoom (only when over PDF)
+    if (this.isCtrlPressed && e.key === "0" && isOverPDF) {
       e.preventDefault();
       this.zoomControl.resetZoom();
     }

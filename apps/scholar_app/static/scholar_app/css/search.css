@@ -55,7 +55,7 @@
 
 /* Enhance search input styling */
 .scholar-search-input {
-  border: 1px solid var(--color-border-default) !important;
+  border: 1px solid var(--border-default) !important;
   border-radius: 6px;
   transition: all 0.2s ease;
 }
@@ -67,13 +67,13 @@
 }
 
 .scholar-search-input:hover:not(:focus) {
-  border-color: var(--color-border-muted);
+  border-color: var(--border-muted);
 }
 
 /* Ensure search form has proper styling */
 .scholar-search-form input[type="text"],
 .scholar-search-form input[type="search"] {
-  border: 1px solid var(--color-border-default) !important;
+  border: 1px solid var(--border-default) !important;
   border-radius: 6px;
   padding: 8px 12px;
   transition: all 0.2s ease;
@@ -139,8 +139,8 @@
 #searchPanel .scitex-checkbox-label,
 #searchPanel .scitex-toggle-label {
   /* color: var(--text-primary) !important; */
-  /* background: var(--color-canvas-subtle) !important; */
-  /* border-color: var(--color-border-default) !important; */
+  /* background: var(--bg-surface) !important; */
+  /* border-color: var(--border-default) !important; */
 }
 
 /* Dark mode - bluish colors for checkbox labels */
@@ -341,7 +341,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: var(--color-canvas-subtle);
+  background: var(--bg-surface);
   border: 1px solid var(--border-default);
   border-radius: 6px;
   cursor: grab;
@@ -349,7 +349,7 @@
 }
 
 .sort-item:hover {
-  background: var(--color-canvas-default);
+  background: var(--bg-page);
   border-color: var(--primary-color);
 }
 
@@ -612,7 +612,7 @@
 }
 
 .accordion-row-header:hover {
-  /* background: var(--color-canvas-inset); */
+  /* background: var(--bg-muted); */
   /* border-color: var(--scitex-color-03); */
 }
 
@@ -693,12 +693,12 @@
 }
 
 .scholar-side-panel::-webkit-scrollbar-track {
-  background: var(--color-canvas-subtle);
+  background: var(--bg-surface);
   border-radius: 4px;
 }
 
 .scholar-side-panel::-webkit-scrollbar-thumb {
-  background: var(--color-border-default);
+  background: var(--border-default);
   border-radius: 4px;
   transition: background 0.2s ease;
 }
@@ -722,7 +722,7 @@
 
 /* Firefox scrollbar styling */
 .scholar-side-panel {
-  scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+  scrollbar-color: var(--border-default) var(--bg-surface);
   scrollbar-width: thin;
 }
 
@@ -748,8 +748,8 @@
 
 .pagination .page-item .page-link {
   color: var(--scitex-color-01);
-  background-color: var(--color-canvas-default);
-  border: 1px solid var(--color-border-default);
+  background-color: var(--bg-page);
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   padding: 0.5rem 0.75rem;
   transition: all 0.2s ease;
@@ -770,8 +770,8 @@
 
 .pagination .page-item.disabled .page-link {
   color: var(--text-secondary);
-  background-color: var(--color-canvas-subtle);
-  border-color: var(--color-border-default);
+  background-color: var(--bg-surface);
+  border-color: var(--border-default);
   opacity: 0.6;
 }
 
@@ -823,7 +823,7 @@
 
 /* Tab navigation enhancements */
 .nav-tabs {
-  /* border-bottom: 2px solid var(--color-border-default); */
+  /* border-bottom: 2px solid var(--border-default); */
 }
 
 .nav-tabs .nav-link {
@@ -834,13 +834,13 @@
 
 .nav-tabs .nav-link:hover {
   /* color: var(--text-primary); */
-  /* background: var(--color-canvas-subtle); */
+  /* background: var(--bg-surface); */
   /* border-bottom-color: var(--scitex-color-04); */
 }
 
 .nav-tabs .nav-link.active {
   /* color: var(--scitex-color-01); */
-  /* background: var(--color-canvas-subtle); */
+  /* background: var(--bg-surface); */
   /* border-bottom: 3px solid var(--scitex-color-01); */
   /* font-weight: 600; */
   /* box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08); */

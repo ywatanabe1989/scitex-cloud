@@ -11,12 +11,14 @@ __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
 import logging
+import time
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import models
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils import timezone
@@ -31,6 +33,17 @@ def index(request):
     Shows the landing page to all visitors, including authenticated users.
     This allows the logo to always return to the landing page.
     """
+    # Auto-allocate visitor slot if user is a visitor without an allocation
+    if request.user.is_authenticated and request.user.username.startswith("visitor-"):
+        from apps.project_app.services.visitor_pool import VisitorPool
+
+        # Check if visitor has an active allocation
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if not allocation_token:
+            # No allocation - allocate one now
+            project, user = VisitorPool.allocate_visitor(request.session)
+            logger.info(f"[Landing] Auto-allocated visitor slot for {request.user.username}")
+
     # Show landing page to all users (removed auto-redirect for logged-in users)
     # Users can navigate to their profile via the header navigation
 
@@ -621,6 +634,511 @@ def releases_view(request):
 def demo(request):
     """Demo page."""
     return render(request, "public_app/demo.html")
+
+
+def server_status(request):
+    """
+    Server Status Page.
+
+    Shows comprehensive server health status:
+    - Docker containers status
+    - SSH services (workspace gateway, Gitea)
+    - Database connection
+    - Redis connection
+    - Disk usage
+    """
+    import socket
+    import psutil
+    from pathlib import Path
+    from django.db import connection
+    from django.core.cache import cache
+
+    status_data = {
+        "services": [],
+        "ssh_services": [],
+        "database": {},
+        "redis": {},
+        "disk": {},
+        "system": {},
+    }
+
+    # Check Docker containers
+    try:
+        import docker
+        client = docker.from_env()
+        containers = client.containers.list(all=True, filters={"name": "scitex-cloud-dev"})
+
+        for container in containers:
+            status_data["services"].append({
+                "name": container.name.replace("scitex-cloud-dev-", "").replace("-1", ""),
+                "status": container.status,
+                "is_running": container.status == "running",
+                "image": container.image.tags[0] if container.image.tags else "unknown",
+            })
+    except Exception as e:
+        logger.warning(f"Could not check Docker containers: {e}")
+        status_data["services"].append({
+            "name": "Docker",
+            "status": "unavailable",
+            "is_running": False,
+            "error": str(e),
+        })
+
+    # Check SSH services
+    # Workspace SSH Gateway (port 2200)
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('127.0.0.1', 2200))
+        sock.close()
+        status_data["ssh_services"].append({
+            "name": "Workspace SSH Gateway",
+            "port": 2200,
+            "is_running": result == 0,
+            "status": "running" if result == 0 else "down",
+        })
+    except Exception as e:
+        status_data["ssh_services"].append({
+            "name": "Workspace SSH Gateway",
+            "port": 2200,
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        })
+
+    # Gitea SSH (port 2222)
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)
+        result = sock.connect_ex(('127.0.0.1', 2222))
+        sock.close()
+        status_data["ssh_services"].append({
+            "name": "Gitea SSH (Git operations)",
+            "port": 2222,
+            "is_running": result == 0,
+            "status": "running" if result == 0 else "down",
+        })
+    except Exception as e:
+        status_data["ssh_services"].append({
+            "name": "Gitea SSH",
+            "port": 2222,
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        })
+
+    # Check database
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            status_data["database"] = {
+                "is_running": True,
+                "status": "connected",
+                "backend": connection.settings_dict['ENGINE'].split('.')[-1],
+                "name": connection.settings_dict['NAME'],
+            }
+    except Exception as e:
+        status_data["database"] = {
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        }
+
+    # Check Redis
+    try:
+        cache.set('health_check', 'ok', 10)
+        test_value = cache.get('health_check')
+        status_data["redis"] = {
+            "is_running": test_value == 'ok',
+            "status": "connected" if test_value == 'ok' else "error",
+        }
+    except Exception as e:
+        status_data["redis"] = {
+            "is_running": False,
+            "status": "error",
+            "error": str(e),
+        }
+
+    # Check disk usage
+    try:
+        disk = psutil.disk_usage('/')
+        status_data["disk"] = {
+            "total_gb": round(disk.total / (1024**3), 2),
+            "used_gb": round(disk.used / (1024**3), 2),
+            "free_gb": round(disk.free / (1024**3), 2),
+            "percent_used": disk.percent,
+            "is_healthy": disk.percent < 90,
+        }
+    except Exception as e:
+        status_data["disk"] = {
+            "is_healthy": False,
+            "error": str(e),
+        }
+
+    # System resources
+    try:
+        # CPU information
+        cpu_count = psutil.cpu_count(logical=False) or psutil.cpu_count()
+        cpu_count_logical = psutil.cpu_count(logical=True)
+
+        # Try to get CPU name from /proc/cpuinfo (Linux)
+        cpu_name = "Unknown"
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if 'model name' in line:
+                        cpu_name = line.split(':')[1].strip()
+                        break
+        except:
+            pass
+
+        # GPU information (check for NVIDIA)
+        gpu_info = "None available"
+        try:
+            import subprocess
+            result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'],
+                                  capture_output=True, text=True, timeout=2)
+            if result.returncode == 0 and result.stdout.strip():
+                gpu_info = result.stdout.strip()
+        except:
+            pass
+
+        # Disk I/O stats
+        disk_io = psutil.disk_io_counters()
+        disk_read_mb = round(disk_io.read_bytes / (1024**2), 2) if disk_io else 0
+        disk_write_mb = round(disk_io.write_bytes / (1024**2), 2) if disk_io else 0
+
+        # Network I/O stats
+        net_io = psutil.net_io_counters()
+        net_sent_mb = round(net_io.bytes_sent / (1024**2), 2) if net_io else 0
+        net_recv_mb = round(net_io.bytes_recv / (1024**2), 2) if net_io else 0
+
+        status_data["system"] = {
+            "cpu_percent": psutil.cpu_percent(interval=1),
+            "cpu_cores": cpu_count,
+            "cpu_cores_logical": cpu_count_logical,
+            "cpu_name": cpu_name,
+            "memory_percent": psutil.virtual_memory().percent,
+            "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 2),
+            "memory_total_gb": round(psutil.virtual_memory().total / (1024**3), 2),
+            "gpu_info": gpu_info,
+            "disk_read_mb": disk_read_mb,
+            "disk_write_mb": disk_write_mb,
+            "net_sent_mb": net_sent_mb,
+            "net_recv_mb": net_recv_mb,
+        }
+    except Exception as e:
+        status_data["system"] = {"error": str(e)}
+
+    context = {
+        "status_data": status_data,
+    }
+
+    return render(request, "public_app/server_status.html", context)
+
+
+def server_status_api(request):
+    """API endpoint for real-time server metrics (returns JSON)"""
+    import psutil
+    import subprocess
+
+    try:
+        data = {
+            "timestamp": int(time.time() * 1000),  # milliseconds
+            "cpu_percent": psutil.cpu_percent(interval=0.1),
+            "memory_percent": psutil.virtual_memory().percent,
+            "disk_percent": psutil.disk_usage('/').percent,
+        }
+
+        # GPU metrics (try nvidia-smi)
+        gpu_percent = None
+        try:
+            result = subprocess.run(
+                ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, timeout=2
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                gpu_percent = float(result.stdout.strip().split('\n')[0])
+        except:
+            pass
+        data["gpu_percent"] = gpu_percent
+
+        # Network I/O rates (bytes per second since last call)
+        net_io = psutil.net_io_counters()
+        disk_io = psutil.disk_io_counters()
+
+        data["net_sent_mb_total"] = round(net_io.bytes_sent / (1024**2), 2)
+        data["net_recv_mb_total"] = round(net_io.bytes_recv / (1024**2), 2)
+        data["disk_read_mb_total"] = round(disk_io.read_bytes / (1024**2), 2) if disk_io else 0
+        data["disk_write_mb_total"] = round(disk_io.write_bytes / (1024**2), 2) if disk_io else 0
+
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def server_metrics_history_api(request):
+    """API endpoint for historical server metrics (returns JSON)"""
+    from apps.public_app.models import ServerMetrics
+    from datetime import timedelta
+
+    try:
+        # Get query parameters
+        hours = int(request.GET.get('hours', 24))  # Default: last 24 hours
+        limit = int(request.GET.get('limit', 1000))  # Max records to return
+
+        # Query metrics
+        start_time = timezone.now() - timedelta(hours=hours)
+        metrics = ServerMetrics.objects.filter(
+            timestamp__gte=start_time
+        ).order_by('timestamp')[:limit]
+
+        # Format data
+        data = {
+            "count": metrics.count(),
+            "start_time": start_time.isoformat(),
+            "end_time": timezone.now().isoformat(),
+            "metrics": [
+                {
+                    "timestamp": int(m.timestamp.timestamp() * 1000),
+                    "cpu_percent": m.cpu_percent,
+                    "memory_percent": m.memory_percent,
+                    "disk_percent": m.disk_percent,
+                    "memory_used_gb": m.memory_used_gb,
+                    "disk_used_gb": m.disk_used_gb,
+                    "net_sent_mb": m.net_sent_mb,
+                    "net_recv_mb": m.net_recv_mb,
+                    "disk_read_mb": m.disk_read_mb,
+                    "disk_write_mb": m.disk_write_mb,
+                }
+                for m in metrics
+            ]
+        }
+
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def server_metrics_export_csv(request):
+    """Export server metrics as CSV file"""
+    from apps.public_app.models import ServerMetrics
+    from datetime import timedelta
+    from django.http import HttpResponse
+    import csv
+
+    try:
+        # Get query parameters
+        hours = int(request.GET.get('hours', 24))
+        start_time = timezone.now() - timedelta(hours=hours)
+
+        # Query metrics
+        metrics = ServerMetrics.objects.filter(
+            timestamp__gte=start_time
+        ).order_by('timestamp')
+
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="server_metrics_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+
+        writer = csv.writer(response)
+
+        # Write header
+        writer.writerow([
+            'Timestamp',
+            'CPU %',
+            'CPU Cores',
+            'CPU Cores Logical',
+            'Memory %',
+            'Memory Used (GB)',
+            'Memory Total (GB)',
+            'Memory Available (GB)',
+            'Disk %',
+            'Disk Used (GB)',
+            'Disk Total (GB)',
+            'Disk Read (MB)',
+            'Disk Write (MB)',
+            'Network Sent (MB)',
+            'Network Received (MB)',
+            'Docker Services',
+            'SSH Gateway',
+            'Gitea SSH',
+            'Database',
+            'Redis',
+        ])
+
+        # Write data
+        for m in metrics:
+            writer.writerow([
+                m.timestamp.isoformat(),
+                m.cpu_percent,
+                m.cpu_cores,
+                m.cpu_cores_logical,
+                m.memory_percent,
+                m.memory_used_gb,
+                m.memory_total_gb,
+                m.memory_available_gb,
+                m.disk_percent,
+                m.disk_used_gb,
+                m.disk_total_gb,
+                m.disk_read_mb,
+                m.disk_write_mb,
+                m.net_sent_mb,
+                m.net_recv_mb,
+                m.docker_services_running,
+                m.ssh_gateway_status,
+                m.gitea_ssh_status,
+                m.database_status,
+                m.redis_status,
+            ])
+
+        return response
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def visitor_status(request):
+    """
+    Visitor Mode Status Page.
+
+    Shows visitor pool status without exposing privacy information.
+    Displays:
+    - Total slots available
+    - Currently allocated slots
+    - Free slots
+    - User's personal countdown timer (if in visitor mode)
+    - Allocation expiration times (without identifying information)
+    """
+    from apps.project_app.services.visitor_pool import VisitorPool
+    from apps.project_app.models import VisitorAllocation
+    from django.utils import timezone
+    from datetime import datetime, time as dt_time
+
+    # Check if current user has a visitor allocation, allocate if they don't
+    user_allocation = None
+    user_time_until_reset = None
+
+    # Check for authenticated visitors without allocations
+    if request.user.is_authenticated and request.user.username.startswith("visitor-"):
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                user_allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+            except VisitorAllocation.DoesNotExist:
+                allocation_token = None
+
+        # If no valid allocation, allocate one now
+        if not allocation_token:
+            project, user = VisitorPool.allocate_visitor(request.session)
+            logger.info(f"[VisitorStatus] Re-allocated visitor slot for {request.user.username}")
+
+            # Get the new allocation
+            allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+            if allocation_token:
+                try:
+                    user_allocation = VisitorAllocation.objects.get(
+                        allocation_token=allocation_token,
+                        is_active=True,
+                        expires_at__gt=timezone.now()
+                    )
+                except VisitorAllocation.DoesNotExist:
+                    pass
+
+    elif not request.user.is_authenticated:
+        # Check for existing allocation token
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                user_allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+            except VisitorAllocation.DoesNotExist:
+                allocation_token = None
+
+        # If no valid allocation, allocate one now
+        if not allocation_token:
+            from django.contrib.auth import login
+            project, user = VisitorPool.allocate_visitor(request.session)
+            if user:  # Successfully allocated
+                # Log in the visitor user to make them authenticated
+                if not request.user.is_authenticated:
+                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    logger.info(f"[VisitorStatus] Logged in visitor: {user.username}")
+
+                # Get the new allocation
+                allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+                if allocation_token:
+                    try:
+                        user_allocation = VisitorAllocation.objects.get(
+                            allocation_token=allocation_token,
+                            is_active=True,
+                            expires_at__gt=timezone.now()
+                        )
+                    except VisitorAllocation.DoesNotExist:
+                        pass
+
+        # Calculate time until session expires if we have an allocation
+        if user_allocation:
+            now = timezone.now()
+            time_until_expiry = user_allocation.expires_at - now
+            user_time_until_reset = {
+                "hours": int(time_until_expiry.total_seconds() / 3600),
+                "minutes": int((time_until_expiry.total_seconds() % 3600) / 60),
+                "seconds": int(time_until_expiry.total_seconds() % 60),
+                "total_seconds": int(time_until_expiry.total_seconds()),
+                "reset_time": user_allocation.expires_at,
+            }
+
+    # Get pool status
+    status = VisitorPool.get_pool_status()
+
+    # Get allocation information (anonymized)
+    allocations = []
+    user_visitor_number = user_allocation.visitor_number if user_allocation else None
+
+    for i in range(1, VisitorPool.POOL_SIZE + 1):
+        allocation = VisitorAllocation.objects.filter(visitor_number=i).first()
+        is_current_user = (user_visitor_number == i)
+
+        if allocation and allocation.is_active and allocation.expires_at > timezone.now():
+            # Active allocation
+            time_remaining = allocation.expires_at - timezone.now()
+            total_minutes = int(time_remaining.total_seconds() / 60)
+
+            allocations.append({
+                "slot_number": i,
+                "status": "allocated",
+                "expires_at": allocation.expires_at,
+                "minutes_remaining": total_minutes,
+                "visitor_username": f"visitor-{allocation.visitor_number:03d}",
+                "is_current_user": is_current_user,
+            })
+        else:
+            # Free slot
+            allocations.append({
+                "slot_number": i,
+                "status": "free",
+                "expires_at": None,
+                "minutes_remaining": None,
+                "visitor_username": None,
+                "is_current_user": False,
+            })
+
+    context = {
+        "pool_status": status,
+        "allocations": allocations,
+        "session_lifetime_hours": VisitorPool.SESSION_LIFETIME_HOURS,
+        "user_allocation": user_allocation,
+        "user_time_until_reset": user_time_until_reset,
+    }
+
+    return render(request, "public_app/visitor_status.html", context)
 
 
 def contributors(request):

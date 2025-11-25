@@ -211,7 +211,7 @@ html.writer-page {
 }
 
 [data-theme="dark"] .mvp-sidebar {
-  border-right-color: #506b7a;
+  border-right-color: var(--workspace-border-active);
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -233,7 +233,7 @@ html.writer-page {
 }
 
 [data-theme="dark"] .mvp-toolbar {
-  border-bottom-color: #506b7a;
+  border-bottom-color: var(--workspace-border-active);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
@@ -264,7 +264,7 @@ html.writer-page {
 }
 
 [data-theme="dark"] .preview-panel {
-  border-left-color: #506b7a;
+  border-left-color: var(--workspace-border-active);
   box-shadow: -2px 0 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -304,25 +304,25 @@ html.writer-page {
 }
 
 [data-theme="dark"] .compile-status {
-  border-top-color: #506b7a;
+  border-top-color: var(--workspace-border-active);
 }
 
 .compile-status.success {
   background-color: rgba(46, 164, 79, 0.15);
   color: #2ea44f;
-  border-left: 3px solid #2ea44f;
+  border-left: 3px solid var(--status-success);
 }
 
 .compile-status.error {
   background-color: rgba(209, 36, 47, 0.15);
   color: #d1242f;
-  border-left: 3px solid #d1242f;
+  border-left: 3px solid var(--status-error);
 }
 
 .compile-status.running {
-  background-color: rgba(31, 111, 235, 0.15);
-  color: #1f6feb;
-  border-left: 3px solid #1f6feb;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border-left: 3px solid var(--workspace-border-hover);
 }
 
 [data-theme="dark"] .compile-status.success {
@@ -390,9 +390,9 @@ html.writer-page {
 }
 
 .job-status.running {
-  background-color: rgba(31, 111, 235, 0.15);
-  color: #1f6feb;
-  border: 1px solid rgba(31, 111, 235, 0.3);
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--workspace-border-hover);
 }
 
 .job-status.failed {
@@ -459,7 +459,7 @@ html.writer-page {
 
 .btn-mvp:hover {
   background: #1a5dc9;
-  border-color: #1a5dc9;
+  border-color: var(--workspace-border-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(31, 111, 235, 0.4);
   color: white;

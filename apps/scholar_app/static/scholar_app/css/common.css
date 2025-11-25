@@ -397,8 +397,8 @@ html {
 .abstract-toggle-btn {
   font-size: 0.75rem;
   color: var(--text-secondary);
-  background: var(--color-canvas-subtle);
-  border: 1px solid var(--color-border-default);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   padding: 4px 8px;
   margin-right: 6px;
@@ -410,7 +410,7 @@ html {
 
 .abstract-toggle-btn:hover {
   color: var(--scitex-color-02);
-  background: var(--color-canvas-default);
+  background: var(--bg-page);
   border-color: var(--scitex-color-02);
 }
 
@@ -676,7 +676,7 @@ a.disabled {
 }
 
 #downloadArea button:disabled {
-  /* background: var(--color-border-default) !important; */
+  /* background: var(--border-default) !important; */
 }
 
 /* Loading Spinner */
@@ -692,7 +692,7 @@ a.disabled {
 .search-loading-spinner {
   width: 3rem;
   height: 3rem;
-  border: 3px solid var(--color-border-default);
+  border: 3px solid var(--border-default);
   border-top-color: var(--scitex-color-01);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -759,7 +759,7 @@ a.disabled {
 
 [data-theme="dark"] .result-card {
   /* border: 1px solid var(--scitex-color-03); */
-  /* background: var(--color-canvas-subtle); */
+  /* background: var(--bg-surface); */
 }
 
 [data-theme="dark"] .result-title {

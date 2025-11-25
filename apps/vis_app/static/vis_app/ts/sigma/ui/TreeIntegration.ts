@@ -16,11 +16,13 @@ import { TreeManager } from '../tree-manager.js';
 import type { Figure } from '../types.js';
 import type { PlotDataManager } from '../PlotDataManager.js';
 import type { PropertiesManager } from '../PropertiesManager.js';
+import type { DataTableManager } from '../DataTableManager.js';
 
 export class TreeIntegration {
     private treeManager: TreeManager | null = null;
     private currentSelectedPlotId: string | null = null;
     private currentWorkspaceMode: string = 'data';
+    private dataTableManager?: DataTableManager;
 
     constructor(
         private statusBarCallback?: (message: string) => void,
@@ -50,6 +52,13 @@ export class TreeIntegration {
      */
     public setPlotDataManager(manager: PlotDataManager): void {
         this.plotDataManager = manager;
+    }
+
+    /**
+     * Set data table manager reference
+     */
+    public setDataTableManager(manager: DataTableManager): void {
+        this.dataTableManager = manager;
     }
 
     /**

@@ -9,9 +9,9 @@
     --sigma-ruler-border: #d0d7de;
 
     /* Semantic aliases for sigma editor */
-    --sigma-bg-primary: var(--bg-surface, #fafbfc);
-    --sigma-bg-secondary: var(--bg-muted, #f6f8fa);
-    --sigma-bg-hover: var(--bg-muted, #f6f8fa);
+    --sigma-bg-primary: var(--workspace-bg-secondary, #fafbfc);
+    --sigma-bg-secondary: var(--workspace-bg-tertiary, #f6f8fa);
+    --sigma-bg-hover: var(--workspace-bg-tertiary, #f6f8fa);
 }
 
 [data-theme="dark"] {
@@ -40,7 +40,7 @@
 .sigma-ribbon {
     grid-row: 1;
     background: var(--sigma-bg-primary);
-    border-bottom: 2px solid var(--border-default);
+    border-bottom: 2px solid var(--workspace-border-default);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     z-index: 100;
     display: flex;
@@ -54,7 +54,7 @@
     gap: 0;
     background: var(--sigma-bg-secondary);
     padding: 0 16px;
-    border-right: 1px solid var(--border-muted);
+    border-right: 1px solid var(--workspace-border-muted);
 }
 
 .ribbon-tab {
@@ -76,13 +76,13 @@
 .ribbon-tab:hover {
     color: var(--text-primary);
     background: var(--sigma-bg-hover);
-    border-bottom-color: var(--border-default);
+    border-bottom-color: var(--workspace-border-default);
 }
 
 .ribbon-tab.active {
-    color: var(--status-success);
+    color: var(--workspace-icon-primary);
     background: var(--sigma-bg-primary);
-    border-bottom-color: var(--status-success);
+    border-bottom-color: var(--workspace-icon-primary);
     font-weight: 600;
 }
 
@@ -141,7 +141,7 @@
     gap: 4px;
     padding: 8px 12px;
     background: var(--sigma-bg-secondary);
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 6px;
     color: var(--text-primary);
     font-size: 11px;
@@ -153,9 +153,9 @@
 
 .ribbon-btn:hover {
     background: var(--sigma-bg-hover);
-    border-color: var(--status-success);
+    border-color: var(--workspace-icon-hover);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(74, 155, 126, 0.15);
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15);
 }
 
 .ribbon-btn:active {
@@ -164,7 +164,7 @@
 
 .ribbon-btn i {
     font-size: 18px;
-    color: var(--status-success);
+    color: var(--workspace-icon-primary);
 }
 
 .ribbon-btn span {
@@ -190,16 +190,17 @@
     min-width: 70px;
 }
 
-.preset-btn[data-preset="SCITEX_STYLE"] {
+/* Removed special styling for SCITEX_STYLE - now uses default pane-header-btn style */
+/* .preset-btn[data-preset="SCITEX_STYLE"] {
     background: var(--status-success);
     color: white;
     border-color: var(--status-success);
-}
+} */
 
 /* Ribbon Separator */
 .ribbon-separator {
     width: 1px;
-    background: var(--border-muted);
+    background: var(--workspace-border-muted);
     margin: 0 12px;
 }
 
@@ -233,7 +234,7 @@
 
 .sigma-sidebar {
     background: var(--sigma-bg-secondary);
-    border-right: 1px solid var(--border-default);
+    border-right: 1px solid var(--workspace-border-default);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -247,16 +248,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 0 16px;
+    margin-top: 0 !important;
+    height: 50px;
+    flex-shrink: 0;
+    box-sizing: border-box;
     background: var(--sigma-bg-primary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
 }
 
 .sidebar-header h4 {
     margin: 0;
+    padding: 0;
     margin-right: 12px;
     font-size: 14px;
     font-weight: 600;
+    line-height: 1;
     color: var(--text-primary);
     display: flex;
     align-items: center;
@@ -286,7 +293,7 @@
 
 /* Project Tree */
 .project-tree {
-    padding: 12px 0;
+    padding: 0;
 }
 
 .tree-section {
@@ -311,6 +318,10 @@
     background: var(--sigma-bg-hover);
 }
 
+.tree-section:first-child .tree-section-header {
+    padding-top: 0;
+}
+
 .tree-section-content {
     padding: 4px 0;
 }
@@ -331,7 +342,7 @@
 
 .tree-item i {
     font-size: 14px;
-    color: var(--status-success);
+    color: var(--workspace-icon-primary);
 }
 
 .tree-item-empty {
@@ -360,7 +371,7 @@
     justify-content: space-between;
     padding: 12px 20px;
     background: var(--sigma-bg-primary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
 }
 
 /* Workspace Mode Switcher */
@@ -375,7 +386,7 @@
     gap: 6px;
     padding: 8px 16px;
     background: var(--sigma-bg-secondary);
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 6px;
     color: var(--text-primary);
     font-size: 13px;
@@ -409,7 +420,7 @@
 .tool-btn {
     padding: 8px 12px;
     background: var(--sigma-bg-secondary);
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 6px;
     color: var(--text-primary);
     cursor: pointer;
@@ -479,7 +490,7 @@
 .editable-table .row-number-header {
     padding: 8px;
     text-align: center;
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--workspace-border-default);
     font-weight: 600;
     min-width: 50px;
     max-width: 50px;
@@ -489,7 +500,7 @@
 .editable-table th {
     padding: 8px;
     text-align: center;
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--workspace-border-default);
     font-weight: 600;
     cursor: default;
     position: relative;
@@ -508,7 +519,7 @@
 .editable-table .row-number {
     padding: 8px;
     text-align: center;
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--workspace-border-default);
     font-weight: 600;
     cursor: default;
     min-width: 50px;
@@ -518,7 +529,7 @@
 
 .editable-table td {
     padding: 6px 8px;
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     cursor: cell;
     text-align: center;
 }
@@ -550,7 +561,7 @@
         linear-gradient(0deg, transparent 23px, #e5e5e5 23px),
         linear-gradient(90deg, transparent 23px, #e5e5e5 23px);
     background-size: 24px 24px;
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -572,7 +583,7 @@
 }
 
 .plot-placeholder i {
-    color: var(--border-muted);
+    color: var(--workspace-border-muted);
     margin-bottom: 16px;
 }
 
@@ -584,7 +595,7 @@
 /* Mini Data Table */
 .mini-data-table {
     background: var(--sigma-bg-secondary);
-    border-top: 1px solid var(--border-default);
+    border-top: 1px solid var(--workspace-border-default);
     max-height: 200px;
     display: flex;
     flex-direction: column;
@@ -601,7 +612,7 @@
     justify-content: space-between;
     padding: 12px 16px;
     background: var(--sigma-bg-primary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -636,7 +647,7 @@
 
 .sigma-properties {
     background: var(--sigma-bg-secondary);
-    border-left: 1px solid var(--border-default);
+    border-left: 1px solid var(--workspace-border-default);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -650,16 +661,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 0 16px;
+    margin-top: 0 !important;
+    height: 50px;
+    flex-shrink: 0;
+    box-sizing: border-box;
     background: var(--sigma-bg-primary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
 }
 
 .properties-header h4 {
     margin: 0;
+    padding: 0;
     margin-right: 12px;
     font-size: 14px;
     font-weight: 600;
+    line-height: 1;
     color: var(--text-primary);
     display: flex;
     align-items: center;
@@ -685,7 +702,7 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 16px;
+    padding: 0;
 }
 
 .properties-placeholder {
@@ -706,7 +723,7 @@
     justify-content: space-between;
     padding: 6px 16px;
     background: var(--sigma-bg-primary);
-    border-top: 1px solid var(--border-default);
+    border-top: 1px solid var(--workspace-border-default);
     font-size: 12px;
     color: var(--text-muted);
 }
@@ -726,7 +743,7 @@
 }
 
 .status-separator {
-    color: var(--border-muted);
+    color: var(--workspace-border-muted);
 }
 
 /* ========================================================================
@@ -742,8 +759,8 @@
 }
 
 [data-theme="dark"] .ribbon-btn {
-    background: var(--bg-muted);
-    border-color: var(--border-muted);
+    background: var(--workspace-bg-tertiary);
+    border-color: var(--workspace-border-muted);
 }
 
 [data-theme="dark"] .ribbon-btn:hover {
@@ -839,7 +856,7 @@
     gap: 6px;
     padding: 10px 16px;
     background: var(--sigma-bg-primary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
     flex-wrap: wrap;
 }
 
@@ -857,7 +874,7 @@
     gap: 4px;
     padding: 8px 14px;
     background: var(--sigma-bg-secondary);
-    border: 2px solid var(--border-muted);
+    border: 2px solid var(--workspace-border-muted);
     border-radius: 6px;
     color: var(--text-primary);
     font-size: 11px;
@@ -902,6 +919,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin-top: 0;  /* Remove any top margin */
 }
 
 .split-pane-left {
@@ -909,12 +927,12 @@
     flex-shrink: 0;
     min-width: 10px;
     background: var(--sigma-bg-secondary);
-    border-right: 1px solid var(--border-default);
+    border-right: 1px solid var(--workspace-border-default);
 }
 
 .split-pane-right {
     flex: 1;
-    background: var(--sigma-bg-primary);  /* Keep dark mode */
+    background: var(--sigma-bg-primary);
     position: relative;
     min-width: 10px;
 }
@@ -923,16 +941,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
+    padding: 0 16px;
+    margin-top: 0 !important;
+    height: 50px;
+    flex-shrink: 0;
+    box-sizing: border-box;
     background: var(--sigma-bg-primary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
 }
 
 .pane-header h5 {
     margin: 0;
+    padding: 0;
     margin-right: 12px;
     font-size: 14px;
     font-weight: 600;
+    line-height: 1;
     color: var(--text-primary);
     display: flex;
     align-items: center;
@@ -954,7 +978,7 @@
     gap: 4px;
     padding: 6px 10px;
     background: var(--sigma-bg-secondary);
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 4px;
     color: var(--text-primary);
     font-size: 11px;
@@ -967,9 +991,9 @@
 
 .pane-header-btn:hover {
     background: var(--sigma-bg-hover);
-    border-color: var(--status-success);
+    border-color: var(--workspace-icon-hover);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(74, 155, 126, 0.15);
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15);
 }
 
 .pane-header-btn:active {
@@ -989,7 +1013,7 @@
 .pane-header-btn.active {
     background: var(--status-success-bg);
     color: var(--status-success);
-    border-color: var(--border-muted);
+    border-color: var(--workspace-border-muted);
 }
 
 .pane-resize-btn {
@@ -1194,7 +1218,7 @@
 /* Selected Item Info Header */
 .selected-item-info {
     background: var(--sigma-bg-secondary);
-    border-bottom: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--workspace-border-default);
     padding: 12px 16px;
 }
 
@@ -1207,7 +1231,7 @@
 
 .selected-item-icon {
     font-size: 16px;
-    color: var(--status-success);
+    color: var(--workspace-icon-primary);
 }
 
 .selected-item-type {
@@ -1254,7 +1278,7 @@
     width: 100%;
     padding: 8px;
     background: var(--sigma-bg-primary);
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 4px;
     color: var(--text-primary);
     font-size: 13px;
@@ -1271,7 +1295,7 @@
     height: 36px;
     padding: 4px;
     background: var(--sigma-bg-primary);
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 4px;
     cursor: pointer;
 }
@@ -1438,7 +1462,7 @@
 .btn-add-row,
 .btn-delete-row {
     padding: 4px 8px;
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--workspace-border-default);
     background: var(--sigma-bg-primary);
     color: var(--text-primary);
     border-radius: 4px;
@@ -1572,19 +1596,19 @@ body.resizing-column {
 }
 
 .tree-figure .tree-icon {
-    color: var(--status-info);
+    color: var(--workspace-icon-primary);
 }
 
 .tree-axis .tree-icon {
-    color: var(--status-warning);
+    color: var(--workspace-icon-secondary);
 }
 
 .tree-plot .tree-icon {
-    color: var(--status-success);
+    color: var(--workspace-icon-primary);
 }
 
 .tree-guide .tree-icon {
-    color: var(--text-accent, #8b5cf6);
+    color: var(--workspace-icon-muted);
 }
 
 .tree-annotation .tree-icon {
@@ -1621,7 +1645,7 @@ body.resizing-column {
 }
 
 .tree-action-btn:hover {
-    background: var(--bg-muted);
+    background: var(--workspace-bg-tertiary);
     color: var(--text-primary);
 }
 
@@ -1633,7 +1657,7 @@ body.resizing-column {
 .tree-add-btn {
     padding: 2px 6px;
     background: transparent;
-    border: 1px solid var(--border-muted);
+    border: 1px solid var(--workspace-border-muted);
     border-radius: 3px;
     cursor: pointer;
     color: var(--text-muted);
@@ -1725,4 +1749,70 @@ body.resizing-column {
     font-size: 11px;
     color: var(--text-muted);
     font-style: italic;
+}
+
+/* ========================================================================
+   CUSTOM SCROLLBAR STYLING - Make scrollbars easier to grab
+   ======================================================================== */
+
+/* Scrollbar styling for WebKit browsers (Chrome, Safari, Edge) */
+.sidebar-content::-webkit-scrollbar,
+.data-table-container::-webkit-scrollbar,
+.properties-content::-webkit-scrollbar,
+.pane-content::-webkit-scrollbar {
+    width: 18px;  /* Much wider scrollbar - easier to grab like sliders */
+    height: 18px;
+}
+
+.sidebar-content::-webkit-scrollbar-track,
+.data-table-container::-webkit-scrollbar-track,
+.properties-content::-webkit-scrollbar-track,
+.pane-content::-webkit-scrollbar-track {
+    background: var(--sigma-bg-primary);
+    border-radius: 10px;
+    margin: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb,
+.data-table-container::-webkit-scrollbar-thumb,
+.properties-content::-webkit-scrollbar-thumb,
+.pane-content::-webkit-scrollbar-thumb {
+    background: var(--workspace-border-default);
+    border-radius: 10px;
+    border: 2px solid var(--sigma-bg-primary);  /* Thin border - more area for grabbing */
+    min-height: 50px;  /* Larger minimum thumb size */
+    min-width: 50px;  /* For horizontal scrollbars */
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover,
+.data-table-container::-webkit-scrollbar-thumb:hover,
+.properties-content::-webkit-scrollbar-thumb:hover,
+.pane-content::-webkit-scrollbar-thumb:hover {
+    background: var(--status-success);
+    border-width: 1px;  /* Even thinner border on hover = more grabbable area */
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:active,
+.data-table-container::-webkit-scrollbar-thumb:active,
+.properties-content::-webkit-scrollbar-thumb:active,
+.pane-content::-webkit-scrollbar-thumb:active {
+    background: var(--status-success);
+    border-width: 0px;  /* No border when dragging = maximum grabbable area */
+}
+
+/* Firefox scrollbar styling */
+.sidebar-content,
+.data-table-container,
+.properties-content,
+.pane-content {
+    scrollbar-width: auto;  /* Use wider scrollbars instead of thin */
+    scrollbar-color: var(--workspace-border-default) var(--sigma-bg-primary);
+}
+
+/* Corner where vertical and horizontal scrollbars meet */
+.sidebar-content::-webkit-scrollbar-corner,
+.data-table-container::-webkit-scrollbar-corner,
+.properties-content::-webkit-scrollbar-corner,
+.pane-content::-webkit-scrollbar-corner {
+    background: var(--sigma-bg-primary);
 }

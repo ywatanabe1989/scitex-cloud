@@ -97,7 +97,7 @@
   font-size: 1rem;
   line-height: 1.5;
   color: var(--text-primary);
-  background-color: var(--color-canvas-default);
+  background-color: var(--bg-page);
   background-clip: padding-box;
   border: 2px solid var(--border-default);
   border-radius: 6px;
@@ -461,8 +461,8 @@ select.form-control:hover:not(:disabled) {
  */
 
 .password-rules {
-  background-color: var(--color-canvas-subtle);
-  border: 1px solid var(--color-border-default);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
   padding: 1rem;
   font-size: 0.9rem;
@@ -476,7 +476,7 @@ select.form-control:hover:not(:disabled) {
 
 .password-rules-title {
   font-weight: 600;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }

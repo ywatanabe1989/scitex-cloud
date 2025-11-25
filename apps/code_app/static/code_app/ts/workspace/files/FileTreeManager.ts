@@ -17,13 +17,25 @@ export class FileTreeManager {
   }
 
   async loadFileTree(): Promise<void> {
-    if (!this.config.currentProject) return;
+    if (!this.config.currentProject) {
+      console.warn("[FileTreeManager] No current project, skipping file tree load");
+      return;
+    }
 
     const { owner, slug } = this.config.currentProject;
+    const url = `/${owner}/${slug}/api/file-tree/`;
+
+    console.log(`[FileTreeManager] Loading file tree from: ${url}`);
 
     try {
-      const response = await fetch(`/${owner}/${slug}/api/file-tree/`);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
+      console.log("[FileTreeManager] File tree data received:", data);
 
       const treeContainer = document.getElementById("file-tree");
       if (!treeContainer) {
@@ -32,17 +44,20 @@ export class FileTreeManager {
       }
 
       if (data.success) {
+        console.log("[FileTreeManager] Building tree HTML...");
         treeContainer.innerHTML = buildCodeTreeHTML(data.tree, owner, slug);
         this.attachFileClickHandlers();
         this.buildFileList(data.tree);
+        console.log("[FileTreeManager] File tree loaded successfully");
       } else {
+        console.error("[FileTreeManager] API returned success=false:", data);
         treeContainer.innerHTML = '<div class="tree-loading">Error loading file tree</div>';
       }
     } catch (err) {
       console.error("[FileTreeManager] Failed to load file tree:", err);
       const treeContainer = document.getElementById("file-tree");
       if (treeContainer) {
-        treeContainer.innerHTML = '<div class="tree-loading">Error loading file tree</div>';
+        treeContainer.innerHTML = `<div class="tree-loading">Error: ${err instanceof Error ? err.message : 'Unknown error'}</div>`;
       }
     }
   }

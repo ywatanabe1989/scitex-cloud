@@ -463,9 +463,25 @@ export class EditorControls {
       "[EditorControls] Ctrl+Wheel font size adjustment enabled on editor (document-level listener)",
     );
 
-    // Also add keyboard shortcuts for font size (works page-wide, including in iframes)
+    // Add keyboard shortcuts for font size - only when cursor is in editor
+    // This allows browser zoom (Ctrl+0, Ctrl++, Ctrl+-) to work globally
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (!e.ctrlKey && !e.metaKey) return;
+
+      // Check if focus is in the editor area
+      const activeElement = document.activeElement;
+      const isInEditor =
+        activeElement === this.latexEditor ||
+        activeElement?.closest(".latex-panel") !== null ||
+        activeElement?.classList?.contains("CodeMirror") ||
+        activeElement?.closest(".CodeMirror") !== null ||
+        activeElement?.classList?.contains("monaco-editor") ||
+        activeElement?.closest(".monaco-editor") !== null;
+
+      // If not in editor, let browser handle zoom shortcuts
+      if (!isInEditor) {
+        return;
+      }
 
       const currentFontSize = this.currentFontSize;
       let newFontSize = currentFontSize;
@@ -475,22 +491,16 @@ export class EditorControls {
         e.preventDefault();
         e.stopPropagation();
         newFontSize = Math.min(20, currentFontSize + 1);
-        console.log("[EditorControls] Ctrl++ font size increase (page-wide)");
+        console.log("[EditorControls] Ctrl++ font size increase (editor focused)");
       }
       // Ctrl+Minus: decrease font size
       else if (e.key === "-" || e.key === "_") {
         e.preventDefault();
         e.stopPropagation();
         newFontSize = Math.max(10, currentFontSize - 1);
-        console.log("[EditorControls] Ctrl+- font size decrease (page-wide)");
+        console.log("[EditorControls] Ctrl+- font size decrease (editor focused)");
       }
-      // Ctrl+0: reset to default
-      else if (e.key === "0") {
-        e.preventDefault();
-        e.stopPropagation();
-        newFontSize = this.defaultFontSize;
-        console.log("[EditorControls] Ctrl+0 font size reset (page-wide)");
-      }
+      // Note: Ctrl+0 is reserved for browser zoom - don't intercept it
 
       if (newFontSize !== currentFontSize) {
         this.setFontSize(newFontSize);
@@ -498,7 +508,7 @@ export class EditorControls {
     }, true); // Use capture phase to catch events before they reach iframe
 
     console.log(
-      "[EditorControls] Font size keyboard shortcuts enabled page-wide (Ctrl+/-, Ctrl+0)",
+      "[EditorControls] Font size keyboard shortcuts enabled (Ctrl+/-, only when editor is focused; Ctrl+0 reserved for browser zoom)",
     );
   }
 }

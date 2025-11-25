@@ -3,16 +3,16 @@
 /* Theme-aware color tokens - matching vis.css pattern */
 :root,
 [data-theme="light"] {
-  --writer-bg: var(--bg-muted, #f6f8fa);
-  --writer-border: var(--border-default, #8fa4b0);
-  --writer-toolbar-bg: var(--bg-surface, #fafbfc);
+  --writer-bg: var(--workspace-bg-tertiary, #f6f8fa);
+  --writer-border: var(--workspace-border-default, #8fa4b0);
+  --writer-toolbar-bg: var(--workspace-bg-secondary, #fafbfc);
   --writer-text-primary: var(--text-primary, #1a2a40);
   --writer-text-secondary: var(--text-secondary, #34495e);
   --writer-text-muted: var(--text-muted, #6c8ba0);
-  --writer-hover-bg: var(--bg-muted, #f6f8fa);
-  --writer-active-bg: #ddf4ff;
-  --writer-active-border: #1f6feb;
-  --writer-surface: var(--bg-surface, #fafbfc);
+  --writer-hover-bg: var(--workspace-bg-tertiary, #f6f8fa);
+  --writer-active-bg: var(--workspace-bg-elevated);
+  --writer-active-border: var(--workspace-border-hover);
+  --writer-surface: var(--workspace-bg-secondary, #fafbfc);
 
   /* Legacy compatibility */
   --writer-primary: var(--color-btn-primary-bg);
@@ -55,7 +55,7 @@
   --editor-bg: #f6f8fa;
   --editor-text: #1a2a40;
   --editor-line-number: #6c8ba0;
-  --editor-selection: #ddf4ff;
+  --editor-selection: rgba(0, 0, 0, 0.05);
 
   /* Spacing */
   --spacing-xs: 0.25rem;

@@ -41,4 +41,16 @@ export class PTYManager {
     // Note: Check PTYTerminal API - might be write() instead of sendText()
     console.log("[PTYManager] Sending command:", command);
   }
+
+  /**
+   * Update terminal theme when global theme changes
+   */
+  updateTheme(): void {
+    if (!this.ptyTerminal) {
+      console.warn("[PTYManager] Cannot update theme - terminal not initialized");
+      return;
+    }
+
+    this.ptyTerminal.updateTheme();
+  }
 }
