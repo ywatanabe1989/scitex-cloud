@@ -11,10 +11,11 @@ From: python:3.11-slim
 
 %labels
     Author SciTeX Cloud Team
-    Version 1.0.0
-    Description User computational workspace for SciTeX Cloud
+    Version 2.0.0
+    Description User computational workspace for SciTeX Cloud with full SciTeX platform
     Documentation https://github.com/ywatanabe/scitex-cloud
     BuildDate 2025-11-25
+    SciTeX Latest from PyPI with all extras (dl,ml,jupyter,neuro,web,scholar,writer)
 
 %post
     echo "============================================"
@@ -27,24 +28,19 @@ From: python:3.11-slim
     # Install system dependencies
     echo "Installing system dependencies..."
     apt-get install -y --no-install-recommends \
-        # Development tools
         build-essential \
         git \
         wget \
         curl \
-        # Text editors
         vim \
         nano \
-        # Terminal utilities
         tmux \
         htop \
         tree \
         less \
-        # Compression tools
         zip \
         unzip \
         bzip2 \
-        # Other utilities
         ca-certificates \
         && rm -rf /var/lib/apt/lists/*
 
@@ -54,39 +50,34 @@ From: python:3.11-slim
 
     # Install Python scientific stack (pinned versions for reproducibility)
     pip install --no-cache-dir \
-        # Core scientific computing
         numpy==1.26.4 \
         scipy==1.12.0 \
         pandas==2.2.0 \
         numba==0.59.0 \
-        # Visualization
         matplotlib==3.8.2 \
         seaborn==0.13.2 \
         plotly==5.18.0 \
-        # Machine learning
         scikit-learn==1.4.0 \
-        # Interactive computing
         jupyter==1.0.0 \
         jupyterlab==4.0.11 \
         ipython==8.20.0 \
         ipdb==0.13.13 \
-        # Utilities
         requests==2.31.0 \
         beautifulsoup4==4.12.3 \
         tqdm==4.66.1 \
         h5py==3.10.0 \
         PyYAML==6.0.1 \
         natsort==8.4.0 \
-        # Configuration management
         hydra-core==1.3.2 \
         omegaconf==2.3.0 \
-        # Development
         black==24.1.1 \
         flake8==7.0.0 \
         pytest==8.0.0 \
-        icecream==2.1.3 \
-        # SciTeX platform package
-        scitex
+        icecream==2.1.3
+
+    # Install SciTeX with full extras from PyPI (latest version)
+    echo "Installing SciTeX platform (full version, ~2-5 GB)..."
+    pip install --no-cache-dir 'scitex[dl,ml,jupyter,neuro,web,scholar,writer]'
 
     # Create workspace directory
     echo "Setting up workspace..."
@@ -169,11 +160,13 @@ From: python:3.11-slim
         - Clean environment (use --cleanenv)
 
     PACKAGES INCLUDED:
-        - numpy, scipy, pandas
-        - matplotlib, seaborn, plotly
-        - scikit-learn, jupyter, ipython
-        - requests, beautifulsoup4, tqdm
-        - black, flake8, pytest
+        - Core scientific: numpy, scipy, pandas
+        - Visualization: matplotlib, seaborn, plotly
+        - ML/AI: scikit-learn, PyTorch, transformers
+        - Interactive: jupyter, jupyterlab, ipython
+        - Utilities: requests, beautifulsoup4, tqdm
+        - Development: black, flake8, pytest
+        - SciTeX full platform (dl,ml,jupyter,neuro,web,scholar,writer)
 
     BUILD:
         sudo singularity build scitex-user-workspace.sif scitex-user-workspace.def
