@@ -7,14 +7,14 @@
 
 .panel-resizer,
 .split-resizer {
-  /* Size and layout */
-  width: 4px;
+  /* Size and layout - 1px visual border with expanded hit area */
+  width: 1px;
   height: 100%;
   flex-shrink: 0;
   position: relative;
 
-  /* Visual style - clean grayish tone */
-  background: var(--workspace-border-default);
+  /* Visual style - dark workspace tone */
+  background: var(--workspace-border-default, #252525);
 
   /* Interaction */
   cursor: col-resize;
@@ -32,26 +32,26 @@
   padding: 0;
 }
 
-/* Expanded hit area for easier grabbing */
+/* Expanded hit area for easier grabbing - wider to compensate for thin visual */
 .panel-resizer::before,
 .split-resizer::before {
   content: '';
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -12px;
-  right: -12px;
+  left: -8px;  /* 8px on left + 1px element + 8px on right = 17px total grabbable width */
+  right: -8px;
   cursor: col-resize;
   z-index: 1;
 }
 
-/* Hover state - slightly lighter gray (no blue/green) */
+/* Hover state - workspace border hover */
 .panel-resizer:hover,
 .split-resizer:hover {
   background: var(--workspace-border-hover, #3a3a3a);
 }
 
-/* Active/dragging state - even lighter for feedback */
+/* Active/dragging state - workspace border active */
 .panel-resizer:active,
 .split-resizer:active,
 .panel-resizer.active,
@@ -62,7 +62,7 @@
 /* Dark theme adjustments */
 [data-theme="dark"] .panel-resizer,
 [data-theme="dark"] .split-resizer {
-  background: var(--workspace-border-default);
+  background: var(--workspace-border-default, #252525);
 }
 
 [data-theme="dark"] .panel-resizer:hover,

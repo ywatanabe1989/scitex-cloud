@@ -77,23 +77,23 @@
 }
 
 .pdfjs-pages-container::-webkit-scrollbar-track {
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-secondary);
 }
 
 .pdfjs-pages-container::-webkit-scrollbar-thumb {
-  background: var(--color-border-default);
+  background: var(--workspace-border-default);
   border-radius: 6px;
-  border: 2px solid var(--color-canvas-subtle);
+  border: 2px solid var(--workspace-bg-secondary);
 }
 
 .pdfjs-pages-container::-webkit-scrollbar-thumb:hover {
-  background: var(--color-fg-muted);
+  background: var(--text-muted);
 }
 
 /* Firefox scrollbar */
 .pdfjs-pages-container {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+  scrollbar-color: var(--workspace-border-default) var(--workspace-bg-secondary);
 }
 
 /* Dark mode adjustments for PDF pages */
@@ -108,7 +108,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
 }
 
 /* Error state */
@@ -146,23 +146,23 @@
 }
 
 .pdfjs-viewer::-webkit-scrollbar-track {
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-secondary);
 }
 
 .pdfjs-viewer::-webkit-scrollbar-thumb {
-  background: var(--color-border-default);
+  background: var(--workspace-border-default);
   border-radius: 6px;
-  border: 2px solid var(--color-canvas-subtle);
+  border: 2px solid var(--workspace-bg-secondary);
 }
 
 .pdfjs-viewer::-webkit-scrollbar-thumb:hover {
-  background: var(--color-fg-muted);
+  background: var(--text-muted);
 }
 
 /* Firefox scrollbar for pdfjs-viewer */
 .pdfjs-viewer {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-border-default) var(--color-canvas-subtle);
+  scrollbar-color: var(--workspace-border-default) var(--workspace-bg-secondary);
 }
 
 /* Dark mode background for pdfjs-viewer */

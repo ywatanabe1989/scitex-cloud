@@ -8,15 +8,15 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--color-border-default);
-  background: var(--color-canvas-default);
+  border-right: 1px solid var(--workspace-border-default);
+  background: var(--bg-page);
 }
 
 .preview-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-secondary);
 }
 
 /* Panel Headers */
@@ -24,16 +24,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--color-border-default);
-  background: var(--color-canvas-subtle);
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--color-fg-default);
+  padding: 0 16px;
+  margin-top: 0 !important;
+  border-bottom: 1px solid var(--workspace-border-default);
+  background: var(--workspace-bg-primary);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
   user-select: none;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
+  height: 50px;
+  min-height: 50px;
+  max-height: 50px;
   box-sizing: border-box;
   flex-shrink: 0; /* Don't shrink in flexbox */
   position: relative; /* Normal flow */
@@ -49,8 +50,8 @@
 }
 
 .CodeMirror-linenumber {
-  color: var(--color-fg-muted);
-  background: var(--color-canvas-subtle);
+  color: var(--text-muted);
+  background: var(--workspace-bg-secondary);
 }
 
 .CodeMirror-selected {
@@ -70,8 +71,8 @@
   font-size: 13px;
   line-height: 1.5;
   resize: none;
-  background: var(--color-canvas-default);
-  color: var(--color-fg-default);
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
 
 .latex-editor-textarea:focus {
@@ -85,7 +86,7 @@
   overflow-y: auto;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 .text-preview h1,
@@ -93,13 +94,13 @@
 .text-preview h3 {
   margin-top: 1rem;
   margin-bottom: 0.5rem;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .text-preview h1 {
   font-size: 1.5rem;
-  border-bottom: 2px solid var(--color-border-default);
+  border-bottom: 2px solid var(--workspace-border-default);
   padding-bottom: 0.5rem;
 }
 
@@ -116,7 +117,7 @@
 }
 
 .text-preview code {
-  background: var(--color-canvas-default);
+  background: var(--bg-page);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: "Monaco", "Menlo", "Consolas", monospace;
@@ -128,7 +129,7 @@
   border-left: 3px solid var(--color-accent-fg);
   padding-left: 1rem;
   margin-left: 0;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -163,8 +164,8 @@
 
 /* Compilation Output */
 .compilation-output {
-  background: var(--color-canvas-default);
-  border-top: 1px solid var(--color-border-default);
+  background: var(--bg-page);
+  border-top: 1px solid var(--workspace-border-default);
   padding: 0;
   max-height: 300px;
   display: flex;
@@ -173,14 +174,14 @@
 
 .compilation-output-header {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--color-border-default);
+  border-bottom: 1px solid var(--workspace-border-default);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-secondary);
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--color-fg-default);
+  color: var(--text-primary);
 }
 
 .compilation-log-inline {
@@ -190,8 +191,8 @@
   font-family: "Monaco", "Menlo", "Consolas", monospace;
   font-size: 0.85rem;
   line-height: 1.4;
-  color: var(--color-fg-muted);
-  background: var(--color-canvas-default);
+  color: var(--text-muted);
+  background: var(--bg-page);
 }
 
 .compilation-log-inline .error {
@@ -231,15 +232,18 @@
   justify-content: center;
 }
 
-/* Button Styling */
+/* Button Styling - Workspace flat design */
 .btn-sm {
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
-  border-radius: 4px;
+  border-radius: 0; /* Flat design matching workspace */
+  background: transparent;
+  border: none;
   transition: all 0.15s ease;
 }
 
 .btn-sm:hover {
+  background: var(--workspace-bg-tertiary);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -254,7 +258,7 @@
 }
 
 .save-status.unsaved {
-  color: var(--color-attention-fg);
+  color: var(--status-warning);
 }
 
 .save-status i {
@@ -315,7 +319,7 @@
 
 /* Dark theme - workspace colors */
 [data-theme="dark"] .panel-header {
-  background: var(--workspace-bg-secondary);
+  background: var(--workspace-bg-primary);
 }
 
 [data-theme="dark"] .compilation-output-header {

@@ -62,7 +62,7 @@
   width: 100%;
   max-width: 100%;
   padding: 1rem;
-  background: var(--color-canvas-default);
+  background: var(--bg-page);
   overflow: hidden;
   position: relative;
   z-index: 0;
@@ -92,7 +92,7 @@
 .search-input-wrapper i.fa-search {
   position: absolute;
   left: 0.75rem;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   font-size: 0.85rem;
   pointer-events: none;
 }
@@ -110,14 +110,14 @@
   right: 0.5rem;
   background: none;
   border: none;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   padding: 0.25rem;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .search-input-wrapper .btn-clear:hover {
-  color: var(--color-fg-default);
+  color: var(--workspace-text-primary);
 }
 
 /* Sort Controls */
@@ -131,7 +131,7 @@
 }
 
 .citations-sort-controls label {
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -144,12 +144,12 @@
 /* Summary */
 .citations-summary {
   padding: 0.5rem 0.75rem;
-  border-left: 3px solid var(--color-accent-emphasis);
-  background: var(--color-canvas-subtle);
+  border-left: 3px solid var(--workspace-icon-primary);
+  background: var(--workspace-bg-secondary);
   border-radius: 4px;
   margin-bottom: 0.75rem;
   font-size: 0.85rem;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -183,7 +183,7 @@
   justify-content: center;
   padding: 3rem 1rem;
   text-align: center;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
 }
 
 .citations-empty-state i {
@@ -192,8 +192,8 @@
 
 /* Citation Card - Compact */
 .citation-card {
-  background: var(--color-canvas-subtle);
-  border: 1px solid var(--color-border-default);
+  background: var(--workspace-bg-secondary);
+  border: 1px solid var(--workspace-border-default);
   border-radius: 6px;
   padding: 0.5rem;
   padding-left: 2rem;
@@ -219,7 +219,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   opacity: 0.4;
   cursor: grab;
   z-index: 9;
@@ -252,8 +252,8 @@
 
 .citation-count-badge {
   font-size: 0.65rem;
-  color: var(--color-fg-muted);
-  background: var(--color-canvas-default);
+  color: var(--text-muted);
+  background: var(--bg-page);
   padding: 0.15rem 0.35rem;
   border-radius: 3px;
   white-space: nowrap;
@@ -284,8 +284,8 @@
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
-  background-color: var(--bg-surface);
-  border: 2px solid var(--border-default);
+  background-color: var(--workspace-bg-secondary);
+  border: 2px solid var(--workspace-border-default);
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -314,8 +314,8 @@
 }
 
 .citation-card:hover {
-  background: var(--color-canvas-inset);
-  border-color: var(--color-accent-emphasis);
+  background: var(--bg-muted);
+  border-color: var(--workspace-icon-hover);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
@@ -330,7 +330,7 @@
 }
 
 .citation-card.selected {
-  background: var(--color-canvas-inset);
+  background: var(--bg-muted);
   border-color: var(--workspace-border-active);
   border-width: 2px;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--workspace-border-active) 30%, transparent);
@@ -351,7 +351,7 @@
   gap: 0.4rem;
   font-size: 0.7rem;
   line-height: 1.2;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
 }
@@ -369,7 +369,7 @@
 
 .citation-authors-inline {
   font-size: 0.7rem;
-  color: var(--color-fg-default);
+  color: var(--workspace-text-primary);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -379,7 +379,7 @@
 }
 
 .meta-dot {
-  color: var(--color-border-default);
+  color: var(--workspace-border-default);
   flex-shrink: 0;
 }
 
@@ -409,13 +409,13 @@
 
 .citation-year {
   font-size: 0.7rem;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .citation-count {
   font-size: 0.7rem;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -428,7 +428,7 @@
 .citation-title-line {
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--color-fg-default);
+  color: var(--workspace-text-primary);
   line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
@@ -439,10 +439,10 @@
 .citation-expanded-view {
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border-muted);
+  border-top: 1px solid var(--workspace-border-subtle);
   font-size: 0.75rem;
   line-height: 1.5;
-  color: var(--color-fg-muted);
+  color: var(--text-muted);
 }
 
 .citation-expanded-view > div {
@@ -450,7 +450,7 @@
 }
 
 .citation-expanded-view strong {
-  color: var(--color-fg-default);
+  color: var(--workspace-text-primary);
   font-weight: 600;
 }
 
@@ -485,17 +485,17 @@
 }
 
 .citations-list::-webkit-scrollbar-track {
-  background: var(--color-canvas-subtle);
+  background: var(--workspace-bg-secondary);
   border-radius: 3px;
 }
 
 .citations-list::-webkit-scrollbar-thumb {
-  background: var(--color-border-muted);
+  background: var(--workspace-border-subtle);
   border-radius: 3px;
 }
 
 .citations-list::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-default);
+  background: var(--workspace-border-default);
 }
 
 /* Drag Ghost Element */
@@ -532,4 +532,16 @@
 
 [data-theme="dark"] .citations-list::-webkit-scrollbar-track {
   background: var(--workspace-bg-tertiary);
+}
+
+/* Button icon colors - workspace theme */
+.btn i,
+.btn-clear i {
+  color: var(--workspace-icon-primary);
+  transition: color 0.15s ease;
+}
+
+.btn:hover i,
+.btn-clear:hover i {
+  color: var(--workspace-icon-hover);
 }

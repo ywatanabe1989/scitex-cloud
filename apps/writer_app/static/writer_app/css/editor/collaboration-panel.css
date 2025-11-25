@@ -11,7 +11,7 @@
   height: 100%;
   width: 100%;
   padding: 0;
-  background: var(--color-canvas-default);
+  background: var(--bg-page);
   overflow: hidden; /* Changed from auto - children handle their own scrolling */
   box-sizing: border-box;
 }

@@ -10,13 +10,13 @@
 
 [data-theme="dark"] .btn {
   border: none;
-  background-color: var(--scitex-color-04);
-  color: var(--scitex-color-07);
+  background-color: var(--workspace-bg-elevated, #3a3a3a); /* Workspace blackish instead of bluish */
+  color: var(--text-primary, #d4e1e8);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .btn:hover {
-  background-color: var(--scitex-color-05);
+  background-color: var(--workspace-border-hover, #4a4a4a); /* Slightly lighter blackish on hover */
   border-color: transparent;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -49,13 +49,13 @@
 
 /* Primary Button - Dark Mode */
 [data-theme="dark"] .btn-primary {
-  background-color: var(--scitex-color-04);
+  background-color: var(--workspace-bg-elevated, #3a3a3a); /* Workspace blackish */
   color: white;
 }
 
 [data-theme="dark"] .btn-primary:hover,
 [data-theme="dark"] .btn-primary:focus {
-  background-color: var(--scitex-color-05);
+  background-color: var(--workspace-border-hover, #4a4a4a); /* Slightly lighter */
   color: white;
 }
 

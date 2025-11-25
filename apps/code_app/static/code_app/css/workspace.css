@@ -13,16 +13,16 @@
 /* Theme-aware color tokens - matching vis.css pattern */
 :root,
 [data-theme="light"] {
-  --code-bg: var(--bg-muted, #f6f8fa);
-  --code-border: var(--border-default, #8fa4b0);
-  --code-toolbar-bg: var(--bg-surface, #fafbfc);
+  --code-bg: var(--workspace-bg-tertiary, #f6f8fa);
+  --code-border: var(--workspace-border-default);
+  --code-toolbar-bg: var(--workspace-bg-secondary, #fafbfc);
   --code-text-primary: var(--text-primary, #1a2a40);
   --code-text-secondary: var(--text-secondary, #34495e);
   --code-text-muted: var(--text-muted, #6c8ba0);
-  --code-hover-bg: var(--bg-muted, #f6f8fa);
-  --code-active-bg: #ddf4ff;
-  --code-active-border: #1f6feb;
-  --code-surface: var(--bg-surface, #fafbfc);
+  --code-hover-bg: var(--workspace-bg-tertiary, #f6f8fa);
+  --code-active-bg: rgba(5, 150, 105, 0.1);  /* Green accent matching workspace */
+  --code-active-border: var(--workspace-icon-primary);
+  --code-surface: var(--workspace-bg-secondary, #fafbfc);
 }
 
 [data-theme="dark"] {
@@ -34,8 +34,8 @@
   --code-text-secondary: var(--text-secondary);
   --code-text-muted: var(--text-muted);
   --code-hover-bg: var(--workspace-bg-tertiary);
-  --code-active-bg: rgba(31, 111, 235, 0.2);
-  --code-active-border: #1f6feb;
+  --code-active-bg: rgba(16, 185, 129, 0.15);  /* Bright green for dark mode */
+  --code-active-border: var(--workspace-icon-primary);
   --code-surface: var(--workspace-bg-secondary);
 }
 
@@ -140,7 +140,7 @@
   border-right: 1px solid var(--code-border);
   cursor: pointer;
   font-size: 13px;
-  color: var(--code-text-secondary);
+  color: var(--workspace-icon-muted);
   transition: all 0.2s ease-out;
   white-space: nowrap;
   user-select: none;
@@ -148,18 +148,22 @@
 }
 
 .file-tab:hover {
-  background: var(--code-hover-bg);
-  color: var(--code-text-primary);
+  background: var(--workspace-bg-tertiary);
+  color: var(--workspace-icon-hover);
   transform: translateY(-1px);
 }
 
 .file-tab.active {
-  background: var(--code-active-bg);
-  color: var(--code-active-border);
+  background: var(--workspace-bg-tertiary);
+  color: var(--workspace-icon-primary);
   font-weight: 500;
-  border-bottom: 2px solid var(--code-active-border);
+  border-bottom: 2px solid var(--workspace-icon-primary);
   margin-bottom: -1px;
-  box-shadow: 0 0 0 1px rgba(31, 111, 235, 0.1);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="dark"] .file-tab.active {
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
 }
 
 .file-tab-icon {
@@ -182,8 +186,8 @@
 
 .file-tab-close:hover {
   opacity: 1;
-  background: rgba(241, 76, 76, 0.15);
-  color: #f85149;
+  background: rgba(192, 136, 136, 0.15);
+  color: var(--status-error);
   transform: scale(1.15);
 }
 
@@ -207,9 +211,10 @@
 /* Sidebar header - sleek professional design */
 .sidebar-header {
   padding: 0 16px;
+  margin-top: 0 !important;
   background: var(--code-bg);
-  border-top: 1px solid var(--code-border);
-  border-bottom: 2px solid var(--code-border);
+  border-top: 1px solid var(--workspace-border-default);
+  border-bottom: 1px solid var(--workspace-border-default);
   height: 48px;
   display: flex;
   flex-direction: column;
@@ -218,9 +223,22 @@
 }
 
 [data-theme="dark"] .sidebar-header {
-  border-top-color: #506b7a;
-  border-bottom-color: #506b7a;
-  background: #0f1419 !important;
+  background: var(--workspace-bg-secondary) !important;
+}
+
+/* Sidebar signup link for visitors */
+.sidebar-signup-link {
+  display: block;
+  font-size: 11px;
+  color: var(--workspace-icon-primary);
+  text-decoration: none;
+  margin-left: 22px;
+  transition: color 0.2s ease;
+}
+
+.sidebar-signup-link:hover {
+  color: var(--workspace-icon-hover);
+  text-decoration: none;
 }
 
 /* Toolbar - sleek professional design */
@@ -231,7 +249,7 @@
   padding: 0 16px;
   background: var(--code-toolbar-bg);
   border-top: 1px solid var(--code-border);
-  border-bottom: 2px solid var(--code-border);
+  border-bottom: 1px solid var(--code-border);
   height: 48px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -251,7 +269,7 @@
   padding: 0 16px;
   background: var(--code-toolbar-bg);
   border-top: 1px solid var(--code-border);
-  border-bottom: 2px solid var(--code-border);
+  border-bottom: 1px solid var(--code-border);
   height: 48px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -274,6 +292,63 @@
 
 .code-toolbar-spacer {
   flex: 1;
+}
+
+/* Toolbar buttons - icon-only style matching vis app workspace design */
+.btn-code-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  border: none; /* Flat workspace design - no borders */
+  border-radius: 0; /* Flat workspace design - no rounded corners */
+  color: var(--workspace-icon-primary); /* Eye-friendly green for all icons */
+  font-size: 14px; /* Consistent size for all buttons */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-code-action:hover:not(:disabled) {
+  background: var(--workspace-bg-tertiary);
+  color: var(--workspace-icon-hover);
+  transform: translateY(-1px);
+}
+
+.btn-code-action:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-code-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Font Awesome icons in buttons - explicit workspace colors */
+.btn-code-action i {
+  font-size: 14px; /* Same size for all icons */
+  color: var(--workspace-icon-primary); /* Eye-friendly green */
+}
+
+.btn-code-action:hover:not(:disabled) i {
+  color: var(--workspace-icon-hover); /* Darker green on hover */
+}
+
+.btn-code-action:disabled i {
+  color: var(--workspace-icon-muted);
+}
+
+/* Hide text labels in toolbar buttons for icon-only style */
+.btn-code-action:not(.btn-with-text) {
+  padding: 8px;
+  min-width: 36px;
+}
+
+.btn-code-action:not(.btn-with-text) span {
+  display: none;
 }
 
 /* Monaco Editor container */
@@ -307,11 +382,22 @@
   color: #c5cdd6;
   font-family: 'JetBrains Mono', 'Monaco', 'Menlo', monospace;
   font-size: 13px;
-  padding: 12px;
+  padding: 0; /* Remove padding from container, add to xterm instead */
   overflow-y: auto;
   line-height: 1.5;
   cursor: text;
   user-select: text; /* Allow text selection */
+}
+
+/* XTerm.js terminal container - add margin around terminal output */
+.terminal-body .terminal.xterm {
+  padding: 16px; /* Add padding to create margins around terminal content */
+  margin: 0;
+}
+
+/* XTerm.js viewport - the actual terminal rendering area */
+.terminal-body .xterm-viewport {
+  /* Padding on parent .xterm creates margin effect for viewport content */
 }
 
 .terminal-line {
@@ -324,9 +410,9 @@
 .terminal-image {
   margin: 8px 0;
   padding: 8px;
-  background: var(--color-canvas-subtle);
+  background: var(--bg-surface);
   border-radius: 6px;
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--workspace-border-default);
 }
 
 .terminal-image img {
@@ -339,19 +425,19 @@
 }
 
 .terminal-success {
-  color: #6ba89a; /* Softer green - less vivid */
+  color: var(--status-success);
 }
 
 .terminal-error {
-  color: #c08888; /* Softer red - less vivid */
+  color: var(--status-error);
 }
 
 .terminal-info {
-  color: #8fa9cc; /* Softer blue - less vivid */
+  color: var(--status-info);
 }
 
 .terminal-warning {
-  color: #d4a87a; /* Softer orange - less vivid */
+  color: var(--status-warning);
 }
 
 /* Terminal prompt line (inline) */
@@ -363,7 +449,7 @@
 }
 
 .terminal-prompt {
-  color: #6ba89a; /* Softer green - matches terminal-success */
+  color: var(--workspace-icon-primary);
   font-weight: 600;
   flex-shrink: 0;
   user-select: text;  /* Allow selecting prompt for copy */
@@ -428,54 +514,24 @@
 }
 
 /* Buttons - professional sleek design matching vis.css */
-.btn-code-action {
-  padding: 6px 12px;
-  font-size: 13px;
-  border-radius: 6px;
-  border: 1.5px solid var(--code-border);
-  background: transparent;
-  color: var(--code-text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 500;
-}
-
-.btn-code-action:hover:not(:disabled) {
-  background: var(--code-hover-bg);
-  border-color: var(--code-active-border);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.btn-code-action:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.btn-code-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* Duplicate styles removed - using unified .btn-code-action definition above */
 
 .btn-code-primary {
-  background: var(--code-active-border);
+  background: var(--workspace-icon-primary);
   color: white;
-  border-color: var(--code-active-border);
+  border: none;
+  border-radius: 0;
 }
 
 .btn-code-primary:hover:not(:disabled) {
-  background: #1a5dc9;
-  border-color: #1a5dc9;
+  background: var(--workspace-icon-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(31, 111, 235, 0.3);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
 }
 
 .btn-code-primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(31, 111, 235, 0.2);
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
 }
 
 .btn-code-icon {
@@ -539,13 +595,14 @@
 }
 
 [data-theme="dark"] .code-terminal-panel {
-  border-left-color: var(--scitex-color-04); /* More visible border with accent color */
+  border-left-color: var(--workspace-border-default); /* Workspace darkish border instead of bluish */
 }
 
-[data-theme="dark"] .sidebar-header {
-  border-top-color: var(--scitex-color-04);
-  border-bottom-color: var(--scitex-color-04);
-}
+/* Removed duplicate rule - workspace colors already set above at line 220-224 */
+/* [data-theme="dark"] .sidebar-header {
+  border-top-color: var(--border-default);
+  border-bottom-color: var(--border-default);
+} */
 
 
 /* Folder icon button styling */
@@ -577,7 +634,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--code-active-border);
+  color: var(--workspace-icon-primary);
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 2px;
@@ -590,49 +647,29 @@
 }
 
 .terminal-path-link:hover {
-  color: #79c0ff;
+  color: var(--workspace-icon-hover);
   text-decoration-style: solid;
-  background: var(--code-active-bg);
-  border-color: var(--code-active-border);
+  background: var(--workspace-bg-tertiary);
+  border-color: var(--workspace-border-hover);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(31, 111, 235, 0.2);
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
 }
 
 .terminal-path-link:active {
   transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(31, 111, 235, 0.1);
+  box-shadow: 0 1px 2px rgba(5, 150, 105, 0.1);
 }
 
 .terminal-path-link .path-icon {
   font-size: 14px;
   flex-shrink: 0;
   transition: transform 0.2s ease;
+  color: var(--workspace-icon-primary);
 }
 
 .terminal-path-link:hover .path-icon {
   transform: scale(1.1);
-}
-
-/* Dark theme path links */
-[data-theme="dark"] .terminal-path-link {
-  color: #58a6ff;
-}
-
-[data-theme="dark"] .terminal-path-link:hover {
-  color: #79c0ff;
-  background: rgba(88, 166, 255, 0.2);
-  box-shadow: 0 2px 6px rgba(88, 166, 255, 0.3);
-}
-
-/* Light theme path links */
-[data-theme="light"] .terminal-path-link {
-  color: #0969da;
-}
-
-[data-theme="light"] .terminal-path-link:hover {
-  color: #0550ae;
-  background: rgba(9, 105, 218, 0.15);
-  box-shadow: 0 2px 4px rgba(9, 105, 218, 0.2);
+  color: var(--workspace-icon-hover);
 }
 
 /* Responsive adjustments */
@@ -671,21 +708,21 @@
 }
 
 .git-glyph-modified {
-  background: #e2c08d !important;
+  background: var(--status-warning) !important;
   width: 4px !important;
   height: 100% !important;
   margin-left: 2px;
 }
 
 .git-glyph-added {
-  background: #73c991 !important;
+  background: var(--status-success) !important;
   width: 4px !important;
   height: 100% !important;
   margin-left: 2px;
 }
 
 .git-glyph-deleted {
-  background: #f14c4c !important;
+  background: var(--status-error) !important;
   width: 4px !important;
   height: 100% !important;
   margin-left: 2px;
