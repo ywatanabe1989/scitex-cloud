@@ -11,12 +11,14 @@ __DIR__ = os.path.dirname(__FILE__)
 # ----------------------------------------
 
 import logging
+import time
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import models
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils import timezone
@@ -775,10 +777,55 @@ def server_status(request):
 
     # System resources
     try:
+        # CPU information
+        cpu_count = psutil.cpu_count(logical=False) or psutil.cpu_count()
+        cpu_count_logical = psutil.cpu_count(logical=True)
+
+        # Try to get CPU name from /proc/cpuinfo (Linux)
+        cpu_name = "Unknown"
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if 'model name' in line:
+                        cpu_name = line.split(':')[1].strip()
+                        break
+        except:
+            pass
+
+        # GPU information (check for NVIDIA)
+        gpu_info = "None available"
+        try:
+            import subprocess
+            result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'],
+                                  capture_output=True, text=True, timeout=2)
+            if result.returncode == 0 and result.stdout.strip():
+                gpu_info = result.stdout.strip()
+        except:
+            pass
+
+        # Disk I/O stats
+        disk_io = psutil.disk_io_counters()
+        disk_read_mb = round(disk_io.read_bytes / (1024**2), 2) if disk_io else 0
+        disk_write_mb = round(disk_io.write_bytes / (1024**2), 2) if disk_io else 0
+
+        # Network I/O stats
+        net_io = psutil.net_io_counters()
+        net_sent_mb = round(net_io.bytes_sent / (1024**2), 2) if net_io else 0
+        net_recv_mb = round(net_io.bytes_recv / (1024**2), 2) if net_io else 0
+
         status_data["system"] = {
             "cpu_percent": psutil.cpu_percent(interval=1),
+            "cpu_cores": cpu_count,
+            "cpu_cores_logical": cpu_count_logical,
+            "cpu_name": cpu_name,
             "memory_percent": psutil.virtual_memory().percent,
             "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 2),
+            "memory_total_gb": round(psutil.virtual_memory().total / (1024**3), 2),
+            "gpu_info": gpu_info,
+            "disk_read_mb": disk_read_mb,
+            "disk_write_mb": disk_write_mb,
+            "net_sent_mb": net_sent_mb,
+            "net_recv_mb": net_recv_mb,
         }
     except Exception as e:
         status_data["system"] = {"error": str(e)}
@@ -788,6 +835,166 @@ def server_status(request):
     }
 
     return render(request, "public_app/server_status.html", context)
+
+
+def server_status_api(request):
+    """API endpoint for real-time server metrics (returns JSON)"""
+    import psutil
+    import subprocess
+
+    try:
+        data = {
+            "timestamp": int(time.time() * 1000),  # milliseconds
+            "cpu_percent": psutil.cpu_percent(interval=0.1),
+            "memory_percent": psutil.virtual_memory().percent,
+            "disk_percent": psutil.disk_usage('/').percent,
+        }
+
+        # GPU metrics (try nvidia-smi)
+        gpu_percent = None
+        try:
+            result = subprocess.run(
+                ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, timeout=2
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                gpu_percent = float(result.stdout.strip().split('\n')[0])
+        except:
+            pass
+        data["gpu_percent"] = gpu_percent
+
+        # Network I/O rates (bytes per second since last call)
+        net_io = psutil.net_io_counters()
+        disk_io = psutil.disk_io_counters()
+
+        data["net_sent_mb_total"] = round(net_io.bytes_sent / (1024**2), 2)
+        data["net_recv_mb_total"] = round(net_io.bytes_recv / (1024**2), 2)
+        data["disk_read_mb_total"] = round(disk_io.read_bytes / (1024**2), 2) if disk_io else 0
+        data["disk_write_mb_total"] = round(disk_io.write_bytes / (1024**2), 2) if disk_io else 0
+
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def server_metrics_history_api(request):
+    """API endpoint for historical server metrics (returns JSON)"""
+    from apps.public_app.models import ServerMetrics
+    from datetime import timedelta
+
+    try:
+        # Get query parameters
+        hours = int(request.GET.get('hours', 24))  # Default: last 24 hours
+        limit = int(request.GET.get('limit', 1000))  # Max records to return
+
+        # Query metrics
+        start_time = timezone.now() - timedelta(hours=hours)
+        metrics = ServerMetrics.objects.filter(
+            timestamp__gte=start_time
+        ).order_by('timestamp')[:limit]
+
+        # Format data
+        data = {
+            "count": metrics.count(),
+            "start_time": start_time.isoformat(),
+            "end_time": timezone.now().isoformat(),
+            "metrics": [
+                {
+                    "timestamp": int(m.timestamp.timestamp() * 1000),
+                    "cpu_percent": m.cpu_percent,
+                    "memory_percent": m.memory_percent,
+                    "disk_percent": m.disk_percent,
+                    "memory_used_gb": m.memory_used_gb,
+                    "disk_used_gb": m.disk_used_gb,
+                    "net_sent_mb": m.net_sent_mb,
+                    "net_recv_mb": m.net_recv_mb,
+                    "disk_read_mb": m.disk_read_mb,
+                    "disk_write_mb": m.disk_write_mb,
+                }
+                for m in metrics
+            ]
+        }
+
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def server_metrics_export_csv(request):
+    """Export server metrics as CSV file"""
+    from apps.public_app.models import ServerMetrics
+    from datetime import timedelta
+    from django.http import HttpResponse
+    import csv
+
+    try:
+        # Get query parameters
+        hours = int(request.GET.get('hours', 24))
+        start_time = timezone.now() - timedelta(hours=hours)
+
+        # Query metrics
+        metrics = ServerMetrics.objects.filter(
+            timestamp__gte=start_time
+        ).order_by('timestamp')
+
+        # Create CSV response
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="server_metrics_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+
+        writer = csv.writer(response)
+
+        # Write header
+        writer.writerow([
+            'Timestamp',
+            'CPU %',
+            'CPU Cores',
+            'CPU Cores Logical',
+            'Memory %',
+            'Memory Used (GB)',
+            'Memory Total (GB)',
+            'Memory Available (GB)',
+            'Disk %',
+            'Disk Used (GB)',
+            'Disk Total (GB)',
+            'Disk Read (MB)',
+            'Disk Write (MB)',
+            'Network Sent (MB)',
+            'Network Received (MB)',
+            'Docker Services',
+            'SSH Gateway',
+            'Gitea SSH',
+            'Database',
+            'Redis',
+        ])
+
+        # Write data
+        for m in metrics:
+            writer.writerow([
+                m.timestamp.isoformat(),
+                m.cpu_percent,
+                m.cpu_cores,
+                m.cpu_cores_logical,
+                m.memory_percent,
+                m.memory_used_gb,
+                m.memory_total_gb,
+                m.memory_available_gb,
+                m.disk_percent,
+                m.disk_used_gb,
+                m.disk_total_gb,
+                m.disk_read_mb,
+                m.disk_write_mb,
+                m.net_sent_mb,
+                m.net_recv_mb,
+                m.docker_services_running,
+                m.ssh_gateway_status,
+                m.gitea_ssh_status,
+                m.database_status,
+                m.redis_status,
+            ])
+
+        return response
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 def visitor_status(request):
