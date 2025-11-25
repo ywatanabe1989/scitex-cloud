@@ -1,5 +1,17 @@
 {% load static %}
 <!-- GitHub-Style Global Header -->
+<style>
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.8;
+    }
+}
+</style>
 <header class="global-header">
     <div class="global-header-inner">
         <!-- Left: Logo + Main Navigation -->
@@ -398,12 +410,31 @@
                     style="font-size: 18px;">
                 <i class="fas fa-sync-alt"></i>
             </button>
+            <!-- Server Status with live health indicator -->
+            <a href="/server-status/"
+               id="server-status-btn"
+               class="theme-toggle"
+               data-tooltip="System Status"
+               style="font-size: 18px; position: relative;">
+                <span id="server-status-indicator"
+                      class="status-dot"
+                      style="position: absolute;
+                             top: 8px;
+                             right: 8px;
+                             width: 8px;
+                             height: 8px;
+                             border-radius: 50%;
+                             background: #4caf50;
+                             border: 2px solid var(--bg-page);
+                             box-shadow: 0 0 4px rgba(76, 175, 80, 0.6);"></span>
+                <i class="fas fa-server"></i>
+            </a>
             {% if is_visitor %}
                 <!-- Visitor Mode indicator with countdown -->
-                <a href="{% url 'public_app:visitor_status' %}"
+                <a href="{% url 'public_app:server_status' %}"
                    class="header-visitor-badge"
                    id="visitor-mode-badge"
-                   data-tooltip="Click to view visitor mode status"
+                   data-tooltip="Click to view server and visitor status"
                    {% if visitor_expires_at %}
                    data-expires-at="{{ visitor_expires_at.isoformat }}"
                    {% endif %}>
@@ -480,11 +511,11 @@
                             Already have an account? Sign In
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a href="{% url 'public_app:visitor_status' %}" class="dropdown-item">
+                        <a href="{% url 'public_app:server_status' %}" class="dropdown-item">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 8px; vertical-align: text-bottom;">
-                                <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z" />
+                                <path d="M0 1.5A.5.5 0 0 1 .5 1h15a.5.5 0 0 1 0 1h-.5v13a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V14h-1v.5a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V14H8v.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V14H4v.5a.5.5 0 0 1-.5.5H.5a.5.5 0 0 1-.5-.5V2H0v-.5zM2 2v12h1v-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v3h1V2H2zm7 12h1V2H9v12zm4 0v-3h-1v3h1zM4.5 4h-1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-2A.5.5 0 0 0 4.5 4zm2 0h-1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-2A.5.5 0 0 0 6.5 4zm2 0h-1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-2A.5.5 0 0 0 8.5 4zm2 0h-1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-2A.5.5 0 0 0 10.5 4zm2 0h-1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5z" />
                             </svg>
-                            Visitor Status
+                            Server Status
                         </a>
                     </div>
                 </div>
@@ -1236,7 +1267,7 @@
           countdownSpan.textContent = "⏰ EXPIRED";
           countdownSpan.style.color = "#f44336";
           setTimeout(() => {
-            window.location.href = "{% url 'public_app:visitor_status' %}";
+            window.location.href = "{% url 'public_app:server_status' %}";
           }, 2000);
           return;
         }
@@ -1271,6 +1302,77 @@
       // Update immediately and then every second
       updateCountdown();
       setInterval(updateCountdown, 1000);
+    }
+
+    // Server Status Live Indicator
+    const serverStatusIndicator = document.getElementById('server-status-indicator');
+    const serverStatusBtn = document.getElementById('server-status-btn');
+
+    if (serverStatusIndicator && serverStatusBtn) {
+      let lastStatus = 'healthy';
+
+      async function updateServerStatus() {
+        try {
+          const response = await fetch('/api/server-status/');
+          const data = await response.json();
+
+          // Determine overall health status
+          let status = 'healthy'; // green
+          let statusColor = '#4caf50';
+          let statusShadow = 'rgba(76, 175, 80, 0.6)';
+          let statusTooltip = 'All systems operational';
+
+          // Check critical services
+          const criticalServices = [
+            data.cpu_percent > 90,
+            data.memory_percent > 90,
+            data.disk_percent > 90
+          ];
+
+          const degradedServices = [
+            data.cpu_percent > 70,
+            data.memory_percent > 70,
+            data.disk_percent > 70
+          ];
+
+          if (criticalServices.some(s => s)) {
+            status = 'critical';
+            statusColor = '#f44336'; // red
+            statusShadow = 'rgba(244, 67, 54, 0.6)';
+            statusTooltip = 'System critical - High resource usage';
+          } else if (degradedServices.some(s => s)) {
+            status = 'degraded';
+            statusColor = '#ff9800'; // orange
+            statusShadow = 'rgba(255, 152, 0, 0.6)';
+            statusTooltip = 'System degraded - Elevated resource usage';
+          }
+
+          // Update indicator
+          serverStatusIndicator.style.background = statusColor;
+          serverStatusIndicator.style.boxShadow = `0 0 4px ${statusShadow}`;
+          serverStatusBtn.setAttribute('data-tooltip', statusTooltip);
+
+          // If status changed, add pulse animation
+          if (lastStatus !== status) {
+            serverStatusIndicator.style.animation = 'pulse 1s ease-in-out';
+            setTimeout(() => {
+              serverStatusIndicator.style.animation = '';
+            }, 1000);
+            lastStatus = status;
+          }
+
+        } catch (error) {
+          console.error('Failed to fetch server status:', error);
+          // Show offline indicator
+          serverStatusIndicator.style.background = '#9e9e9e'; // gray
+          serverStatusIndicator.style.boxShadow = '0 0 4px rgba(158, 158, 158, 0.6)';
+          serverStatusBtn.setAttribute('data-tooltip', 'Status check failed');
+        }
+      }
+
+      // Update immediately and then every 30 seconds
+      updateServerStatus();
+      setInterval(updateServerStatus, 30000);
     }
   });
 </script>

@@ -82,6 +82,13 @@ services:
     # "from_docker" argument bypasses the manage.py wrapper safety check
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000", "from_docker"]
 
+    # Allow access to host hardware for monitoring
+    privileged: true
+
+    # Allow access to host services (SSH, etc.)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     # Restart policy
     restart: unless-stopped
 

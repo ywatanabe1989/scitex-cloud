@@ -685,11 +685,17 @@ def server_status(request):
         })
 
     # Check SSH services
+    # Determine host to check - use host.docker.internal if in Docker, otherwise localhost
+    ssh_check_host = '127.0.0.1'
+    if Path('/.dockerenv').exists():
+        # We're running inside Docker, check host services
+        ssh_check_host = 'host.docker.internal'
+
     # Workspace SSH Gateway (port 2200)
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
-        result = sock.connect_ex(('127.0.0.1', 2200))
+        result = sock.connect_ex((ssh_check_host, 2200))
         sock.close()
         status_data["ssh_services"].append({
             "name": "Workspace SSH Gateway",
@@ -710,7 +716,7 @@ def server_status(request):
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
-        result = sock.connect_ex(('127.0.0.1', 2222))
+        result = sock.connect_ex((ssh_check_host, 2222))
         sock.close()
         status_data["ssh_services"].append({
             "name": "Gitea SSH (Git operations)",
@@ -792,14 +798,48 @@ def server_status(request):
         except:
             pass
 
-        # GPU information (check for NVIDIA)
+        # GPU information (check for NVIDIA, AMD, and integrated GPUs)
         gpu_info = "None available"
         try:
             import subprocess
-            result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'],
-                                  capture_output=True, text=True, timeout=2)
-            if result.returncode == 0 and result.stdout.strip():
-                gpu_info = result.stdout.strip()
+
+            # Try NVIDIA first
+            try:
+                result = subprocess.run(['nvidia-smi', '--query-gpu=name', '--format=csv,noheader'],
+                                      capture_output=True, text=True, timeout=2)
+                if result.returncode == 0 and result.stdout.strip():
+                    gpu_info = result.stdout.strip()
+            except:
+                pass
+
+            # If no NVIDIA GPU, check CPU info for integrated graphics (AMD Ryzen, Intel)
+            if gpu_info == "None available":
+                try:
+                    # Check if CPU has integrated graphics
+                    if cpu_name and ('Radeon Graphics' in cpu_name or 'Intel' in cpu_name):
+                        # Extract GPU info from CPU name
+                        if 'Radeon Graphics' in cpu_name:
+                            gpu_info = "AMD Radeon Graphics (Integrated)"
+                        elif 'Intel' in cpu_name and 'Graphics' in cpu_name:
+                            gpu_info = "Intel Integrated Graphics"
+                except:
+                    pass
+
+            # If still not found, try AMD/other GPUs via lspci
+            if gpu_info == "None available":
+                try:
+                    result = subprocess.run(['lspci'], capture_output=True, text=True, timeout=2)
+                    if result.returncode == 0:
+                        for line in result.stdout.split('\n'):
+                            if 'VGA compatible controller' in line or 'Display controller' in line:
+                                # Extract GPU name from lspci output
+                                # Format: "00:02.0 VGA compatible controller: Vendor GPU Name"
+                                parts = line.split(': ', 1)
+                                if len(parts) > 1:
+                                    gpu_info = parts[1].strip()
+                                    break
+                except:
+                    pass
         except:
             pass
 
@@ -830,6 +870,68 @@ def server_status(request):
     except Exception as e:
         status_data["system"] = {"error": str(e)}
 
+    # Get visitor pool status and allocations
+    try:
+        from apps.project_app.services.visitor_pool import VisitorPool
+        from apps.project_app.models import VisitorAllocation
+        from django.utils import timezone
+
+        pool_status = VisitorPool.get_pool_status()
+
+        # Get current user's allocation if they have one
+        user_allocation = None
+        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+        if allocation_token:
+            try:
+                user_allocation = VisitorAllocation.objects.get(
+                    allocation_token=allocation_token,
+                    is_active=True,
+                    expires_at__gt=timezone.now()
+                )
+            except VisitorAllocation.DoesNotExist:
+                pass
+
+        user_visitor_number = user_allocation.visitor_number if user_allocation else None
+
+        # Get all allocations
+        allocations = []
+        for i in range(1, VisitorPool.POOL_SIZE + 1):
+            allocation = VisitorAllocation.objects.filter(visitor_number=i).first()
+            is_current_user = (user_visitor_number == i)
+
+            if allocation and allocation.is_active and allocation.expires_at > timezone.now():
+                # Active allocation
+                time_remaining = allocation.expires_at - timezone.now()
+                total_minutes = int(time_remaining.total_seconds() / 60)
+
+                allocations.append({
+                    "slot_number": i,
+                    "status": "allocated",
+                    "expires_at": allocation.expires_at,
+                    "minutes_remaining": total_minutes,
+                    "visitor_username": f"visitor-{allocation.visitor_number:03d}",
+                    "is_current_user": is_current_user,
+                })
+            else:
+                # Free slot
+                allocations.append({
+                    "slot_number": i,
+                    "status": "free",
+                    "expires_at": None,
+                    "minutes_remaining": None,
+                    "visitor_username": None,
+                    "is_current_user": False,
+                })
+
+        status_data["visitor_pool"] = {
+            "pool_status": pool_status,
+            "allocations": allocations,
+            "session_lifetime_hours": VisitorPool.SESSION_LIFETIME_HOURS,
+        }
+    except Exception as e:
+        logger.warning(f"Could not get visitor pool status: {e}")
+        status_data["visitor_pool"] = {"error": str(e)}
+
     context = {
         "status_data": status_data,
     }
@@ -850,15 +952,42 @@ def server_status_api(request):
             "disk_percent": psutil.disk_usage('/').percent,
         }
 
-        # GPU metrics (try nvidia-smi)
+        # GPU metrics (try NVIDIA first, then AMD)
         gpu_percent = None
         try:
-            result = subprocess.run(
-                ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'],
-                capture_output=True, text=True, timeout=2
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                gpu_percent = float(result.stdout.strip().split('\n')[0])
+            # Try NVIDIA nvidia-smi
+            try:
+                result = subprocess.run(
+                    ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'],
+                    capture_output=True, text=True, timeout=2
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    gpu_percent = float(result.stdout.strip().split('\n')[0])
+            except:
+                pass
+
+            # Try AMD rocm-smi (if ROCm is installed)
+            if gpu_percent is None:
+                try:
+                    result = subprocess.run(
+                        ['rocm-smi', '--showuse'],
+                        capture_output=True, text=True, timeout=2
+                    )
+                    if result.returncode == 0 and result.stdout:
+                        # Parse rocm-smi output for GPU usage
+                        for line in result.stdout.split('\n'):
+                            if 'GPU use' in line or '%' in line:
+                                # Try to extract percentage
+                                import re
+                                match = re.search(r'(\d+(?:\.\d+)?)\s*%', line)
+                                if match:
+                                    gpu_percent = float(match.group(1))
+                                    break
+                except:
+                    pass
+
+            # If still no GPU utilization but GPU exists (detected via lspci), set to None
+            # This allows the UI to show "GPU detected" even if we can't get utilization
         except:
             pass
         data["gpu_percent"] = gpu_percent
@@ -871,6 +1000,32 @@ def server_status_api(request):
         data["net_recv_mb_total"] = round(net_io.bytes_recv / (1024**2), 2)
         data["disk_read_mb_total"] = round(disk_io.read_bytes / (1024**2), 2) if disk_io else 0
         data["disk_write_mb_total"] = round(disk_io.write_bytes / (1024**2), 2) if disk_io else 0
+
+        # Visitor pool status
+        try:
+            from apps.project_app.services.visitor_pool import VisitorPool
+            pool_status = VisitorPool.get_pool_status()
+            data["visitor_pool_allocated"] = pool_status['allocated']
+            data["visitor_pool_total"] = pool_status['total']
+        except Exception as e:
+            logger.debug(f"Could not get visitor pool status: {e}")
+            data["visitor_pool_allocated"] = None
+            data["visitor_pool_total"] = None
+
+        # Active users count
+        try:
+            from django.contrib.sessions.models import Session
+            active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+            user_ids = set()
+            for session in active_sessions:
+                session_data = session.get_decoded()
+                user_id = session_data.get('_auth_user_id')
+                if user_id:
+                    user_ids.add(user_id)
+            data["active_users_count"] = len(user_ids)
+        except Exception as e:
+            logger.debug(f"Could not get active users count: {e}")
+            data["active_users_count"] = None
 
         return JsonResponse(data)
     except Exception as e:
@@ -910,6 +1065,10 @@ def server_metrics_history_api(request):
                     "net_recv_mb": m.net_recv_mb,
                     "disk_read_mb": m.disk_read_mb,
                     "disk_write_mb": m.disk_write_mb,
+                    "visitor_pool_allocated": m.visitor_pool_allocated,
+                    "visitor_pool_total": m.visitor_pool_total,
+                    "active_users_count": m.active_users_count,
+                    "gpu_percent": m.gpu_percent if hasattr(m, 'gpu_percent') else None,
                 }
                 for m in metrics
             ]
@@ -999,146 +1158,13 @@ def server_metrics_export_csv(request):
 
 def visitor_status(request):
     """
-    Visitor Mode Status Page.
+    Redirect to server_status page.
 
-    Shows visitor pool status without exposing privacy information.
-    Displays:
-    - Total slots available
-    - Currently allocated slots
-    - Free slots
-    - User's personal countdown timer (if in visitor mode)
-    - Allocation expiration times (without identifying information)
+    This view is deprecated. All visitor status information is now
+    integrated into the server status page at /server-status/
     """
-    from apps.project_app.services.visitor_pool import VisitorPool
-    from apps.project_app.models import VisitorAllocation
-    from django.utils import timezone
-    from datetime import datetime, time as dt_time
-
-    # Check if current user has a visitor allocation, allocate if they don't
-    user_allocation = None
-    user_time_until_reset = None
-
-    # Check for authenticated visitors without allocations
-    if request.user.is_authenticated and request.user.username.startswith("visitor-"):
-        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
-        if allocation_token:
-            try:
-                user_allocation = VisitorAllocation.objects.get(
-                    allocation_token=allocation_token,
-                    is_active=True,
-                    expires_at__gt=timezone.now()
-                )
-            except VisitorAllocation.DoesNotExist:
-                allocation_token = None
-
-        # If no valid allocation, allocate one now
-        if not allocation_token:
-            project, user = VisitorPool.allocate_visitor(request.session)
-            logger.info(f"[VisitorStatus] Re-allocated visitor slot for {request.user.username}")
-
-            # Get the new allocation
-            allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
-            if allocation_token:
-                try:
-                    user_allocation = VisitorAllocation.objects.get(
-                        allocation_token=allocation_token,
-                        is_active=True,
-                        expires_at__gt=timezone.now()
-                    )
-                except VisitorAllocation.DoesNotExist:
-                    pass
-
-    elif not request.user.is_authenticated:
-        # Check for existing allocation token
-        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
-        if allocation_token:
-            try:
-                user_allocation = VisitorAllocation.objects.get(
-                    allocation_token=allocation_token,
-                    is_active=True,
-                    expires_at__gt=timezone.now()
-                )
-            except VisitorAllocation.DoesNotExist:
-                allocation_token = None
-
-        # If no valid allocation, allocate one now
-        if not allocation_token:
-            from django.contrib.auth import login
-            project, user = VisitorPool.allocate_visitor(request.session)
-            if user:  # Successfully allocated
-                # Log in the visitor user to make them authenticated
-                if not request.user.is_authenticated:
-                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                    logger.info(f"[VisitorStatus] Logged in visitor: {user.username}")
-
-                # Get the new allocation
-                allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
-                if allocation_token:
-                    try:
-                        user_allocation = VisitorAllocation.objects.get(
-                            allocation_token=allocation_token,
-                            is_active=True,
-                            expires_at__gt=timezone.now()
-                        )
-                    except VisitorAllocation.DoesNotExist:
-                        pass
-
-        # Calculate time until session expires if we have an allocation
-        if user_allocation:
-            now = timezone.now()
-            time_until_expiry = user_allocation.expires_at - now
-            user_time_until_reset = {
-                "hours": int(time_until_expiry.total_seconds() / 3600),
-                "minutes": int((time_until_expiry.total_seconds() % 3600) / 60),
-                "seconds": int(time_until_expiry.total_seconds() % 60),
-                "total_seconds": int(time_until_expiry.total_seconds()),
-                "reset_time": user_allocation.expires_at,
-            }
-
-    # Get pool status
-    status = VisitorPool.get_pool_status()
-
-    # Get allocation information (anonymized)
-    allocations = []
-    user_visitor_number = user_allocation.visitor_number if user_allocation else None
-
-    for i in range(1, VisitorPool.POOL_SIZE + 1):
-        allocation = VisitorAllocation.objects.filter(visitor_number=i).first()
-        is_current_user = (user_visitor_number == i)
-
-        if allocation and allocation.is_active and allocation.expires_at > timezone.now():
-            # Active allocation
-            time_remaining = allocation.expires_at - timezone.now()
-            total_minutes = int(time_remaining.total_seconds() / 60)
-
-            allocations.append({
-                "slot_number": i,
-                "status": "allocated",
-                "expires_at": allocation.expires_at,
-                "minutes_remaining": total_minutes,
-                "visitor_username": f"visitor-{allocation.visitor_number:03d}",
-                "is_current_user": is_current_user,
-            })
-        else:
-            # Free slot
-            allocations.append({
-                "slot_number": i,
-                "status": "free",
-                "expires_at": None,
-                "minutes_remaining": None,
-                "visitor_username": None,
-                "is_current_user": False,
-            })
-
-    context = {
-        "pool_status": status,
-        "allocations": allocations,
-        "session_lifetime_hours": VisitorPool.SESSION_LIFETIME_HOURS,
-        "user_allocation": user_allocation,
-        "user_time_until_reset": user_time_until_reset,
-    }
-
-    return render(request, "public_app/visitor_status.html", context)
+    from django.shortcuts import redirect
+    return redirect('public_app:server_status', permanent=True)
 
 
 def contributors(request):

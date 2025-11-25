@@ -201,8 +201,8 @@ export class UIManager {
     // ========================================
 
     private initPanelResizers(): void {
-        // ResizerManager handles all panel resizing
-        // Already initialized in constructor
+        // Initialize all sigma editor panel resizers
+        this.resizerManager.initializeSigmaResizers();
         console.log('[UIManager] Panel resizers initialized via ResizerManager');
     }
 }
