@@ -86,7 +86,9 @@ docker-check-health:
 setup: build up migrate collectstatic
 	@echo "$(GREEN)✅ NAS setup complete!$(NC)"
 
-start: up
+start:
+	@echo "$(CYAN)🚀 Starting NAS services (will build if needed)...$(NC)"
+	$(COMPOSE) up -d --build
 	@echo "$(GREEN)✅ NAS services started$(NC)"
 
 restart:

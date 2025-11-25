@@ -1,5 +1,3 @@
-version: '3.8'
-
 # NAS Deployment with Cloudflare Tunnel
 # For: Synology DXP480T Plus (Home NAS)
 # No router access or port forwarding needed!
@@ -11,18 +9,25 @@ services:
   web:
     build:
       context: ../../..
-      dockerfile: deployment/docker/docker_prod/Dockerfile
+      dockerfile: deployment/docker/docker_nas/Dockerfile
       cache_from:
         - scitex-cloud-nas-web:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
     image: scitex-cloud-nas-web:latest
-    entrypoint: ["/entrypoint.sh"]
-    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
+    # Use prod entrypoint (built into image)
+    # Use Daphne (ASGI) for WebSocket support like prod
+    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "--access-log", "-", "--proxy-headers", "config.asgi:application"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
       # No scitex-code mount - installed from PyPI in Dockerfile
+      # Docker socket for user workspace management (same as prod)
+      - /var/run/docker.sock:/var/run/docker.sock
+      # User workspace data directory
+      - ../../../data/users:/app/data/users
+    ports:
+      - "${SCITEX_CLOUD_SSH_PORT_NAS:-2200}:2200"  # SSH gateway for user workspaces
     expose:
       - "8000"
     env_file:
@@ -56,9 +61,10 @@ services:
     env_file:
       - .env
     environment:
-      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
-      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
-      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
+      # PostgreSQL expects POSTGRES_* variables (not SCITEX_CLOUD_POSTGRES_*)
+      - POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
+      - POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
     restart: always
     networks:
       - scitex-network
@@ -119,7 +125,7 @@ services:
   nginx:
     image: nginx:alpine
     volumes:
-      - ./nginx/nginx_nas.conf:/etc/nginx/nginx.conf:ro
+      - ../common/nginx/nginx_nas.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
     depends_on:

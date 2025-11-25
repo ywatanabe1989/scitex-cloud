@@ -55,20 +55,49 @@ make -f Makefile.nas help             # Show all commands
 
 ## Cloudflare Tunnel Setup
 
-### 1. Create Tunnel (Cloudflare Dashboard)
-1. Go to: https://dash.cloudflare.com
-2. **Zero Trust** > **Networks** > **Tunnels**
-3. **Create tunnel** → Name: `scitex-nas`
-4. Copy the token
+### Quick Start (Random URL)
+The tunnel is already configured with a token! Just start the services:
+```bash
+make start
+```
 
-### 2. Configure Routes
-- `scitex.ai` → `http://nginx:80`
-- `www.scitex.ai` → `http://nginx:80`
+After services start, check the cloudflared logs to get your random URL:
+```bash
+make logs cloudflared
+# Look for: "Your quick tunnel is available at: https://random-name.trycloudflare.com"
+```
 
-### 3. Add Token to .env
+Then update your `.env` file with this URL:
 ```bash
 # In SECRET/.env.nas
-SCITEX_CLOUD_CLOUDFLARE_TUNNEL_TOKEN_NAS=your-token-here
+ALLOWED_HOSTS=random-name.trycloudflare.com,web,nginx,localhost
+CSRF_TRUSTED_ORIGINS=https://random-name.trycloudflare.com
+```
+
+Restart services:
+```bash
+make restart
+```
+
+### Custom Domain Setup (Optional)
+To use your own domain (scitex.ai):
+
+1. Go to: https://dash.cloudflare.com
+2. **Zero Trust** > **Networks** > **Tunnels**
+3. Find your tunnel and configure routes:
+   - `scitex.ai` → `http://nginx:80`
+   - `www.scitex.ai` → `http://nginx:80`
+
+4. Update `.env` file:
+```bash
+# In SECRET/.env.nas
+ALLOWED_HOSTS=scitex.ai,www.scitex.ai,web,nginx,localhost
+CSRF_TRUSTED_ORIGINS=https://scitex.ai,https://www.scitex.ai
+```
+
+5. Restart services:
+```bash
+make restart
 ```
 
 ## Environment Variables
