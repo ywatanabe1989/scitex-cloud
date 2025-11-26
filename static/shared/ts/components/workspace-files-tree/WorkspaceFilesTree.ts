@@ -245,6 +245,187 @@ export class WorkspaceFilesTree {
     this.container.addEventListener('keydown', (e) => {
       this.handleKeyboard(e);
     });
+
+    // Drag-and-drop for symlink creation
+    this.attachDragDropListeners();
+  }
+
+  /** Attach drag-and-drop event listeners for symlink creation */
+  private attachDragDropListeners(): void {
+    if (!this.container) return;
+
+    let draggedPath: string | null = null;
+    let isCtrlDrag = false;
+
+    // Make all file and folder items draggable
+    this.container.addEventListener('dragstart', (e) => {
+      const target = e.target as HTMLElement;
+      const item = target.closest('.wft-file, .wft-folder') as HTMLElement;
+
+      if (item && item.dataset.path) {
+        draggedPath = item.dataset.path;
+        isCtrlDrag = e.ctrlKey || e.metaKey; // Support Cmd on Mac
+
+        if (e.dataTransfer) {
+          e.dataTransfer.effectAllowed = isCtrlDrag ? 'link' : 'move';
+          e.dataTransfer.setData('text/plain', draggedPath);
+          e.dataTransfer.setData('application/scitex-path', draggedPath);
+        }
+
+        // Add visual feedback
+        item.classList.add('wft-dragging');
+        console.log(`[WorkspaceFilesTree] Drag started: ${draggedPath} (Ctrl: ${isCtrlDrag})`);
+      }
+    });
+
+    // Track Ctrl key during drag
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && draggedPath) {
+        isCtrlDrag = true;
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (!e.ctrlKey && !e.metaKey && draggedPath) {
+        isCtrlDrag = false;
+      }
+    });
+
+    // Handle dragover to show drop target
+    this.container.addEventListener('dragover', (e) => {
+      const target = e.target as HTMLElement;
+      const folderItem = target.closest('.wft-folder') as HTMLElement;
+
+      if (folderItem && draggedPath) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Update drop effect based on Ctrl key
+        const currentCtrl = e.ctrlKey || e.metaKey;
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = currentCtrl ? 'link' : 'move';
+        }
+
+        folderItem.classList.add('wft-drop-target');
+      }
+    });
+
+    // Remove drop target highlight on dragleave
+    this.container.addEventListener('dragleave', (e) => {
+      const target = e.target as HTMLElement;
+      const folderItem = target.closest('.wft-folder') as HTMLElement;
+
+      if (folderItem) {
+        folderItem.classList.remove('wft-drop-target');
+      }
+    });
+
+    // Handle drop
+    this.container.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const target = e.target as HTMLElement;
+      const folderItem = target.closest('.wft-folder') as HTMLElement;
+
+      // Clean up visual feedback
+      document.querySelectorAll('.wft-dragging').forEach(el => {
+        el.classList.remove('wft-dragging');
+      });
+      document.querySelectorAll('.wft-drop-target').forEach(el => {
+        el.classList.remove('wft-drop-target');
+      });
+
+      if (folderItem && draggedPath && folderItem.dataset.path) {
+        const targetPath = folderItem.dataset.path;
+        const sourcePath = draggedPath;
+        const finalCtrl = e.ctrlKey || e.metaKey;
+
+        console.log(`[WorkspaceFilesTree] Drop: ${sourcePath} → ${targetPath} (Ctrl: ${finalCtrl})`);
+
+        if (finalCtrl) {
+          // Create symlink
+          await this.createSymlink(sourcePath, targetPath);
+        } else {
+          // Normal move operation (emit event for parent to handle)
+          this.emitEvent('file-move', {
+            source: sourcePath,
+            target: targetPath
+          });
+        }
+      }
+
+      draggedPath = null;
+      isCtrlDrag = false;
+    });
+
+    // Clean up on drag end
+    this.container.addEventListener('dragend', (e) => {
+      document.querySelectorAll('.wft-dragging').forEach(el => {
+        el.classList.remove('wft-dragging');
+      });
+      document.querySelectorAll('.wft-drop-target').forEach(el => {
+        el.classList.remove('wft-drop-target');
+      });
+
+      draggedPath = null;
+      isCtrlDrag = false;
+    });
+  }
+
+  /** Create a symlink via API */
+  private async createSymlink(sourcePath: string, targetPath: string): Promise<void> {
+    try {
+      const response = await fetch(
+        `/${this.config.username}/${this.config.slug}/api/create-symlink/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.getCsrfToken(),
+          },
+          body: JSON.stringify({
+            source: sourcePath,
+            target: targetPath,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log(`[WorkspaceFilesTree] Symlink created: ${data.relative_link}`);
+
+        // Show success message
+        this.emitEvent('symlink-created', {
+          source: data.source,
+          target: data.target,
+          relativeLink: data.relative_link,
+        });
+
+        // Refresh the tree to show the new symlink
+        await this.refresh();
+      } else {
+        console.error('[WorkspaceFilesTree] Failed to create symlink:', data.error);
+        this.emitEvent('symlink-error', { error: data.error });
+      }
+    } catch (error) {
+      console.error('[WorkspaceFilesTree] Error creating symlink:', error);
+      this.emitEvent('symlink-error', { error: String(error) });
+    }
+  }
+
+  /** Get CSRF token from cookie */
+  private getCsrfToken(): string {
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const [key, value] = cookie.trim().split('=');
+      if (key === name) {
+        return decodeURIComponent(value);
+      }
+    }
+    return '';
   }
 
   /** Toggle folder expansion */

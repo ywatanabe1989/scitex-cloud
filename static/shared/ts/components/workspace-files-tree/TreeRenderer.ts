@@ -51,6 +51,7 @@ export class TreeRenderer {
 
     let html = `<div class="wft-item wft-folder${isExpanded ? ' expanded' : ''}"
                      data-path="${this.escapeAttr(item.path)}"
+                     draggable="true"
                      style="padding-left: ${indent}px;">`;
 
     // Folder toggle button
@@ -108,6 +109,7 @@ export class TreeRenderer {
     let html = `<div class="${classes.join(' ')}"
                      data-path="${this.escapeAttr(item.path)}"
                      data-action="select"
+                     draggable="true"
                      style="padding-left: ${indent}px;">`;
 
     html += `<span class="wft-spacer"></span>`;
