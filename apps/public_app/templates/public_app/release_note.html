@@ -23,7 +23,7 @@
         </div>
         <div class="stats-box">
             <div class="stat-item">
-                <span class="stat-number">1,200+</span>
+                <span class="stat-number">960+</span>
                 <span class="stat-label">Total Commits</span>
             </div>
             <div class="stat-item">
@@ -48,8 +48,52 @@
         </div>
         <div class="release-month">
             <div class="month-header">
-                <h2>November 2025 — v0.4.0</h2>
+                <h2>November 2025 — v0.4.2</h2>
                 <span class="month-badge">Latest Release</span>
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <h3>🖥️ SLURM + Apptainer Terminal</h3>
+                    <p>
+                        Fully functional container-based terminal via SLURM job scheduler.
+                        Terminal sessions run inside Apptainer containers with SciTeX 2.3.0 pre-installed.
+                        User dotfiles (.bashrc, .bash_aliases, .inputrc) are mounted for personalized environments.
+                        WebSocket connection to PTY provides real-time interactive shell access.
+                        Docker container now builds SLURM from source to match host version exactly for munge authentication.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>⚙️ Configurable SLURM Infrastructure</h3>
+                    <p>
+                        SLURM version configurable via environment variables (SCITEX_CLOUD_SLURM_VERSION).
+                        Host path configuration for SLURM jobs (SCITEX_SLURM_CONTAINER_PATH, SCITEX_SLURM_USER_DATA_ROOT).
+                        Automatic munge authentication between Docker and host SLURM cluster.
+                        Interactive terminal respects partition time limits (express: 59min max).
+                    </p>
+                </li>
+            </ul>
+        </div>
+        <div class="release-month">
+            <div class="month-header">
+                <h2>November 2025 — v0.4.1</h2>
+                <span class="month-badge">Symlink UI</span>
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <h3>🔗 Workspace Symlink UI</h3>
+                    <p>
+                        Ctrl+Drag to create cross-module symlinks directly in the file tree.
+                        Backend API with relative path support for portable symlinks.
+                        Visual feedback with drag opacity, drop target border, and link cursor.
+                        Perfect for sharing files between modules (vis/exports → writer/figures).
+                    </p>
+                </li>
+            </ul>
+        </div>
+        <div class="release-month">
+            <div class="month-header">
+                <h2>November 2025 — v0.4.0</h2>
+                <span class="month-badge">Celery Workers</span>
             </div>
             <ul class="feature-list">
                 <li class="feature-item">
@@ -380,36 +424,71 @@
         cumulative: 446,
         milestone: "Monaco Editor",
       },
-      { date: "2025-11-01", commits: 5, cumulative: 451, milestone: null },
+      { date: "2025-11-01", commits: 10, cumulative: 456, milestone: null },
       {
         date: "2025-11-02",
-        commits: 6,
-        cumulative: 457,
+        commits: 12,
+        cumulative: 468,
         milestone: "SSL & Production",
       },
       {
         date: "2025-11-03",
-        commits: 37,
-        cumulative: 494,
+        commits: 74,
+        cumulative: 542,
         milestone: "Visitor Pool System",
       },
       {
         date: "2025-11-04",
-        commits: 25,
-        cumulative: 519,
+        commits: 50,
+        cumulative: 592,
         milestone: "TypeScript Migration",
       },
       {
         date: "2025-11-06",
-        commits: 28,
-        cumulative: 547,
+        commits: 56,
+        cumulative: 648,
         milestone: "Complete TS Migration",
       },
       {
         date: "2025-11-07",
-        commits: 14,
-        cumulative: 561,
+        commits: 52,
+        cumulative: 700,
         milestone: "Citation Autocomplete",
+      },
+      { date: "2025-11-08", commits: 13, cumulative: 713, milestone: null },
+      { date: "2025-11-09", commits: 13, cumulative: 726, milestone: null },
+      {
+        date: "2025-11-11",
+        commits: 43,
+        cumulative: 769,
+        milestone: "File Tree Modularization",
+      },
+      { date: "2025-11-12", commits: 30, cumulative: 799, milestone: null },
+      { date: "2025-11-13", commits: 24, cumulative: 823, milestone: null },
+      { date: "2025-11-14", commits: 21, cumulative: 844, milestone: null },
+      { date: "2025-11-16", commits: 13, cumulative: 857, milestone: null },
+      { date: "2025-11-17", commits: 14, cumulative: 871, milestone: null },
+      { date: "2025-11-18", commits: 2, cumulative: 873, milestone: null },
+      { date: "2025-11-19", commits: 1, cumulative: 874, milestone: null },
+      {
+        date: "2025-11-22",
+        commits: 19,
+        cumulative: 893,
+        milestone: "Workspace Refactoring",
+      },
+      { date: "2025-11-23", commits: 19, cumulative: 912, milestone: null },
+      { date: "2025-11-25", commits: 19, cumulative: 931, milestone: null },
+      {
+        date: "2025-11-26",
+        commits: 14,
+        cumulative: 945,
+        milestone: "Symlink UI (v0.4.1-alpha)",
+      },
+      {
+        date: "2025-11-27",
+        commits: 15,
+        cumulative: 960,
+        milestone: "SLURM Terminal (v0.4.2-alpha)",
       },
     ];
 
@@ -510,6 +589,7 @@
               boxHeight: 20,
               generateLabels: function (chart) {
                 const datasets = chart.data.datasets;
+                const colors = getThemeColors();
                 return datasets.map((dataset, i) => ({
                   text: dataset.label,
                   fillStyle: dataset.backgroundColor,
@@ -518,6 +598,7 @@
                   hidden: !chart.isDatasetVisible(i),
                   index: i,
                   pointStyle: dataset.pointStyle || "circle",
+                  color: colors.textColor,
                 }));
               },
             },
@@ -601,11 +682,28 @@
             ? "rgba(0, 0, 0, 0.3)"
             : "rgba(255, 255, 255, 0.5)";
 
-          // Update legend and scale colors
+          // Update legend labels with new theme colors
           chart.options.plugins.legend.labels.color = colors.textColor;
           chart.options.plugins.legend.labels.font = {
             size: 16,
             weight: "600",
+          };
+          // Regenerate labels to apply new colors to label text
+          chart.options.plugins.legend.labels.generateLabels = function (
+            chart
+          ) {
+            const datasets = chart.data.datasets;
+            const themeColors = getThemeColors();
+            return datasets.map((dataset, i) => ({
+              text: dataset.label,
+              fillStyle: dataset.backgroundColor,
+              strokeStyle: dataset.borderColor,
+              lineWidth: dataset.borderWidth || 2,
+              hidden: !chart.isDatasetVisible(i),
+              index: i,
+              pointStyle: dataset.pointStyle || "circle",
+              color: themeColors.textColor,
+            }));
           };
           chart.options.scales.x.title.color = colors.textColor;
           chart.options.scales.x.ticks.color = colors.textColor;

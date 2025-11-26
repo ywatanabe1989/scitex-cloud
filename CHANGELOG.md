@@ -5,6 +5,26 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2-alpha] - 2025-11-27
+
+### Added
+- **SLURM + Apptainer Terminal**: Fully functional container-based terminal via SLURM
+  - Build SLURM from source in Docker to match host version exactly (munge auth)
+  - Configurable SLURM version via `SCITEX_CLOUD_SLURM_VERSION` env variable
+  - Host path configuration for SLURM jobs (`SCITEX_SLURM_CONTAINER_PATH`, `SCITEX_SLURM_USER_DATA_ROOT`)
+  - PTY terminal connected via WebSocket → srun --pty → Apptainer shell
+  - User dotfiles mounted (.bashrc, .bash_aliases, .inputrc) for personalized environment
+
+### Fixed
+- **SLURM Version Mismatch**: Docker container now builds SLURM from source to match host version
+- **Terminal Connection Error**: Fixed path mapping for SLURM jobs running on compute nodes
+- **Partition Time Limit**: Adjusted interactive terminal to respect express partition limits (59min)
+
+### Infrastructure
+- Docker Compose SLURM_VERSION build arg for all services
+- Host-to-container path mapping for SLURM job execution
+- Munge authentication working between Docker and host SLURM
+
 ## [0.4.1-alpha] - 2025-11-26
 
 ### Added
@@ -252,6 +272,7 @@ Complete documentation for:
 - Git repository integration via Gitea
 - Docker-based deployment
 
+[0.4.2-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.4.1-alpha...v0.4.2-alpha
 [0.4.1-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.3-alpha...v0.4.1-alpha
 [0.3.3-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.2-alpha...v0.3.3-alpha
 [0.3.2-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.1-alpha...v0.3.2-alpha

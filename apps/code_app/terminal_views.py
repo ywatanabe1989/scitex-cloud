@@ -29,7 +29,6 @@ import os
 import pty
 import select
 import shutil
-import struct
 import subprocess
 import termios
 from pathlib import Path
@@ -47,20 +46,32 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 # Base Apptainer image (shared by all users)
+# For direct Apptainer execution inside Docker container
 BASE_CONTAINER_PATH = getattr(
     settings,
     'SINGULARITY_IMAGE_PATH',
     '/app/singularity/scitex-user-workspace.sif'
 )
 
-# User data directory
+# User data directory (inside Docker container)
 USER_DATA_ROOT = Path(getattr(settings, 'USER_DATA_ROOT', '/app/data/users'))
 
-# SLURM settings for interactive sessions
-SLURM_PARTITION = getattr(settings, 'SLURM_INTERACTIVE_PARTITION', 'express')
-SLURM_TIME_LIMIT = getattr(settings, 'SLURM_INTERACTIVE_TIME_LIMIT', '04:00:00')
-SLURM_CPUS = getattr(settings, 'SLURM_INTERACTIVE_CPUS', 2)
-SLURM_MEMORY_GB = getattr(settings, 'SLURM_INTERACTIVE_MEMORY_GB', 4)
+# SLURM settings for interactive sessions (from env vars)
+SLURM_PARTITION = os.environ.get('SCITEX_QUOTA_SLURM_INTERACTIVE_PARTITION', 'express')
+SLURM_TIME_LIMIT = os.environ.get('SCITEX_QUOTA_SLURM_INTERACTIVE_TIME_LIMIT', '04:00:00')
+SLURM_CPUS = int(os.environ.get('SCITEX_QUOTA_SLURM_INTERACTIVE_CPUS', 2))
+SLURM_MEMORY_GB = int(os.environ.get('SCITEX_QUOTA_SLURM_INTERACTIVE_MEMORY_GB', 4))
+
+# SLURM host paths - jobs run on compute nodes, not inside Docker
+# These paths must be accessible from the SLURM compute nodes
+SLURM_CONTAINER_PATH = os.environ.get(
+    'SCITEX_SLURM_CONTAINER_PATH',
+    '/home/ywatanabe/proj/scitex-cloud/deployment/singularity/scitex-user-workspace.sif'
+)
+SLURM_USER_DATA_ROOT = Path(os.environ.get(
+    'SCITEX_SLURM_USER_DATA_ROOT',
+    '/home/ywatanabe/proj/scitex-cloud/data/users'
+))
 
 
 # =============================================================================
@@ -205,10 +216,16 @@ class TerminalConsumer(AsyncWebsocketConsumer):
         container_path: str
     ):
         """Execute shell via SLURM (production mode)"""
-        # Detect apptainer or singularity
-        container_cmd = "apptainer" if shutil.which("apptainer") else "singularity"
+        # Detect apptainer or singularity on host (SLURM runs on compute nodes)
+        # Most HPC systems have apptainer/singularity in standard paths
+        container_cmd = "apptainer"  # Assume host has apptainer
 
-        # Build srun command
+        # Convert Docker paths to host paths for SLURM
+        # SLURM jobs run on compute nodes, not inside Docker
+        host_user_dir = SLURM_USER_DATA_ROOT / username
+        host_project_dir = host_user_dir / "proj" / self.project.slug
+
+        # Build srun command with host paths
         cmd = [
             "srun",
             "--pty",
@@ -218,16 +235,16 @@ class TerminalConsumer(AsyncWebsocketConsumer):
             f"--mem={SLURM_MEMORY_GB}G",
             f"--job-name=terminal_{username}",
             f"--account=user_{username}",
-            # Container execution
+            # Container execution (using host paths)
             container_cmd, "shell",
             "--containall",
             "--cleanenv",
             "--writable-tmpfs",
             "--hostname", "scitex-cloud",
-            "--home", f"{user_data_dir}:/home/{username}",
-            "--bind", f"{project_dir}:/home/{username}/proj/{self.project.slug}:rw",
+            "--home", f"{host_user_dir}:/home/{username}",
+            "--bind", f"{host_project_dir}:/home/{username}/proj/{self.project.slug}:rw",
             "--pwd", f"/home/{username}/proj/{self.project.slug}",
-            container_path,
+            SLURM_CONTAINER_PATH,  # Use host path to SIF
         ]
 
         # Environment
@@ -624,8 +641,8 @@ Thumbs.db
     async def resize_pty(self, rows: int, cols: int):
         """Resize PTY window"""
         try:
-            winsize = struct.pack('HHHH', rows, cols, 0, 0)
-            await asyncio.to_thread(termios.tcsetwinsize, self.fd, winsize)
+            # tcsetwinsize expects a two-item tuple (rows, cols)
+            await asyncio.to_thread(termios.tcsetwinsize, self.fd, (rows, cols))
         except Exception as e:
             logger.error(f"PTY resize error: {e}")
 
