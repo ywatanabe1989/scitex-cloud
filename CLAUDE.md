@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-20 01:19:41
+!-- Timestamp: 2025-11-26 23:57:49
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -8,6 +8,9 @@
 ## THE USER IS ONLY ALLOWED TO EDIT THIS FILE. DO NOT MODIFY THIS FILE UNLESS EXPLICITLY ASKED.
 ## GITIGNORE THIS FILE. NEVER UPLOAD TO GITHUB.
 ## IN DEVELOPMENT (127.0.0.1:8000), DO NOT RUNSERVER. IT IS HANDLED BY `make ENV=dev restart` and we confirmed auto-hot-reloading enabled.
+
+## Keep it simple
+I have significant challenges with memory and reading comprehension, so please keep things simple and well-organized. Write document files, README.md or docs/ii_XXX.md, with necessary and sufficient contents. Structure (project, directory, file) and names (directory name, file name, class/function name, variable name) are part of documents. Code themselves must be readable document as well. All scripts are expected to run from project root.
 
 ## Developmental Environment
 We are using docker containers for developmental server as well. Please check ./deployment/docker/docker_dev/ for detals. Makefiles would be also useful. Also, we are not accepting direct call of `python manage.py` to avoid confusion. Please use docker.
