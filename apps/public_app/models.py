@@ -321,6 +321,9 @@ class ServerMetrics(models.Model):
     # User activity metrics
     active_users_count = models.IntegerField(null=True, blank=True, help_text="Number of currently logged-in users")
 
+    # GPU metrics
+    gpu_percent = models.FloatField(null=True, blank=True, help_text="GPU usage percentage (0-100)")
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
 
