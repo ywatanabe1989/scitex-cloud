@@ -2,22 +2,27 @@
  * Workspace Files Tree - Filtering
  * Mode-specific filtering for different workspace modules
  *
- * Uses centralized configuration from ModeFilters.ts
+ * Uses centralized configuration from FilteringCriteria.ts
  */
 
 import type { TreeItem, FilterConfig, WorkspaceMode } from './types.js';
 import { MODE_FILTERS } from './types.js';
-import { MODE_FILE_EXTENSIONS, HIDDEN_FOLDERS, ALLOWED_DIRECTORIES, ALWAYS_VISIBLE_FOLDERS } from './ModeFilters.js';
-import { ALWAYS_VISIBLE_FILENAMES } from './FilteringCriteria.js';
+import {
+  ALLOW_EXTENSIONS,
+  DENY_DIRECTORIES,
+  ALLOW_DIRECTORIES,
+  PRESERVE_EMPTY_DIRECTORIES,
+  ALWAYS_VISIBLE_FILENAMES,
+} from './FilteringCriteria.js';
 
 export class TreeFilter {
   private config: FilterConfig;
 
   constructor(mode: WorkspaceMode, customConfig?: Partial<FilterConfig>) {
-    // Use centralized ModeFilters configuration as default
-    const centralExtensions = MODE_FILE_EXTENSIONS[mode];
+    // Use centralized FilteringCriteria configuration as default
+    const centralExtensions = ALLOW_EXTENSIONS[mode];
     const defaultAllowedExtensions = centralExtensions === 'all' ? [] : centralExtensions;
-    const defaultHiddenPatterns = HIDDEN_FOLDERS[mode] || [];
+    const defaultHiddenPatterns = DENY_DIRECTORIES[mode] || [];
 
     // Fall back to old MODE_FILTERS for backward compatibility
     const legacyDefaults = MODE_FILTERS[mode] || MODE_FILTERS.all;
@@ -67,7 +72,7 @@ export class TreeFilter {
    * This implements the directory whitelist
    */
   private isWithinAllowedDirectories(path: string): boolean {
-    const allowedDirs = ALLOWED_DIRECTORIES[this.config.mode];
+    const allowedDirs = ALLOW_DIRECTORIES[this.config.mode];
 
     // No restrictions = all directories allowed
     if (allowedDirs.length === 0) {
@@ -184,7 +189,7 @@ export class TreeFilter {
         return item;
       })
       // Remove empty directories after filtering children
-      // UNLESS they are in ALWAYS_VISIBLE_FOLDERS or match ALLOWED_DIRECTORIES
+      // UNLESS they are in PRESERVE_EMPTY_DIRECTORIES or match ALLOW_DIRECTORIES
       .filter((item) => {
         if (item.type === 'directory' && item.children) {
           // Always keep if has children
@@ -192,17 +197,17 @@ export class TreeFilter {
             return true;
           }
 
-          // Check if directory is in ALWAYS_VISIBLE_FOLDERS
-          const alwaysVisible = ALWAYS_VISIBLE_FOLDERS[this.config.mode];
-          const isAlwaysVisible = alwaysVisible.some(pattern =>
+          // Check if directory is in PRESERVE_EMPTY_DIRECTORIES
+          const preserveDirs = PRESERVE_EMPTY_DIRECTORIES[this.config.mode];
+          const isPreserved = preserveDirs.some(pattern =>
             item.name === pattern || item.path.includes(pattern)
           );
-          if (isAlwaysVisible) {
+          if (isPreserved) {
             return true;
           }
 
-          // Check if directory matches ALLOWED_DIRECTORIES (keep root allowed dirs even if empty)
-          const allowedDirs = ALLOWED_DIRECTORIES[this.config.mode];
+          // Check if directory matches ALLOW_DIRECTORIES (keep root allowed dirs even if empty)
+          const allowedDirs = ALLOW_DIRECTORIES[this.config.mode];
           if (allowedDirs.length > 0) {
             const normalizedPath = item.path.replace(/^\.\//, '');
             const isAllowedDir = allowedDirs.some(allowedDir => {

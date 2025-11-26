@@ -68,10 +68,10 @@ export interface FilterConfig {
 }
 
 /**
- * DEPRECATED: Mode-specific filters are now centralized in ModeFilters.ts
+ * DEPRECATED: Mode-specific filters are now centralized in FilteringCriteria.ts
  * Import from there for better maintainability:
  *
- * import { MODE_FILE_EXTENSIONS, HIDDEN_FOLDERS, createModeFilter } from './ModeFilters.js';
+ * import { ALLOW_EXTENSIONS, DENY_DIRECTORIES, ALLOW_DIRECTORIES, PRESERVE_EMPTY_DIRECTORIES } from './FilteringCriteria.js';
  *
  * This object is kept for backward compatibility but will be removed in future versions.
  */
