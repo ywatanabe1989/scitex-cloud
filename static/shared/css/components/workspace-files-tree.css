@@ -1,0 +1,369 @@
+/**
+ * Workspace Files Tree - Styles
+ * Unified styling for the workspace file tree component
+ * Used across /code/, /vis/, /writer/, /scholar/
+ */
+
+/* Container */
+.workspace-files-tree {
+  font-family: var(--font-mono, 'JetBrains Mono', 'Monaco', 'Menlo', 'Consolas', monospace);
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  user-select: none;
+}
+
+/* Tree Item Base */
+.wft-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.1s ease;
+  gap: 4px;
+  min-height: 26px;
+}
+
+.wft-item:hover {
+  background-color: var(--color-canvas-subtle, rgba(127, 127, 127, 0.1));
+}
+
+/* Folder styles */
+.wft-folder {
+  font-weight: 500;
+}
+
+.wft-folder.expanded > .wft-folder-toggle .wft-chevron {
+  transform: rotate(90deg);
+}
+
+/* File styles */
+.wft-file {
+  cursor: pointer;
+}
+
+.wft-file.selected {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.15));
+}
+
+.wft-file.selected:hover {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.2));
+}
+
+.wft-file.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;  /* Prevent clicking */
+  filter: grayscale(70%);  /* Make it more obviously disabled */
+}
+
+.wft-file.disabled:hover {
+  background-color: transparent;
+}
+
+.wft-file.disabled .wft-name {
+  text-decoration: line-through;
+  color: var(--color-fg-muted, #768390);
+}
+
+/* Folder toggle button */
+.wft-folder-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Chevron (expand/collapse indicator) */
+.wft-chevron {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  transition: transform 0.15s ease;
+  color: var(--color-fg-muted, #768390);
+}
+
+.wft-chevron::before {
+  content: '▸';
+}
+
+.wft-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+/* Spacer (for files without chevron) */
+.wft-spacer {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+}
+
+/* Icon */
+.wft-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.wft-icon i {
+  font-size: 14px;
+}
+
+/* Name */
+.wft-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-fg-default, #f0f3f6);
+  font-weight: 400;
+}
+
+/* Symlink indicator */
+.wft-symlink {
+  color: var(--color-fg-muted, #768390);
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+/* Git status badge */
+.wft-git-status {
+  font-weight: 600;
+  font-size: 11px;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+/* Target file indicator badge */
+.wft-target-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  font-size: 10px;
+  color: var(--color-success-fg, #3fb950);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.wft-file.target {
+  border-left: 2px solid var(--color-success-fg, #3fb950);
+  padding-left: 6px;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .wft-target-badge {
+  color: #58a6ff;
+}
+
+[data-theme="dark"] .wft-file.target {
+  border-left-color: #58a6ff;
+}
+
+/* Children container with indent guides */
+.wft-children {
+  overflow: hidden;
+  position: relative;
+}
+
+.wft-children:not(.expanded) {
+  display: none;
+}
+
+/* Indent guide lines - dashed, subtle gray tones */
+.wft-children.expanded {
+  border-left: 1px dashed rgba(80, 80, 80, 0.2);
+  margin-left: 19px;
+  padding-left: 8px;
+}
+
+/* Horizontal connector from vertical guide to each item */
+.wft-children.expanded > .wft-item::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  border-top: 1px dashed rgba(80, 80, 80, 0.2);
+}
+
+/* Make items relative for the pseudo-element positioning */
+.wft-children.expanded > .wft-item {
+  position: relative;
+}
+
+/* Nested indent guides become progressively more subtle (parent = faint) */
+.wft-children.expanded .wft-children.expanded {
+  border-left-color: rgba(80, 80, 80, 0.15);
+}
+
+.wft-children.expanded .wft-children.expanded .wft-children.expanded {
+  border-left-color: rgba(80, 80, 80, 0.1);
+}
+
+.wft-children.expanded .wft-children.expanded .wft-children.expanded .wft-children.expanded {
+  border-left-color: rgba(80, 80, 80, 0.06);
+}
+
+/* Direct parent guide (most contrasted but still subtle) when hovering on item */
+/* These rules need high specificity to override the nested fading rules */
+.wft-children.expanded:has(> .wft-item:hover),
+.wft-children.expanded .wft-children.expanded:has(> .wft-item:hover),
+.wft-children.expanded .wft-children.expanded .wft-children.expanded:has(> .wft-item:hover),
+.wft-children.expanded .wft-children.expanded .wft-children.expanded .wft-children.expanded:has(> .wft-item:hover),
+.wft-children.expanded .wft-children.expanded .wft-children.expanded .wft-children.expanded .wft-children.expanded:has(> .wft-item:hover) {
+  border-left-color: rgba(150, 150, 150, 0.4);
+}
+
+/* Also highlight the horizontal connector when hovering */
+.wft-children.expanded > .wft-item:hover::before {
+  border-top-color: rgba(150, 150, 150, 0.4);
+}
+
+/* Hover on container - slightly visible but subtle */
+.wft-children.expanded:hover {
+  border-left-color: rgba(100, 100, 100, 0.25);
+}
+
+/* Folder action buttons */
+.wft-folder-actions {
+  display: none;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.wft-folder:hover .wft-folder-actions {
+  display: flex;
+}
+
+.wft-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--color-fg-muted, #768390);
+  transition: all 0.1s ease;
+  position: relative;
+}
+
+.wft-action-btn:hover {
+  background-color: var(--color-canvas-subtle, rgba(127, 127, 127, 0.2));
+  color: var(--color-fg-default, #e6edf3);
+}
+
+.wft-action-btn i:first-child {
+  font-size: 12px;
+}
+
+.wft-action-btn i:last-child {
+  font-size: 7px;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+}
+
+/* Error state */
+.wft-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: var(--color-danger-fg, #f85149);
+}
+
+.wft-error i {
+  font-size: 16px;
+}
+
+/* Loading state */
+.wft-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--color-fg-muted, #768390);
+}
+
+/* Light mode overrides */
+[data-theme="light"] .wft-name,
+.light .wft-name {
+  color: var(--color-fg-default, #1f2328);
+}
+
+[data-theme="light"] .wft-chevron,
+.light .wft-chevron {
+  color: var(--color-fg-muted, #656d76);
+}
+
+[data-theme="light"] .wft-item:hover,
+.light .wft-item:hover {
+  background-color: var(--color-canvas-subtle, rgba(0, 0, 0, 0.05));
+}
+
+[data-theme="light"] .wft-file.selected,
+.light .wft-file.selected {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.1));
+}
+
+/* Scrollbar styling */
+.workspace-files-tree::-webkit-scrollbar {
+  width: 8px;
+}
+
+.workspace-files-tree::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workspace-files-tree::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-muted, rgba(127, 127, 127, 0.3));
+  border-radius: 4px;
+}
+
+.workspace-files-tree::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-default, rgba(127, 127, 127, 0.5));
+}
+
+/* Focus styles for keyboard navigation */
+.wft-item:focus-visible {
+  outline: 2px solid var(--color-accent-fg, #2f81f7);
+  outline-offset: -2px;
+}
+
+/* Highlight animation for focus target */
+.wft-item.wft-highlight {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.3)) !important;
+  transition: background-color 0.3s ease;
+}
+
+@keyframes wft-highlight-pulse {
+  0%, 100% {
+    background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.3));
+  }
+  50% {
+    background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.5));
+  }
+}
