@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2025-11-26
 
 ### Added
+- **Workspace Files Tree - Symlink UI**: Ctrl+Drag to create cross-module symlinks
+  - Backend API: POST `/api/create-symlink/` endpoint with relative path support
+  - Frontend: Drag-and-drop UI with Ctrl/Cmd key detection
+  - Visual feedback: Dragging opacity, drop target border, link cursor
+  - Security: Owner/collaborator permissions, paths within project root
+  - Module independence: Explicit symlinks for sharing (vis/exports → writer/figures)
+  - Platform support: Windows (Ctrl), Mac (Cmd), portable relative paths
 - **Celery Async Task Processing**: Fair-share resource allocation for I/O-bound tasks
   - 4 dedicated task queues (ai_queue, search_queue, compute_queue, vis_queue)
   - Per-task rate limiting (10/min AI, 30/min search)
@@ -21,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - SciTeX 2.3.0 pre-installed in containers
   - Fair-share job scheduling with partitions
 
+### Refactoring
+- **Workspace Files Tree**: Migrated from ModeFilters to FilteringCriteria
+  - Standardized naming: ALLOW_*/DENY_*/PRESERVE_* convention
+  - Single source of truth: FilteringCriteria.ts
+  - Moved legacy ModeFilters.ts to legacy/ directory
+  - Improved filtering priority documentation
+
 ### Infrastructure
 - Added celery_worker, celery_beat, flower Docker services
 - Redis as Celery broker (redis://redis:6379/1)
@@ -31,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created 8 organized deployment docs (00_INDEX to 07_OPERATIONS_GUIDE)
 - Added RESOURCE_ALLOCATION_STRATEGY.md
 - Added FAIR_RESOURCE_SYSTEM.md
+- Added MODULE_INDEPENDENCE_SPEC.md for symlink-based cross-module references
 
 ## [0.3.3-alpha] - 2025-11-23
 
