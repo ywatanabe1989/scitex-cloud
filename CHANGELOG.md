@@ -5,7 +5,7 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-11-26
+## [0.4.1-alpha] - 2025-11-26
 
 ### Added
 - **Workspace Files Tree - Symlink UI**: Ctrl+Drag to create cross-module symlinks
@@ -239,7 +239,7 @@ Complete documentation for:
 - organizations_app, permissions_app, project_app, public_app
 - scholar_app, search_app, social_app, vis_app, writer_app, workspace_app
 
-## [0.1.2] - 2025-10-23
+## [0.1.2-alpha] - 2025-10-23
 
 ### Initial Release Features
 - Complete SciTeX Cloud platform foundation
@@ -252,6 +252,10 @@ Complete documentation for:
 - Git repository integration via Gitea
 - Docker-based deployment
 
-[0.3.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.2.0...v0.3.0
-[0.2.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.1.2...v0.2.0
-[0.1.2]: https://github.com/ywatanabe1989/scitex-cloud/releases/tag/v0.1.2
+[0.4.1-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.3-alpha...v0.4.1-alpha
+[0.3.3-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.2-alpha...v0.3.3-alpha
+[0.3.2-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.1-alpha...v0.3.2-alpha
+[0.3.1-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.0-alpha...v0.3.1-alpha
+[0.3.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.2.0-alpha...v0.3.0-alpha
+[0.2.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.1.2-alpha...v0.2.0-alpha
+[0.1.2-alpha]: https://github.com/ywatanabe1989/scitex-cloud/releases/tag/v0.1.2-alpha
