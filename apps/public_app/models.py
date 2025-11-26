@@ -314,6 +314,13 @@ class ServerMetrics(models.Model):
     database_status = models.BooleanField(default=False, help_text="Database connection status")
     redis_status = models.BooleanField(default=False, help_text="Redis cache status")
 
+    # Visitor pool metrics
+    visitor_pool_allocated = models.IntegerField(null=True, blank=True, help_text="Number of allocated visitor slots")
+    visitor_pool_total = models.IntegerField(null=True, blank=True, help_text="Total visitor pool size")
+
+    # User activity metrics
+    active_users_count = models.IntegerField(null=True, blank=True, help_text="Number of currently logged-in users")
+
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
 

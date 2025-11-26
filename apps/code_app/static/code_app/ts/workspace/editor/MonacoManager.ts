@@ -43,6 +43,61 @@ export class MonacoManager {
     console.log(`[MonacoManager] Theme updated to: ${monacoTheme}`);
   }
 
+  /**
+   * Toggle Monaco editor theme independently from global theme
+   */
+  toggleEditorTheme(): void {
+    if (!this.editor) {
+      console.warn("[MonacoManager] Cannot toggle theme - editor not initialized");
+      return;
+    }
+
+    const monaco = (window as any).monaco;
+    if (!monaco) {
+      console.warn("[MonacoManager] Cannot toggle theme - Monaco not available");
+      return;
+    }
+
+    // Get current theme from editor
+    const currentTheme = this.editor.getOption(monaco.editor.EditorOption.theme);
+    const newTheme = currentTheme === "vs-dark" ? "vs" : "vs-dark";
+
+    // Update editor theme
+    this.editor.updateOptions({ theme: newTheme });
+
+    // Store preference
+    localStorage.setItem("monaco-editor-theme", newTheme);
+
+    // Update toggle button emoji
+    this.updateThemeToggleButton(newTheme);
+
+    console.log(`[MonacoManager] Editor theme toggled to: ${newTheme}`);
+  }
+
+  /**
+   * Get current Monaco editor theme
+   */
+  getCurrentTheme(): string {
+    const monaco = (window as any).monaco;
+    if (!this.editor || !monaco) return "vs-dark";
+    return this.editor.getOption(monaco.editor.EditorOption.theme);
+  }
+
+  /**
+   * Update theme toggle button emoji
+   */
+  private updateThemeToggleButton(theme: string): void {
+    const toggleBtn = document.getElementById("monaco-theme-toggle");
+    const themeIcon = toggleBtn?.querySelector(".theme-icon");
+
+    if (themeIcon) {
+      themeIcon.textContent = theme === "vs-dark" ? "🌙" : "☀️";
+      toggleBtn?.setAttribute("title",
+        theme === "vs-dark" ? "Switch to light theme" : "Switch to dark theme"
+      );
+    }
+  }
+
   detectLanguage(filePath: string, content?: string): string {
     // First try to detect from shebang if content is provided
     if (content) {
@@ -84,11 +139,15 @@ export class MonacoManager {
       welcomeScreen.style.display = "none";
     }
 
+    // Load saved theme preference or use default
+    const savedTheme = localStorage.getItem("monaco-editor-theme");
+    const initialTheme = savedTheme || (document.documentElement.getAttribute("data-theme") === "dark" ? "vs-dark" : "vs");
+
     // Create Monaco editor
     this.editor = monaco.editor.create(container, {
       value: "",
       language: language,
-      theme: document.documentElement.getAttribute("data-theme") === "dark" ? "vs-dark" : "vs",
+      theme: initialTheme,
       automaticLayout: true,
       fontSize: 14,
       fontFamily: "'JetBrains Mono', 'Monaco', 'Menlo', monospace",
@@ -111,6 +170,9 @@ export class MonacoManager {
     });
 
     console.log("[MonacoManager] Monaco editor created successfully");
+
+    // Initialize theme toggle button
+    this.updateThemeToggleButton(initialTheme);
 
     // Add Ctrl+Enter keybinding to run code (works in all modes)
     this.addRunCodeKeybinding(monaco);

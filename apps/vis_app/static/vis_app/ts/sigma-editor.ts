@@ -12,6 +12,8 @@ import {
     DataTableManager,
     PropertiesManager,
     UIManager,
+    DataTabManager,
+    CanvasTabManager,
     Dataset,
     CANVAS_CONSTANTS
 } from './sigma/index.js';
@@ -40,6 +42,8 @@ class SigmaEditor {
     private dataTableManager: DataTableManager;
     private propertiesManager: PropertiesManager;
     private uiManager: UIManager;
+    private dataTabManager: DataTabManager;
+    private canvasTabManager: CanvasTabManager;
 
     // Plot-related state (not yet extracted)
     private currentPlot: any = null;
@@ -94,6 +98,40 @@ class SigmaEditor {
             (message: string) => this.updateStatusBar(message)
         );
 
+        // Initialize DataTabManager
+        this.dataTabManager = new DataTabManager();
+        this.dataTabManager.setCallbacks(
+            (tabId: string) => {
+                console.log('[SigmaEditor] Data tab changed to:', tabId);
+                // Future: Load corresponding data when tab changes
+            },
+            (tabId: string) => {
+                console.log('[SigmaEditor] Data tab closed:', tabId);
+            },
+            (tabId: string, newName: string) => {
+                console.log('[SigmaEditor] Data tab renamed:', tabId, 'to', newName);
+            }
+        );
+
+        // Initialize CanvasTabManager
+        this.canvasTabManager = new CanvasTabManager();
+        this.canvasTabManager.setCallbacks(
+            (tabId: string) => {
+                console.log('[SigmaEditor] Canvas tab changed to:', tabId);
+                const activeTab = this.canvasTabManager.getActiveTab();
+                if (activeTab) {
+                    this.updateStatusBar(`Switched to ${activeTab.figureName}`);
+                }
+                // Future: Load corresponding figure canvas when tab changes
+            },
+            (tabId: string) => {
+                console.log('[SigmaEditor] Canvas tab closed:', tabId);
+            },
+            (tabId: string, newName: string) => {
+                console.log('[SigmaEditor] Canvas tab renamed:', tabId, 'to', newName);
+            }
+        );
+
         // Initialize all components
         this.initializeEditor();
     }
@@ -110,6 +148,14 @@ class SigmaEditor {
 
         // Initialize UI event listeners (fast, no heavy DOM work)
         this.uiManager.initializeEventListeners();
+
+        // Initialize data tabs
+        this.dataTabManager.initializeEventListeners();
+        this.dataTabManager.renderTabs();
+
+        // Initialize canvas tabs
+        this.canvasTabManager.initializeEventListeners();
+        this.canvasTabManager.renderTabs();
 
         // Initialize minimal data table (fast with small table)
         this.dataTableManager.initializeBlankTable();
@@ -145,6 +191,14 @@ class SigmaEditor {
         this.rulersManager['canvas'] = this.canvasManager.canvas;
         this.rulersManager.initializeRulers();
         this.rulersManager.setupRulerDragging();
+
+        // Apply zoom to fit full canvas (180mm × 240mm) after layout is complete
+        // Use setTimeout to ensure container has final dimensions
+        setTimeout(() => {
+            this.canvasManager.zoomToFit();
+            this.updateRulersAreaTransform();
+            console.log(`[SigmaEditor] Initial zoom applied: ${Math.round(this.canvasManager.getCanvasZoomLevel() * 100)}%`);
+        }, 100);
 
         const phase3End = performance.now();
         console.log(`[SigmaEditor] Phase 3 complete in ${(phase3End - phase3Start).toFixed(2)}ms (canvas & rulers initialized)`);
@@ -379,8 +433,65 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('[SigmaEditor] DOM loaded, initializing editor...');
     const editorInstance = new SigmaEditor();
 
-    // Expose to window for theme switching
-    (window as any).sigmaEditor = editorInstance;
+    // Expose to window for external access (theme switching, file import from tree, etc.)
+    (window as any).sigmaEditor = {
+        instance: editorInstance,
+        updateCanvasTheme: (isDark: boolean) => editorInstance.updateCanvasTheme(isDark),
+        // Expose dataTableManager methods for file import from WorkspaceFilesTree
+        importFile: (file: File) => editorInstance['dataTableManager'].handleFileImport(file),
+        loadDemoData: () => editorInstance['dataTableManager'].loadDemoData(),
+        getCurrentData: () => editorInstance['dataTableManager'].getCurrentData(),
+        // Expose tab managers for external access
+        getActiveCanvasTab: () => editorInstance['canvasTabManager'].getActiveTab(),
+        getActiveDataTab: () => editorInstance['dataTabManager'].getActiveTab(),
+        createCanvasTab: (name?: string) => editorInstance['canvasTabManager'].createTab(name),
+        createDataTab: (name: string, type?: any, figureName?: string, objectName?: string) =>
+            editorInstance['dataTabManager'].createTab(name, type, figureName, objectName)
+    };
+
+    // Initialize WorkspaceFilesTree for vis mode
+    (async () => {
+        try {
+            // Get project info from window (set by template)
+            const projectOwner = (window as any).projectOwner;
+            const projectSlug = (window as any).projectSlug;
+
+            if (!projectOwner || !projectSlug) {
+                console.warn('[SigmaEditor] No project context found, skipping file tree initialization');
+                return;
+            }
+
+            console.log(`[SigmaEditor] Initializing WorkspaceFilesTree for ${projectOwner}/${projectSlug}`);
+
+            // Dynamically import the shared WorkspaceFilesTree component
+            const module = await (Function('return import("/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js")')()) as any;
+            const { WorkspaceFilesTree } = module;
+
+            // Initialize the tree
+            const filesTree = new WorkspaceFilesTree({
+                mode: 'vis',
+                containerId: 'files-tree',
+                username: projectOwner,
+                slug: projectSlug,
+                showFolderActions: false,
+                showGitStatus: false,
+                onFileSelect: (path: string) => {
+                    console.log(`[SigmaEditor] File selected: ${path}`);
+                    // TODO: Implement file import when clicked
+                    // For now, just log the selection
+                },
+            });
+
+            await filesTree.initialize();
+
+            // Expose tree to window for debugging
+            (window as any).filesTree = filesTree;
+
+            console.log('[SigmaEditor] WorkspaceFilesTree initialized successfully');
+        } catch (error) {
+            console.error('[SigmaEditor] Failed to initialize WorkspaceFilesTree:', error);
+        }
+    })();
 
     // Setup canvas-specific theme toggle (independent from global theme)
     const themeToggle = document.getElementById('canvas-theme-toggle');
@@ -392,12 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvasThemeValue = localStorage.getItem('canvas-theme') || globalTheme;
         let canvasIsDark = canvasThemeValue === 'dark';
 
-        // Function to update theme icon
-        const updateThemeIcon = (isDark: boolean) => {
-            const icon = themeToggle.querySelector('i');
-            if (icon) {
-                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-            }
+        // Function to update theme emoji (☀️ for light mode, 🌙 for dark mode)
+        const updateThemeEmoji = (isDark: boolean) => {
+            themeToggle.textContent = isDark ? '🌙' : '☀️';
         };
 
         themeToggle.addEventListener('click', () => {
@@ -407,16 +515,16 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('canvas-theme', canvasTheme);
 
             // Update canvas theme (grid and rulers)
-            editorInstance.updateCanvasTheme(canvasIsDark);
+            (window as any).sigmaEditor.updateCanvasTheme(canvasIsDark);
 
-            // Update button icon
-            updateThemeIcon(canvasIsDark);
+            // Update emoji
+            updateThemeEmoji(canvasIsDark);
 
             console.log(`[SigmaEditor] Canvas theme toggled to ${canvasTheme} (independent from global theme)`);
         });
 
-        // Set initial icon based on canvas theme
-        updateThemeIcon(canvasIsDark);
+        // Set initial emoji based on canvas theme (starts as 🌓, then updates)
+        updateThemeEmoji(canvasIsDark);
     } else {
         console.warn('[SigmaEditor] Canvas theme toggle button not found');
     }
@@ -429,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Apply saved canvas theme (independent from global theme, but defaults to global theme)
     const savedCanvasTheme = localStorage.getItem('canvas-theme') || savedTheme;
     const canvasDarkMode = savedCanvasTheme === 'dark';
-    editorInstance.updateCanvasTheme(canvasDarkMode);
+    (window as any).sigmaEditor.updateCanvasTheme(canvasDarkMode);
 
     console.log('[SigmaEditor] Editor ready');
 });

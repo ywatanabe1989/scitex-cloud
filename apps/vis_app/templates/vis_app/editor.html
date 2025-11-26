@@ -4,6 +4,7 @@
 {% block title %}SciTeX Vis{% if current_project %} - {{ current_project.name }}{% endif %}{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}">
 <link rel="stylesheet" href="{% static 'vis_app/css/sigma.css' %}">
 {% endblock %}
 
@@ -25,146 +26,16 @@
                     <i class="fas fa-chevron-left"></i>
                 </button>
             </div>
-            <div class="sidebar-content">
-                <div class="project-tree">
-                    <!-- Figures Section -->
-                    <div class="tree-section">
-                        <div class="tree-section-header">
-                            <i class="fas fa-chevron-down tree-section-toggle"></i>
-                            <i class="fas fa-image"></i>
-                            <span>Figures</span>
-                            <button class="tree-add-btn" title="Add new figure">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                        <div class="tree-section-content" id="figures-tree">
-                            <!-- Example hierarchical structure -->
-                            <div class="tree-item tree-figure" data-level="0">
-                                <div class="tree-item-header">
-                                    <i class="fas fa-chevron-down tree-toggle"></i>
-                                    <i class="fas fa-image tree-icon"></i>
-                                    <span class="tree-label">Figure 1 (2 Axes)</span>
-                                    <div class="tree-item-actions">
-                                        <button class="tree-action-btn" title="Edit figure properties"><i class="fas fa-edit"></i></button>
-                                        <button class="tree-action-btn" title="Delete figure"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </div>
-                                <div class="tree-item-children">
-                                    <!-- Axis 1 -->
-                                    <div class="tree-item tree-axis" data-level="1">
-                                        <div class="tree-item-header">
-                                            <i class="fas fa-chevron-down tree-toggle"></i>
-                                            <i class="fas fa-crosshairs tree-icon"></i>
-                                            <span class="tree-label">Ax 1 - Main Plot</span>
-                                            <div class="tree-item-actions">
-                                                <button class="tree-action-btn" title="Edit axis"><i class="fas fa-edit"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="tree-item-children">
-                                            <!-- Plots Group -->
-                                            <div class="tree-group" data-level="2">
-                                                <div class="tree-group-header">
-                                                    <i class="fas fa-chevron-down tree-toggle"></i>
-                                                    <i class="fas fa-chart-line tree-icon"></i>
-                                                    <span class="tree-label">Plots</span>
-                                                    <button class="tree-add-btn" title="Add plot"><i class="fas fa-plus"></i></button>
-                                                </div>
-                                                <div class="tree-group-children">
-                                                    <div class="tree-item tree-plot" data-level="3">
-                                                        <i class="fas fa-chart-line tree-icon"></i>
-                                                        <span class="tree-label">Line: col1 vs col2</span>
-                                                        <div class="tree-item-actions">
-                                                            <button class="tree-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                                            <button class="tree-action-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="tree-item tree-plot" data-level="3">
-                                                        <i class="fas fa-chart-bar tree-icon"></i>
-                                                        <span class="tree-label">Box: col3 by col4</span>
-                                                        <div class="tree-item-actions">
-                                                            <button class="tree-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                                            <button class="tree-action-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Guides Group -->
-                                            <div class="tree-group" data-level="2">
-                                                <div class="tree-group-header">
-                                                    <i class="fas fa-chevron-down tree-toggle"></i>
-                                                    <i class="fas fa-map-signs tree-icon"></i>
-                                                    <span class="tree-label">Guides</span>
-                                                    <button class="tree-add-btn" title="Add guide"><i class="fas fa-plus"></i></button>
-                                                </div>
-                                                <div class="tree-group-children">
-                                                    <div class="tree-item tree-guide" data-level="3">
-                                                        <i class="fas fa-list tree-icon"></i>
-                                                        <span class="tree-label">Legend 1 (Plot1, Plot2)</span>
-                                                        <div class="tree-item-actions">
-                                                            <button class="tree-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                                            <button class="tree-action-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="tree-item tree-guide" data-level="3">
-                                                        <i class="fas fa-palette tree-icon"></i>
-                                                        <span class="tree-label">Colorbar 1 (Plot3)</span>
-                                                        <div class="tree-item-actions">
-                                                            <button class="tree-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                                            <button class="tree-action-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Annotations Group -->
-                                            <div class="tree-group" data-level="2">
-                                                <div class="tree-group-header">
-                                                    <i class="fas fa-chevron-down tree-toggle"></i>
-                                                    <i class="fas fa-comment tree-icon"></i>
-                                                    <span class="tree-label">Annotations</span>
-                                                    <button class="tree-add-btn" title="Add annotation"><i class="fas fa-plus"></i></button>
-                                                </div>
-                                                <div class="tree-group-children">
-                                                    <div class="tree-item tree-annotation" data-level="3">
-                                                        <i class="fas fa-font tree-icon"></i>
-                                                        <span class="tree-label">Text "p < 0.01"</span>
-                                                        <div class="tree-item-actions">
-                                                            <button class="tree-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                                            <button class="tree-action-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="tree-item tree-annotation" data-level="3">
-                                                        <i class="fas fa-ruler tree-icon"></i>
-                                                        <span class="tree-label">Scale bar (10 μm)</span>
-                                                        <div class="tree-item-actions">
-                                                            <button class="tree-action-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                                            <button class="tree-action-btn" title="Delete"><i class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Axis 2 -->
-                                    <div class="tree-item tree-axis" data-level="1">
-                                        <div class="tree-item-header">
-                                            <i class="fas fa-chevron-right tree-toggle"></i>
-                                            <i class="fas fa-crosshairs tree-icon"></i>
-                                            <span class="tree-label">Ax 2 - Secondary</span>
-                                            <div class="tree-item-actions">
-                                                <button class="tree-action-btn" title="Edit axis"><i class="fas fa-edit"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="tree-item-children" style="display: none;">
-                                            <!-- Collapsed by default -->
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Empty state when no figures -->
-                            <!-- <div class="tree-item-empty">No figures yet. Click + to create one.</div> -->
-                        </div>
-                    </div>
+            <div class="sidebar-content" id="files-tree">
+                {% if current_project %}
+                <!-- WorkspaceFilesTree will render here -->
+                <div class="wft-loading">Loading...</div>
+                {% else %}
+                <div class="tree-empty-state" style="padding: 12px; color: var(--text-muted); font-size: 12px;">
+                    <i class="fas fa-folder-open" style="margin-bottom: 8px; opacity: 0.5;"></i>
+                    <p>Select a project to view files</p>
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -173,7 +44,7 @@
 
         <!-- CENTER WORKSPACE -->
         <div class="sigma-workspace">
-            <!-- Split View: Data Table + Canvas (改善 1) -->
+            <!-- Split View: Data Table + Canvas -->
             <div class="workspace-split-view">
                 <!-- Left: Data Table -->
                 <div class="split-pane split-pane-left" id="data-pane">
@@ -278,9 +149,7 @@
                                 <i class="fas fa-share-alt"></i>
                             </button>
                             <!-- Theme Toggle Button -->
-                            <button class="pane-header-btn" id="canvas-theme-toggle" title="Toggle light/dark theme">
-                                <i class="fas fa-moon"></i>
-                            </button>
+                            <button class="pane-header-btn" id="canvas-theme-toggle" title="Toggle light/dark theme">🌓</button>
                             <!-- Ruler Unit Toggle Button -->
                             <button class="pane-header-btn" id="ruler-unit-toggle" title="Toggle ruler units (mm/inch)">
                                 <span id="ruler-unit-label">mm</span>
@@ -768,6 +637,16 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Project context for JavaScript -->
+{% if current_project %}
+<script>
+    // Set project context for WorkspaceFilesTree and other components
+    window.projectOwner = '{{ current_project.owner.username }}';
+    window.projectSlug = '{{ current_project.slug }}';
+    console.log('[VisApp] Project context set:', window.projectOwner, '/', window.projectSlug);
+</script>
+{% endif %}
+
 <!-- Fabric.js for canvas manipulation (like vis app) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 <script type="module" src="{% static 'vis_app/js/sigma-editor.js' %}"></script>

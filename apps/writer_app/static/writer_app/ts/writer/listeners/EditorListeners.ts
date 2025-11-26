@@ -197,6 +197,18 @@ export class EditorListeners {
         this.editor!.redo();
       });
     }
+
+    // Monaco theme toggle button
+    const monacoThemeToggle = document.getElementById("monaco-theme-toggle");
+    if (monacoThemeToggle && this.editor) {
+      monacoThemeToggle.addEventListener("click", () => {
+        if (typeof this.editor!.toggleEditorTheme === "function") {
+          this.editor!.toggleEditorTheme();
+        } else {
+          console.warn("[EditorListeners] toggleEditorTheme method not available on editor");
+        }
+      });
+    }
   }
 
   /**

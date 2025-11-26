@@ -449,4 +449,61 @@ export class EnhancedEditor {
   clearSpellCheckDictionary(): void {
     this.spellCheckIntegration?.clearSpellCheckDictionary();
   }
+
+  /**
+   * Toggle Monaco editor theme independently from global theme
+   */
+  toggleEditorTheme(): void {
+    if (this.editorType !== "monaco" || !this.monacoEditor) {
+      console.warn("[Editor] Cannot toggle theme - Monaco editor not active");
+      return;
+    }
+
+    const monaco = (window as any).monaco;
+    if (!monaco) {
+      console.warn("[Editor] Cannot toggle theme - Monaco not available");
+      return;
+    }
+
+    // Get current theme from editor
+    const currentTheme = this.monacoEditor.getOption(monaco.editor.EditorOption.theme);
+    const newTheme = currentTheme === "vs-dark" ? "vs" : "vs-dark";
+
+    // Update editor theme
+    this.monacoEditor.updateOptions({ theme: newTheme });
+
+    // Store preference
+    localStorage.setItem("monaco-editor-theme-writer", newTheme);
+
+    // Update toggle button emoji
+    this.updateThemeToggleButton(newTheme);
+
+    console.log(`[Editor] Monaco theme toggled to: ${newTheme}`);
+  }
+
+  /**
+   * Get current Monaco editor theme
+   */
+  getCurrentTheme(): string {
+    const monaco = (window as any).monaco;
+    if (this.editorType !== "monaco" || !this.monacoEditor || !monaco) {
+      return "vs-dark";
+    }
+    return this.monacoEditor.getOption(monaco.editor.EditorOption.theme);
+  }
+
+  /**
+   * Update theme toggle button emoji
+   */
+  private updateThemeToggleButton(theme: string): void {
+    const toggleBtn = document.getElementById("monaco-theme-toggle");
+    const themeIcon = toggleBtn?.querySelector(".theme-icon");
+
+    if (themeIcon) {
+      themeIcon.textContent = theme === "vs-dark" ? "🌙" : "☀️";
+      toggleBtn?.setAttribute("title",
+        theme === "vs-dark" ? "Switch to light editor theme" : "Switch to dark editor theme"
+      );
+    }
+  }
 }

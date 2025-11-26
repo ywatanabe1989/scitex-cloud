@@ -707,12 +707,13 @@ export function createMonacoEditor(
   initialValue: string,
   config: any
 ): any {
-  // Detect current theme
+  // Load saved theme preference or detect current theme
+  const savedTheme = localStorage.getItem("monaco-editor-theme-writer");
   const isDarkMode =
     document.documentElement.getAttribute("data-theme") === "dark";
-  const initialTheme = isDarkMode ? "vs-dark" : "vs";
+  const initialTheme = savedTheme || (isDarkMode ? "vs-dark" : "vs");
 
-  return monaco.editor.create(container, {
+  const editor = monaco.editor.create(container, {
     value: initialValue,
     language: "latex",
     theme: initialTheme,
@@ -774,6 +775,20 @@ export function createMonacoEditor(
     mouseWheelScrollSensitivity: 1,
     fastScrollSensitivity: 5,
   });
+
+  // Initialize theme toggle button
+  setTimeout(() => {
+    const toggleBtn = document.getElementById("monaco-theme-toggle");
+    const themeIcon = toggleBtn?.querySelector(".theme-icon");
+    if (themeIcon) {
+      themeIcon.textContent = initialTheme === "vs-dark" ? "🌙" : "☀️";
+      toggleBtn?.setAttribute("title",
+        initialTheme === "vs-dark" ? "Switch to light editor theme" : "Switch to dark editor theme"
+      );
+    }
+  }, 100);
+
+  return editor;
 }
 
 /**

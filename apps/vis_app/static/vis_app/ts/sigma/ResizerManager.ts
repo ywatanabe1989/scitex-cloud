@@ -16,13 +16,54 @@ interface ResizerConfig {
 
 export class ResizerManager {
     private resizers: Map<string, ResizerConfig> = new Map();
+    private static STORAGE_KEY = 'scitex-vis-panel-sizes';
 
     /**
      * Register a panel resizer with its configuration
      */
     public registerResizer(config: ResizerConfig): void {
         this.resizers.set(config.resizerId, config);
+        this.restorePanelSize(config);  // Restore saved size before initializing
         this.initializeResizer(config);
+    }
+
+    /**
+     * Save panel size to localStorage
+     */
+    private savePanelSize(config: ResizerConfig, width: number): void {
+        try {
+            const stored = localStorage.getItem(ResizerManager.STORAGE_KEY);
+            const sizes = stored ? JSON.parse(stored) : {};
+            sizes[config.resizerId] = width;
+            localStorage.setItem(ResizerManager.STORAGE_KEY, JSON.stringify(sizes));
+        } catch (e) {
+            console.warn('[ResizerManager] Failed to save panel size:', e);
+        }
+    }
+
+    /**
+     * Restore panel size from localStorage
+     */
+    private restorePanelSize(config: ResizerConfig): void {
+        try {
+            const stored = localStorage.getItem(ResizerManager.STORAGE_KEY);
+            if (!stored) return;
+
+            const sizes = JSON.parse(stored);
+            const savedWidth = sizes[config.resizerId];
+
+            if (savedWidth && savedWidth >= config.minWidth) {
+                const targetPanel = document.querySelector(config.targetPanel) as HTMLElement;
+                if (targetPanel) {
+                    targetPanel.style.width = `${savedWidth}px`;
+                    targetPanel.style.flexShrink = '0';
+                    targetPanel.style.flexGrow = '0';
+                    console.log(`[ResizerManager] Restored ${config.resizerId} to ${savedWidth}px`);
+                }
+            }
+        } catch (e) {
+            console.warn('[ResizerManager] Failed to restore panel size:', e);
+        }
     }
 
     /**
@@ -83,6 +124,8 @@ export class ResizerManager {
                 isResizing = false;
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
+                // Save panel size to localStorage
+                this.savePanelSize(config, targetPanel.offsetWidth);
             }
         };
 

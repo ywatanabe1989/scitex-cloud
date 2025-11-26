@@ -5,6 +5,48 @@ All notable changes to SciTeX Cloud will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1-alpha] - 2025-11-26
+
+### Added
+- **Workspace Files Tree - Symlink UI**: Ctrl+Drag to create cross-module symlinks
+  - Backend API: POST `/api/create-symlink/` endpoint with relative path support
+  - Frontend: Drag-and-drop UI with Ctrl/Cmd key detection
+  - Visual feedback: Dragging opacity, drop target border, link cursor
+  - Security: Owner/collaborator permissions, paths within project root
+  - Module independence: Explicit symlinks for sharing (vis/exports → writer/figures)
+  - Platform support: Windows (Ctrl), Mac (Cmd), portable relative paths
+- **Celery Async Task Processing**: Fair-share resource allocation for I/O-bound tasks
+  - 4 dedicated task queues (ai_queue, search_queue, compute_queue, vis_queue)
+  - Per-task rate limiting (10/min AI, 30/min search)
+  - Per-user rate limiting via token bucket algorithm
+  - Flower monitoring dashboard (http://localhost:5555)
+- **Three-Tier Resource Management**:
+  - Django: Interactive requests (<1s)
+  - Celery: Async I/O tasks (AI API, search, PDF processing)
+  - SLURM: Heavy compute (user scripts, ML training)
+- **SLURM + Apptainer Integration**: Container-based user code execution
+  - SciTeX 2.3.0 pre-installed in containers
+  - Fair-share job scheduling with partitions
+
+### Refactoring
+- **Workspace Files Tree**: Migrated from ModeFilters to FilteringCriteria
+  - Standardized naming: ALLOW_*/DENY_*/PRESERVE_* convention
+  - Single source of truth: FilteringCriteria.ts
+  - Moved legacy ModeFilters.ts to legacy/ directory
+  - Improved filtering priority documentation
+
+### Infrastructure
+- Added celery_worker, celery_beat, flower Docker services
+- Redis as Celery broker (redis://redis:6379/1)
+- django-celery-results for task result storage
+- Comprehensive deployment documentation in `deployment/docs/`
+
+### Documentation
+- Created 8 organized deployment docs (00_INDEX to 07_OPERATIONS_GUIDE)
+- Added RESOURCE_ALLOCATION_STRATEGY.md
+- Added FAIR_RESOURCE_SYSTEM.md
+- Added MODULE_INDEPENDENCE_SPEC.md for symlink-based cross-module references
+
 ## [0.3.3-alpha] - 2025-11-23
 
 ### Performance
@@ -197,7 +239,7 @@ Complete documentation for:
 - organizations_app, permissions_app, project_app, public_app
 - scholar_app, search_app, social_app, vis_app, writer_app, workspace_app
 
-## [0.1.2] - 2025-10-23
+## [0.1.2-alpha] - 2025-10-23
 
 ### Initial Release Features
 - Complete SciTeX Cloud platform foundation
@@ -210,6 +252,10 @@ Complete documentation for:
 - Git repository integration via Gitea
 - Docker-based deployment
 
-[0.3.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.2.0...v0.3.0
-[0.2.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.1.2...v0.2.0
-[0.1.2]: https://github.com/ywatanabe1989/scitex-cloud/releases/tag/v0.1.2
+[0.4.1-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.3-alpha...v0.4.1-alpha
+[0.3.3-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.2-alpha...v0.3.3-alpha
+[0.3.2-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.1-alpha...v0.3.2-alpha
+[0.3.1-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.3.0-alpha...v0.3.1-alpha
+[0.3.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.2.0-alpha...v0.3.0-alpha
+[0.2.0-alpha]: https://github.com/ywatanabe1989/scitex-cloud/compare/v0.1.2-alpha...v0.2.0-alpha
+[0.1.2-alpha]: https://github.com/ywatanabe1989/scitex-cloud/releases/tag/v0.1.2-alpha

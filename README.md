@@ -6,6 +6,12 @@
 
 # SciTeX Cloud
 
+[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://python.org)
+[![Django](https://img.shields.io/badge/django-5.1-green.svg)](https://djangoproject.com)
+[![SLURM](https://img.shields.io/badge/SLURM-24.05-orange.svg)](https://slurm.schedmd.com)
+[![Celery](https://img.shields.io/badge/celery-5.4-success.svg)](https://docs.celeryq.dev)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Open-source scientific research platform for researchers and academics.
 
 🌐 **Live**: https://scitex.ai
@@ -243,11 +249,16 @@ scitex-cloud/
 **Infrastructure:**
 - Nginx (reverse proxy)
 - Gitea (Git hosting)
-- Redis (caching)
+- Redis (caching + Celery broker)
 - Docker Compose (orchestration)
+- SLURM (job scheduling)
+- Apptainer (HPC containers)
+- Celery (async task processing)
+- Flower (task monitoring)
 
 **Design:**
 - Project-centric (all modules link to projects)
+- Three-tier fair resource allocation (Django/Celery/SLURM)
 - 100% MIT licensed
 
 </details>

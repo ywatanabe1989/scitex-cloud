@@ -82,6 +82,13 @@ services:
     # "from_docker" argument bypasses the manage.py wrapper safety check
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000", "from_docker"]
 
+    # Allow access to host hardware for monitoring
+    privileged: true
+
+    # Allow access to host services (SSH, etc.)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     # Restart policy
     restart: unless-stopped
 
@@ -155,6 +162,122 @@ services:
       timeout: 3s
       retries: 5
     
+    networks:
+      - scitex-dev
+
+  # ============================================
+  # Celery Worker (Async Task Processing)
+  # ============================================
+  celery_worker:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/docker_dev/Dockerfile
+      cache_from:
+        - scitex-cloud-dev-web:latest
+    image: scitex-cloud-dev-web:latest
+
+    volumes:
+      - ../../..:/app:cached
+      - ../../../../scitex-code:/scitex-code:cached
+      - ../../../logs:/app/logs
+
+    env_file:
+      - .env
+
+    environment:
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+      - PYTHONUNBUFFERED=1
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+    # Run Celery worker with all queues
+    command: >
+      celery -A config --broker=redis://redis:6379/1 worker
+      --loglevel=info
+      --queues=celery,ai_queue,search_queue,compute_queue,vis_queue
+      --concurrency=4
+      --prefetch-multiplier=1
+
+    restart: unless-stopped
+
+    networks:
+      - scitex-dev
+
+  # ============================================
+  # Celery Beat (Periodic Task Scheduler)
+  # ============================================
+  celery_beat:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/docker_dev/Dockerfile
+      cache_from:
+        - scitex-cloud-dev-web:latest
+    image: scitex-cloud-dev-web:latest
+
+    volumes:
+      - ../../..:/app:cached
+      - ../../../../scitex-code:/scitex-code:cached
+      - ../../../logs:/app/logs
+
+    env_file:
+      - .env
+
+    environment:
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+      - PYTHONUNBUFFERED=1
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+    # Run Celery beat scheduler
+    command: celery -A config --broker=redis://redis:6379/1 beat --loglevel=info --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+
+    restart: unless-stopped
+
+    networks:
+      - scitex-dev
+
+  # ============================================
+  # Flower (Celery Monitoring Dashboard)
+  # ============================================
+  flower:
+    build:
+      context: ../../..
+      dockerfile: deployment/docker/docker_dev/Dockerfile
+      cache_from:
+        - scitex-cloud-dev-web:latest
+    image: scitex-cloud-dev-web:latest
+
+    volumes:
+      - ../../..:/app:cached
+      - ../../../../scitex-code:/scitex-code:cached
+
+    ports:
+      - "5555:5555"
+
+    env_file:
+      - .env
+
+    environment:
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+      - PYTHONUNBUFFERED=1
+
+    depends_on:
+      - redis
+      - celery_worker
+
+    # Run Flower monitoring (--broker must come before flower subcommand)
+    command: celery -A config --broker=redis://redis:6379/1 flower --port=5555
+
+    restart: unless-stopped
+
     networks:
       - scitex-dev
 

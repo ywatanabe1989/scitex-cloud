@@ -10,6 +10,7 @@ from .code_models import (
     Notebook,
     CodeLibrary,
     ResourceUsage,
+    ProjectService,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "Notebook",
     "CodeLibrary",
     "ResourceUsage",
+    "ProjectService",
 ]

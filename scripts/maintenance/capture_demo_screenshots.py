@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-24 19:52:00 (ywatanabe)"
+# Timestamp: "2025-11-25 22:54:29 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
 
 
@@ -37,8 +37,72 @@ from scitex.session import session
 from scitex.browser import fill_with_fallbacks_async
 from scitex.browser import click_with_fallbacks_async
 from scitex.logging import getLogger
+import re
+from urllib.parse import urlparse
+from urllib.parse import parse_qs
 
 logger = getLogger(__name__)
+
+
+# ============================================================================
+# Utilities
+# ============================================================================
+
+
+def normalize_path_to_filename(path: str) -> str:
+    """
+    Normalize a URL path to a valid filename.
+
+    Examples:
+        "/" → "homepage"
+        "/new/" → "new"
+        "/social/explore/" → "social-explore"
+        "/social/explore/?tab=users" → "social-explore-tab-users"
+        "/test-user/default-project/" → "test-user-default-project"
+        "/accounts/settings/profile/" → "accounts-settings-profile"
+
+    Args:
+        path: URL path (may include query parameters)
+
+    Returns:
+        Normalized filename (without extension)
+    """
+    # Parse URL to separate path and query
+    parsed = urlparse(path)
+    clean_path = parsed.path
+    query = parsed.query
+
+    # Handle root path
+    if clean_path == "/" or clean_path == "":
+        name = "homepage"
+    else:
+        # Remove leading/trailing slashes
+        clean_path = clean_path.strip("/")
+
+        # Replace slashes with hyphens
+        name = clean_path.replace("/", "-")
+
+    # Add query parameters to filename if present
+    if query:
+        # Parse query string
+        params = parse_qs(query)
+        # Add each param to the name
+        for key, values in params.items():
+            for value in values:
+                # Sanitize and append
+                safe_value = re.sub(r"[^\w-]", "-", value)
+                name += f"-{key}-{safe_value}"
+
+    # Sanitize: replace any remaining special characters with hyphens
+    name = re.sub(r"[^\w-]", "-", name)
+
+    # Remove consecutive hyphens
+    name = re.sub(r"-+", "-", name)
+
+    # Remove leading/trailing hyphens
+    name = name.strip("-")
+
+    return name
 
 
 # ============================================================================
@@ -62,48 +126,41 @@ TEST_USER = os.getenv("SCITEX_CLOUD_TEST_USER_USERNAME", "test-user")
 TEST_PASSWORD = os.getenv("SCITEX_CLOUD_TEST_USER_PASSWORD", "Password123!")
 
 # Pages to capture after login
+# Names are automatically generated from path normalization
 PAGES_TO_CAPTURE = [
     # Landing
-    {"path": "/", "name": "homepage"},
+    "/",
+    "/about/",
+    # Status
+    "/server-status/",
+    # Dev
+    "/dev/design/",
     # Repository Operations
-    {"path": "/new/", "name": "new-repository"},
-    {"path": f"/{TEST_USER}/", "name": "user-profile"},
-    # Social/Explore
-    {"path": "/social/explore/", "name": "explore-repos"},
-    {"path": "/social/explore/?tab=users", "name": "explore-users"},
+    # "/new/",
+    f"/{TEST_USER}/",
+    # # Social/Explore
+    # "/social/explore/",
+    # "/social/explore/?tab=users",
     # Specific Repository
-    {"path": f"/{TEST_USER}/default-project/", "name": "repo-overview"},
-    {"path": f"/{TEST_USER}/default-project/issues/", "name": "repo-issues"},
-    {"path": f"/{TEST_USER}/default-project/pulls/", "name": "repo-pulls"},
-    {
-        "path": f"/{TEST_USER}/default-project/settings/",
-        "name": "repo-settings",
-    },
-    # Writer
-    {
-        "path": f"/{TEST_USER}/default-project/scitex/writer/01_manuscript/",
-        "name": "writer-manuscript",
-    },
+    f"/{TEST_USER}/default-project/",
+    f"/{TEST_USER}/default-project/issues/",
+    f"/{TEST_USER}/default-project/pulls/",
+    f"/{TEST_USER}/default-project/settings/",
+    f"/{TEST_USER}/default-project/scitex/writer/01_manuscript/",
+    f"/{TEST_USER}/settings/repositories/",
     # Account Settings
-    {"path": "/accounts/settings/profile/", "name": "settings-profile"},
-    {"path": "/accounts/settings/account/", "name": "settings-account"},
-    {"path": "/accounts/settings/appearance/", "name": "settings-appearance"},
-    {
-        "path": "/accounts/settings/integrations/",
-        "name": "settings-integrations",
-    },
-    {"path": "/accounts/settings/ssh-keys/", "name": "settings-ssh-keys"},
-    {"path": "/accounts/settings/api-keys/", "name": "settings-api-keys"},
-    {
-        "path": f"/{TEST_USER}/settings/repositories/",
-        "name": "user-settings-repositories",
-    },
+    "/accounts/settings/profile/",
+    # "/accounts/settings/account/",
+    # "/accounts/settings/appearance/",
+    # "/accounts/settings/integrations/",
+    # "/accounts/settings/ssh-keys/",
+    # "/accounts/settings/api-keys/",
     # Modules
-    {"path": "/scholar/bibtex/", "name": "scholar"},
-    {"path": "/code/", "name": "code"},
-    {"path": "/vis/", "name": "vis"},
-    {"path": "/writer/", "name": "writer"},
-    {"path": "/tools/", "name": "tools"},
+    "/scholar/",
+    "/code/",
+    "/vis/",
+    "/writer/",
+    "/tools/",
 ]
 
 
@@ -201,7 +258,7 @@ async def login_to_scitex(page: Page, username: str, password: str) -> bool:
 
 async def capture_page_screenshot(
     page: Page,
-    page_info: dict,
+    page_path: str,
     output_dir: Path,
     index: int,
     total: int,
@@ -211,7 +268,7 @@ async def capture_page_screenshot(
 
     Args:
         page: Playwright page object
-        page_info: Dict with 'path' and 'name' keys
+        page_path: URL path to capture (e.g., "/", "/new/", "/social/explore/?tab=users")
         output_dir: Directory to save screenshots
         index: Current page number (for progress)
         total: Total number of pages
@@ -220,10 +277,10 @@ async def capture_page_screenshot(
         Path to saved screenshot, or None if failed
     """
 
-    page_path = page_info["path"]
-    page_name = page_info["name"]
+    # Generate filename automatically from path
+    page_name = normalize_path_to_filename(page_path)
     url = f"{BASE_URL}{page_path}"
-    wait_sec = 10.0 if page_path in ["/code/", "/writer/"] else 1.0
+    wait_sec = 5.0 if page_path in ["/code/", "/writer/", "/vis/"] else 1.0
 
     screenshot_filename = f"{index:02d}_{page_name}.png"
     screenshot_path = output_dir / screenshot_filename
@@ -323,15 +380,15 @@ async def run_capture_async(
             failed = []
             total = len(PAGES_TO_CAPTURE)
 
-            for i, page_info in enumerate(PAGES_TO_CAPTURE, 1):
+            for i, page_path in enumerate(PAGES_TO_CAPTURE, 1):
                 result = await capture_page_screenshot(
-                    page, page_info, output_dir, i, total
+                    page, page_path, output_dir, i, total
                 )
 
                 if result:
                     captured.append(result)
                 else:
-                    failed.append(page_info["name"])
+                    failed.append(normalize_path_to_filename(page_path))
 
                 await asyncio.sleep(0.3)
 
@@ -391,7 +448,7 @@ def main(
 
     logger.info("Starting SciTeX demo screenshot capture")
 
-    output_dir = Path(CONFIG["SDIR_OUT"]) / "screenshots"
+    output_dir = Path(CONFIG["SDIR_RUN"]) / "screenshots"
 
     # Run async workflow
     exit_code = asyncio.run(
