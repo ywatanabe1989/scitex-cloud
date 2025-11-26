@@ -49,6 +49,9 @@ services:
       # User workspace data directory (also serves as user home via symlink)
       - ../../../data/users:/app/data/users
 
+      # Singularity/Apptainer container images for secure PTY terminal
+      - ../../../deployment/singularity:/app/singularity:ro
+
       # Explicitly exclude generated files from host mount (performance)
       - /app/staticfiles
       - /app/.cache

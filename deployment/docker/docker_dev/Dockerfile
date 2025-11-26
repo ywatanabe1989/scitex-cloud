@@ -120,6 +120,27 @@ RUN YQ_VERSION=v4.44.3 && \
 # Install inotify-tools (lightweight file watcher for template hot reload)
 RUN apt-get update && apt-get install -y --no-install-recommends inotify-tools && rm -rf /var/lib/apt/lists/*
 
+# ============================================
+# Apptainer/Singularity Installation
+# ============================================
+# Required for secure user terminal sessions (PTY runs inside container)
+# Same architecture as production HPC environment
+# Install from GitHub releases (works on Debian slim)
+RUN APPTAINER_VERSION=1.3.4 && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        uidmap \
+        squashfs-tools \
+        fuse2fs \
+        fuse-overlayfs \
+        libfuse3-3 \
+        libseccomp2 \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -L -o /tmp/apptainer.deb \
+        "https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer_${APPTAINER_VERSION}_amd64.deb" \
+    && dpkg -i /tmp/apptainer.deb || apt-get install -f -y \
+    && rm /tmp/apptainer.deb \
+    && apptainer --version
+
 # Install Node.js and Mermaid CLI
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
