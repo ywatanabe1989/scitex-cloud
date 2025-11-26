@@ -70,10 +70,11 @@ def api_file_tree(request, username, slug):
             for item in sorted(
                 path.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())
             ):
-                # Skip hidden files except .git directory and .gitignore
+                # Skip hidden files except .git directory, .gitignore, and .gitkeep
                 if item.name.startswith(".") and item.name not in [
                     ".git",
                     ".gitignore",
+                    ".gitkeep",
                 ]:
                     continue
                 # Skip common non-essential directories
@@ -124,6 +125,121 @@ def api_file_tree(request, username, slug):
     tree = build_tree(project_path)
 
     return JsonResponse({"success": True, "tree": tree})
+
+
+@require_http_methods(["POST"])
+def api_create_symlink(request, username, slug):
+    """
+    API endpoint to create a symlink in the project repository.
+    Creates relative symlinks for cross-module references.
+
+    POST data:
+        source: Path to source file (relative to project root)
+        target: Path where symlink should be created (relative to project root)
+    """
+    import os
+    from pathlib import Path
+
+    user = get_object_or_404(User, username=username)
+    project = get_object_or_404(Project, slug=slug, owner=user)
+
+    # Only owner and collaborators can create symlinks
+    has_access = (
+        project.owner == request.user
+        or project.collaborators.filter(id=request.user.id).exists()
+    )
+
+    if not has_access:
+        return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
+
+    # Parse request body
+    try:
+        data = json.loads(request.body)
+        source_path = data.get("source", "").strip()
+        target_path = data.get("target", "").strip()
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
+
+    if not source_path or not target_path:
+        return JsonResponse(
+            {"success": False, "error": "Both source and target paths are required"},
+            status=400
+        )
+
+    # Get project directory
+    from apps.project_app.services.project_filesystem import (
+        get_project_filesystem_manager,
+    )
+
+    manager = get_project_filesystem_manager(project.owner)
+    project_root = manager.get_project_root_path(project)
+
+    if not project_root or not project_root.exists():
+        return JsonResponse(
+            {"success": False, "error": "Project directory not found"},
+            status=404
+        )
+
+    # Resolve full paths
+    source_full = (project_root / source_path).resolve()
+    target_full = (project_root / target_path).resolve()
+
+    # Security check: both paths must be within project root
+    if not (
+        str(source_full).startswith(str(project_root.resolve()))
+        and str(target_full).startswith(str(project_root.resolve()))
+    ):
+        return JsonResponse(
+            {"success": False, "error": "Paths must be within project directory"},
+            status=400
+        )
+
+    # Check source exists
+    if not source_full.exists():
+        return JsonResponse(
+            {"success": False, "error": f"Source file not found: {source_path}"},
+            status=404
+        )
+
+    # Check target doesn't already exist
+    if target_full.exists():
+        return JsonResponse(
+            {"success": False, "error": f"Target already exists: {target_path}"},
+            status=400
+        )
+
+    # Create parent directory for target if needed
+    target_full.parent.mkdir(parents=True, exist_ok=True)
+
+    # Calculate relative path from target to source
+    try:
+        relative_source = os.path.relpath(source_full, target_full.parent)
+    except ValueError:
+        return JsonResponse(
+            {"success": False, "error": "Cannot create relative path between source and target"},
+            status=400
+        )
+
+    # Create symlink
+    try:
+        target_full.symlink_to(relative_source)
+        logger.info(
+            f"Created symlink: {target_path} -> {relative_source} "
+            f"(project: {project.slug}, user: {request.user.username})"
+        )
+
+        return JsonResponse({
+            "success": True,
+            "source": source_path,
+            "target": target_path,
+            "relative_link": relative_source,
+        })
+    except OSError as e:
+        logger.error(f"Failed to create symlink: {e}")
+        return JsonResponse(
+            {"success": False, "error": f"Failed to create symlink: {str(e)}"},
+            status=500
+        )
 
 
 # ============================================================================
