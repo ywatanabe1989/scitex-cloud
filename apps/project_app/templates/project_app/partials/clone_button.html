@@ -1,118 +1,132 @@
-<!-- Git Clone Button Component -->
+<!-- Git Clone Button Component - GitHub Style -->
 <div class="git-clone-button-container">
     <div class="btn-group">
-        <button type="button" class="btn btn-code-success" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-code me-2"></i>Code
-            <i class="fas fa-caret-down ms-2"></i>
+        <button type="button" class="btn btn-code-success" aria-expanded="false">
+            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor" class="me-2">
+                <path d="m11.28 3.22 4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L13.94 8l-3.72-3.72a.749.749 0 0 1 .326-1.275.749.749 0 0 1 .734.215Zm-6.56 0a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042L2.06 8l3.72 3.72a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L.47 8.53a.75.75 0 0 1 0-1.06Z"></path>
+            </svg>
+            Code
+            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor" class="ms-2">
+                <path d="m4.427 7.427 3.396 3.396a.25.25 0 0 0 .354 0l3.396-3.396A.25.25 0 0 0 11.396 7H4.604a.25.25 0 0 0-.177.427Z"></path>
+            </svg>
         </button>
         <div class="dropdown-menu dropdown-menu-end p-0" style="min-width: 400px;">
-            <!-- Tabs Navigation -->
-            <ul class="nav nav-tabs code-dropdown-tabs px-3 pt-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="local-tab" data-bs-toggle="tab" data-bs-target="#local-panel" type="button" role="tab">
-                        <i class="fas fa-desktop me-2"></i>Local
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="workspace-tab" data-bs-toggle="tab" data-bs-target="#workspace-panel" type="button" role="tab">
-                        <i class="fas fa-terminal me-2"></i>Workspace
-                    </button>
-                </li>
-            </ul>
+            <!-- Tabs Navigation with Help Icon -->
+            <div class="code-dropdown-tabs-wrapper">
+                <ul class="nav nav-tabs code-dropdown-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="local-tab" data-bs-toggle="tab" data-bs-target="#local-panel" type="button" role="tab">
+                            Local
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="workspace-tab" data-bs-toggle="tab" data-bs-target="#workspace-panel" type="button" role="tab">
+                            Workspaces
+                        </button>
+                    </li>
+                </ul>
+                <a href="/docs/cloning/" class="code-dropdown-help" target="_blank" title="Clone help">
+                    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+                        <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path>
+                    </svg>
+                </a>
+            </div>
 
             <!-- Tabs Content -->
-            <div class="tab-content p-3">
+            <div class="tab-content">
                 <!-- Local Tab -->
                 <div class="tab-pane fade show active" id="local-panel" role="tabpanel">
-                    <!-- Clone Section Header -->
-                    <div class="mb-3">
-                        <h6 class="code-dropdown-header">
-                            <i class="fas fa-clone me-2"></i>Clone
-                        </h6>
+                    <!-- Clone Section Header with Clone Icon -->
+                    <div class="clone-section-header">
+                        <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor" class="clone-icon">
+                            <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                            <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                        </svg>
+                        <span>Clone</span>
                     </div>
 
-                    <!-- HTTPS -->
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <label class="form-label mb-0 fw-bold">HTTPS</label>
-                        </div>
-                        <div class="input-group input-group-sm">
+                    <!-- Clone Method Sub-tabs (HTTPS, SSH, SciTeX CLI) -->
+                    <div class="clone-method-tabs">
+                        <button type="button" class="clone-method-tab active" data-target="https-panel" onclick="switchCloneMethod(this)">HTTPS</button>
+                        <button type="button" class="clone-method-tab" data-target="ssh-panel" onclick="switchCloneMethod(this)">SSH</button>
+                        <button type="button" class="clone-method-tab" data-target="cli-panel" onclick="switchCloneMethod(this)">SciTeX CLI</button>
+                    </div>
+
+                    <!-- HTTPS Panel -->
+                    <div class="clone-method-panel active" id="https-panel">
+                        <div class="clone-url-container">
                             <input type="text"
-                                   class="form-control font-monospace"
+                                   class="clone-url-input"
                                    value="{{ gitea_https_url }}"
                                    id="gitea-https-url"
                                    readonly>
-                            <button class="btn btn-outline-secondary"
+                            <button class="clone-copy-btn"
                                     type="button"
                                     onclick="copyToClipboard('gitea-https-url')"
-                                    title="Copy HTTPS URL">
-                                <i class="fas fa-copy"></i>
+                                    title="Copy URL to clipboard">
+                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+                                    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                    <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                                </svg>
                             </button>
                         </div>
                     </div>
 
-                    <!-- SSH -->
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <label class="form-label mb-0 fw-bold">SSH</label>
-                            <small class="text-muted">SSH key required</small>
-                        </div>
-                        <div class="input-group input-group-sm">
+                    <!-- SSH Panel -->
+                    <div class="clone-method-panel" id="ssh-panel">
+                        <div class="clone-url-container">
                             <input type="text"
-                                   class="form-control font-monospace"
+                                   class="clone-url-input"
                                    value="{{ gitea_ssh_url }}"
                                    id="gitea-ssh-url"
                                    readonly>
-                            <button class="btn btn-outline-secondary"
+                            <button class="clone-copy-btn"
                                     type="button"
                                     onclick="copyToClipboard('gitea-ssh-url')"
-                                    title="Copy SSH URL">
-                                <i class="fas fa-copy"></i>
+                                    title="Copy URL to clipboard">
+                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+                                    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                    <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                                </svg>
                             </button>
                         </div>
-                        <div class="mt-2 p-2 rounded ssh-key-notice">
-                            <small class="d-block">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <strong>SSH key authentication only.</strong>
-                                <a href="/accounts/settings/ssh-keys/" target="_blank" class="text-decoration-none ssh-key-link">
-                                    Add your SSH key →
-                                </a>
-                            </small>
-                        </div>
+                        <p class="clone-ssh-hint">Use a password-protected SSH key.</p>
                     </div>
 
-                    <!-- SciTeX CLI -->
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <label class="form-label mb-0 fw-bold">SciTeX Cloud CLI</label>
-                        </div>
-                        <div class="code-cli-command">
-                            <code>scitex clone {{ project.owner.username }}/{{ project.slug }}</code>
-                            <button class="btn btn-sm btn-outline-secondary"
+                    <!-- SciTeX CLI Panel -->
+                    <div class="clone-method-panel" id="cli-panel">
+                        <div class="clone-url-container">
+                            <input type="text"
+                                   class="clone-url-input"
+                                   value="scitex clone {{ project.owner.username }}/{{ project.slug }}"
+                                   id="scitex-cli-command"
+                                   readonly>
+                            <button class="clone-copy-btn"
                                     type="button"
                                     onclick="copyToClipboard('scitex-cli-command')"
-                                    title="Copy CLI command">
-                                <i class="fas fa-copy"></i>
+                                    title="Copy command to clipboard">
+                                <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+                                    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path>
+                                    <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+                                </svg>
                             </button>
-                            <input type="hidden" id="scitex-cli-command" value="scitex clone {{ project.owner.username }}/{{ project.slug }}">
                         </div>
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                <i class="fas fa-book me-1"></i>
-                                <a href="/docs/scitex-cli/" target="_blank" class="text-decoration-none">Learn about SciTeX CLI →</a>
-                            </small>
-                        </div>
+                        <p class="clone-ssh-hint">
+                            <a href="/docs/scitex-cli/" target="_blank">Learn about SciTeX CLI →</a>
+                        </p>
                     </div>
 
                     <!-- Divider -->
-                    <hr class="dropdown-divider">
+                    <hr class="clone-divider">
 
-                    <!-- Download ZIP -->
-                    <div>
-                        <a class="dropdown-item" href="{{ download_zip_url }}">
-                            <i class="fas fa-download me-2"></i>Download ZIP
-                        </a>
-                    </div>
+                    <!-- Open with Desktop / Download ZIP -->
+                    <a class="clone-action-item" href="{{ download_zip_url }}">
+                        <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+                            <path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"></path>
+                            <path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"></path>
+                        </svg>
+                        <span>Download ZIP</span>
+                    </a>
                 </div>
 
                 <!-- Workspace Tab -->
@@ -179,17 +193,15 @@ function copyToClipboard(elementId) {
 
     // Copy to clipboard
     navigator.clipboard.writeText(input.value).then(function() {
-        // Show success feedback
-        const button = input.nextElementSibling;
+        // Show success feedback with checkmark
+        const button = input.closest('.clone-url-container').querySelector('.clone-copy-btn');
         const originalHTML = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-check"></i>';
-        button.classList.remove('btn-outline-secondary');
-        button.classList.add('btn-success');
+        button.innerHTML = '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" fill="currentColor"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path></svg>';
+        button.classList.add('copied');
 
         setTimeout(function() {
             button.innerHTML = originalHTML;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
+            button.classList.remove('copied');
         }, 2000);
     }).catch(function(err) {
         console.error('Failed to copy:', err);
@@ -197,249 +209,555 @@ function copyToClipboard(elementId) {
     });
 }
 
+function switchCloneMethod(button) {
+    console.log('[CloneButton] switchCloneMethod called, target:', button.dataset.target);
+
+    // Get parent container
+    const container = button.closest('.tab-pane');
+    if (!container) {
+        console.error('[CloneButton] Could not find parent .tab-pane');
+        return;
+    }
+
+    // Deactivate all tabs and panels
+    container.querySelectorAll('.clone-method-tab').forEach(tab => tab.classList.remove('active'));
+    container.querySelectorAll('.clone-method-panel').forEach(panel => panel.classList.remove('active'));
+
+    // Activate clicked tab and corresponding panel
+    button.classList.add('active');
+    const targetPanel = document.getElementById(button.dataset.target);
+    if (targetPanel) {
+        targetPanel.classList.add('active');
+        console.log('[CloneButton] Activated panel:', button.dataset.target);
+    } else {
+        console.error('[CloneButton] Could not find target panel:', button.dataset.target);
+    }
+}
+
 function openWorkspace() {
     // Redirect to workspace for this project
     window.location.href = '/code/workspace/';
 }
 
-// Initialize Bootstrap dropdown - wait for Bootstrap to load
+// Initialize dropdown - use pure JavaScript, don't rely on Bootstrap
 (function initDropdown() {
-    const dropdownButton = document.querySelector('.git-clone-button-container .btn-code-success');
+    const container = document.querySelector('.git-clone-button-container');
+    const dropdownButton = container?.querySelector('.btn-code-success');
+    const dropdownMenu = container?.querySelector('.dropdown-menu');
 
-    if (!dropdownButton) {
-        // Button not in DOM yet, retry
+    if (!dropdownButton || !dropdownMenu) {
+        // Elements not in DOM yet, retry
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initDropdown);
+        } else {
+            setTimeout(initDropdown, 100);
         }
         return;
     }
 
-    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-        // Bootstrap is loaded, initialize dropdown
-        new bootstrap.Dropdown(dropdownButton);
-        console.log('[CloneButton] Dropdown initialized');
-    } else {
-        // Bootstrap not loaded yet, wait for it
-        setTimeout(initDropdown, 100);
+    // Remove Bootstrap's data-bs-toggle to prevent conflicts
+    dropdownButton.removeAttribute('data-bs-toggle');
+
+    let isOpen = false;
+
+    console.log('[CloneButton] Initializing pure JS dropdown');
+
+    // Toggle dropdown on button click
+    dropdownButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        console.log('[CloneButton] Button clicked, isOpen:', isOpen);
+
+        if (isOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
+        }
+    });
+
+    function openDropdown() {
+        // Close all other dropdowns first
+        document.querySelectorAll('.dropdown-menu.show').forEach(m => {
+            if (m !== dropdownMenu) m.classList.remove('show');
+        });
+
+        dropdownMenu.classList.add('show');
+        dropdownButton.setAttribute('aria-expanded', 'true');
+        isOpen = true;
+        console.log('[CloneButton] Dropdown opened');
+
+        // Add one-time click listener to close on outside click
+        setTimeout(() => {
+            document.addEventListener('click', handleOutsideClick);
+        }, 10);
     }
+
+    function closeDropdown() {
+        dropdownMenu.classList.remove('show');
+        dropdownButton.setAttribute('aria-expanded', 'false');
+        isOpen = false;
+        console.log('[CloneButton] Dropdown closed');
+        document.removeEventListener('click', handleOutsideClick);
+    }
+
+    function handleOutsideClick(e) {
+        // Don't close if clicking inside the dropdown menu - let all interactions work
+        if (dropdownMenu.contains(e.target)) {
+            // Only close if clicking a Download ZIP or external link
+            const link = e.target.closest('a.clone-action-item');
+            if (link) {
+                closeDropdown();
+            }
+            return;
+        }
+        // Don't close if clicking the button (button handler will toggle)
+        if (dropdownButton.contains(e.target)) {
+            return;
+        }
+        // Close for any other outside click
+        closeDropdown();
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isOpen) {
+            closeDropdown();
+        }
+    });
+
+    // Initialize clone method tab switching (in case inline onclick doesn't work)
+    dropdownMenu.querySelectorAll('.clone-method-tab').forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+            e.stopPropagation();
+            switchCloneMethod(tab);
+        });
+    });
+
+    console.log('[CloneButton] Clone method tabs initialized:', dropdownMenu.querySelectorAll('.clone-method-tab').length);
 })();
 </script>
 
 <style>
-/* Code Button - Theme-responsive success color */
+/* ============================================
+   SciTeX Code Button Dropdown - Workspace Theme
+   ============================================ */
+
+/* Ensure dropdown shows when .show class is added */
+.git-clone-button-container .dropdown-menu.show {
+    display: block !important;
+    z-index: 9999 !important;
+}
+
+/* Button group positioning - must be relative for dropdown positioning */
+.git-clone-button-container {
+    position: relative;
+    z-index: 1000;
+}
+
+.git-clone-button-container .btn-group {
+    position: relative;
+}
+
+/* Dropdown menu positioning */
+.git-clone-button-container .dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 4px !important;
+    z-index: 9999 !important;
+}
+
+/* Code Button - Workspace icon style (soft green) */
 .git-clone-button-container .btn-code-success {
     display: flex;
     align-items: center;
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: #ffffff;
+    background-color: var(--workspace-icon-primary);
+    border-color: var(--workspace-border-default);
+    color: var(--_white, #fafbfc);
     font-weight: 500;
+    padding: 5px 16px;
+    font-size: 14px;
+    border-radius: 6px;
     transition: all 0.2s ease;
 }
 
 .git-clone-button-container .btn-code-success:hover {
     background-color: var(--workspace-icon-hover);
-    border-color: var(--workspace-icon-hover);
-    color: #ffffff;
+    border-color: var(--workspace-border-hover);
+    color: var(--_white, #fafbfc);
 }
 
-[data-theme="dark"] .git-clone-button-container .btn-code-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: var(--bg-page);
+.git-clone-button-container .btn-code-success:active {
+    background-color: var(--workspace-icon-active);
+    border-color: var(--workspace-border-active);
 }
 
-[data-theme="dark"] .git-clone-button-container .btn-code-success:hover {
-    background-color: var(--workspace-icon-hover);
-    border-color: var(--workspace-icon-hover);
-    color: var(--bg-page);
-}
-
-/* Dropdown Menu */
+/* Dropdown Menu - Workspace colors */
 .git-clone-button-container .dropdown-menu {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--color-border-default);
-    background-color: var(--color-canvas-default);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--workspace-border-default);
+    background-color: var(--workspace-bg-elevated);
+    border-radius: 6px;
+    overflow: hidden;
 }
 
-[data-theme="dark"] .git-clone-button-container .dropdown-menu {
-    background-color: var(--workspace-bg-secondary);
+[data-theme="light"] .git-clone-button-container .dropdown-menu {
+    background-color: var(--workspace-bg-elevated);
     border-color: var(--workspace-border-default);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Tabs Wrapper - Flex container for tabs + help icon */
+.git-clone-button-container .code-dropdown-tabs-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--workspace-border-subtle);
+    background-color: var(--workspace-bg-secondary);
+}
+
+[data-theme="light"] .git-clone-button-container .code-dropdown-tabs-wrapper {
+    border-bottom-color: var(--workspace-border-subtle);
+    background-color: var(--workspace-bg-secondary);
+}
+
+/* Help Icon */
+.git-clone-button-container .code-dropdown-help {
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    transition: color 0.2s ease;
+}
+
+.git-clone-button-container .code-dropdown-help:hover {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .git-clone-button-container .code-dropdown-help:hover {
+    color: var(--text-primary);
 }
 
 /* Tabs Navigation */
 .git-clone-button-container .code-dropdown-tabs {
-    border-bottom: 1px solid var(--color-border-default);
+    border-bottom: none;
     margin-bottom: 0;
-}
-
-[data-theme="dark"] .git-clone-button-container .code-dropdown-tabs {
-    border-bottom-color: var(--workspace-border-default);
+    gap: 0;
 }
 
 .git-clone-button-container .code-dropdown-tabs .nav-link {
-    color: var(--color-fg-muted);
+    color: var(--text-muted);
     border: none;
     border-bottom: 2px solid transparent;
-    padding: 8px 16px;
+    padding: 12px 16px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     transition: all 0.2s ease;
+    border-radius: 0;
+    background: transparent;
 }
 
 .git-clone-button-container .code-dropdown-tabs .nav-link:hover {
-    color: var(--color-fg-default);
-    border-bottom-color: var(--color-border-default);
+    color: var(--text-primary);
+    border-bottom-color: var(--border-muted);
+}
+
+[data-theme="light"] .git-clone-button-container .code-dropdown-tabs .nav-link:hover {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-muted);
 }
 
 .git-clone-button-container .code-dropdown-tabs .nav-link.active {
-    color: var(--success-color);
-    border-bottom-color: var(--success-color);
+    color: var(--text-primary);
+    border-bottom-color: var(--workspace-icon-primary);
     background-color: transparent;
-}
-
-[data-theme="dark"] .git-clone-button-container .code-dropdown-tabs .nav-link.active {
-    color: var(--success-color);
-    border-bottom-color: var(--success-color);
-}
-
-/* Form Controls */
-.git-clone-button-container .form-control {
-    font-size: 13px;
-    background-color: var(--color-canvas-subtle);
-    border-color: var(--color-border-default);
-    color: var(--color-fg-default);
-}
-
-[data-theme="dark"] .git-clone-button-container .form-control {
-    background-color: var(--workspace-bg-primary);
-    border-color: var(--workspace-border-default);
-    color: var(--text-primary);
-}
-
-/* Headers */
-.git-clone-button-container .code-dropdown-header {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-fg-default);
-    padding: 0;
-    margin: 0;
-}
-
-[data-theme="dark"] .git-clone-button-container .code-dropdown-header {
-    color: var(--text-primary);
-}
-
-/* Dropdown Items */
-.git-clone-button-container .dropdown-item {
-    padding: 8px 12px;
-    font-size: 14px;
-    color: var(--color-fg-default);
-}
-
-.git-clone-button-container .dropdown-item:hover {
-    background-color: var(--color-accent-subtle);
-}
-
-[data-theme="dark"] .git-clone-button-container .dropdown-item:hover {
-    background-color: var(--workspace-bg-tertiary);
-}
-
-/* SSH Key Notice */
-.git-clone-button-container .ssh-key-notice {
-    background-color: rgba(74, 155, 126, 0.05);
-    border-left: 3px solid var(--success-color);
-}
-
-[data-theme="dark"] .git-clone-button-container .ssh-key-notice {
-    background-color: rgba(107, 168, 154, 0.1);
-    border-left-color: var(--success-color);
-}
-
-.git-clone-button-container .ssh-key-link {
-    color: var(--success-color);
     font-weight: 500;
 }
 
-[data-theme="dark"] .git-clone-button-container .ssh-key-link {
-    color: var(--success-color);
+[data-theme="light"] .git-clone-button-container .code-dropdown-tabs .nav-link.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--workspace-icon-primary);
 }
 
-.git-clone-button-container .ssh-key-link:hover {
-    text-decoration: underline !important;
+/* Tab Content */
+.git-clone-button-container .tab-content {
+    padding: 16px;
 }
 
-/* SciTeX CLI Command Display */
-.git-clone-button-container .code-cli-command {
+/* Clone Section Header */
+.git-clone-button-container .clone-section-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 12px;
-    background-color: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    margin: -16px -16px 12px -16px;
+    background-color: var(--workspace-bg-tertiary);
+    border-bottom: 1px solid var(--workspace-border-subtle);
 }
 
-[data-theme="dark"] .git-clone-button-container .code-cli-command {
+[data-theme="light"] .git-clone-button-container .clone-section-header {
+    color: var(--text-primary);
+    background-color: var(--workspace-bg-tertiary);
+}
+
+.git-clone-button-container .clone-icon {
+    color: var(--workspace-icon-primary);
+}
+
+/* Clone Method Sub-tabs (HTTPS, SSH, SciTeX CLI) */
+.git-clone-button-container .clone-method-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--workspace-border-default);
+}
+
+[data-theme="light"] .git-clone-button-container .clone-method-tabs {
+    border-bottom-color: var(--workspace-border-default);
+}
+
+.git-clone-button-container .clone-method-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.git-clone-button-container .clone-method-tab:hover {
+    color: var(--workspace-icon-primary);
+    background-color: rgba(74, 155, 126, 0.05);
+}
+
+[data-theme="light"] .git-clone-button-container .clone-method-tab:hover {
+    color: var(--workspace-icon-primary);
+    background-color: rgba(74, 155, 126, 0.05);
+}
+
+.git-clone-button-container .clone-method-tab.active {
+    color: var(--workspace-icon-primary);
+    border-bottom-color: var(--workspace-icon-primary);
+    font-weight: 600;
+}
+
+[data-theme="light"] .git-clone-button-container .clone-method-tab.active {
+    color: var(--workspace-icon-primary);
+    border-bottom-color: var(--workspace-icon-primary);
+}
+
+[data-theme="dark"] .git-clone-button-container .clone-method-tabs {
+    border-bottom-color: var(--workspace-border-default);
+}
+
+[data-theme="dark"] .git-clone-button-container .clone-method-tab:hover {
+    color: var(--workspace-icon-primary);
+    background-color: rgba(107, 168, 154, 0.1);
+}
+
+[data-theme="dark"] .git-clone-button-container .clone-method-tab.active {
+    color: var(--workspace-icon-primary);
+    border-bottom-color: var(--workspace-icon-primary);
+}
+
+/* Clone Method Panels */
+.git-clone-button-container .clone-method-panel {
+    display: none;
+}
+
+.git-clone-button-container .clone-method-panel.active {
+    display: block;
+}
+
+/* Clone URL Container */
+.git-clone-button-container .clone-url-container {
+    display: flex;
+    align-items: center;
     background-color: var(--workspace-bg-primary);
+    border: 1px solid var(--workspace-border-default);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+[data-theme="light"] .git-clone-button-container .clone-url-container {
+    background-color: var(--workspace-bg-secondary);
     border-color: var(--workspace-border-default);
 }
 
-.git-clone-button-container .code-cli-command code {
+.git-clone-button-container .clone-url-input {
     flex: 1;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--color-fg-default);
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-size: 12px;
+    padding: 8px 12px;
+    outline: none;
 }
 
-[data-theme="dark"] .git-clone-button-container .code-cli-command code {
+[data-theme="light"] .git-clone-button-container .clone-url-input {
     color: var(--text-primary);
+}
+
+.git-clone-button-container .clone-copy-btn {
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--workspace-border-default);
+    color: var(--workspace-icon-secondary);
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+[data-theme="light"] .git-clone-button-container .clone-copy-btn {
+    border-left-color: var(--workspace-border-default);
+}
+
+.git-clone-button-container .clone-copy-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--workspace-bg-tertiary);
+}
+
+[data-theme="light"] .git-clone-button-container .clone-copy-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--workspace-bg-tertiary);
+}
+
+.git-clone-button-container .clone-copy-btn.copied {
+    color: var(--workspace-icon-primary);
+}
+
+/* SSH Hint */
+.git-clone-button-container .clone-ssh-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 8px 0 0 0;
+}
+
+.git-clone-button-container .clone-ssh-hint a {
+    color: var(--color-cta);
+    text-decoration: none;
+}
+
+.git-clone-button-container .clone-ssh-hint a:hover {
+    text-decoration: underline;
+}
+
+/* Divider */
+.git-clone-button-container .clone-divider {
+    border: none;
+    border-top: 1px solid var(--workspace-border-subtle);
+    margin: 16px 0;
+}
+
+[data-theme="light"] .git-clone-button-container .clone-divider {
+    border-top-color: var(--workspace-border-subtle);
+}
+
+/* Action Items (Download ZIP, etc.) */
+.git-clone-button-container .clone-action-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.15s ease;
+}
+
+[data-theme="light"] .git-clone-button-container .clone-action-item {
+    color: var(--text-primary);
+}
+
+.git-clone-button-container .clone-action-item:hover {
+    color: var(--color-cta);
+}
+
+.git-clone-button-container .clone-action-item svg {
+    color: var(--text-muted);
 }
 
 /* Workspace Empty State */
 .git-clone-button-container .workspace-empty-state {
     text-align: center;
-    padding: 20px;
+    padding: 20px 0;
+}
+
+.git-clone-button-container .workspace-empty-state h6 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+[data-theme="light"] .git-clone-button-container .workspace-empty-state h6 {
+    color: var(--text-primary);
 }
 
 .git-clone-button-container .workspace-icon {
-    color: var(--color-fg-muted);
+    color: var(--text-muted);
     opacity: 0.5;
 }
 
 .git-clone-button-container .workspace-ssh-info {
-    background-color: var(--color-canvas-subtle);
-    border: 1px solid var(--color-border-default);
+    background-color: var(--workspace-bg-primary);
+    border: 1px solid var(--workspace-border-default);
+    border-radius: 6px;
     text-align: left;
+    margin-top: 16px;
 }
 
-[data-theme="dark"] .git-clone-button-container .workspace-ssh-info {
-    background-color: var(--workspace-bg-primary);
+[data-theme="light"] .git-clone-button-container .workspace-ssh-info {
+    background-color: var(--workspace-bg-secondary);
     border-color: var(--workspace-border-default);
+}
+
+.git-clone-button-container .workspace-ssh-info h6 {
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+[data-theme="light"] .git-clone-button-container .workspace-ssh-info h6 {
+    color: var(--text-primary);
 }
 
 /* Success Button in Workspace Tab */
 .git-clone-button-container .workspace-tab-content .btn-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: #ffffff;
+    background-color: var(--workspace-icon-primary);
+    border-color: var(--workspace-border-default);
+    color: var(--_white, #fafbfc);
 }
 
 .git-clone-button-container .workspace-tab-content .btn-success:hover {
     background-color: var(--workspace-icon-hover);
-    border-color: var(--workspace-icon-hover);
-    color: #ffffff;
 }
 
-[data-theme="dark"] .git-clone-button-container .workspace-tab-content .btn-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: var(--bg-page);
+/* Form controls in workspace tab */
+.git-clone-button-container .workspace-ssh-info .form-control {
+    background-color: var(--workspace-bg-primary);
+    border-color: var(--workspace-border-default);
+    color: var(--text-primary);
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+    font-size: 12px;
 }
 
-[data-theme="dark"] .git-clone-button-container .workspace-tab-content .btn-success:hover {
-    background-color: var(--workspace-icon-hover);
-    border-color: var(--workspace-icon-hover);
-    color: var(--bg-page);
+[data-theme="light"] .git-clone-button-container .workspace-ssh-info .form-control {
+    background-color: var(--workspace-bg-elevated);
+    border-color: var(--workspace-border-default);
+    color: var(--text-primary);
 }
 </style>

@@ -241,19 +241,80 @@
             </div>
             <!-- Stats and Activity -->
             <div class="col-md-4">
+                <!-- Allocated Resources -->
                 <div class="profile-section">
-                    <h3>Your Statistics</h3>
-                    <div class="stats-card">
-                        <div class="stats-number">{{ profile.total_documents|default:0 }}</div>
-                        <div class="stats-label">Documents</div>
+                    <h3>
+                        <i class="fas fa-server"></i> Allocated Resources
+                    </h3>
+
+                    <!-- Projects Breakdown -->
+                    <div class="stats-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="stats-number" style="color: white;">{{ resources.total_projects }}</div>
+                        <div class="stats-label" style="color: rgba(255,255,255,0.9);">Total Projects</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+                            <div><i class="fas fa-folder"></i> {{ resources.local_projects }} Local</div>
+                            <div><i class="fas fa-cloud"></i> {{ resources.remote_projects }} Remote</div>
+                        </div>
                     </div>
-                    <div class="stats-card">
-                        <div class="stats-number">{{ profile.total_projects|default:0 }}</div>
-                        <div class="stats-label">Projects</div>
+
+                    <!-- Storage Usage -->
+                    <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="stats-number" style="color: white;">{{ resources.storage_used }}</div>
+                        <div class="stats-label" style="color: rgba(255,255,255,0.9);">Storage Used</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+                            <i class="fas fa-database"></i> Local projects only
+                        </div>
                     </div>
-                    <div class="stats-card">
-                        <div class="stats-number">{{ profile.total_collaborations|default:0 }}</div>
-                        <div class="stats-label">Collaborations</div>
+
+                    <!-- SSH Credentials -->
+                    <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="stats-number" style="color: white;">{{ resources.total_ssh_keys }}</div>
+                        <div class="stats-label" style="color: rgba(255,255,255,0.9);">SSH Keys</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+                            <div><i class="fas fa-terminal"></i> {{ resources.workspace_ssh_keys }} Workspace</div>
+                            <div><i class="fab fa-git-alt"></i> {{ resources.git_ssh_keys }} Git</div>
+                        </div>
+                    </div>
+
+                    <!-- Remote Credentials -->
+                    {% if resources.remote_credentials > 0 %}
+                    <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <div class="stats-number" style="color: white;">{{ resources.remote_credentials }}</div>
+                        <div class="stats-label" style="color: rgba(255,255,255,0.9);">Remote Credentials</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+                            <i class="fas fa-key"></i> For remote projects
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Active Services -->
+                    {% if resources.active_services > 0 %}
+                    <div class="stats-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <div class="stats-number" style="color: white;">{{ resources.active_services }}</div>
+                        <div class="stats-label" style="color: rgba(255,255,255,0.9);">Active Services</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.8);">
+                            <i class="fas fa-cogs"></i> TensorBoard, Jupyter, etc.
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Collaborations -->
+                    <div class="stats-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        <div class="stats-number" style="color: #333;">{{ resources.total_collaborations }}</div>
+                        <div class="stats-label" style="color: #666;">Collaborations</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
+                            <i class="fas fa-users"></i> Projects you collaborate on
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="margin-top: 1.5rem;">
+                        <a href="{% url 'accounts_app:ssh_keys' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                            <i class="fas fa-key"></i> Manage SSH Keys
+                        </a>
+                        <a href="{% url 'user_projects:create' %}" class="btn btn-outline-success btn-sm w-100">
+                            <i class="fas fa-plus"></i> Create New Project
+                        </a>
                     </div>
                 </div>
                 <div class="profile-section">
