@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views, api_views, default_workspace_views, workspace_views, workspace_api_views, job_api_views
+from .views import service_api_views
 
 app_name = "code"
 
@@ -30,6 +31,11 @@ urlpatterns = [
     path("api/jobs/<int:job_id>/output/", job_api_views.api_job_output, name="api_job_output"),
     path("api/jobs/queue/", job_api_views.api_queue_status, name="api_queue_status"),
     path("api/jobs/", job_api_views.api_user_jobs, name="api_user_jobs"),
+    # Project Service API (TensorBoard, Jupyter, etc.)
+    path("api/service-types/", service_api_views.service_types_api, name="api_service_types"),
+    path("api/services/<str:username>/<str:project_slug>/", service_api_views.ServiceListAPI.as_view(), name="api_service_list"),
+    path("api/services/<str:username>/<str:project_slug>/start/", service_api_views.ServiceStartAPI.as_view(), name="api_service_start"),
+    path("api/services/<str:service_id>/stop/", service_api_views.ServiceStopAPI.as_view(), name="api_service_stop"),
     # Landing pages
     path("features/", views.features, name="features"),
     path("pricing/", views.pricing, name="pricing"),

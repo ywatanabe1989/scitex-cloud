@@ -265,4 +265,10 @@ export class PTYTerminal {
       this.term.dispose();
     }
   }
+
+  public focus(): void {
+    if (this.term) {
+      this.term.focus();
+    }
+  }
 }

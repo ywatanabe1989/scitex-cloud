@@ -17,16 +17,14 @@ export class FileOperations {
       return { content: "", success: false };
     }
 
-    const { owner, slug } = this.config.currentProject;
-
     try {
-      const response = await fetch(`/${owner}/${slug}/api/file-content/`, {
-        method: "POST",
+      const projectId = this.config.currentProject?.id;
+      const response = await fetch(`/code/api/file-content/${encodeURIComponent(filePath)}?project_id=${projectId}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": this.config.csrfToken,
         },
-        body: JSON.stringify({ file_path: filePath }),
       });
 
       const data = await response.json();
@@ -46,17 +44,16 @@ export class FileOperations {
   async saveFile(filePath: string, content: string): Promise<boolean> {
     if (!this.config.currentProject) return false;
 
-    const { owner, slug } = this.config.currentProject;
-
     try {
-      const response = await fetch(`/${owner}/${slug}/api/save-file/`, {
+      const response = await fetch(`/code/api/save/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": this.config.csrfToken,
         },
         body: JSON.stringify({
-          file_path: filePath,
+          project_id: this.config.currentProject?.id,
+          path: filePath,
           content: content,
         }),
       });
@@ -79,16 +76,17 @@ export class FileOperations {
   async deleteFile(filePath: string): Promise<boolean> {
     if (!this.config.currentProject) return false;
 
-    const { owner, slug } = this.config.currentProject;
-
     try {
-      const response = await fetch(`/${owner}/${slug}/api/delete-file/`, {
+      const response = await fetch(`/code/api/delete/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": this.config.csrfToken,
         },
-        body: JSON.stringify({ file_path: filePath }),
+        body: JSON.stringify({
+          project_id: this.config.currentProject?.id,
+          path: filePath,
+        }),
       });
 
       const data = await response.json();
@@ -114,16 +112,18 @@ export class FileOperations {
   async createFolder(folderPath: string): Promise<boolean> {
     if (!this.config.currentProject) return false;
 
-    const { owner, slug } = this.config.currentProject;
-
     try {
-      const response = await fetch(`/${owner}/${slug}/api/create-folder/`, {
+      // Use command API to create folder via mkdir
+      const response = await fetch(`/code/api/command/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": this.config.csrfToken,
         },
-        body: JSON.stringify({ folder_path: folderPath }),
+        body: JSON.stringify({
+          project_id: this.config.currentProject?.id,
+          command: `mkdir -p "${folderPath}"`,
+        }),
       });
 
       const data = await response.json();
@@ -132,7 +132,7 @@ export class FileOperations {
         console.log("[FileOperations] Folder created:", folderPath);
         return true;
       } else {
-        console.error("[FileOperations] Create folder failed:", data.message);
+        console.error("[FileOperations] Create folder failed:", data.stderr);
         return false;
       }
     } catch (err) {
@@ -144,18 +144,17 @@ export class FileOperations {
   async renameFile(oldPath: string, newPath: string): Promise<boolean> {
     if (!this.config.currentProject) return false;
 
-    const { owner, slug } = this.config.currentProject;
-
     try {
-      const response = await fetch(`/${owner}/${slug}/api/rename-file/`, {
+      // Use command API to rename via mv
+      const response = await fetch(`/code/api/command/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": this.config.csrfToken,
         },
         body: JSON.stringify({
-          old_path: oldPath,
-          new_path: newPath,
+          project_id: this.config.currentProject?.id,
+          command: `mv "${oldPath}" "${newPath}"`,
         }),
       });
 
@@ -165,7 +164,7 @@ export class FileOperations {
         console.log("[FileOperations] File renamed:", oldPath, "->", newPath);
         return true;
       } else {
-        console.error("[FileOperations] Rename failed:", data.message);
+        console.error("[FileOperations] Rename failed:", data.stderr);
         return false;
       }
     } catch (err) {

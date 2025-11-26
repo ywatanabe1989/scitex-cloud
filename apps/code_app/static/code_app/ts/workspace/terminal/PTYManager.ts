@@ -1,44 +1,69 @@
 /**
  * PTY Terminal Manager
- * Handles PTY terminal initialization and management
+ * Handles PTY terminal initialization and management with tab support
  */
 
 import { PTYTerminal } from "../../pty-terminal.js";
+import { TerminalTabManager } from "./TerminalTabManager.js";
 import type { EditorConfig } from "../core/types.js";
 
 export class PTYManager {
-  private ptyTerminal: PTYTerminal | null = null;
+  private terminalTabManager: TerminalTabManager;
   private config: EditorConfig;
 
   constructor(config: EditorConfig) {
     this.config = config;
+    this.terminalTabManager = new TerminalTabManager(config);
   }
 
   async initialize(): Promise<void> {
-    const ptyTerminalEl = document.getElementById("pty-terminal");
-    if (!ptyTerminalEl || !this.config.currentProject) return;
-
-    this.ptyTerminal = new PTYTerminal(
-      ptyTerminalEl,
-      this.config.currentProject.id
-    );
-
-    await this.ptyTerminal.waitForReady();
-    console.log("[PTYManager] PTY terminal initialized");
+    await this.terminalTabManager.initialize();
+    console.log("[PTYManager] Terminal tab manager initialized");
   }
 
+  /**
+   * Get active terminal
+   */
   getTerminal(): PTYTerminal | null {
-    return this.ptyTerminal;
+    return this.terminalTabManager.getActiveTerminal();
+  }
+
+  /**
+   * Get terminal tab manager for advanced operations
+   */
+  getTabManager(): TerminalTabManager {
+    return this.terminalTabManager;
+  }
+
+  /**
+   * Create a new terminal tab
+   */
+  async createNewTerminal(name?: string): Promise<void> {
+    await this.terminalTabManager.createTerminal(name);
+  }
+
+  /**
+   * Switch to next terminal tab
+   */
+  switchToNextTab(): void {
+    this.terminalTabManager.switchToNextTab();
+  }
+
+  /**
+   * Switch to previous terminal tab
+   */
+  switchToPrevTab(): void {
+    this.terminalTabManager.switchToPrevTab();
   }
 
   sendCommand(command: string): void {
-    if (!this.ptyTerminal) {
+    const terminal = this.getTerminal();
+    if (!terminal) {
       console.error("[PTYManager] Terminal not initialized");
       return;
     }
 
     // PTYTerminal handles command execution via write method
-    // Note: Check PTYTerminal API - might be write() instead of sendText()
     console.log("[PTYManager] Sending command:", command);
   }
 
@@ -46,11 +71,13 @@ export class PTYManager {
    * Update terminal theme when global theme changes
    */
   updateTheme(): void {
-    if (!this.ptyTerminal) {
-      console.warn("[PTYManager] Cannot update theme - terminal not initialized");
-      return;
-    }
+    this.terminalTabManager.updateTheme();
+  }
 
-    this.ptyTerminal.updateTheme();
+  /**
+   * Get total number of terminals
+   */
+  getTerminalCount(): number {
+    return this.terminalTabManager.getTerminalCount();
   }
 }

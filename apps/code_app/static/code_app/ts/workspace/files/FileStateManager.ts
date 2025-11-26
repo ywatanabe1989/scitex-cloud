@@ -10,15 +10,22 @@ import { FileTabManager } from "./FileTabManager.js";
 import { GitStatusManager } from "../git/GitStatusManager.js";
 
 export class FileStateManager {
-  private openFiles: Map<string, OpenFile> = new Map();
   private currentFile: string | null = null;
 
   constructor(
     private monacoManager: MonacoManager,
     private fileOperations: FileOperations,
     private fileTabManager: FileTabManager,
-    private gitStatusManager: GitStatusManager
+    private gitStatusManager: GitStatusManager,
+    private openFiles: Map<string, OpenFile> = new Map()
   ) {}
+
+  /**
+   * Set the shared openFiles map (used when FileTabManager provides the map)
+   */
+  setOpenFilesMap(map: Map<string, OpenFile>): void {
+    this.openFiles = map;
+  }
 
   /**
    * Handle file click from file tree
@@ -94,6 +101,13 @@ export class FileStateManager {
       toolbarFilePath.textContent = filePath;
     }
 
+    // Enable/disable delete button based on file type
+    const btnDelete = document.getElementById("btn-delete") as HTMLButtonElement;
+    if (btnDelete) {
+      // Disable for scratch buffer, enable for real files
+      btnDelete.disabled = filePath === "*scratch*";
+    }
+
     // Update tabs
     this.fileTabManager.setCurrentFile(filePath);
 
@@ -107,12 +121,23 @@ export class FileStateManager {
    * Close a file tab
    */
   closeTab(filePath: string): void {
-    this.openFiles.delete(filePath);
+    // Call fileTabManager.closeTab first - it checks openFiles.has() before proceeding
+    // Since we share the same openFiles map, we must call this before deleting
     this.fileTabManager.closeTab(filePath);
+
+    // openFiles is already deleted by fileTabManager.closeTab since they share the map
+    // But ensure it's deleted in case closeTab returned early for any reason
+    this.openFiles.delete(filePath);
 
     // If closing current file, clear current file state
     if (this.currentFile === filePath) {
       this.currentFile = null;
+
+      // Disable delete button when no file is open
+      const btnDelete = document.getElementById("btn-delete") as HTMLButtonElement;
+      if (btnDelete) {
+        btnDelete.disabled = true;
+      }
     }
   }
 
