@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Timestamp: "2025-11-25 22:54:29 (ywatanabe)"
+# Timestamp: "2025-11-26 14:20:28 (ywatanabe)"
 # File: /home/ywatanabe/proj/scitex-cloud/scripts/maintenance/capture_demo_screenshots.py
 
 
@@ -43,6 +43,93 @@ from urllib.parse import parse_qs
 
 logger = getLogger(__name__)
 
+
+# ============================================================================
+# Configuration
+# ============================================================================
+
+# Load environment variables from .env file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+ENV_FILE = PROJECT_ROOT / "SECRET" / ".env.dev"
+
+if ENV_FILE.exists():
+    load_dotenv(ENV_FILE)
+    logger.info(f"Loaded environment variables from {ENV_FILE}")
+else:
+    logger.warning(f"Environment file not found: {ENV_FILE}")
+
+BASE_URL = "http://127.0.0.1:8000"
+
+# Load test user credentials from environment variables
+TEST_USER = os.getenv("SCITEX_CLOUD_TEST_USER_USERNAME", "test-user")
+TEST_PASSWORD = os.getenv("SCITEX_CLOUD_TEST_USER_PASSWORD", "Password123!")
+
+# Standard viewport sizes for consistent screenshots
+VIEWPORT_PRESETS = {
+    "desktop": {"width": 1920, "height": 1080},  # Full HD
+    "laptop": {"width": 1366, "height": 768},    # Common laptop
+    "tablet": {"width": 768, "height": 1024},    # iPad portrait
+    "mobile": {"width": 375, "height": 667},     # iPhone SE
+}
+
+# Default preset for screenshots
+DEFAULT_VIEWPORT = "desktop"
+
+# Pages to capture after login
+# Names are automatically generated from path normalization
+PAGES_TO_CAPTURE_BASIC = [
+    # Landing
+    "/",
+    "/about/",
+    # Status
+    "/server-status/",
+]
+
+PAGES_TO_CAPTURE_DEV = [
+    "/dev/design/",
+]
+
+PAGES_TO_CAPTURE_REPO = [
+    # Repository Operations
+    # "/new/",
+    f"/{TEST_USER}/",
+    # # Social/Explore
+    # "/social/explore/",
+    # "/social/explore/?tab=users",
+    # Specific Repository
+    f"/{TEST_USER}/default-project/",
+    f"/{TEST_USER}/default-project/issues/",
+    f"/{TEST_USER}/default-project/pulls/",
+    f"/{TEST_USER}/default-project/settings/",
+    f"/{TEST_USER}/default-project/scitex/writer/01_manuscript/",
+    f"/{TEST_USER}/settings/repositories/",
+]
+
+PAGES_TO_CAPTURE_ACCOUNT = [
+    # Account Settings
+    "/accounts/settings/profile/",
+    # "/accounts/settings/account/",
+    # "/accounts/settings/appearance/",
+    # "/accounts/settings/integrations/",
+    # "/accounts/settings/ssh-keys/",
+    # "/accounts/settings/api-keys/",
+]
+
+PAGES_TO_CAPTURE_MODULES = [
+    # Modules
+    "/scholar/",
+    "/code/",
+    "/vis/",
+    "/writer/",
+    "/tools/",
+]
+PAGES_TO_CAPTURE = [
+    # *PAGES_TO_CAPTURE_BASIC,
+    # *PAGES_TO_CAPTURE_ACCOUNT,
+    # *PAGES_TO_CAPTURE_DEV,
+    # *PAGES_TO_CAPTURE_REPO,
+    *PAGES_TO_CAPTURE_MODULES,
+]
 
 # ============================================================================
 # Utilities
@@ -103,65 +190,6 @@ def normalize_path_to_filename(path: str) -> str:
     name = name.strip("-")
 
     return name
-
-
-# ============================================================================
-# Configuration
-# ============================================================================
-
-# Load environment variables from .env file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-ENV_FILE = PROJECT_ROOT / "SECRET" / ".env.dev"
-
-if ENV_FILE.exists():
-    load_dotenv(ENV_FILE)
-    logger.info(f"Loaded environment variables from {ENV_FILE}")
-else:
-    logger.warning(f"Environment file not found: {ENV_FILE}")
-
-BASE_URL = "http://127.0.0.1:8000"
-
-# Load test user credentials from environment variables
-TEST_USER = os.getenv("SCITEX_CLOUD_TEST_USER_USERNAME", "test-user")
-TEST_PASSWORD = os.getenv("SCITEX_CLOUD_TEST_USER_PASSWORD", "Password123!")
-
-# Pages to capture after login
-# Names are automatically generated from path normalization
-PAGES_TO_CAPTURE = [
-    # Landing
-    "/",
-    "/about/",
-    # Status
-    "/server-status/",
-    # Dev
-    "/dev/design/",
-    # Repository Operations
-    # "/new/",
-    f"/{TEST_USER}/",
-    # # Social/Explore
-    # "/social/explore/",
-    # "/social/explore/?tab=users",
-    # Specific Repository
-    f"/{TEST_USER}/default-project/",
-    f"/{TEST_USER}/default-project/issues/",
-    f"/{TEST_USER}/default-project/pulls/",
-    f"/{TEST_USER}/default-project/settings/",
-    f"/{TEST_USER}/default-project/scitex/writer/01_manuscript/",
-    f"/{TEST_USER}/settings/repositories/",
-    # Account Settings
-    "/accounts/settings/profile/",
-    # "/accounts/settings/account/",
-    # "/accounts/settings/appearance/",
-    # "/accounts/settings/integrations/",
-    # "/accounts/settings/ssh-keys/",
-    # "/accounts/settings/api-keys/",
-    # Modules
-    "/scholar/",
-    "/code/",
-    "/vis/",
-    "/writer/",
-    "/tools/",
-]
 
 
 # ============================================================================
@@ -280,13 +308,18 @@ async def capture_page_screenshot(
     # Generate filename automatically from path
     page_name = normalize_path_to_filename(page_path)
     url = f"{BASE_URL}{page_path}"
-    wait_sec = 5.0 if page_path in ["/code/", "/writer/", "/vis/"] else 1.0
+    wait_sec = 3.0 if page_path in PAGES_TO_CAPTURE_MODULES else 1.0
+
+    # Code pages have wide horizontal scroll - capture viewport only
+    # Other pages can use full_page for vertical scroll
+    use_full_page = page_path not in ["/code/"]
 
     screenshot_filename = f"{index:02d}_{page_name}.png"
     screenshot_path = output_dir / screenshot_filename
 
     logger.info(f"[{index}/{total}] {page_name}")
     logger.info(f"  URL: {url}")
+    logger.info(f"  Mode: {'full-page' if use_full_page else 'viewport-only'}")
 
     try:
         # Navigate
@@ -295,7 +328,7 @@ async def capture_page_screenshot(
 
         # Capture
         await page.screenshot(
-            path=str(screenshot_path), full_page=True, type="png"
+            path=str(screenshot_path), full_page=use_full_page, type="png"
         )
 
         logger.info(f"  ✓ Saved: {screenshot_filename}")
@@ -311,14 +344,17 @@ async def run_capture_async(
     headless: bool,
     width: int,
     height: int,
+    viewport_name: str = DEFAULT_VIEWPORT,
 ) -> int:
     """
     Async screenshot capture workflow.
 
     Args:
+        output_dir: Directory to save screenshots
         headless: Run browser in headless mode
         width: Viewport width
         height: Viewport height
+        viewport_name: Name of viewport preset used
 
     Returns:
         Exit code (0 = success, 1 = failure)
@@ -335,8 +371,9 @@ async def run_capture_async(
     logger.info(f"Session directory: {session_dir}")
     logger.info(f"Base URL: {BASE_URL}")
     logger.info(f"Pages to capture: {len(PAGES_TO_CAPTURE)}")
-    logger.info(f"Viewport: {width}x{height}")
+    logger.info(f"Viewport: {width}x{height} ({viewport_name})")
     logger.info(f"Headless: {headless}")
+    logger.info(f"Device pixel ratio: 1.0 (standard)")  # For reproducibility
 
     try:
         async with async_playwright() as p:
@@ -346,6 +383,7 @@ async def run_capture_async(
                 user_data_dir=str(session_dir),
                 headless=headless,
                 viewport={"width": width, "height": height},
+                device_scale_factor=1.0,  # Standard DPI for consistent rendering
                 args=["--start-maximized"] if not headless else [],
                 ignore_https_errors=True,
             )
@@ -431,22 +469,51 @@ async def run_capture_async(
 @session(verbose=True, sdir_suffix="demo-screenshots")
 def main(
     headless: bool = False,
-    width: int = 1920,
-    height: int = 1080,
+    viewport: str = DEFAULT_VIEWPORT,
+    width: int = None,
+    height: int = None,
 ) -> int:
     """
     Capture SciTeX demo screenshots with persistent browser session.
 
     Args:
         headless: Run browser in headless mode
-        width: Viewport width in pixels
-        height: Viewport height in pixels
+        viewport: Viewport preset name (desktop, laptop, tablet, mobile)
+        width: Custom viewport width in pixels (overrides preset)
+        height: Custom viewport height in pixels (overrides preset)
 
     Returns:
         Exit code (0 = success, 1 = failure)
+
+    Examples:
+        # Use desktop preset (default)
+        python scripts/maintenance/capture_demo_screenshots.py
+
+        # Use laptop preset
+        python scripts/maintenance/capture_demo_screenshots.py --viewport laptop
+
+        # Custom size
+        python scripts/maintenance/capture_demo_screenshots.py --width 1280 --height 720
     """
 
     logger.info("Starting SciTeX demo screenshot capture")
+
+    # Determine viewport size
+    if width is None or height is None:
+        if viewport not in VIEWPORT_PRESETS:
+            logger.warning(
+                f"Unknown viewport preset '{viewport}', using '{DEFAULT_VIEWPORT}'"
+            )
+            viewport = DEFAULT_VIEWPORT
+
+        viewport_config = VIEWPORT_PRESETS[viewport]
+        width = viewport_config["width"]
+        height = viewport_config["height"]
+        viewport_name = viewport
+    else:
+        viewport_name = "custom"
+
+    logger.info(f"Using viewport: {viewport_name} ({width}x{height})")
 
     output_dir = Path(CONFIG["SDIR_RUN"]) / "screenshots"
 
@@ -457,6 +524,7 @@ def main(
             headless=headless,
             width=width,
             height=height,
+            viewport_name=viewport_name,
         )
     )
 

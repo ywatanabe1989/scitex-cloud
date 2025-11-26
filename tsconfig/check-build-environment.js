@@ -43,7 +43,7 @@ if (!inContainer) {
 📚 See: RULES/TYPESCRIPT_BUILD_INSTRUCTIONS_FOR_AI.md
 
 To check watch process status:
-  docker exec scitex-cloud-dev-web-1 ps aux | grep tsc
+  docker exec scitex-cloud-dev-django-1 ps aux | grep tsc
 
 To view compilation logs from host:
   tail -f ./logs/tsc-watch-all.log

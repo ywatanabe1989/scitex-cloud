@@ -59,6 +59,7 @@
 	logs-gitea \
 	build \
 	rebuild \
+	rebuild-no-cache \
 	setup \
 	test \
 	test-e2e \
@@ -107,7 +108,7 @@ ifdef ENV
 else
   # ENV not specified - only allow non-operational commands
   ifneq ($(MAKECMDGOALS),)
-    ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell lint lint-web check-file-sizes,$(MAKECMDGOALS)),)
+    ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell lint lint-web check-file-sizes slurm-start slurm-stop slurm-restart slurm-status slurm-fix slurm-resume slurm-reset info,$(MAKECMDGOALS)),)
       $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
     endif
   endif
@@ -165,6 +166,7 @@ help:
 	@echo "$(CYAN)🔧 Build & Deploy:$(NC)"
 	@echo "  make ENV=<env> build              # Build images"
 	@echo "  make ENV=<env> rebuild            # Rebuild (stops, builds, starts)"
+	@echo "  make ENV=<env> rebuild-no-cache   # Rebuild without cache (for dependency fixes)"
 	@echo "  make ENV=<env> setup              # Full setup (build + migrate)"
 	@echo ""
 	@echo "$(CYAN)🐍 Django:$(NC)"
@@ -231,6 +233,20 @@ status:
 	@docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null | \
 		grep -E "scitex-cloud-(dev|prod|nas)-" | xargs -I{} echo "  "{} || \
 		echo "  $(YELLOW)No scitex-cloud containers running$(NC)"
+	@echo ""
+	@echo "$(CYAN)🖥️  SLURM Status:$(NC)"
+	@if command -v sinfo >/dev/null 2>&1; then \
+		SLURM_STATUS=$$(sinfo --noheader 2>&1); \
+		if [ -n "$$SLURM_STATUS" ] && ! echo "$$SLURM_STATUS" | grep -q "error"; then \
+			echo "  $(GREEN)✅ SLURM Cluster: OPERATIONAL$(NC)"; \
+			sinfo --noheader 2>/dev/null | while read line; do echo "    $$line"; done; \
+		else \
+			echo "  $(RED)❌ SLURM Cluster: NOT RESPONDING$(NC)"; \
+			echo "  $(YELLOW)💡 To start: make slurm-start$(NC)"; \
+		fi; \
+	else \
+		echo "  $(YELLOW)⚠️  SLURM not installed$(NC)"; \
+	fi
 	@./scripts/check_file_sizes.sh
 
 # ============================================
@@ -372,6 +388,32 @@ rebuild: validate-docker
 	@echo "$(GREEN)✅ $(ENV) rebuild complete$(NC)"
 	@$(MAKE) --no-print-directory validate
 
+rebuild-no-cache: validate-docker
+	@# Production safety check
+	@if [ "$(ENV)" = "prod" ]; then \
+		echo ""; \
+		echo "$(RED)⚠️  WARNING: Production rebuild without cache!$(NC)"; \
+		echo "$(YELLOW)   This will cause downtime and take longer.$(NC)"; \
+		echo ""; \
+		printf "Type 'yes' to confirm: "; \
+		read confirm; \
+		if [ "$$confirm" != "yes" ]; then \
+			echo "$(YELLOW)❌ Rebuild cancelled$(NC)"; \
+			exit 1; \
+		fi; \
+	fi
+	@echo ""
+	@echo "$(CYAN)🔄 Rebuilding $(ENV) environment (no cache)...$(NC)"
+	@echo "  1. Stopping $(ENV)..."
+	@$(MAKE) --no-print-directory ENV=$(ENV) stop
+	@echo "  2. Building images (without cache)..."
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile build-no-cache
+	@echo "  3. Starting $(ENV)..."
+	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile up
+	@echo ""
+	@echo "$(GREEN)✅ $(ENV) rebuild complete (no cache)$(NC)"
+	@$(MAKE) --no-print-directory validate
+
 setup:
 	@echo "$(CYAN)🔧 Setting up $(ENV) environment...$(NC)"
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile setup
@@ -461,9 +503,9 @@ fresh-start: validate
 	@echo "$(CYAN)📊 Current System State:$(NC)"
 	@echo ""
 	@# Show database info
-	@USERS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from django.contrib.auth.models import User; print(User.objects.count())" 2>/dev/null | tail -1); \
-	PROJECTS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from apps.project_app.models import Project; print(Project.objects.count())" 2>/dev/null | tail -1); \
-	MANUSCRIPTS=$$(docker exec scitex-cloud-dev-web-1 python manage.py shell -c "from apps.writer_app.models import Manuscript; print(Manuscript.objects.count())" 2>/dev/null | tail -1); \
+	@USERS=$$(docker exec scitex-cloud-dev-django-1 python manage.py shell -c "from django.contrib.auth.models import User; print(User.objects.count())" 2>/dev/null | tail -1); \
+	PROJECTS=$$(docker exec scitex-cloud-dev-django-1 python manage.py shell -c "from apps.project_app.models import Project; print(Project.objects.count())" 2>/dev/null | tail -1); \
+	MANUSCRIPTS=$$(docker exec scitex-cloud-dev-django-1 python manage.py shell -c "from apps.writer_app.models import Manuscript; print(Manuscript.objects.count())" 2>/dev/null | tail -1); \
 	REPOS=$$(docker exec scitex-cloud-dev-db-1 psql -U scitex_dev -d scitex_cloud_dev -t -c "SELECT COUNT(*) FROM repository;" 2>/dev/null | xargs); \
 	DB_SIZE=$$(docker exec scitex-cloud-dev-db-1 du -sh /var/lib/postgresql/data 2>/dev/null | cut -f1); \
 	GITEA_SIZE=$$(docker exec scitex-cloud-dev-gitea-1 du -sh /data 2>/dev/null | cut -f1); \
@@ -545,7 +587,7 @@ fresh-start: validate
 	@echo ""
 	@# Step 6: Initialize visitor pool
 	@echo "$(CYAN)Step 6/6: Initializing visitor pool...$(NC)"
-	@docker exec scitex-cloud-dev-web-1 python manage.py create_visitor_pool
+	@docker exec scitex-cloud-dev-django-1 python manage.py create_visitor_pool
 	@echo ""
 	@echo "$(GREEN)╔═══════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(GREEN)║            ✨ FRESH START COMPLETE! ✨                ║$(NC)"
@@ -576,7 +618,7 @@ fresh-start-confirm: validate
 	@rm -rf ./logs/*.log
 	@$(MAKE) --no-print-directory ENV=dev start
 	@sleep 15
-	@docker exec scitex-cloud-dev-web-1 python manage.py create_visitor_pool
+	@docker exec scitex-cloud-dev-django-1 python manage.py create_visitor_pool
 	@echo "$(GREEN)✅ Fresh start complete$(NC)"
 
 # ============================================
@@ -854,5 +896,71 @@ info:
 	@echo "Running environments: $$(docker ps --format '{{.Names}}' 2>/dev/null | grep -oE 'scitex-cloud-(dev|prod|nas)-' | sed 's/scitex-cloud-//' | sed 's/-//' | sort -u | tr '\n' ' ')"
 	@echo "Container directory: $(DOCKER_DIR)"
 	@echo "Makefile: $(MAKEFILE)"
+
+# ============================================
+# SLURM Management
+# ============================================
+slurm-start:
+	@echo "$(CYAN)🚀 Starting SLURM services...$(NC)"
+	@echo "  Starting munge..."
+	@sudo systemctl start munge 2>&1 || sudo service munge start 2>&1 || echo "$(YELLOW)  munge may already be running$(NC)"
+	@echo "  Starting slurmctld..."
+	@sudo systemctl start slurmctld 2>&1 || sudo service slurmctld start 2>&1 || echo "$(RED)  Failed to start slurmctld$(NC)"
+	@echo "  Starting slurmd..."
+	@sudo systemctl start slurmd 2>&1 || sudo service slurmd start 2>&1 || echo "$(RED)  Failed to start slurmd$(NC)"
+	@sleep 2
+	@$(MAKE) slurm-status
+
+slurm-stop:
+	@echo "$(YELLOW)⏹️  Stopping SLURM services...$(NC)"
+	@sudo systemctl stop slurmd slurmctld 2>/dev/null || \
+		(sudo service slurmd stop && sudo service slurmctld stop) 2>/dev/null || \
+		echo "$(RED)❌ Failed to stop SLURM$(NC)"
+	@$(MAKE) slurm-status
+
+slurm-restart:
+	@echo "$(CYAN)🔄 Restarting SLURM services...$(NC)"
+	@$(MAKE) slurm-stop
+	@sleep 1
+	@$(MAKE) slurm-start
+
+slurm-status:
+	@echo "$(CYAN)🖥️  SLURM Status:$(NC)"
+	@if command -v sinfo >/dev/null 2>&1; then \
+		SLURM_STATUS=$$(sinfo --noheader 2>&1); \
+		if [ -n "$$SLURM_STATUS" ] && ! echo "$$SLURM_STATUS" | grep -q "error"; then \
+			echo "  $(GREEN)✅ SLURM Cluster: OPERATIONAL$(NC)"; \
+			echo ""; \
+			echo "  Partitions:"; \
+			sinfo 2>/dev/null | head -10 | while read line; do echo "    $$line"; done; \
+			echo ""; \
+			echo "  Jobs:"; \
+			squeue 2>/dev/null | head -10 | while read line; do echo "    $$line"; done; \
+		else \
+			echo "  $(RED)❌ SLURM Cluster: NOT RESPONDING$(NC)"; \
+			echo "  $(YELLOW)💡 To fix: make slurm-fix$(NC)"; \
+		fi; \
+	else \
+		echo "  $(YELLOW)⚠️  SLURM not installed$(NC)"; \
+	fi
+
+slurm-fix:
+	@echo "$(CYAN)🔧 Fixing SLURM (requires sudo)...$(NC)"
+	@sudo ./deployment/slurm/scripts/07_fix_munge_auth.sh
+	@$(MAKE) slurm-status
+
+slurm-resume:
+	@echo "$(CYAN)🔄 Resuming SLURM nodes...$(NC)"
+	@HOSTNAME=$$(hostname); \
+	echo "  Resuming node: $$HOSTNAME"; \
+	sudo scontrol update nodename=$$HOSTNAME state=resume; \
+	sleep 2
+	@$(MAKE) slurm-status
+
+slurm-reset:
+	@echo "$(RED)⚠️  This will clear ALL SLURM jobs and reset state!$(NC)"
+	@read -p "Are you sure? (y/N) " confirm && [ "$$confirm" = "y" ] || exit 1
+	@sudo ./deployment/slurm/scripts/08_reset_slurm_state.sh
+	@$(MAKE) slurm-status
 
 # EOF
