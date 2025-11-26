@@ -366,13 +366,13 @@ eventSource.onmessage = function(event) {
 
 **Check 1: Volume mounts**
 ```bash
-docker exec scitex-cloud-dev-web-1 ls /app/templates/
+docker exec scitex-cloud-dev-django-1 ls /app/templates/
 # Should show your templates
 ```
 
 **Check 2: Django autoreload enabled**
 ```bash
-docker logs scitex-cloud-dev-web-1 | grep StatReloader
+docker logs scitex-cloud-dev-django-1 | grep StatReloader
 # Should show: "Watching for file changes with StatReloader"
 ```
 
@@ -384,7 +384,7 @@ docker logs scitex-cloud-dev-web-1 | grep StatReloader
 
 **Check 4: Container using new docker-compose command**
 ```bash
-docker exec scitex-cloud-dev-web-1 ps aux | grep python
+docker exec scitex-cloud-dev-django-1 ps aux | grep python
 # Should show: python manage.py runserver 0.0.0.0:8000 from_docker
 ```
 
@@ -395,10 +395,10 @@ docker exec scitex-cloud-dev-web-1 ps aux | grep python
 **Diagnosis**:
 ```bash
 # Check if django-browser-reload is installed
-docker exec scitex-cloud-dev-web-1 python -c "import django_browser_reload; print('OK')"
+docker exec scitex-cloud-dev-django-1 python -c "import django_browser_reload; print('OK')"
 
 # Verify DJANGO_BROWSER_RELOAD_EXTRA_FILES contains templates
-docker exec scitex-cloud-dev-web-1 python -c \
+docker exec scitex-cloud-dev-django-1 python -c \
   "from django.conf import settings; \
    print(len([f for f in settings.DJANGO_BROWSER_RELOAD_EXTRA_FILES if 'templates' in f]))"
 ```
@@ -410,10 +410,10 @@ docker exec scitex-cloud-dev-web-1 python -c \
 **Check**:
 ```bash
 # Verify migration sentinel exists
-docker exec scitex-cloud-dev-web-1 ls -la /app/logs/.migrations_done
+docker exec scitex-cloud-dev-django-1 ls -la /app/logs/.migrations_done
 
 # Check visitor pool fast-path
-docker logs scitex-cloud-dev-web-1 | grep "visitor pool already initialized"
+docker logs scitex-cloud-dev-django-1 | grep "visitor pool already initialized"
 ```
 
 ## Migration from Old System

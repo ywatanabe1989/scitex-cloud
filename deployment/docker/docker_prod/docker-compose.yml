@@ -3,15 +3,15 @@
 name: scitex-cloud-prod
 
 services:
-  web:
+  django:
     build:
       context: ../../..
       dockerfile: deployment/docker/docker_prod/Dockerfile
       cache_from:
-        - scitex-cloud-prod-web:latest
+        - scitex-cloud-prod-django:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    image: scitex-cloud-prod-web:latest
+    image: scitex-cloud-prod-django:latest
     entrypoint: ["/entrypoint.sh"]
     # Use Daphne (ASGI) for WebSocket support (PTY terminal, collaborative editing)
     command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "--access-log", "-", "--proxy-headers", "config.asgi:application"]
@@ -131,7 +131,7 @@ services:
       - SCITEX_CLOUD_DOMAIN=${SCITEX_CLOUD_DOMAIN:-scitex.ai}
       - SCITEX_CLOUD_GIT_DOMAIN=${SCITEX_CLOUD_GIT_DOMAIN:-git.scitex.ai}
     depends_on:
-      - web
+      - django
       - gitea
     restart: always
     healthcheck:

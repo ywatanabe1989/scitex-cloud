@@ -8,15 +8,15 @@ version: '3.8'
 name: scitex-cloud-nas
 
 services:
-  web:
+  django:
     build:
       context: ../../..
       dockerfile: deployment/docker/docker_prod/Dockerfile
       cache_from:
-        - scitex-cloud-nas-web:latest
+        - scitex-cloud-nas-django:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    image: scitex-cloud-nas-web:latest
+    image: scitex-cloud-nas-django:latest
     entrypoint: ["/entrypoint.sh"]
     command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
     volumes:
@@ -123,7 +123,7 @@ services:
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
     depends_on:
-      - web
+      - django
       - gitea
     restart: always
     networks:

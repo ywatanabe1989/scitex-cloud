@@ -595,3 +595,222 @@ No further action needed. Visitor pool 60-minute system fully implemented with p
 2. **Session Warning**: Consider showing modal at 5-min mark reminding to sign up
 
 3. **Analytics**: Track visitor→user conversion rate to optimize session length
+
+---
+
+## CLAUDE-AUDIT (UI/UX Auditor)
+**Date**: 2025-11-26
+**Session**: Post-Refactoring UI/UX Audit
+
+### 🔍 Current Audit Status
+
+#### ✅ Completed - WebSocket Proxy
+- [x] Implemented WebSocket proxy consumer for port proxy feature
+- [x] Fixed HTTP 400 subprotocols error (empty header issue)
+- [x] Updated documentation at `deployment/docs/08_PORT_PROXY.md`
+- [x] All tests passing
+
+#### 🔄 In Progress - UI/UX Audit
+Based on user's issue list at `/tmp/emacs-claude-code/___May_be_due_to_the_20251126-021801.txt`:
+
+**1. /code/ Workspace Audit**:
+- [ ] Verifying *scratch* tab visibility - APPEARS WORKING in screenshot
+- [ ] Verifying Commit/Run/New file buttons - Testing click functionality
+- [ ] TypeScript compilation status - Source files dated Nov 26, staticfiles dated Nov 25
+
+**2. Pending Audits**:
+- [ ] /vis/ - icon size, panels, canvas grid issues
+- [ ] /writer/ - file tree, PDF preview
+- [ ] Shared tree structure across modes
+- [ ] Files dropdown styling
+
+### 📝 Initial Findings
+
+The /code/ workspace UI appears functional:
+- ✅ *scratch* tab IS visible in editor tabs
+- ✅ Toolbar buttons have visible icons
+- ✅ File tree loads correctly
+- ✅ Terminal working with shell prompt
+- ✅ Monaco editor shows syntax highlighting
+
+**Console logs confirm initialization**:
+```
+[workspace.ts] Initializing Code Workspace...
+[WorkspaceOrchestrator] Initialized in XXms
+[ScratchManager] Scratch buffer initialized
+```
+
+### 🎯 Next Steps
+1. Test button click functionality (Commit, Run, New file)
+2. Verify TypeScript recompilation needed
+3. Audit /vis/, /writer/, shared tree structure
+
+---
+
+## CLAUDE-OPUS (Session Check-In)
+**Date**: 2025-11-26
+
+### 📋 Status Check
+- [x] Read bulletin board - caught up on recent activity
+- [x] Observed file size warnings (223 files exceed thresholds)
+- [x] Noted excellent refactoring progress by other agents
+
+### 🔍 Summary of Recent Progress
+- **9 major TypeScript files refactored** (80% avg reduction, 59 modules)
+- **Zero CRITICAL TypeScript violations** remaining (was 1)
+- **Visitor pool** upgraded to 1-hour sessions (96/day capacity)
+- **UI/UX audit** in progress by CLAUDE-AUDIT
+
+### 📊 Current Critical Files (from file size report)
+**Python** (2 CRITICAL >2048 lines):
+1. `scholar_app/views/search/views.py` (4,421 lines, 17x threshold)
+2. `writer_app/views/editor/api.py` (2,529 lines)
+
+**TypeScript** (remaining high-priority):
+1. `bibtex-enrichment.ts` (1,456 lines)
+2. `project_app.ts` (1,347 lines)
+3. `pdf-scroll-zoom.ts` (1,194 lines)
+
+### ✋ Ready for Assignment
+Awaiting user direction on next task to pick up
+
+---
+
+## CLAUDE-OPUS (Code Workspace Fixes)
+**Date**: 2025-11-26
+
+### ✅ Completed Tasks - /code/ Workspace
+
+#### 1. File Tabs Style Consistency
+- [x] Updated `FileTabManager.ts` to use `<button>` elements (matching terminal tabs)
+- [x] Added tooltip to *scratch* tab: "Scratch buffer - temporary workspace (not saved to disk)"
+- [x] Updated CSS to match terminal tab style (border-bottom indicator, hover opacity)
+- [x] Close button now hidden by default, shows on hover (like terminal tabs)
+
+#### 2. Terminal Panel Updates
+- [x] Removed "Terminal" text from header (kept icon only)
+- [x] Added tooltip to terminal icon: "Terminal - PTY Shell"
+- [x] Added double-click rename for terminal tabs (replaces context menu)
+- [x] Added inline input field for rename with Enter/Escape support
+
+#### 3. TypeScript Compilation
+- [x] Compiled TypeScript: `npx tsc --project /app/apps/code_app/static/code_app/tsconfig.json`
+- [x] Collected static files: 100 files copied
+
+### 📝 Key Files Modified
+- `apps/code_app/static/code_app/ts/workspace/files/FileTabManager.ts` - Button elements, tooltips, consistent styling
+- `apps/code_app/static/code_app/ts/workspace/terminal/TerminalTabManager.ts` - Double-click rename with inline input
+- `apps/code_app/static/code_app/css/workspace.css` - File tabs CSS to match terminal tabs
+- `apps/code_app/templates/code_app/workspace.html` - Removed "Terminal" text, added icon tooltip
+
+### ✅ Additional Fixes (Session 2)
+
+#### 4. File Tab Double-Click Rename
+- [x] Added `startInlineRename` method to FileTabManager
+- [x] File tabs now support double-click to rename (like terminal tabs)
+- [x] Enter to confirm, Escape to cancel
+
+#### 5. Ctrl+Enter Keybinding Fix
+- [x] Moved `addRunCodeKeybinding()` AFTER `setKeybindingMode()` in MonacoManager
+- [x] This prevents keybinding from being cleared when emacs mode loads
+
+#### 6. Terminal Icon Tooltip
+- [x] Changed from "Terminal - PTY Shell" to just "Terminal" (simpler)
+
+### 🎯 Remaining Tasks
+- [ ] New file button minimal interaction with autocomplete
+- [ ] Scratch buffer execution fails (API 400 - per CLAUDE-AUDIT)
+
+---
+
+## CLAUDE-AUDIT (UI/UX Auditor) - Continued
+**Date**: 2025-11-26
+
+### ✅ /code/ Audit Complete - Test Results
+
+**Tested via Playwright:**
+- ✅ **Commit button** - Opens modal correctly with message input, checkbox for push
+- ✅ **Run button** - Triggers execution (but has bug below)
+- ✅ **\*scratch\* tab** - Visible in editor tabs
+- ✅ **File tree** - Loads correctly (.git, scitex, .gitignore, LICENSE, README.md)
+- ✅ **Terminal** - WebSocket connected, shell working
+- ✅ **Monaco editor** - Syntax highlighting, keybindings working
+
+**🐛 BUG: Run button scratch execution fails**
+```
+[RunManager] Saving scratch buffer to .scratch_temp.py
+Failed to load resource: 400 (Bad Request)
+python3: can't open file '.scratch_temp.py': [Errno 2] No such file or directory
+```
+- API create endpoint returns 400 when trying to create `.scratch_temp.py`
+- Command sent to terminal anyway, fails because file doesn't exist
+- Location: `apps/code_app/static/code_app/ts/workspace/terminal/RunManager.ts`
+
+**🐛 New file button (+) unclickable**
+- Button found but Playwright times out waiting for "stable" state
+- May be CSS z-index/positioning issue
+
+### 🎯 Moving to /vis/ audit
+
+---
+
+## CLAUDE-OPUS (CHORES - 10_CHORES.md)
+**Date**: 2025-11-26
+
+### ✅ Completed Tasks
+
+#### 1. /vis/ Icon Size Improvements
+- [x] Increased plot type button icons from 18px → 22px
+- [x] Increased ribbon plot type icons from 20px → 24px
+- [x] Files modified: `apps/vis_app/static/vis_app/css/sigma.css`
+
+#### 2. /writer/ PDF Preview Auto-Start
+- [x] Added automatic initial PDF compilation when content loads
+- [x] Fixed placeholder message (was misleading "Auto-compilation enabled")
+- [x] Files modified:
+  - `apps/writer_app/static/writer_app/ts/index.ts` - Added initial compile trigger
+  - `apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts` - Fixed placeholder text
+
+### 📋 Verified Working
+- /code/ Commit button - fully functional (verified API exists at `workspace_api_views.py:554`)
+- /code/ Run button - wired correctly (see CLAUDE-AUDIT for scratch buffer bug)
+- /vis/ Grid SVG files exist and have proper colors for dark mode
+
+### 🎯 Remaining from CHORES
+- [x] Files dropdown styling and content ✅ DONE
+- [ ] Shared tree structure planning across /code/, /vis/, /writer/
+- [ ] New file button (+) fix (unclickable per CLAUDE-AUDIT)
+
+---
+
+## CLAUDE-OPUS (GitHub-Style Code Button)
+**Date**: 2025-11-26
+
+### ✅ Completed - GitHub-Style `<> Code` Dropdown
+
+Implemented a GitHub-style clone button dropdown that mimics the GitHub interface:
+
+#### Features Implemented:
+1. **Green `<> Code` button** with GitHub-style SVG icons
+2. **Two main tabs**: Local | Workspaces (like GitHub's Local | Codespaces)
+3. **Clone method sub-tabs**: HTTPS | SSH | SciTeX CLI (like GitHub's HTTPS | SSH | GitHub CLI)
+4. **URL input** with monospace font and copy button
+5. **Help icon** (?) with link to documentation
+6. **Download ZIP** action item
+7. **Workspace tab** with SSH access info
+
+#### Styling:
+- GitHub dark mode colors (#161b22 background, #30363d borders)
+- Orange active tab indicator (#f78166)
+- Green success button (#238636)
+- Monospace font for URLs
+- Light mode support via `[data-theme="light"]` selectors
+
+#### Files Modified:
+- `apps/project_app/templates/project_app/partials/clone_button.html`
+  - Updated HTML structure to match GitHub
+  - Added `switchCloneMethod()` JavaScript function
+  - Completely rewrote CSS to use GitHub's color scheme
+
+#### Usage:
+The component is already included in `browse_header.html` via `{% include 'project_app/partials/clone_button.html' %}`
