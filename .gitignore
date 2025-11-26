@@ -139,6 +139,35 @@ data/ssh_keys/
 **/*.JNB
 **/*.jnb
 
+# ===========================================
+# EXCEPTIONS: Track static assets (not user data)
+# ===========================================
+# Static directory assets should be tracked
+!static/**/*.svg
+!static/**/*.png
+!static/**/*.jpg
+!static/**/*.jpeg
+!static/**/*.gif
+!static/**/*.ico
+!static/**/*.pdf
+!static/**/*.mp4
+
+# App-specific static assets should be tracked
+!apps/*/static/**/*.svg
+!apps/*/static/**/*.png
+!apps/*/static/**/*.jpg
+!apps/*/static/**/*.jpeg
+!apps/*/static/**/*.gif
+!apps/*/static/**/*.ico
+!apps/*/static/**/*.pdf
+!apps/*/static/**/*.mp4
+
+# Template assets should be tracked
+!templates/**/*.svg
+!templates/**/*.png
+!templates/**/*.jpg
+!templates/**/*.gif
+
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Python.gitignore ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

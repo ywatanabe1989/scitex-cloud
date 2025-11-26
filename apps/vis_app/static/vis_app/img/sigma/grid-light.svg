@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2126" height="2835">
+  <!-- Light mode background -->
+  <rect width="2126" height="2835" fill="#ffffff"/>
+  <defs>
+    <!-- 1mm minor grid pattern -->
+    <pattern id="minor-grid" width="11.811" height="11.811" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="11.811" stroke="#e5e5e5" stroke-width="0.5"/>
+      <line x1="0" y1="0" x2="11.811" y2="0" stroke="#e5e5e5" stroke-width="0.5"/>
+    </pattern>
+
+    <!-- 10mm major grid pattern -->
+    <pattern id="major-grid" width="118.11" height="118.11" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="118.11" stroke="#999999" stroke-width="1"/>
+      <line x1="0" y1="0" x2="118.11" y2="0" stroke="#999999" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Apply patterns -->
+  <rect width="2126" height="2835" fill="url(#minor-grid)"/>
+  <rect width="2126" height="2835" fill="url(#major-grid)"/>
+
+  <!-- Column guide lines at 45mm, 90mm, 135mm, 180mm (0.5, 1.0, 1.5, 2.0 columns) -->
+  <!-- Blue dashed lines for journal column widths -->
+  <line x1="531.495" y1="0" x2="531.495" y2="2835" stroke="#0077b6" stroke-width="2" stroke-dasharray="8,4" opacity="0.8"/>
+  <line x1="1062.99" y1="0" x2="1062.99" y2="2835" stroke="#0077b6" stroke-width="2" stroke-dasharray="8,4" opacity="0.8"/>
+  <line x1="1594.485" y1="0" x2="1594.485" y2="2835" stroke="#0077b6" stroke-width="2" stroke-dasharray="8,4" opacity="0.8"/>
+  <line x1="2125.98" y1="0" x2="2125.98" y2="2835" stroke="#0077b6" stroke-width="2" stroke-dasharray="8,4" opacity="0.8"/>
+</svg>
