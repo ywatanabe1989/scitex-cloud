@@ -1,566 +1,677 @@
 {% load static %}
-<!-- BibTeX Enrichment with Fixed Sidebar -->
-<div class="bibtex-enrichment-layout"
-     style="display: flex !important;
-            gap: 2rem;
-            width: 100%;
-            overflow: visible;
-            padding: 24px;
-            box-sizing: border-box">
-    <!-- Main Content Area -->
-    <div id="bibtexPanel"
-         style="flex: 1 1 auto;
-                overflow: visible;
-                min-width: 0;
-                max-width: 1400px;
-                margin: 0 auto;
-                width: 100%">
-        <div id="bibtexFormArea">
-            <!-- Running Indicator (shown when processing) -->
-            <div id="enrichmentRunningIndicator"
-                 style="display: none;
-                        background: var(--color-canvas-default);
-                        border: 2px solid var(--success-color);
-                        border-radius: 12px;
-                        padding: 1.5rem;
-                        margin-bottom: 1.5rem;
-                        box-shadow: 0 4px 12px rgba(79, 90, 102, 0.15)">
-                <div style="display: flex;
-                            align-items: center;
-                            gap: 1rem;
-                            margin-bottom: 1rem">
-                    <div class="status-indicator-container">
-                        <div class="green-pulse-dot"></div>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4 style="color: var(--color-fg-default);
-                                   margin: 0 0 0.5rem 0;
-                                   font-size: 1.25rem;
-                                   font-weight: 700">
-                            <i class="fas fa-magic"></i> Enrichment in Progress
-                        </h4>
-                        <p style="color: var(--color-fg-muted);
-                                  margin: 0 0 1rem 0;
-                                  font-size: 0.95rem">Processing your BibTeX file... This may take a few moments.</p>
-                        <!-- Progress Bar -->
-                        <div style="background: var(--color-bg-tertiary);
-                                    height: 8px;
-                                    border-radius: 4px;
-                                    overflow: hidden">
-                            <div id="enrichmentProgressBar"
-                                 style="background: var(--success-color);
-                                        height: 100%;
-                                        width: 0%;
-                                        transition: width 0.3s ease;
-                                        border-radius: 4px"></div>
-                        </div>
-                        <div style="display: flex;
-                                    justify-content: space-between;
-                                    margin-top: 0.5rem;
-                                    font-size: 0.85rem;
-                                    color: var(--color-fg-muted)">
-                            <span id="progressPercent">0%</span>
-                            <span id="progressStatus">Initializing...</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Processing Log -->
-                <div style="margin-top: 1rem;
-                            padding-top: 1rem;
-                            border-top: 1px solid var(--color-border-default)">
-                    <div style="display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-bottom: 0.5rem">
-                        <span style="font-weight: 600;
-                                     color: var(--color-fg-default);
-                                     font-size: 0.9rem">Processing Log</span>
-                        <button onclick="toggleProcessingLogVisibility()"
-                                style="background: none;
-                                       border: none;
-                                       color: var(--color-fg-muted);
-                                       cursor: pointer;
-                                       font-size: 0.85rem">
-                            <i class="fas fa-chevron-down" id="logToggleIcon"></i>
-                        </button>
-                    </div>
-                    <div id="enrichmentProcessingLog"
-                         class="terminal-log terminal-log--medium terminal-log--processing"
-                         style="display: block;
-                                margin: 0">Initializing enrichment process...</div>
-                </div>
-            </div>
-            <form id="bibtexEnrichmentForm"
-                  method="post"
-                  action="{% url 'scholar_app:bibtex_upload' %}"
-                  enctype="multipart/form-data">
-                {% csrf_token %}
-                {% include "scholar_app/search_partials/asta_tooltip.html" %}
-                <!-- File Upload with instructions inside -->
-                <div class="u-mb-1_5">
-                    <div id="dropZone" class="u-upload-zone">
-                        <i class="fas fa-cloud-upload-alt u-upload-icon"></i>
-                        <h3 style="color: var(--color-fg-default);
-                                   margin-bottom: 0.5rem;
-                                   font-size: 1.5rem;
-                                   font-weight: 700">Upload your .bib file here</h3>
-                        <p id="uploadMessage"
-                           style="color: var(--color-fg-muted);
-                                  margin-bottom: 1rem;
-                                  font-size: 1.05rem">
+<!-- BibTeX Enrichment - Single Column for Main Panel -->
+<div class="bibtex-enrichment-container">
+    <!-- Single Column Layout (status tiles moved to right panel) -->
+    <div class="bibtex-main-area">
+        <!-- Left Column: Main Upload Area -->
+        <div class="bibtex-main-column">
+            <!-- Upload Card (header moved to pane header) -->
+            <div class="bibtex-card bibtex-card--upload bibtex-card--no-header">
+                <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% include "scholar_app/search_partials/asta_tooltip.html" %}
+
+                    <!-- Drop Zone -->
+                    <div id="dropZone" class="bibtex-dropzone">
+                        <i class="fas fa-cloud-upload-alt bibtex-dropzone__icon"></i>
+                        <h4 class="bibtex-dropzone__title">Upload your .bib file here</h4>
+                        <p class="bibtex-dropzone__subtitle">
                             Enrich with <strong>Abstract</strong>, <strong>URL</strong>, <strong>Citation Count</strong>, and <strong>Impact Factor</strong>
                         </p>
-                        <div id="fileNameDisplay"
-                             style="display: none;
-                                    color: var(--success-color);
-                                    font-weight: 600;
-                                    margin-bottom: 1rem;
-                                    font-size: 1rem">
+                        <div id="fileNameDisplay" class="bibtex-dropzone__filename" style="display: none;">
                             <i class="fas fa-check-circle"></i> <span id="fileName"></span>
                         </div>
-                        <input type="file"
-                               name="bibtex_file"
-                               id="bibtexFileInput"
-                               accept=".bib"
-                               required
-                               class="u-upload-input">
+                        <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required class="bibtex-dropzone__input">
                     </div>
-                </div>
-                <!-- Download and Save Actions -->
-                <div id="downloadArea"
-                     style="display: flex;
-                            flex-direction: column;
-                            gap: 1rem;
-                            margin-top: 1.5rem">
-                    <!-- Action Buttons Row (always visible, disabled until ready) -->
-                    <div style="display: flex;
-                                gap: 1rem;
-                                flex-wrap: wrap">
-                        <!-- Save to Project - Single yellow button -->
-                        <button type="button"
-                                id="saveToProjectBtn"
-                                onclick="handleSaveToProject()"
-                                disabled
-                                class="btn btn-warning"
-                                style="display: flex;
-                                       align-items: center;
-                                       gap: 0.5rem;
-                                       height: 56px;
-                                       padding: 0 2rem;
-                                       margin: 0">
+
+                    <!-- Save Path Highlight -->
+                    {% if current_project %}
+                    <div class="bibtex-save-path">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Save to: <code>./scitex/scholar/bib_files/enriched_*.bib</code></span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="bibtex-actions">
+                        <button type="button" id="saveToProjectBtn" onclick="handleSaveToProject()" disabled class="btn btn-warning">
                             <i class="fas fa-bookmark"></i> Save to Project
                         </button>
-                        <button id="downloadBtn"
-                                onclick="handleDownload()"
-                                disabled
-                                class="btn btn-success"
-                                style="display: flex;
-                                       align-items: center;
-                                       gap: 0.5rem;
-                                       height: 56px;
-                                       padding: 0 2rem;
-                                       margin: 0">
+                        <button id="downloadBtn" onclick="handleDownload()" disabled class="btn btn-success">
                             <i class="fas fa-file-download"></i> Download Enriched
                         </button>
-                        <!-- View Changes Button -->
-                        <button id="viewChangesBtn"
-                                onclick="showBibtexDiff()"
-                                disabled
-                                class="btn btn-secondary"
-                                style="display: flex;
-                                       align-items: center;
-                                       gap: 0.5rem;
-                                       height: 56px;
-                                       padding: 0 2rem;
-                                       margin: 0"
-                                title="See what fields were added during enrichment">
+                        <button id="viewChangesBtn" onclick="showBibtexDiff()" disabled class="btn btn-secondary" title="See what fields were added">
                             <i class="fas fa-code-branch"></i> View Changes
                         </button>
-                        <!-- Open All URLs Button -->
-                        <button id="openUrlsMainBtn"
-                                onclick="openAllPaperUrls()"
-                                disabled
-                                class="btn btn-info"
-                                style="display: flex;
-                                       align-items: center;
-                                       gap: 0.5rem;
-                                       height: 56px;
-                                       padding: 0 2rem;
-                                       margin: 0;
-                                       opacity: 0.6">
+                        <button id="openUrlsMainBtn" onclick="openAllPaperUrls()" disabled class="btn btn-info" style="opacity: 0.6;">
                             <i class="fas fa-external-link-alt"></i> <span id="urlButtonText">Open All URLs</span>
                         </button>
                     </div>
-                    <!-- Hidden project selector for Save to Project functionality -->
-                    {% if user.is_authenticated and user_projects %}
-                        <input type="hidden"
-                               name="project_id"
-                               id="projectSelector"
-                               value="{% if current_project %}{{ current_project.id }}{% endif %}">
-                    {% endif %}
-                    <!-- Project Selector Modal -->
-                    <div id="projectSelectorModal"
-                         style="display: none;
-                                position: fixed;
-                                top: 0;
-                                left: 0;
-                                width: 100%;
-                                height: 100%;
-                                background: rgba(0, 0, 0, 0.5);
-                                z-index: 10000;
-                                align-items: center;
-                                justify-content: center">
-                        <div style="background: var(--color-canvas-default);
-                                    border: 1px solid var(--color-border-default);
-                                    border-radius: 12px;
-                                    padding: 2rem;
-                                    max-width: 500px;
-                                    width: 90%;
-                                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3)">
-                            <h3 style="color: var(--color-fg-default);
-                                       margin-bottom: 1.5rem;
-                                       font-size: 1.3rem;
-                                       font-weight: 600">
-                                <i class="fas fa-folder-open"></i> Select Project
-                            </h3>
-                            {% if user.is_authenticated and user_projects %}
-                                <div style="margin-bottom: 1.5rem;">
-                                    <label style="display: block;
-                                                  color: var(--color-fg-muted);
-                                                  margin-bottom: 0.5rem;
-                                                  font-size: 0.95rem">
-                                        Choose a project to save the enriched BibTeX file:
-                                    </label>
-                                    <select id="projectSelectorDropdown"
-                                            class="form-control"
-                                            style="width: 100%;
-                                                   padding: 0.75rem;
-                                                   font-size: 1rem">
-                                        {% for project in user_projects %}
-                                            <option value="{{ project.id }}"
-                                                    {% if current_project and current_project.id == project.id %}selected{% endif %}>
-                                                {{ project.name }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                                    <button onclick="closeProjectSelectorModal()"
-                                            class="btn btn-outline-secondary"
-                                            style="padding: 0.5rem 1.5rem">Cancel</button>
-                                    <button onclick="confirmProjectSelection()"
-                                            class="btn btn-warning"
-                                            style="padding: 0.5rem 1.5rem">
-                                        <i class="fas fa-bookmark"></i> Save to Project
-                                    </button>
-                                </div>
-                            {% else %}
-                                <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem;">
-                                    {% if not user.is_authenticated %}
-                                        Please sign in to save files to projects.
-                                    {% else %}
-                                        You don't have any projects yet. Create a project first to save files.
-                                    {% endif %}
-                                </p>
-                                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-                                    <button onclick="closeProjectSelectorModal()"
-                                            class="btn btn-outline-secondary"
-                                            style="padding: 0.5rem 1.5rem">Close</button>
-                                    {% if not user.is_authenticated %}
-                                        <a href="/auth/signin/"
-                                           class="btn btn-primary"
-                                           style="padding: 0.5rem 1.5rem">Sign In</a>
-                                    {% else %}
-                                        <a href="/new/" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Create Project</a>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                <!-- Diff View Modal (shown when user clicks "Show What Enhanced") -->
-                <div id="bibtexDiffModal"
-                     style="display: none;
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            background: var(--color-canvas-overlay, rgba(0, 0, 0, 0.95));
-                            z-index: 9999;
-                            overflow: auto">
-                    <div class="u-modal-container"
-                         style="max-width: 1000px;
-                                margin: 2rem auto;
-                                background: var(--color-canvas-default);
-                                border: 1px solid var(--color-border-default);
-                                border-radius: 12px;
-                                padding: 2rem;
-                                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5)">
-                        <button onclick="closeBibtexDiff()"
-                                class="u-close-btn"
-                                style="float: right;
-                                       background: transparent;
-                                       border: none;
-                                       font-size: 2rem;
-                                       cursor: pointer;
-                                       color: var(--color-fg-muted);
-                                       line-height: 1">×</button>
-                        <h3 style="color: var(--color-fg-default);
-                                   margin-bottom: 1rem;
-                                   font-size: 1.5rem;
-                                   font-weight: 700">
-                            <i class="fas fa-code-branch"></i> BibTeX Enhancement Comparison
-                        </h3>
-                        <p style="color: var(--color-fg-muted); margin-bottom: 1.5rem;">
-                            <span style="color: var(--success-color); font-weight: 600;"><i class="fas fa-check-circle"></i> Green</span> = Added fields,
-                            <span style="color: var(--color-fg-default); font-weight: 600;"><i class="fas fa-circle"></i> Gray</span> = Original fields
-                        </p>
-                        <div id="bibtexDiffContent"
-                             style="max-height: calc(100vh - 250px);
-                                    overflow-y: auto;
-                                    padding-right: 1rem">Loading...</div>
-                    </div>
-                </div>
-            </div>
-            <!-- Hidden field for workers (fixed at 4) -->
-            <input type="hidden" name="num_workers" value="4">
-        </form>
 
-        <!-- Panels Section -->
-        <div style="margin-top: 2rem;">
-        <!-- Unified Progress Panel (includes Progress and Processing Log) -->
-        <div class="collapsible-panel"
-             style="background: var(--color-canvas-default);
-                    border: 1px solid var(--color-border-default);
-                    border-radius: 8px;
-                    margin-bottom: 1rem;
-                    overflow: hidden">
-            <button class="collapsible-header"
-                    data-panel="progress"
-                    style="width: 100%;
-                           display: flex;
-                           justify-content: space-between;
-                           align-items: center;
-                           padding: 1rem;
-                           border: none;
-                           background: transparent;
-                           cursor: pointer;
-                           color: var(--color-fg-default);
-                           font-size: 1.1rem;
-                           font-weight: 600;
-                           text-align: left">
-                <span style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-tasks"></i> Progress
-                </span>
-                <i class="fas fa-chevron-down collapse-icon"
-                   style="transition: transform 0.3s ease;
-                          font-size: 0.9rem"></i>
-            </button>
-            <div class="collapsible-content"
-                 style="display: none;
-                        max-height: 0;
-                        overflow: hidden;
-                        transition: max-height 0.3s ease">
-                <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
-                    <div style="display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-bottom: 0.75rem">
-                        <span style="font-weight: 600;
-                                     color: var(--color-fg-default);
-                                     font-size: 0.9rem">Log</span>
-                        <button id="copyBibtexLogBtn"
-                                class="btn btn-outline-secondary"
-                                style="margin: 0;
-                                       padding: 0.25rem 0.5rem;
-                                       font-size: 0.85rem"
-                                title="Copy log to clipboard">
-                            <i class="fas fa-copy"></i>
+                    <!-- Hidden fields -->
+                    {% if user.is_authenticated and user_projects %}
+                    <input type="hidden" name="project_id" id="projectSelector" value="{% if current_project %}{{ current_project.id }}{% endif %}">
+                    {% endif %}
+                    <input type="hidden" name="num_workers" value="4">
+                </form>
+            </div>
+
+            <!-- Running Indicator (shown when processing) -->
+            <div id="enrichmentRunningIndicator" class="bibtex-card bibtex-card--running" style="display: none;">
+                <div class="bibtex-running__header">
+                    <div class="green-pulse-dot"></div>
+                    <div class="bibtex-running__info">
+                        <h4><i class="fas fa-magic"></i> Enrichment in Progress</h4>
+                        <p>Processing your BibTeX file... This may take a few moments.</p>
+                    </div>
+                </div>
+                <div class="bibtex-progress">
+                    <div class="bibtex-progress__bar">
+                        <div id="enrichmentProgressBar" class="bibtex-progress__fill"></div>
+                    </div>
+                    <div class="bibtex-progress__labels">
+                        <span id="progressPercent">0%</span>
+                        <span id="progressStatus">Initializing...</span>
+                    </div>
+                </div>
+                <div class="bibtex-running__log">
+                    <div class="bibtex-running__log-header">
+                        <span>Processing Log</span>
+                        <button onclick="toggleProcessingLogVisibility()" class="btn-icon">
+                            <i class="fas fa-chevron-down" id="logToggleIcon"></i>
                         </button>
                     </div>
-                    <div id="processingLog"
-                         class="terminal-log terminal-log--large terminal-log--processing">Initializing...</div>
+                    <div id="enrichmentProcessingLog" class="terminal-log terminal-log--medium terminal-log--processing">
+                        Initializing enrichment process...
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Recent Jobs Panel -->
-        <div id="recentJobsArea"
-             class="collapsible-panel"
-             style="background: var(--color-canvas-default);
-                    border: 1px solid var(--color-border-default);
-                    border-radius: 8px;
-                    margin-bottom: 1rem;
-                    overflow: hidden">
-            <button class="collapsible-header"
-                    data-panel="recent-jobs"
-                    style="width: 100%;
-                           display: flex;
-                           justify-content: space-between;
-                           align-items: center;
-                           padding: 1rem;
-                           border: none;
-                           background: transparent;
-                           cursor: pointer;
-                           color: var(--color-fg-default);
-                           font-size: 1.1rem;
-                           font-weight: 600;
-                           text-align: left">
-                <span style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-history"></i> Recent Jobs
-                </span>
-                <i class="fas fa-chevron-down collapse-icon"
-                   style="transition: transform 0.3s ease;
-                          font-size: 0.9rem"></i>
+        <!-- Status tiles moved to right panel (status_tiles.html) -->
+    </div>
+</div>
+
+<!-- Project Selector Modal -->
+<div id="projectSelectorModal" class="bibtex-modal" style="display: none;">
+    <div class="bibtex-modal__backdrop" onclick="closeProjectSelectorModal()"></div>
+    <div class="bibtex-modal__content">
+        <h3 class="bibtex-modal__title">
+            <i class="fas fa-folder-open"></i> Select Project
+        </h3>
+        {% if user.is_authenticated and user_projects %}
+        <div class="bibtex-modal__body">
+            <label>Choose a project to save the enriched BibTeX file:</label>
+            <select id="projectSelectorDropdown" class="form-control">
+                {% for project in user_projects %}
+                <option value="{{ project.id }}" {% if current_project and current_project.id == project.id %}selected{% endif %}>
+                    {{ project.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="bibtex-modal__footer">
+            <button onclick="closeProjectSelectorModal()" class="btn btn-outline-secondary">Cancel</button>
+            <button onclick="confirmProjectSelection()" class="btn btn-warning">
+                <i class="fas fa-bookmark"></i> Save to Project
             </button>
-            <div class="collapsible-content"
-                 style="display: none;
-                        max-height: 0;
-                        overflow: hidden;
-                        transition: max-height 0.3s ease">
-                <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
-                    <div id="recentJobsContainer"
-                         style="display: flex;
-                                flex-direction: row;
-                                gap: 0.75rem;
-                                overflow-x: auto;
-                                padding: 0.5rem 0;
-                                scroll-behavior: smooth;
-                                max-height: 500px">
-                        <!-- Jobs loaded dynamically as compact cards -->
-                    </div>
-                    <div id="noRecentJobsMessage"
-                         style="color: var(--color-fg-muted);
-                                text-align: center;
-                                padding: 2rem 0;
-                                font-size: 0.95rem">
-                        <i class="fas fa-inbox"
-                           style="font-size: 2rem;
-                                  margin-bottom: 0.5rem;
-                                  display: block;
-                                  color: var(--color-fg-muted);
-                                  opacity: 0.5"></i>
-                        No recent jobs yet. Upload a BibTeX file to get started.
-                    </div>
-                </div>
-            </div>
         </div>
-        <!-- Job Queue Status -->
-        <div id="resourceMonitorPanel"
-             class="collapsible-panel"
-             style="background: var(--color-canvas-default);
-                    border: 1px solid var(--color-border-default);
-                    border-radius: 8px;
-                    margin-bottom: 1rem;
-                    overflow: hidden">
-            <button class="collapsible-header"
-                    data-panel="server-status"
-                    style="width: 100%;
-                           display: flex;
-                           justify-content: space-between;
-                           align-items: center;
-                           padding: 1rem;
-                           border: none;
-                           background: transparent;
-                           cursor: pointer;
-                           color: var(--color-fg-default);
-                           font-size: 1.1rem;
-                           font-weight: 600;
-                           text-align: left">
-                <span style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-server"></i> Server Status
-                </span>
-                <i class="fas fa-chevron-down collapse-icon"
-                   style="transition: transform 0.3s ease;
-                          font-size: 0.9rem"></i>
-            </button>
-            <div class="collapsible-content"
-                 style="display: none;
-                        max-height: 0;
-                        overflow: hidden;
-                        transition: max-height 0.3s ease">
-                <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
-                    <span id="resourceRefreshTime"
-                          style="color: var(--color-fg-muted);
-                                 font-size: 0.75rem">Loading...</span>
-                    <div style="display: grid;
-                                grid-template-columns: 1fr 1fr;
-                                gap: 1rem;
-                                margin-bottom: 1rem">
-                        <div style="text-align: center;">
-                            <div style="color: var(--color-fg-muted);
-                                        font-size: 0.75rem;
-                                        margin-bottom: 0.25rem">Active</div>
-                            <div style="color: var(--scitex-color-03);
-                                        font-size: 1.5rem;
-                                        font-weight: 700">
-                                <span id="activeJobsCount">0</span>
-                            </div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="color: var(--color-fg-muted);
-                                        font-size: 0.75rem;
-                                        margin-bottom: 0.25rem">Queued</div>
-                            <div style="color: var(--warning-color);
-                                        font-size: 1.5rem;
-                                        font-weight: 700">
-                                <span id="queuedJobsCount">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="activeJobsList" style="display: none;">
-                        <div id="activeJobsContent"></div>
-                    </div>
-                    <div id="queuedJobsList" style="display: none;">
-                        <div id="queuedJobsContent"></div>
-                    </div>
-                </div>
-            </div>
+        {% else %}
+        <div class="bibtex-modal__body">
+            <p class="text-muted">
+                {% if not user.is_authenticated %}
+                Please sign in to save files to projects.
+                {% else %}
+                You don't have any projects yet. Create a project first.
+                {% endif %}
+            </p>
         </div>
-        </div><!-- End Panels Section -->
-    </div><!-- End bibtexPanel -->
-</div><!-- End bibtex-enrichment-layout -->
-<!-- Load required scripts for BibTeX enrichment -->
-<script type="module"
-        src="{% static 'shared/js/components/confirm-modal.js' %}"></script>
-<script type="module"
-        src="{% static 'scholar_app/js/shared/collapsible-panels.js' %}"></script>
-<script type="module"
-        src="{% static 'scholar_app/js/bibtex/bibtex-enrichment.js' %}"></script>
-<script type="module"
-        src="{% static 'scholar_app/js/bibtex/queue-management.js' %}"></script>
+        <div class="bibtex-modal__footer">
+            <button onclick="closeProjectSelectorModal()" class="btn btn-outline-secondary">Close</button>
+            {% if not user.is_authenticated %}
+            <a href="/auth/signin/" class="btn btn-primary">Sign In</a>
+            {% else %}
+            <a href="/new/" class="btn btn-primary">Create Project</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Diff View Modal -->
+<div id="bibtexDiffModal" class="bibtex-modal bibtex-modal--large" style="display: none;">
+    <div class="bibtex-modal__backdrop" onclick="closeBibtexDiff()"></div>
+    <div class="bibtex-modal__content">
+        <button onclick="closeBibtexDiff()" class="bibtex-modal__close">&times;</button>
+        <h3 class="bibtex-modal__title">
+            <i class="fas fa-code-branch"></i> BibTeX Enhancement Comparison
+        </h3>
+        <p class="bibtex-modal__legend">
+            <span class="text-success"><i class="fas fa-check-circle"></i> Green</span> = Added fields,
+            <span class="text-muted"><i class="fas fa-circle"></i> Gray</span> = Original fields
+        </p>
+        <div id="bibtexDiffContent" class="bibtex-diff-content">Loading...</div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script type="module" src="{% static 'shared/js/components/confirm-modal.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/shared/collapsible-panels.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/bibtex/bibtex-enrichment.js' %}"></script>
+<script type="module" src="{% static 'scholar_app/js/bibtex/queue-management.js' %}"></script>
+
+<script>
+// Toggle panel function for tiles
+function toggleBibtexPanel(header) {
+    const tile = header.closest('.bibtex-tile');
+    tile.classList.toggle('bibtex-tile--expanded');
+}
+
+// Initialize all tiles as expanded by default
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.bibtex-tile').forEach(tile => {
+        tile.classList.add('bibtex-tile--expanded');
+    });
+});
+</script>
+
 <style>
-.collapsible-header {
-  cursor: pointer;
+/* BibTeX Enrichment Styles - Using Workspace Colors */
+.bibtex-enrichment-container {
+    padding: 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+    background: var(--workspace-bg-primary, #0d0d0d);
 }
 
-.collapsible-header:hover {
-  /* No background - stay transparent */
+.bibtex-main-area {
+    max-width: 100%;
+    margin: 0;
 }
 
-.collapsible-header.expanded {
-  /* No background - stay transparent */
+/* Cards */
+.bibtex-card {
+    background: var(--workspace-bg-secondary, #151515);
+    border: 1px solid var(--workspace-border-default, #3a3a3a);
+    border-radius: 0;
+    overflow: hidden;
 }
 
-.collapsible-header.expanded ~ .collapsible-content {
-  display: block !important;
-  max-height: 1000px !important;
+.bibtex-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+    background: var(--workspace-bg-tertiary, #1a1a1a);
 }
 
-.collapsible-header.expanded .collapse-icon {
-  transform: rotate(180deg);
+.bibtex-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #f0f3f6);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* Responsive layout for bibtex enrichment */
-@media (max-width: 768px) {
-  /* Stack vertically on smaller screens */
-  .bibtex-enrichment-layout {
-    flex-direction: column !important;
-  }
+.bibtex-card__title i {
+    color: var(--workspace-icon-primary, #6ba89a);
+}
 
-  /* Sidebar takes full width below main content */
-  .bibtex-enrichment-layout aside {
-    flex: 1 1 100% !important;
-  }
+/* Drop Zone */
+.bibtex-dropzone {
+    margin: 1.25rem;
+    padding: 2.5rem 2rem;
+    border: 2px dashed var(--workspace-border-default, #3a3a3a);
+    border-radius: 0;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--workspace-bg-primary, #0d0d0d);
+    position: relative;
+}
+
+.bibtex-dropzone:hover {
+    border-color: var(--workspace-icon-hover, #7eb8aa);
+    background: var(--workspace-bg-tertiary, #1a1a1a);
+}
+
+.bibtex-dropzone.dragover {
+    border-color: var(--success-color, #3fb950);
+    background: rgba(63, 185, 80, 0.1);
+}
+
+.bibtex-dropzone__icon {
+    font-size: 2.5rem;
+    color: var(--workspace-icon-muted, #6b7280);
+    margin-bottom: 1rem;
+}
+
+.bibtex-dropzone__title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary, #f0f3f6);
+}
+
+.bibtex-dropzone__subtitle {
+    margin: 0;
+    color: var(--text-muted, #768390);
+    font-size: 0.95rem;
+}
+
+.bibtex-dropzone__subtitle strong {
+    color: var(--workspace-icon-primary, #6ba89a);
+}
+
+.bibtex-dropzone__filename {
+    color: var(--success-color, #3fb950);
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+.bibtex-dropzone__input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Save Path Highlight */
+.bibtex-save-path {
+    margin: 0 1.25rem 1.25rem;
+    padding: 0.75rem 1rem;
+    background: rgba(136, 87, 44, 0.15);
+    border: 1px solid rgba(210, 153, 34, 0.4);
+    border-radius: 6px;
+    color: var(--warning-color, #d29922);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.bibtex-save-path code {
+    background: var(--workspace-bg-primary, #0d0d0d);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #f0f3f6;
+}
+
+/* Action Buttons */
+.bibtex-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border-top: 1px solid var(--border-default, #30363d);
+}
+
+.bibtex-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+}
+
+/* Running Card */
+.bibtex-card--running {
+    border-color: var(--success-color, #3fb950);
+    margin-top: 1rem;
+}
+
+.bibtex-running__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.bibtex-running__info h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary, #f0f3f6);
+    font-size: 1.1rem;
+}
+
+.bibtex-running__info p {
+    margin: 0;
+    color: var(--text-muted, #768390);
+    font-size: 0.9rem;
+}
+
+.bibtex-progress {
+    padding: 0 1.25rem 1.25rem;
+}
+
+.bibtex-progress__bar {
+    height: 8px;
+    background: var(--bg-inset, #0d1117);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bibtex-progress__fill {
+    height: 100%;
+    width: 0%;
+    background: var(--success-color, #3fb950);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.bibtex-progress__labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted, #768390);
+}
+
+.bibtex-running__log {
+    border-top: 1px solid var(--border-default, #30363d);
+    padding: 1rem 1.25rem;
+}
+
+.bibtex-running__log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary, #f0f3f6);
+}
+
+/* Status Tiles */
+.bibtex-status-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.bibtex-tile {
+    background: var(--workspace-bg-secondary, #151515);
+    border: 1px solid var(--workspace-border-default, #3a3a3a);
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.bibtex-tile__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    background: var(--workspace-bg-tertiary, #1a1a1a);
+    border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+}
+
+.bibtex-tile__header:hover {
+    background: var(--workspace-bg-tertiary, #1a1a1a);
+}
+
+.bibtex-tile__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary, #f0f3f6);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bibtex-tile__title i {
+    color: var(--workspace-icon-primary, #6ba89a);
+    font-size: 0.9rem;
+}
+
+.bibtex-tile__toggle {
+    color: var(--text-muted, #768390);
+    font-size: 0.75rem;
+    transition: transform 0.2s ease;
+}
+
+.bibtex-tile__content {
+    display: none;
+    padding: 1rem;
+    border-top: 1px solid var(--workspace-border-default, #3a3a3a);
+    background: var(--workspace-bg-secondary, #151515);
+}
+
+.bibtex-tile--expanded .bibtex-tile__content {
+    display: block;
+}
+
+.bibtex-tile--expanded .bibtex-tile__toggle {
+    transform: rotate(180deg);
+}
+
+.bibtex-tile__log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted, #768390);
+}
+
+/* Status Grid */
+.bibtex-status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.bibtex-status-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--workspace-bg-primary, #0d0d0d);
+    border-radius: 0;
+}
+
+.bibtex-status-item__label {
+    font-size: 0.75rem;
+    color: var(--text-muted, #768390);
+    margin-bottom: 0.25rem;
+}
+
+.bibtex-status-item__value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.bibtex-status-item__value--active {
+    color: var(--success-color, #3fb950);
+}
+
+.bibtex-status-item__value--queued {
+    color: var(--warning-color, #d29922);
+}
+
+.bibtex-refresh-time {
+    font-size: 0.75rem;
+    color: var(--text-muted, #768390);
+}
+
+/* Jobs List */
+.bibtex-jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.bibtex-empty-state {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: var(--text-muted, #768390);
+}
+
+.bibtex-empty-state i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.bibtex-empty-state p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Modals */
+.bibtex-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bibtex-modal__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.bibtex-modal__content {
+    position: relative;
+    background: var(--workspace-bg-secondary, #151515);
+    border: 1px solid var(--workspace-border-default, #3a3a3a);
+    border-radius: 0;
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.bibtex-modal--large .bibtex-modal__content {
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.bibtex-modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted, #768390);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.bibtex-modal__close:hover {
+    color: var(--text-primary, #f0f3f6);
+}
+
+.bibtex-modal__title {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary, #f0f3f6);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bibtex-modal__legend {
+    color: var(--text-muted, #768390);
+    margin-bottom: 1rem;
+}
+
+.bibtex-modal__body {
+    margin-bottom: 1.5rem;
+}
+
+.bibtex-modal__body label {
+    display: block;
+    color: var(--text-muted, #768390);
+    margin-bottom: 0.5rem;
+}
+
+.bibtex-modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.bibtex-diff-content {
+    max-height: calc(70vh - 150px);
+    overflow-y: auto;
+}
+
+/* Green pulse dot */
+.green-pulse-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--success-color, #3fb950);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(63, 185, 80, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .bibtex-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bibtex-status-column {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .bibtex-tile {
+        flex: 1 1 300px;
+    }
+}
+
+@media (max-width: 640px) {
+    .bibtex-actions {
+        flex-direction: column;
+    }
+
+    .bibtex-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Light theme */
+[data-theme="light"] .bibtex-card,
+[data-theme="light"] .bibtex-tile {
+    background: #ffffff;
+    border-color: #d0d7de;
+}
+
+[data-theme="light"] .bibtex-dropzone {
+    background: #f6f8fa;
+    border-color: #d0d7de;
+}
+
+[data-theme="light"] .bibtex-save-path {
+    background: rgba(210, 153, 34, 0.1);
 }
 </style>

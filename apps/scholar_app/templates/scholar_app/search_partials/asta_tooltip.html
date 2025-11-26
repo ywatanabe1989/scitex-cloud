@@ -1,16 +1,18 @@
 {% load static %}
-<!-- Helper Message with ASTA Instructions -->
-<div style="background: linear-gradient( 135deg, rgba(var(--info-color-rgb, 107, 143, 179), 0.1) 0%, rgba(var(--scitex-color-03-rgb, 80, 107, 122), 0.1) 100% );
-            border-left: 4px solid var(--info-color);
-            border-radius: 8px;
+<!-- Helper Message with ASTA Instructions - Using Workspace Colors -->
+<div style="background: #151515;
+            border-left: 4px solid #6ba89a;
+            border-radius: 0;
             padding: 1rem 1.25rem;
-            margin-bottom: 1.5rem">
+            margin: 1.25rem 1.25rem 1.5rem 1.25rem;
+            border: 1px solid #3a3a3a;
+            border-left: 4px solid #6ba89a;">
     <div style="display: flex; align-items: center; gap: 0.75rem">
         <i class="fas fa-lightbulb"
-           style="color: var(--info-color);
+           style="color: #6ba89a;
                   font-size: 1.5rem"></i>
         <div style="flex: 1">
-            <div style="color: var(--color-fg-default);
+            <div style="color: #f0f3f6;
                         font-weight: 600;
                         margin-bottom: 0.5rem;
                         font-size: 0.95rem">
@@ -19,21 +21,21 @@
             <div style="display: flex;
                         flex-direction: column;
                         gap: 0.5rem;
-                        color: var(--color-fg-muted);
+                        color: #768390;
                         font-size: 0.9rem">
                 <div>
                     <strong>Option A:</strong> Find papers at
                     <a href="https://asta.allen.ai/chat"
                        target="_blank"
                        rel="noopener noreferrer"
-                       style="color: var(--info-color);
+                       style="color: #6ba89a;
                               font-weight: 600;
                               text-decoration: underline">
                         AI2 Asta
                     </a>
                     using our
                     <a href="/tools/asta-citation-scraper/"
-                       style="color: var(--info-color);
+                       style="color: #6ba89a;
                               font-weight: 600;
                               text-decoration: underline">
                         Bulk Download Tool
@@ -46,7 +48,7 @@
                 <div>
                     <strong>Option C:</strong> Use our
                     <a href="/scholar/search/"
-                       style="color: var(--info-color);
+                       style="color: #6ba89a;
                               font-weight: 600;
                               text-decoration: underline">
                         Literature Search Tool
@@ -56,8 +58,8 @@
         </div>
         {% if current_project %}
             <button id="generate-ai2-prompt-scholar-btn"
-                    class="btn btn-sm btn-outline-primary"
-                    style="white-space: nowrap">
+                    class="btn btn-sm btn-outline-secondary"
+                    style="white-space: nowrap; border-color: #6ba89a; color: #6ba89a;">
                 <i class="fas fa-brain me-1"></i>Generate AI Prompt
             </button>
         {% endif %}
@@ -65,13 +67,13 @@
     {% if not current_project and user.is_authenticated %}
         <div style="margin-top: 0.75rem;
                     padding-top: 0.75rem;
-                    border-top: 1px solid rgba(var(--info-color-rgb), 0.2);
+                    border-top: 1px solid #3a3a3a;
                     font-size: 0.85rem;
-                    color: var(--color-fg-muted)">
+                    color: #768390">
             <i class="fas fa-info-circle me-1"></i>
             To generate AI2 prompt from your manuscript, first write your paper in
             <a href="/writer/"
-               style="color: var(--info-color);
+               style="color: #6ba89a;
                       text-decoration: underline">Writer</a>.
         </div>
     {% endif %}
