@@ -13,6 +13,8 @@ urlpatterns = [
     path("settings/integrations/", views.git_integrations, name="git_integrations"),
     # SSH Keys
     path("settings/ssh-keys/", views.ssh_keys, name="ssh_keys"),
+    # Remote Credentials
+    path("settings/remote/", views.remote_credentials, name="remote_credentials"),
     # API Keys
     path("settings/api-keys/", views.api_keys, name="api_keys"),
     # API Endpoints

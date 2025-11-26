@@ -14,8 +14,81 @@ def profile_view(request):
     """User profile view."""
     profile, created = UserProfile.objects.get_or_create(user=request.user)
 
+    # Gather resource allocation statistics
+    from apps.project_app.models import Project, RemoteCredential
+    from apps.code_app.models import ProjectService
+    from django.db.models import Sum, Q
+    import os
+    from pathlib import Path
+
+    # Project statistics
+    total_projects = Project.objects.filter(owner=request.user).count()
+    local_projects = Project.objects.filter(owner=request.user, project_type='local').count()
+    remote_projects = Project.objects.filter(owner=request.user, project_type='remote').count()
+
+    # Remote credentials
+    remote_credentials_count = RemoteCredential.objects.filter(user=request.user, is_active=True).count()
+
+    # Active services (TensorBoard, Jupyter, etc.)
+    active_services = ProjectService.objects.filter(
+        user=request.user,
+        status__in=['starting', 'running']
+    ).count()
+
+    # SSH keys count
+    workspace_ssh_keys = request.user.ssh_public_keys.filter(key_type='workspace').count()
+    git_ssh_keys = request.user.ssh_public_keys.filter(key_type='git').count()
+    total_ssh_keys = workspace_ssh_keys + git_ssh_keys
+
+    # Storage usage calculation
+    total_storage_bytes = 0
+    try:
+        # Calculate storage for local projects
+        for project in Project.objects.filter(owner=request.user, project_type='local'):
+            project_path = Path(project.git_clone_path) if hasattr(project, 'git_clone_path') and project.git_clone_path else None
+            if project_path and project_path.exists():
+                # Calculate directory size recursively
+                for root, dirs, files in os.walk(project_path):
+                    for file in files:
+                        try:
+                            file_path = os.path.join(root, file)
+                            if os.path.exists(file_path):
+                                total_storage_bytes += os.path.getsize(file_path)
+                        except (OSError, FileNotFoundError):
+                            pass
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Error calculating storage usage: {e}")
+
+    # Convert bytes to human-readable format
+    def human_readable_size(bytes_size):
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if bytes_size < 1024.0:
+                return f"{bytes_size:.1f} {unit}"
+            bytes_size /= 1024.0
+        return f"{bytes_size:.1f} PB"
+
+    storage_used = human_readable_size(total_storage_bytes)
+
+    # Collaborations
+    total_collaborations = Project.objects.filter(collaborators=request.user).count()
+
     context = {
         "profile": profile,
+        "resources": {
+            "total_projects": total_projects,
+            "local_projects": local_projects,
+            "remote_projects": remote_projects,
+            "remote_credentials": remote_credentials_count,
+            "active_services": active_services,
+            "total_ssh_keys": total_ssh_keys,
+            "workspace_ssh_keys": workspace_ssh_keys,
+            "git_ssh_keys": git_ssh_keys,
+            "storage_used": storage_used,
+            "storage_bytes": total_storage_bytes,
+            "total_collaborations": total_collaborations,
+        }
     }
 
     return render(request, "accounts_app/profile.html", context)
@@ -201,11 +274,125 @@ def ssh_keys(request):
             except WorkspaceSSHKey.DoesNotExist:
                 messages.error(request, "SSH key not found")
 
+        # Remote credential actions
+        elif action == "add_remote_credential":
+            from apps.project_app.models import RemoteCredential
+            from pathlib import Path
+            import subprocess
+            import tempfile
+
+            name = request.POST.get("name", "").strip()
+            ssh_host = request.POST.get("ssh_host", "").strip()
+            ssh_port = request.POST.get("ssh_port", "22").strip()
+            ssh_username = request.POST.get("ssh_username", "").strip()
+            ssh_public_key = request.POST.get("ssh_public_key", "").strip()
+
+            if not all([name, ssh_host, ssh_username, ssh_public_key]):
+                messages.error(request, "All fields are required for remote credentials")
+            else:
+                try:
+                    ssh_port = int(ssh_port)
+                except ValueError:
+                    messages.error(request, "Invalid SSH port number")
+                    return redirect("accounts_app:ssh_keys")
+
+                # Generate SSH key fingerprint
+                try:
+                    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.pub') as f:
+                        f.write(ssh_public_key)
+                        temp_pub_path = f.name
+
+                    result = subprocess.run(
+                        ['ssh-keygen', '-lf', temp_pub_path],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    fingerprint = result.stdout.split()[1] if result.stdout else "Unknown"
+                    Path(temp_pub_path).unlink()
+
+                except Exception as e:
+                    messages.error(request, f"Invalid SSH public key: {str(e)}")
+                    return redirect("accounts_app:ssh_keys")
+
+                private_key_path = f"/home/{request.user.username}/.ssh/scitex_remote_{name.lower().replace(' ', '_')}"
+
+                try:
+                    RemoteCredential.objects.create(
+                        user=request.user,
+                        name=name,
+                        ssh_host=ssh_host,
+                        ssh_port=ssh_port,
+                        ssh_username=ssh_username,
+                        ssh_public_key=ssh_public_key,
+                        ssh_key_fingerprint=fingerprint,
+                        private_key_path=private_key_path,
+                        is_active=True
+                    )
+                    messages.success(
+                        request,
+                        f"Remote credential '{name}' added successfully! "
+                        f"Please ensure your private key is at: {private_key_path}"
+                    )
+                except Exception as e:
+                    messages.error(request, f"Failed to add credential: {str(e)}")
+
+        elif action == "delete_remote_credential":
+            from apps.project_app.models import RemoteCredential
+
+            credential_id = request.POST.get("credential_id")
+            try:
+                credential = RemoteCredential.objects.get(id=credential_id, user=request.user)
+                credential_name = credential.name
+                credential.delete()
+                messages.success(request, f"Remote credential '{credential_name}' deleted")
+            except RemoteCredential.DoesNotExist:
+                messages.error(request, "Credential not found")
+
+        elif action == "test_remote_credential":
+            from apps.project_app.models import RemoteCredential
+            import subprocess
+
+            credential_id = request.POST.get("credential_id")
+            try:
+                credential = RemoteCredential.objects.get(id=credential_id, user=request.user)
+                ssh_key_path = credential.private_key_path
+
+                cmd = [
+                    "ssh",
+                    "-p", str(credential.ssh_port),
+                    "-i", ssh_key_path,
+                    "-o", "StrictHostKeyChecking=accept-new",
+                    "-o", "ConnectTimeout=10",
+                    f"{credential.ssh_username}@{credential.ssh_host}",
+                    "echo 'OK'"
+                ]
+
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+
+                if result.returncode == 0:
+                    messages.success(request, f"✅ Connection successful to {credential.name}")
+                else:
+                    messages.error(request, f"❌ Connection failed to {credential.name}: {result.stderr}")
+
+            except RemoteCredential.DoesNotExist:
+                messages.error(request, "Credential not found")
+            except subprocess.TimeoutExpired:
+                messages.error(request, "Connection timeout")
+            except Exception as e:
+                messages.error(request, f"Connection test failed: {str(e)}")
+
         return redirect("accounts_app:ssh_keys")
 
     # GET request
     workspace_ssh_keys = WorkspaceSSHKey.objects.filter(user=request.user).order_by(
         "-created_at"
+    )
+
+    # Get remote credentials
+    from apps.project_app.models import RemoteCredential
+    remote_credentials = RemoteCredential.objects.filter(user=request.user).order_by(
+        '-last_used_at', '-created_at'
     )
 
     context = {
@@ -217,6 +404,8 @@ def ssh_keys(request):
         "has_ssh_key": ssh_manager.has_ssh_key(),
         # Workspace SSH keys
         "workspace_ssh_keys": workspace_ssh_keys,
+        # Remote credentials
+        "remote_credentials": remote_credentials,
     }
     return render(request, "accounts_app/ssh_keys.html", context)
 
@@ -431,3 +620,154 @@ def account_settings(request):
         "user": request.user,
     }
     return render(request, "accounts_app/account_settings.html", context)
+
+
+@login_required
+def remote_credentials(request):
+    """Remote credentials management page."""
+    from apps.project_app.models import RemoteCredential
+    from pathlib import Path
+    import subprocess
+
+    credentials = RemoteCredential.objects.filter(user=request.user).order_by('-last_used_at', '-created_at')
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "add":
+            # Add new remote credential
+            name = request.POST.get("name", "").strip()
+            ssh_host = request.POST.get("ssh_host", "").strip()
+            ssh_port = request.POST.get("ssh_port", "22").strip()
+            ssh_username = request.POST.get("ssh_username", "").strip()
+            ssh_public_key = request.POST.get("ssh_public_key", "").strip()
+
+            # Validate inputs
+            if not all([name, ssh_host, ssh_username, ssh_public_key]):
+                messages.error(request, "All fields are required")
+                return redirect("accounts_app:remote_credentials")
+
+            try:
+                ssh_port = int(ssh_port)
+            except ValueError:
+                messages.error(request, "Invalid SSH port number")
+                return redirect("accounts_app:remote_credentials")
+
+            # Generate SSH key fingerprint
+            try:
+                # Save public key to temp file
+                import tempfile
+                with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.pub') as f:
+                    f.write(ssh_public_key)
+                    temp_pub_path = f.name
+
+                # Get fingerprint
+                result = subprocess.run(
+                    ['ssh-keygen', '-lf', temp_pub_path],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+
+                # Parse fingerprint (format: "2048 SHA256:xxx... user@host (RSA)")
+                fingerprint = result.stdout.split()[1] if result.stdout else "Unknown"
+
+                # Clean up temp file
+                Path(temp_pub_path).unlink()
+
+            except Exception as e:
+                messages.error(request, f"Invalid SSH public key: {str(e)}")
+                return redirect("accounts_app:remote_credentials")
+
+            # Generate private key path (we don't store the private key, just reference it)
+            private_key_path = f"/home/{request.user.username}/.ssh/scitex_remote_{name.lower().replace(' ', '_')}"
+
+            # Create credential
+            try:
+                credential = RemoteCredential.objects.create(
+                    user=request.user,
+                    name=name,
+                    ssh_host=ssh_host,
+                    ssh_port=ssh_port,
+                    ssh_username=ssh_username,
+                    ssh_public_key=ssh_public_key,
+                    ssh_key_fingerprint=fingerprint,
+                    private_key_path=private_key_path,
+                    is_active=True
+                )
+
+                messages.success(
+                    request,
+                    f"Remote credential '{name}' added successfully! "
+                    f"Please ensure your private key is at: {private_key_path}"
+                )
+
+            except Exception as e:
+                messages.error(request, f"Failed to add credential: {str(e)}")
+
+            return redirect("accounts_app:remote_credentials")
+
+        elif action == "delete":
+            # Delete credential
+            credential_id = request.POST.get("credential_id")
+
+            try:
+                credential = RemoteCredential.objects.get(id=credential_id, user=request.user)
+                credential_name = credential.name
+                credential.delete()
+                messages.success(request, f"Remote credential '{credential_name}' deleted")
+
+            except RemoteCredential.DoesNotExist:
+                messages.error(request, "Credential not found")
+
+            return redirect("accounts_app:remote_credentials")
+
+        elif action == "test":
+            # Test connection
+            credential_id = request.POST.get("credential_id")
+
+            try:
+                credential = RemoteCredential.objects.get(id=credential_id, user=request.user)
+
+                # Test SSH connection
+                ssh_key_path = credential.private_key_path
+
+                cmd = [
+                    "ssh",
+                    "-p", str(credential.ssh_port),
+                    "-i", ssh_key_path,
+                    "-o", "StrictHostKeyChecking=accept-new",
+                    "-o", "ConnectTimeout=10",
+                    f"{credential.ssh_username}@{credential.ssh_host}",
+                    "echo 'OK'"
+                ]
+
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=15
+                )
+
+                if result.returncode == 0:
+                    messages.success(request, f"✅ Connection successful to {credential.name}")
+                else:
+                    messages.error(
+                        request,
+                        f"❌ Connection failed to {credential.name}: {result.stderr}"
+                    )
+
+            except RemoteCredential.DoesNotExist:
+                messages.error(request, "Credential not found")
+            except subprocess.TimeoutExpired:
+                messages.error(request, "Connection timeout")
+            except Exception as e:
+                messages.error(request, f"Connection test failed: {str(e)}")
+
+            return redirect("accounts_app:remote_credentials")
+
+    context = {
+        "credentials": credentials,
+    }
+
+    return render(request, "accounts_app/remote_credentials.html", context)

@@ -60,11 +60,24 @@ class Project(models.Model):
         ("private", "Private"),
     ]
 
+    PROJECT_TYPES = [
+        ('local', 'Local Repository'),    # Git-enabled, Gitea
+        ('remote', 'Remote Filesystem'),  # SSHFS mount, no Git
+    ]
+
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, default="project")
     description = models.TextField()
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="project_app_owned_projects"
+    )
+
+    # Project Type (local vs remote)
+    project_type = models.CharField(
+        max_length=20,
+        choices=PROJECT_TYPES,
+        default='local',
+        help_text="Local (Git-enabled) or Remote (SSH mount, no Git)"
     )
 
     # Privacy settings
