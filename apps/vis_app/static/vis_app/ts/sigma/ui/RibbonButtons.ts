@@ -16,7 +16,21 @@
  * - Modal elements in DOM
  */
 
+// Map plot types to gallery preview images
+const PLOT_PREVIEW_IMAGES: Record<string, string> = {
+    scatter: '/static/vis_app/img/plot_gallery/01_matplotlib_basic/02_scatter.png',
+    line: '/static/vis_app/img/plot_gallery/01_matplotlib_basic/01_plot.png',
+    bar: '/static/vis_app/img/plot_gallery/01_matplotlib_basic/03_bar.png',
+    histogram: '/static/vis_app/img/plot_gallery/01_matplotlib_basic/04_hist.png',
+    box: '/static/vis_app/img/plot_gallery/01_matplotlib_basic/05_boxplot.png',
+    violin: '/static/vis_app/img/plot_gallery/02_custom_scitex/04_plot_violin.png',
+    heatmap: '/static/vis_app/img/plot_gallery/02_custom_scitex/01_plot_heatmap.png',
+    contour: '/static/vis_app/img/plot_gallery/01_matplotlib_basic/10_contour.png',
+};
+
 export class RibbonButtons {
+    private previewPopup: HTMLElement | null = null;
+
     constructor(
         private handleFileImportCallback?: (file: File) => void,
         private loadDemoDataCallback?: () => void,
@@ -31,7 +45,54 @@ export class RibbonButtons {
         private showTableHelpCallback?: () => void,
         private createQuickPlotCallback?: (plotType: string) => void,
         private handleExportPlotCSVCallback?: () => void
-    ) {}
+    ) {
+        this.createPreviewPopup();
+    }
+
+    /**
+     * Create the preview popup element
+     */
+    private createPreviewPopup(): void {
+        this.previewPopup = document.createElement('div');
+        this.previewPopup.className = 'plot-preview-popup';
+        this.previewPopup.innerHTML = `
+            <img src="" alt="Plot preview">
+            <div class="preview-label"></div>
+        `;
+        document.body.appendChild(this.previewPopup);
+    }
+
+    /**
+     * Show preview popup for a plot type button
+     */
+    private showPreview(btn: HTMLElement, plotType: string): void {
+        if (!this.previewPopup) return;
+
+        const imagePath = PLOT_PREVIEW_IMAGES[plotType];
+        if (!imagePath) return;
+
+        const img = this.previewPopup.querySelector('img') as HTMLImageElement;
+        const label = this.previewPopup.querySelector('.preview-label') as HTMLElement;
+
+        img.src = imagePath;
+        label.textContent = btn.getAttribute('data-tooltip') || plotType;
+
+        // Position below the button
+        const rect = btn.getBoundingClientRect();
+        this.previewPopup.style.left = `${rect.left + rect.width / 2 - 83}px`; // 83 = half of 150px + padding
+        this.previewPopup.style.top = `${rect.bottom + 8}px`;
+
+        this.previewPopup.classList.add('visible');
+    }
+
+    /**
+     * Hide preview popup
+     */
+    private hidePreview(): void {
+        if (this.previewPopup) {
+            this.previewPopup.classList.remove('visible');
+        }
+    }
 
     /**
      * Initialize all ribbon buttons and their handlers
@@ -148,9 +209,21 @@ export class RibbonButtons {
                     this.createQuickPlotCallback(plotType);
                 }
             });
+
+            // Add hover preview for plot type buttons
+            btn.addEventListener('mouseenter', () => {
+                const plotType = btn.getAttribute('data-plot-type');
+                if (plotType) {
+                    this.showPreview(btn as HTMLElement, plotType);
+                }
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                this.hidePreview();
+            });
         });
 
-        console.log('[RibbonButtons] Ribbon buttons initialized');
+        console.log('[RibbonButtons] Ribbon buttons initialized with hover previews');
     }
 
     /**

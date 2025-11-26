@@ -168,6 +168,17 @@ export class TableRendering {
         const totalTime = performance.now();
         console.log(`[TableRendering] ✅ Total render time: ${(totalTime - renderStart).toFixed(2)}ms`);
 
+        // Insert HTML into DOM
+        const dataContainer = document.querySelector('.data-table-container') as HTMLElement;
+        if (dataContainer) {
+            dataContainer.innerHTML = finalHTML;
+            // Hide empty state if it exists
+            const emptyState = document.getElementById('data-empty-state');
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+        }
+
         return finalHTML;
     }
 

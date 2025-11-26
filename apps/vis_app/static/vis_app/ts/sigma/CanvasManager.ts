@@ -14,14 +14,19 @@ import { CANVAS_CONSTANTS } from './types.js';
 export class CanvasManager {
     public canvas: any | null = null; // Fabric.js canvas instance
     private gridEnabled: boolean = true;
-    private canvasZoomLevel: number = 1.0;
+    private canvasZoomLevel: number = 0.22; // Start at 22% to fit full canvas (180mm × 240mm)
     private canvasPanOffset: { x: number, y: number } = { x: 0, y: 0 };
     private canvasIsPanning: boolean = false;
+    private canvasIsZoomDragging: boolean = false;  // Ctrl+drag zoom mode
     private canvasPanStartPoint: { x: number, y: number } | null = null;
+    private canvasZoomDragStartY: number = 0;
+    private canvasZoomDragStartLevel: number = 1;
     private canvasWheelThrottleFrame: number | null = null;
     private canvasAccumulatedZoomDelta: number = 0;
     private canvasLastZoomMousePos: { x: number, y: number } = { x: 0, y: 0 };
     private canvasAccumulatedPanDelta: { x: number, y: number } = { x: 0, y: 0 };
+    private canvasDragThrottleFrame: number | null = null;
+    private pendingDragUpdate: boolean = false;
 
     constructor(
         private statusBarCallback?: (message: string) => void,
@@ -63,12 +68,18 @@ export class CanvasManager {
         const defaultWidth = CANVAS_CONSTANTS.MAX_CANVAS_WIDTH;   // 180mm @ 300dpi
         const defaultHeight = CANVAS_CONSTANTS.MAX_CANVAS_HEIGHT; // 240mm @ 300dpi
 
+        // Get initial theme from localStorage (canvas has its own theme, defaults to global)
+        const globalTheme = localStorage.getItem('scitex-theme-preference') || 'dark';
+        const savedCanvasTheme = localStorage.getItem('canvas-theme') || globalTheme;
+        const initialIsDark = savedCanvasTheme === 'dark';
+        const initialBgColor = initialIsDark ? '#2a2a2a' : '#ffffff';
+
         try {
-            // SCIENTIFIC INTEGRITY: Canvas background ALWAYS white (#ffffff)
+            // Initialize canvas with correct theme from the start
             this.canvas = new fabric.Canvas('sigma-canvas', {
                 width: defaultWidth,
                 height: defaultHeight,
-                backgroundColor: '#ffffff',  // NEVER change - scientific integrity
+                backgroundColor: initialBgColor,
                 selection: true,
                 selectionKey: 'ctrlKey',  // PowerPoint-style multi-select
             });
@@ -77,7 +88,7 @@ export class CanvasManager {
             console.log(`[CanvasManager] Fabric.js canvas created in ${(canvasCreateTime - startTime).toFixed(2)}ms (${defaultWidth}×${defaultHeight}px)`);
 
             if (this.gridEnabled) {
-                this.drawGrid();
+                this.drawGrid(initialIsDark);  // Use initial theme for grid
                 const gridTime = performance.now();
                 console.log(`[CanvasManager] Grid drawn in ${(gridTime - canvasCreateTime).toFixed(2)}ms`);
                 console.log(`[CanvasManager] ✅ Total canvas init: ${(gridTime - startTime).toFixed(2)}ms`);
@@ -90,60 +101,21 @@ export class CanvasManager {
     }
 
     /**
-     * Draw grid as optimized SVG background (mm-precision maintained)
-     * PERFORMANCE: Single SVG pattern instead of 420+ Fabric objects
+     * Draw grid using pre-rendered static SVG files
+     * PERFORMANCE: Static SVG files are cached by browser
      */
     public drawGrid(isDark: boolean = false): void {
         if (!this.canvas) return;
 
         const startTime = performance.now();
-        const width = this.canvas.getWidth();
-        const height = this.canvas.getHeight();
 
-        // Grid colors adapt to theme
-        const minorGridColor = isDark ? '#404040' : '#e5e5e5';
-        const majorGridColor = isDark ? '#606060' : '#999999';
-        const columnLineColor = '#0080c0';
-
-        // PRECISION: Use exact MM_TO_PX constant (11.811 px = 1mm @ 300dpi)
-        const gridSize = CANVAS_CONSTANTS.GRID_SIZE;  // 1mm in pixels
-        const majorInterval = 10;  // 10mm = major grid lines
-
-        // Create SVG pattern with mm-precision
-        const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-  <defs>
-    <!-- 1mm minor grid pattern -->
-    <pattern id="minor-grid" width="${gridSize}" height="${gridSize}" patternUnits="userSpaceOnUse">
-      <line x1="0" y1="0" x2="0" y2="${gridSize}" stroke="${minorGridColor}" stroke-width="0.5"/>
-      <line x1="0" y1="0" x2="${gridSize}" y2="0" stroke="${minorGridColor}" stroke-width="0.5"/>
-    </pattern>
-
-    <!-- 10mm major grid pattern -->
-    <pattern id="major-grid" width="${gridSize * majorInterval}" height="${gridSize * majorInterval}" patternUnits="userSpaceOnUse">
-      <line x1="0" y1="0" x2="0" y2="${gridSize * majorInterval}" stroke="${majorGridColor}" stroke-width="1"/>
-      <line x1="0" y1="0" x2="${gridSize * majorInterval}" y2="0" stroke="${majorGridColor}" stroke-width="1"/>
-    </pattern>
-  </defs>
-
-  <!-- Apply patterns -->
-  <rect width="${width}" height="${height}" fill="url(#minor-grid)"/>
-  <rect width="${width}" height="${height}" fill="url(#major-grid)"/>
-
-  <!-- Column guide lines at 45mm, 90mm, 135mm (0.5, 1.0, 1.5 columns) -->
-  <line x1="${45 * CANVAS_CONSTANTS.MM_TO_PX}" y1="0" x2="${45 * CANVAS_CONSTANTS.MM_TO_PX}" y2="${height}"
-        stroke="${columnLineColor}" stroke-width="1.5" stroke-dasharray="10,5"/>
-  <line x1="${90 * CANVAS_CONSTANTS.MM_TO_PX}" y1="0" x2="${90 * CANVAS_CONSTANTS.MM_TO_PX}" y2="${height}"
-        stroke="${columnLineColor}" stroke-width="1.5" stroke-dasharray="10,5"/>
-  <line x1="${135 * CANVAS_CONSTANTS.MM_TO_PX}" y1="0" x2="${135 * CANVAS_CONSTANTS.MM_TO_PX}" y2="${height}"
-        stroke="${columnLineColor}" stroke-width="1.5" stroke-dasharray="10,5"/>
-</svg>`.trim();
-
-        // Convert SVG to data URL
-        const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(svg);
+        // Use pre-rendered static SVG files for maximum performance
+        const gridUrl = isDark
+            ? '/static/vis_app/img/sigma/grid-dark.svg'
+            : '/static/vis_app/img/sigma/grid-light.svg';
 
         // Load as Fabric.js background image
-        fabric.Image.fromURL(svgDataUrl, (img: any) => {
+        fabric.Image.fromURL(gridUrl, (img: any) => {
             this.canvas!.setBackgroundImage(img, this.canvas!.renderAll.bind(this.canvas), {
                 scaleX: 1,
                 scaleY: 1,
@@ -152,10 +124,10 @@ export class CanvasManager {
             });
 
             const endTime = performance.now();
-            console.log(`[CanvasManager] ✅ Grid drawn as SVG background in ${(endTime - startTime).toFixed(2)}ms (mm-precision maintained)`);
+            console.log(`[CanvasManager] ✅ Grid loaded from static SVG in ${(endTime - startTime).toFixed(2)}ms (${isDark ? 'dark' : 'light'} mode)`);
 
             if (this.statusBarCallback) {
-                this.statusBarCallback('Grid enabled (SVG optimized)');
+                this.statusBarCallback('Grid enabled');
             }
         }, { crossOrigin: 'anonymous' });
     }
@@ -185,7 +157,9 @@ export class CanvasManager {
         this.gridEnabled = !this.gridEnabled;
 
         if (this.gridEnabled) {
-            this.drawGrid();
+            // Determine current theme from localStorage
+            const savedTheme = localStorage.getItem('canvas-theme') || localStorage.getItem('scitex-theme-preference') || 'dark';
+            this.drawGrid(savedTheme === 'dark');
         } else {
             this.clearGrid();
         }
@@ -223,20 +197,55 @@ export class CanvasManager {
             return;
         }
 
-        // Mouse down - Check for panning
+        // Mouse down - Check for panning or zoom dragging
         canvasContainer.addEventListener('mousedown', (e: MouseEvent) => {
             if (e.button === 1 || (e as any).spaceKey) {
-                this.canvasIsPanning = true;
-                this.canvasPanStartPoint = { x: e.clientX, y: e.clientY };
-                canvasContainer.style.cursor = 'grabbing';
-                e.preventDefault();
-                console.log('[CanvasManager] Canvas pan mode started');
+                if (e.ctrlKey || e.metaKey) {
+                    // Ctrl + middle mouse = zoom drag mode
+                    this.canvasIsZoomDragging = true;
+                    this.canvasZoomDragStartY = e.clientY;
+                    this.canvasZoomDragStartLevel = this.canvasZoomLevel;
+                    canvasContainer.style.cursor = 'ns-resize';
+                    e.preventDefault();
+                    console.log('[CanvasManager] Canvas zoom drag mode started');
+                } else {
+                    // Middle mouse without Ctrl = pan mode
+                    this.canvasIsPanning = true;
+                    this.canvasPanStartPoint = { x: e.clientX, y: e.clientY };
+                    canvasContainer.style.cursor = 'grabbing';
+                    e.preventDefault();
+                    console.log('[CanvasManager] Canvas pan mode started');
+                }
             }
         });
 
-        // Mouse move - Handle panning
+        // Mouse move - Handle panning or zoom dragging
         canvasContainer.addEventListener('mousemove', (e: MouseEvent) => {
-            if (this.canvasIsPanning && this.canvasPanStartPoint) {
+            if (this.canvasIsZoomDragging) {
+                // Ctrl+drag zoom: vertical movement changes zoom
+                const deltaY = e.clientY - this.canvasZoomDragStartY;
+                const zoomFactor = 1 - (deltaY * 0.005); // Drag up = zoom in, drag down = zoom out
+                let newZoom = this.canvasZoomDragStartLevel * zoomFactor;
+
+                // Clamp zoom level
+                if (newZoom > 5) newZoom = 5;
+                if (newZoom < 0.1) newZoom = 0.1;
+
+                this.canvasZoomLevel = newZoom;
+
+                // Throttle updates using requestAnimationFrame
+                if (!this.pendingDragUpdate) {
+                    this.pendingDragUpdate = true;
+                    this.canvasDragThrottleFrame = requestAnimationFrame(() => {
+                        this.updateCanvasTransform();
+                        if (this.rulersAreaTransformCallback) {
+                            this.rulersAreaTransformCallback();
+                        }
+                        this.updateCanvasZoomDisplay();
+                        this.pendingDragUpdate = false;
+                    });
+                }
+            } else if (this.canvasIsPanning && this.canvasPanStartPoint) {
                 let deltaX = e.clientX - this.canvasPanStartPoint.x;
                 let deltaY = e.clientY - this.canvasPanStartPoint.y;
 
@@ -247,22 +256,42 @@ export class CanvasManager {
 
                 this.canvasPanOffset.x += deltaX;
                 this.canvasPanOffset.y += deltaY;
-                this.updateCanvasTransform();
-                if (this.rulersAreaTransformCallback) {
-                    this.rulersAreaTransformCallback();
+
+                // Throttle updates using requestAnimationFrame
+                if (!this.pendingDragUpdate) {
+                    this.pendingDragUpdate = true;
+                    this.canvasDragThrottleFrame = requestAnimationFrame(() => {
+                        this.updateCanvasTransform();
+                        if (this.rulersAreaTransformCallback) {
+                            this.rulersAreaTransformCallback();
+                        }
+                        this.pendingDragUpdate = false;
+                    });
                 }
 
                 this.canvasPanStartPoint = { x: e.clientX, y: e.clientY };
             }
         });
 
-        // Mouse up - Reset panning
+        // Mouse up - Reset panning or zoom dragging
         canvasContainer.addEventListener('mouseup', () => {
+            if (this.canvasIsZoomDragging) {
+                this.canvasIsZoomDragging = false;
+                canvasContainer.style.cursor = 'default';
+                console.log('[CanvasManager] Canvas zoom drag mode ended');
+            }
             if (this.canvasIsPanning) {
                 this.canvasIsPanning = false;
                 this.canvasPanStartPoint = null;
                 canvasContainer.style.cursor = 'default';
                 console.log('[CanvasManager] Canvas pan mode ended');
+            }
+
+            // Cancel any pending throttled updates
+            if (this.canvasDragThrottleFrame !== null) {
+                cancelAnimationFrame(this.canvasDragThrottleFrame);
+                this.canvasDragThrottleFrame = null;
+                this.pendingDragUpdate = false;
             }
         });
 
@@ -372,13 +401,44 @@ export class CanvasManager {
     }
 
     /**
-     * Zoom to fit
+     * Zoom to fit - fits full canvas (180mm × 240mm) within viewport
      */
     public zoomToFit(): void {
-        this.canvasZoomLevel = 1.0;
+        const canvasContainer = document.getElementById('canvas-container');
+        if (!canvasContainer) {
+            console.warn('[CanvasManager] canvas-container not found, using default zoom');
+            this.canvasZoomLevel = 0.22;  // Default to 22% to fit full canvas
+            this.canvasPanOffset = { x: 0, y: 0 };
+            this.applyZoom();
+            return;
+        }
+
+        // Get container dimensions (with padding for rulers)
+        const containerWidth = canvasContainer.clientWidth - 40;  // Account for rulers
+        const containerHeight = canvasContainer.clientHeight - 40;
+
+        console.log(`[CanvasManager] Container dimensions: ${containerWidth}×${containerHeight}px`);
+
+        // Full canvas: 180mm width × 240mm height at 300dpi
+        const canvasWidth = CANVAS_CONSTANTS.MAX_CANVAS_WIDTH;   // 2126px (180mm)
+        const canvasHeight = CANVAS_CONSTANTS.MAX_CANVAS_HEIGHT; // 2835px (240mm)
+
+        console.log(`[CanvasManager] Canvas dimensions: ${canvasWidth}×${canvasHeight}px`);
+
+        // Calculate zoom to fit entire canvas
+        const zoomX = containerWidth / canvasWidth;
+        const zoomY = containerHeight / canvasHeight;
+
+        // Use minimum zoom to fit, but ensure at least 10% minimum
+        this.canvasZoomLevel = Math.max(Math.min(zoomX, zoomY, 1.0), 0.1);
+
+        console.log(`[CanvasManager] Calculated zoom: zoomX=${zoomX.toFixed(3)}, zoomY=${zoomY.toFixed(3)}, final=${this.canvasZoomLevel.toFixed(3)}`);
+
+        // Reset pan offset
         this.canvasPanOffset = { x: 0, y: 0 };
+
         this.applyZoom();
-        console.log('[CanvasManager] Canvas zoomed to fit - Reset to 100%');
+        console.log(`[CanvasManager] Canvas zoomed to fit: ${Math.round(this.canvasZoomLevel * 100)}% (container: ${containerWidth}×${containerHeight}px)`);
     }
 
     /**
