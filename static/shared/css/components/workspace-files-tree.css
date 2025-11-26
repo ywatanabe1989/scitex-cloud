@@ -367,3 +367,30 @@
     background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.5));
   }
 }
+
+/* Drag-and-drop styles */
+.wft-item[draggable="true"] {
+  cursor: grab;
+}
+
+.wft-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.wft-item.wft-dragging {
+  opacity: 0.5;
+  background-color: var(--color-canvas-subtle, rgba(127, 127, 127, 0.2));
+}
+
+.wft-folder.wft-drop-target {
+  background-color: var(--color-success-subtle, rgba(46, 160, 67, 0.2));
+  border: 2px dashed var(--color-success-emphasis, #2ea043);
+  outline: none;
+}
+
+/* Symlink indicator */
+.wft-symlink {
+  color: var(--color-fg-muted, rgba(127, 127, 127, 0.7));
+  font-style: italic;
+  margin-left: 4px;
+}
