@@ -970,7 +970,7 @@
 
       // Handle project selection
       projectItems.forEach((item) => {
-        item.addEventListener("click", function (e) {
+        item.addEventListener("click", async function (e) {
           e.preventDefault();
           const projectId = this.getAttribute("data-project-id");
           const projectName = this.getAttribute("data-project-name");
@@ -997,6 +997,36 @@
 
           // Close dropdown
           projectDropdown.style.display = "none";
+
+          // Call API to update backend's last_active_repository
+          try {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                            document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+
+            const response = await fetch('/api/project/switch/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+              },
+              body: JSON.stringify({
+                project_id: projectId
+              })
+            });
+
+            const data = await response.json();
+            if (!data.success) {
+              console.error('Failed to switch project:', data.error);
+              alert('Failed to switch project: ' + data.error);
+            } else {
+              console.log('Successfully switched to project:', data.project.name);
+              // Reload page to ensure all content is up-to-date with new project
+              window.location.reload();
+            }
+          } catch (error) {
+            console.error('Error switching project:', error);
+            alert('Error switching project. Please try again.');
+          }
         });
       });
 
