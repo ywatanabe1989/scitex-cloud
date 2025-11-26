@@ -34,6 +34,7 @@ export class EventHandlerSetup {
     this.setupPDFColorModeToggle();
     this.setupPreviewHandlers();
     this.setupAutoFullCompile();
+    this.setupFileTreeLoader();
   }
 
   /**
@@ -178,5 +179,55 @@ export class EventHandlerSetup {
         });
       }
     }
+  }
+
+  /**
+   * Setup file tree content loader
+   * Listens for file selection from the file tree and loads content into Monaco editor
+   */
+  private setupFileTreeLoader(): void {
+    console.log('[EventHandlerSetup] Setting up file tree loader');
+    console.log('[EventHandlerSetup] Editor type:', this.editor?.getEditorType?.());
+    console.log('[EventHandlerSetup] Editor methods:', Object.keys(this.editor || {}));
+
+    window.addEventListener('writer:fileContentLoaded', (event: any) => {
+      const { path, content } = event.detail;
+      console.log(`[EventHandlerSetup] Event received: writer:fileContentLoaded`);
+      console.log(`[EventHandlerSetup] Path: ${path}, Content length: ${content?.length}`);
+
+      if (!this.editor) {
+        console.error('[EventHandlerSetup] Editor is not available!');
+        return;
+      }
+
+      if (content === undefined) {
+        console.error('[EventHandlerSetup] Content is undefined!');
+        return;
+      }
+
+      try {
+        // Set content in the editor
+        console.log('[EventHandlerSetup] Calling editor.setContent()...');
+        this.editor.setContent(content);
+        console.log(`[EventHandlerSetup] ✓ File content loaded into editor: ${path}`);
+
+        // Update state
+        if (this.state) {
+          this.state.currentFile = path;
+          console.log('[EventHandlerSetup] ✓ State updated with current file');
+        }
+
+        // Trigger quick preview compilation for .tex files
+        if (path.endsWith('.tex') && this.pdfPreviewManager) {
+          console.log(`[EventHandlerSetup] Triggering preview compilation for: ${path}`);
+          setTimeout(() => {
+            this.pdfPreviewManager.compileQuick(content, path);
+          }, 300);
+        }
+      } catch (error) {
+        console.error('[EventHandlerSetup] Error loading file content:', error);
+      }
+    });
+    console.log('[EventHandlerSetup] ✓ File tree loader event listener attached');
   }
 }

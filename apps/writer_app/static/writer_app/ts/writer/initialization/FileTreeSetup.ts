@@ -10,6 +10,8 @@ import {
   populateSectionDropdownDirect,
 } from "../../utils/index.js";
 import { loadTexFile } from "../files/FileLoader.js";
+import { initializeWriterFilter } from "../../modules/writer-file-filter.js";
+import { PanelSwitcher } from "../ui/PanelSwitcher.js";
 
 export class FileTreeSetup {
   private config: any;
@@ -19,6 +21,7 @@ export class FileTreeSetup {
   private state: any;
   private pdfPreviewManager: any;
   private statePersistence: any;
+  private panelSwitcher: PanelSwitcher;
 
   constructor(
     config: any,
@@ -36,6 +39,7 @@ export class FileTreeSetup {
     this.state = state;
     this.pdfPreviewManager = pdfPreviewManager;
     this.statePersistence = statePersistence;
+    this.panelSwitcher = new PanelSwitcher();
   }
 
   /**
@@ -127,13 +131,6 @@ export class FileTreeSetup {
     fileTreeContainer: HTMLElement,
     onFileSelectHandler: (sectionId: string, sectionName: string) => void,
   ): void {
-    const fileTreeManager = new FileTreeManager({
-      projectId: this.config.projectId,
-      container: fileTreeContainer,
-      texFileDropdownId: "texfile-selector",
-      onFileSelect: onFileSelectHandler,
-    });
-
     // Restore saved doctype
     const savedDoctype = this.statePersistence.getSavedDoctype();
     const docTypeSelector = document.getElementById(
@@ -143,6 +140,53 @@ export class FileTreeSetup {
       docTypeSelector.value = savedDoctype;
       console.log("[FileTreeSetup] Restored saved doctype:", savedDoctype);
     }
+
+    // Initialize writer filter with current doctype
+    const currentDoctype = savedDoctype || "manuscript";
+    const writerFilter = initializeWriterFilter(currentDoctype, null);
+    console.log("[FileTreeSetup] Initialized writer filter with doctype:", currentDoctype);
+
+    // Enhanced file select handler that updates section filter and switches panel
+    const enhancedFileSelectHandler = (sectionId: string, sectionName: string): void => {
+      console.log("[FileTreeSetup] File selected:", sectionId, sectionName);
+
+      // If it's a .tex file, extract section from path and update filter
+      if (sectionId.endsWith(".tex")) {
+        const section = writerFilter.extractSectionFromPath(sectionId);
+        if (section) {
+          console.log("[FileTreeSetup] Extracted section from file path:", section);
+          writerFilter.setSection(section);
+
+          // Auto-switch panel based on section
+          const currentDoctype = writerFilter.getState().doctype;
+          this.panelSwitcher.autoSwitchForSection(section, currentDoctype);
+
+          // Update section dropdown to match
+          const sectionDropdown = document.getElementById("texfile-selector") as HTMLSelectElement;
+          if (sectionDropdown) {
+            // Find matching option by section name
+            const options = Array.from(sectionDropdown.options);
+            const matchingOption = options.find(opt => {
+              const optionSection = writerFilter.extractSectionFromPath(opt.value);
+              return optionSection === section;
+            });
+            if (matchingOption) {
+              sectionDropdown.value = matchingOption.value;
+            }
+          }
+        }
+      }
+
+      // Call original handler
+      onFileSelectHandler(sectionId, sectionName);
+    };
+
+    const fileTreeManager = new FileTreeManager({
+      projectId: this.config.projectId,
+      container: fileTreeContainer,
+      texFileDropdownId: "texfile-selector",
+      onFileSelect: enhancedFileSelectHandler,
+    });
 
     // Load file tree
     fileTreeManager.load().catch((error) => {
@@ -154,6 +198,35 @@ export class FileTreeSetup {
     if (refreshBtn) {
       refreshBtn.addEventListener("click", () => {
         fileTreeManager.refresh();
+      });
+    }
+
+    // Listen to section dropdown changes
+    const sectionDropdown = document.getElementById("texfile-selector") as HTMLSelectElement;
+    if (sectionDropdown) {
+      sectionDropdown.addEventListener("change", (e) => {
+        const selectedValue = (e.target as HTMLSelectElement).value;
+        console.log("[FileTreeSetup] Section dropdown changed to:", selectedValue);
+
+        // Extract section from selected value and update filter
+        if (selectedValue.endsWith(".tex")) {
+          const section = writerFilter.extractSectionFromPath(selectedValue);
+          if (section) {
+            console.log("[FileTreeSetup] Updating filter with section:", section);
+            fileTreeManager.updateForSection(section);
+
+            // Auto-switch panel based on section
+            const currentDoctype = writerFilter.getState().doctype;
+            this.panelSwitcher.autoSwitchForSection(section, currentDoctype);
+
+            // Focus on the section file in the tree
+            // Fold everything except the path to this file and scroll to it
+            const expectedPath = writerFilter.getExpectedFilePath(currentDoctype, section);
+            console.log("[FileTreeSetup] Focusing on expected path:", expectedPath);
+            fileTreeManager.foldExceptTarget(expectedPath);
+            fileTreeManager.focusOnTarget(expectedPath);
+          }
+        }
       });
     }
 
@@ -180,6 +253,8 @@ export class FileTreeSetup {
             "[FileTreeSetup] Saved doctype to persistence:",
             newDocType,
           );
+          // Update filter with new doctype
+          writerFilter.setDoctype(newDocType);
           // Update section dropdown for the new document type
           fileTreeManager.updateForDocType(newDocType);
           // Update PDF preview manager to use the new document type
@@ -191,6 +266,24 @@ export class FileTreeSetup {
             this.state,
             newDocType,
           );
+
+          // Focus on the doctype directory in the tree
+          // For supplementary: fold everything except 02_supplementary
+          // For revision: fold everything except 03_revision
+          let doctypeFolder = '';
+          if (newDocType === 'manuscript') {
+            doctypeFolder = '01_manuscript';
+          } else if (newDocType === 'supplementary') {
+            doctypeFolder = '02_supplementary';
+          } else if (newDocType === 'revision') {
+            doctypeFolder = '03_revision';
+          }
+
+          if (doctypeFolder) {
+            console.log("[FileTreeSetup] Focusing on doctype folder:", doctypeFolder);
+            fileTreeManager.foldExceptTarget(doctypeFolder);
+            fileTreeManager.focusOnTarget(doctypeFolder, true);
+          }
         }
       });
     }

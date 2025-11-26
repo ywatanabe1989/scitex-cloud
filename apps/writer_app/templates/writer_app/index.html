@@ -4,6 +4,8 @@
 {% block extra_css %}
     <!-- Critical CSS - loaded immediately (editor, PDF, core UI) -->
     <link rel="stylesheet"
+          href="{% static 'shared/css/components/workspace-files-tree.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
           href="{% static 'writer_app/css/editor/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'writer_app/css/editor/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}" />
@@ -68,28 +70,22 @@
             </div>
         </div>
     {% elif pool_exhausted %}
-        <div id="pool-exhausted-message" class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm border-warning">
-                        <div class="card-body text-center p-5">
-                            <i class="fas fa-users fa-3x text-warning mb-3"></i>
-                            <h3 class="mb-3">High Traffic</h3>
-                            <p class="text-muted mb-4">
-                                All visitor slots are currently in use. Please try again in a few
-                                minutes, or sign up for immediate access.
-                            </p>
-                            <a href="{% url 'auth_app:signup' %}"
-                               class="btn btn-primary btn-lg me-2">
-                                <i class="fas fa-user-plus me-2"></i>Sign Up Now
-                            </a>
-                            <a href="{% url 'auth_app:login' %}"
-                               class="btn btn-outline-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>Log In
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <div id="pool-exhausted-message" class="writer-fullscreen-message">
+            <div class="message-card">
+                <i class="fas fa-users fa-3x text-warning mb-3"></i>
+                <h3 class="mb-3">High Traffic</h3>
+                <p class="text-muted mb-4">
+                    All visitor slots are currently in use. Please try again in a few
+                    minutes, or sign up for immediate access.
+                </p>
+                <a href="{% url 'auth_app:signup' %}"
+                   class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-user-plus me-2"></i>Sign Up Now
+                </a>
+                <a href="{% url 'auth_app:login' %}"
+                   class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Log In
+                </a>
             </div>
         </div>
     {% elif needs_project_creation %}
@@ -114,9 +110,63 @@
         </div>
     {% else %}
         {% include "writer_app/index_partials/init_prompt.html" %}
-        <div class="writer-container"
-             {% if not writer_initialized and not is_demo %}hidden{% endif %}>
-            {% include "writer_app/index_partials/main_editor.html" %}
+        <!-- Writer workspace with optional sidebar -->
+        <div class="writer-workspace" {% if not writer_initialized and not is_demo %}hidden{% endif %}>
+            {% if project %}
+            <!-- Left sidebar: File tree -->
+            <aside class="writer-sidebar" id="writer-sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-header-content">
+                        <h5><i class="fas fa-folder-open"></i> Files</h5>
+                        <!-- Doc Type / Section Selectors -->
+                        <div class="doctype-section-selectors" style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                            <!-- Doc Type Selector -->
+                            <div class="selector-group" style="flex: 1; min-width: 120px;">
+                                <label for="doctype-selector" style="font-size: 0.7rem; color: var(--color-fg-muted); display: block; margin-bottom: 0.2rem;">
+                                    <i class="fas fa-file-alt"></i> Document
+                                </label>
+                                <select id="doctype-selector" class="form-select form-select-sm" style="font-size: 0.75rem;">
+                                    <option value="shared">Shared</option>
+                                    <option value="manuscript" selected>Manuscript</option>
+                                    <option value="supplementary">Supplementary</option>
+                                    <option value="revision">Revision</option>
+                                </select>
+                            </div>
+                            <!-- Section Selector -->
+                            <div class="selector-group" style="flex: 1; min-width: 120px;">
+                                <label for="section-selector-toggle" style="font-size: 0.7rem; color: var(--color-fg-muted); display: block; margin-bottom: 0.2rem;">
+                                    <i class="fas fa-file-code"></i> Section
+                                </label>
+                                <div class="custom-section-selector">
+                                    <button id="section-selector-toggle" class="section-selector-btn" type="button" style="width: 100%; font-size: 0.75rem; text-align: left; padding: 0.25rem 0.5rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                        <span id="section-selector-text">Loading...</span>
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink: 0;">
+                                            <path d="M4 6l4 4 4-4H4z"/>
+                                        </svg>
+                                    </button>
+                                    <div id="section-selector-dropdown" class="section-selector-dropdown" style="display: none; position: absolute; z-index: 1000; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 0.25rem; min-width: 200px;">
+                                        <!-- Sections will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sidebar-header-hint" title="Click to select editable files" style="margin-top: 0.5rem;">
+                            <i class="fas fa-info-circle"></i> .tex, .bib, .pdf, .png, .jpg, .csv
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-content" id="writer-file-tree">
+                    <!-- WorkspaceFilesTree will render here -->
+                    <div class="wft-loading">Loading...</div>
+                </div>
+            </aside>
+            <!-- Sidebar resizer -->
+            <div class="sidebar-resizer" id="sidebar-resizer"></div>
+            {% endif %}
+            <!-- Main content: editor + preview -->
+            <div class="writer-container">
+                {% include "writer_app/index_partials/main_editor.html" %}
+            </div>
         </div>
         {% include "writer_app/index_partials/word_count.html" %}
         <!-- Compilation Options Modal (without redundant header) -->
@@ -215,5 +265,177 @@
         <!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
         <script type="module"
                 src="{% static 'shared/js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
+        {% if project %}
+        <!-- Workspace Files Tree for Writer -->
+        <script type="module">
+            import { WorkspaceFilesTree } from '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js';
+
+            // Store tree instance globally for editor to access
+            let writerFileTree = null;
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                const fileTreeContainer = document.getElementById('writer-file-tree');
+                const currentFileNameEl = document.getElementById('current-file-name');
+                const currentFileDisplayEl = document.getElementById('current-file-display');
+                const previewPanel = document.getElementById('text-preview');
+
+                // Helper to update current file display
+                const updateCurrentFile = (path, icon = 'fa-file-alt') => {
+                    if (currentFileNameEl) {
+                        const fileName = path.split('/').pop();
+                        currentFileNameEl.textContent = fileName;
+                        currentFileNameEl.title = path;
+                    }
+                    if (currentFileDisplayEl) {
+                        const iconEl = currentFileDisplayEl.querySelector('i');
+                        if (iconEl) {
+                            iconEl.className = `fas ${icon}`;
+                        }
+                    }
+                };
+
+                // Helper to load file content into editor
+                const loadFileIntoEditor = async (path) => {
+                    try {
+                        console.log('[Writer] Loading file:', path);
+
+                        // Use the same API endpoint as /code/ app
+                        const projectId = {{ project.id }};
+                        const response = await fetch(`/code/api/file-content/${encodeURIComponent(path)}?project_id=${projectId}`);
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('[Writer] File content received, length:', data.content?.length);
+
+                            if (data.success) {
+                                // Mark file as target in tree
+                                if (writerFileTree) {
+                                    writerFileTree.setTargetFile(path);
+                                }
+                                // Dispatch event with file content
+                                const event = new CustomEvent('writer:fileContentLoaded', {
+                                    detail: { path, content: data.content }
+                                });
+                                console.log('[Writer] Dispatching writer:fileContentLoaded event');
+                                window.dispatchEvent(event);
+                            } else {
+                                console.error('[Writer] API returned success=false:', data.message);
+                            }
+                        } else {
+                            console.error('[Writer] Failed to fetch file:', response.status, response.statusText);
+                            const errorData = await response.json().catch(() => ({}));
+                            console.error('[Writer] Error details:', errorData);
+                        }
+                    } catch (error) {
+                        console.error('[Writer] Failed to load file:', error);
+                    }
+                };
+
+                // Helper to show PDF in preview panel
+                const showPdfInPreview = (path) => {
+                    if (previewPanel) {
+                        const pdfUrl = `/{{ project.owner.username }}/{{ project.slug }}/files/${path}`;
+                        previewPanel.innerHTML = `
+                            <div class="pdfjs-viewer" style="width: 100%; height: 100%;">
+                                <iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
+                            </div>
+                        `;
+                    }
+                };
+
+                // Helper to show image in preview panel
+                const showImageInPreview = (path) => {
+                    if (previewPanel) {
+                        const imageUrl = `/{{ project.owner.username }}/{{ project.slug }}/files/${path}`;
+                        previewPanel.innerHTML = `
+                            <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 20px;">
+                                <img src="${imageUrl}" alt="${path}" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            </div>
+                        `;
+                    }
+                };
+
+                if (fileTreeContainer) {
+                    writerFileTree = new WorkspaceFilesTree({
+                        mode: 'writer',
+                        containerId: 'writer-file-tree',
+                        username: '{{ project.owner.username }}',
+                        slug: '{{ project.slug }}',
+                        showFolderActions: false,
+                        showGitStatus: true,
+                        allowedExtensions: ['.tex', '.bib', '.cls', '.sty', '.pdf', '.csv', '.xlsx', '.xls', '.png', '.jpg', '.jpeg', '.svg', '.eps', '.bbl', '.bst'],
+                        onFileSelect: (path, item) => {
+                            console.log('[Writer] File selected:', path);
+                            const ext = path.split('.').pop()?.toLowerCase();
+
+                            if (ext === 'tex') {
+                                updateCurrentFile(path, 'fa-file-code');
+                                loadFileIntoEditor(path);
+                            } else if (ext === 'bib' || ext === 'bbl' || ext === 'bst') {
+                                updateCurrentFile(path, 'fa-book');
+                                loadFileIntoEditor(path);
+                            } else if (ext === 'pdf') {
+                                updateCurrentFile(path, 'fa-file-pdf');
+                                showPdfInPreview(path);
+                            } else if (['png', 'jpg', 'jpeg', 'svg', 'eps'].includes(ext)) {
+                                updateCurrentFile(path, 'fa-image');
+                                showImageInPreview(path);
+                            } else if (['csv', 'xlsx', 'xls'].includes(ext)) {
+                                updateCurrentFile(path, 'fa-table');
+                                window.dispatchEvent(new CustomEvent('writer:loadDataFile', { detail: { path } }));
+                            }
+                        }
+                    });
+                    await writerFileTree.initialize();
+
+                    // Make tree globally accessible for editor/other components
+                    window.writerFileTree = writerFileTree;
+
+                    // Sidebar resizer
+                    const resizer = document.getElementById('sidebar-resizer');
+                    const sidebar = document.getElementById('writer-sidebar');
+                    if (resizer && sidebar) {
+                        let isResizing = false;
+                        let startX = 0;
+                        let startWidth = 0;
+
+                        resizer.addEventListener('mousedown', (e) => {
+                            isResizing = true;
+                            startX = e.clientX;
+                            startWidth = sidebar.getBoundingClientRect().width;
+                            resizer.classList.add('active');
+                            document.body.style.cursor = 'col-resize';
+                            document.body.style.userSelect = 'none';
+                        });
+
+                        document.addEventListener('mousemove', (e) => {
+                            if (!isResizing) return;
+                            const delta = e.clientX - startX;
+                            const newWidth = Math.max(200, Math.min(500, startWidth + delta));
+                            sidebar.style.width = `${newWidth}px`;
+                        });
+
+                        document.addEventListener('mouseup', () => {
+                            if (isResizing) {
+                                isResizing = false;
+                                resizer.classList.remove('active');
+                                document.body.style.cursor = '';
+                                document.body.style.userSelect = '';
+                                // Save width to localStorage
+                                const width = sidebar.getBoundingClientRect().width;
+                                localStorage.setItem('scitex-writer-sidebar-width', width.toString());
+                            }
+                        });
+
+                        // Restore saved width
+                        const savedWidth = localStorage.getItem('scitex-writer-sidebar-width');
+                        if (savedWidth) {
+                            sidebar.style.width = `${savedWidth}px`;
+                        }
+                    }
+                }
+            });
+        </script>
+        {% endif %}
     {% endif %}
 {% endblock %}

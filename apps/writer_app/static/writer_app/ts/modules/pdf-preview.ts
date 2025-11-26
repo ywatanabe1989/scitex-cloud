@@ -552,8 +552,8 @@ export class PDFPreviewManager {
             ">
                 <i class="fas fa-file-pdf fa-3x" style="opacity: 0.3;"></i>
                 <h5 style="margin: 0;">PDF Preview</h5>
-                <p style="font-size: 0.9rem; margin: 0;">Start typing to see your document preview</p>
-                <p style="font-size: 0.75rem; opacity: 0.7; margin: 0;">Auto-compilation is enabled</p>
+                <p style="font-size: 0.9rem; margin: 0;">Loading PDF preview...</p>
+                <p style="font-size: 0.75rem; opacity: 0.7; margin: 0;">Click Compile to generate PDF</p>
             </div>
         `;
   }

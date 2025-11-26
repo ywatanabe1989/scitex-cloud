@@ -4,6 +4,7 @@
  */
 
 import { ApiClient } from "@/utils/api";
+import { getWriterFilter, WriterFileFilter } from "./writer-file-filter.js";
 
 console.log(
   "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/file_tree.ts loaded",
@@ -29,6 +30,8 @@ export class FileTreeManager {
   private onFileSelectCallback?: (filePath: string, fileName: string) => void;
   private expandedDirs: Set<string> = new Set();
   private texFileDropdownId?: string;
+  private filter: WriterFileFilter;
+  private treeData: FileTreeNode[] = [];
 
   constructor(options: FileTreeOptions) {
     this.apiClient = new ApiClient();
@@ -36,6 +39,7 @@ export class FileTreeManager {
     this.container = options.container;
     this.onFileSelectCallback = options.onFileSelect;
     this.texFileDropdownId = options.texFileDropdownId;
+    this.filter = getWriterFilter();
 
     console.log("[FileTree] Initialized for project", this.projectId);
   }
@@ -55,13 +59,13 @@ export class FileTreeManager {
         throw new Error(response.error || "Failed to load file tree");
       }
 
-      const tree = response.data.tree;
-      console.log("[FileTree] Loaded", tree.length, "root items");
+      this.treeData = response.data.tree;
+      console.log("[FileTree] Loaded", this.treeData.length, "root items");
 
       // Populate section dropdown for manuscript type (default)
       this.populateTexFileDropdown("manuscript");
 
-      this.render(tree);
+      this.render(this.treeData);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to load file tree";
@@ -112,6 +116,14 @@ export class FileTreeManager {
     node: FileTreeNode,
     level: number = 0,
   ): HTMLElement {
+    // Check if file should be hidden
+    if (node.type === "file" && this.filter.shouldHideFile(node.path)) {
+      // Return empty element for hidden files
+      const li = document.createElement("li");
+      li.style.display = "none";
+      return li;
+    }
+
     const li = document.createElement("li");
     li.className = "file-tree-item";
     li.style.cssText = `padding: 0.35rem 0.5rem 0.35rem ${level * 1.2 + 0.5}rem; cursor: pointer; border-radius: 4px; transition: background 0.15s;`;
@@ -146,7 +158,9 @@ export class FileTreeManager {
 
         node.children.forEach((child) => {
           const childLi = this.createNodeElement(child, level + 1);
-          childrenUl.appendChild(childLi);
+          if (childLi.style.display !== "none") {
+            childrenUl.appendChild(childLi);
+          }
         });
 
         childrenContainer.appendChild(childrenUl);
@@ -154,27 +168,33 @@ export class FileTreeManager {
       }
     } else {
       // File node
+      const isDisabled = this.filter.shouldDisableFile(node.path, node.name);
+      const disabledClass = isDisabled ? " wft-file disabled" : " wft-file";
+
+      li.className += disabledClass;
       li.innerHTML = `
                 <div class="d-flex align-items-center file-tree-node-content" data-path="${node.path}">
                     <i class="fas fa-file-alt me-2 text-primary" style="font-size: 0.85rem; margin-left: 1.5rem;"></i>
-                    <span style="font-size: 0.9rem;">${node.name}</span>
+                    <span class="wft-name" style="font-size: 0.9rem;">${node.name}</span>
                 </div>
             `;
 
-      // Add click handler for file selection
-      const contentDiv = li.querySelector(".file-tree-node-content");
-      contentDiv?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.selectFile(node.path, node.name);
-      });
+      // Add click handler for file selection (only if not disabled)
+      if (!isDisabled) {
+        const contentDiv = li.querySelector(".file-tree-node-content");
+        contentDiv?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.selectFile(node.path, node.name);
+        });
 
-      // Hover effect
-      li.addEventListener("mouseenter", () => {
-        li.style.background = "rgba(0, 123, 255, 0.1)";
-      });
-      li.addEventListener("mouseleave", () => {
-        li.style.background = "transparent";
-      });
+        // Hover effect
+        li.addEventListener("mouseenter", () => {
+          li.style.background = "rgba(0, 123, 255, 0.1)";
+        });
+        li.addEventListener("mouseleave", () => {
+          li.style.background = "transparent";
+        });
+      }
     }
 
     return li;
@@ -255,7 +275,154 @@ export class FileTreeManager {
    */
   updateForDocType(docType: string): void {
     console.log("[FileTree] Updating sections for document type:", docType);
+    this.filter.setDoctype(docType);
     this.populateTexFileDropdown(docType);
+    // Re-render the tree to apply new filtering
+    this.load();
+  }
+
+  /**
+   * Update filter for a new section
+   */
+  updateForSection(section: string | null): void {
+    console.log("[FileTree] Updating filter for section:", section);
+    this.filter.setSection(section);
+    // Re-render the tree to apply new filtering
+    this.load().then(() => {
+      // Auto-focus on the section file if available
+      if (section) {
+        this.focusOnSection(section);
+      }
+    });
+  }
+
+  /**
+   * Focus on a section file in the tree
+   * Expands parent directories and scrolls to the file
+   */
+  private focusOnSection(section: string): void {
+    const currentDoctype = this.filter.getState().doctype;
+    const expectedPath = this.filter.getExpectedFilePath(currentDoctype, section);
+
+    console.log("[FileTree] Attempting to focus on section file:", expectedPath);
+
+    // Find the file in the tree
+    const fileElement = this.container.querySelector(`[data-path="${expectedPath}"]`) as HTMLElement;
+    if (fileElement) {
+      // Expand parent directories
+      this.expandParentDirectories(expectedPath);
+
+      // Scroll into view
+      setTimeout(() => {
+        const li = fileElement.closest("li");
+        if (li) {
+          li.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          // Highlight briefly
+          li.style.transition = "background 0.3s";
+          li.style.background = "rgba(0, 123, 255, 0.3)";
+          setTimeout(() => {
+            li.style.background = "transparent";
+          }, 1000);
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * Expand all parent directories of a file path
+   */
+  private expandParentDirectories(filePath: string): void {
+    const parts = filePath.split("/");
+    let currentPath = "";
+
+    for (let i = 0; i < parts.length - 1; i++) {
+      currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+      if (!this.expandedDirs.has(currentPath)) {
+        this.expandedDirs.add(currentPath);
+      }
+    }
+
+    // Re-render to show expanded directories
+    this.render(this.getTreeData());
+  }
+
+  /**
+   * Get current tree data
+   */
+  private getTreeData(): FileTreeNode[] {
+    return this.treeData;
+  }
+
+  /**
+   * Get all parent directory paths for a given path
+   */
+  private getParentPaths(path: string): string[] {
+    const parts = path.split('/');
+    const parents: string[] = [];
+
+    for (let i = 1; i < parts.length; i++) {
+      parents.push(parts.slice(0, i).join('/'));
+    }
+
+    return parents;
+  }
+
+  /**
+   * Fold all directories except those in the path to target
+   */
+  public foldExceptTarget(targetPath: string): void {
+    // Get all currently expanded directories
+    const allExpandedDirs = new Set(this.expandedDirs);
+
+    // Get parent paths that should remain expanded
+    const targetParents = this.getParentPaths(targetPath);
+
+    // Clear expanded dirs except target parents
+    this.expandedDirs.clear();
+    targetParents.forEach(path => {
+      this.expandedDirs.add(path);
+    });
+
+    // Re-render to show changes
+    this.load().then(() => {
+      console.log("[FileTree] Folded all except target:", targetPath);
+    });
+  }
+
+  /**
+   * Focus on a target file in the tree
+   * This expands parents, scrolls to target, and highlights it
+   */
+  public focusOnTarget(path: string, highlight: boolean = true): void {
+    // Expand parent directories
+    this.expandParentDirectories(path);
+
+    // Wait for render
+    setTimeout(() => {
+      // Find the element
+      const element = this.container.querySelector(`[data-path="${path}"]`) as HTMLElement;
+      if (element) {
+        const li = element.closest('li');
+        if (li) {
+          // Scroll into view
+          li.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+          // Add highlight effect
+          if (highlight) {
+            setTimeout(() => {
+              li.style.transition = 'background 0.3s ease';
+              li.style.background = 'rgba(0, 123, 255, 0.3)';
+
+              setTimeout(() => {
+                li.style.background = 'transparent';
+              }, 1000);
+            }, 100);
+          }
+        }
+      }
+      console.log("[FileTree] Focused on target:", path);
+    }, 100);
   }
 
   /**

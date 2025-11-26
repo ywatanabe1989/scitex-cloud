@@ -333,4 +333,45 @@ export class PanelSwitcher {
     // Legacy save (keeping for backward compatibility)
     localStorage.setItem("writer_right_panel_view", view);
   }
+
+  /**
+   * Automatically switch panel based on section name
+   * Determines the most appropriate panel (PDF, Figures, or Tables) for a given section
+   */
+  autoSwitchForSection(section: string | null, doctype: string = 'manuscript'): void {
+    if (!section) {
+      // Default to PDF if no section
+      this.switchPanel('pdf');
+      return;
+    }
+
+    const sectionLower = section.toLowerCase();
+
+    // Check if this is a figures section
+    if (sectionLower.includes('figure') || sectionLower === 'figures') {
+      console.log(`[PanelSwitcher] Auto-switching to Figures panel for section: ${section}`);
+      this.switchPanel('figures');
+      return;
+    }
+
+    // Check if this is a tables section
+    if (sectionLower.includes('table') || sectionLower === 'tables') {
+      console.log(`[PanelSwitcher] Auto-switching to Tables panel for section: ${section}`);
+      this.switchPanel('tables');
+      return;
+    }
+
+    // For supplementary material, prefer figures/tables if mentioned
+    if (doctype === 'supplementary') {
+      // Check content type from section name
+      if (sectionLower.includes('result') || sectionLower.includes('method')) {
+        this.switchPanel('figures');
+        return;
+      }
+    }
+
+    // Default to PDF for text sections (abstract, introduction, methods, results, discussion, etc.)
+    console.log(`[PanelSwitcher] Auto-switching to PDF panel for section: ${section}`);
+    this.switchPanel('pdf');
+  }
 }
