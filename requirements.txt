@@ -61,7 +61,7 @@ channels-redis==4.3.0
 # Task queue (async jobs with fair scheduling)
 celery[redis]==5.4.0
 django-celery-results==2.5.1
-django-celery-beat==2.7.0
+django-celery-beat==2.8.1  # Django 5.2 compatible
 flower==2.0.1  # Celery monitoring dashboard
 
 # UI utilities

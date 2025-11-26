@@ -324,6 +324,34 @@ CELERY_WORKER_CONCURRENCY = 4  # Parallel workers
 # Beat scheduler for periodic tasks (optional)
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
+# Periodic task schedule
+CELERY_BEAT_SCHEDULE = {
+    # Collect server metrics every 5 seconds
+    'collect-server-metrics': {
+        'task': 'apps.public_app.tasks.collect_server_metrics',
+        'schedule': 5.0,  # Every 5 seconds
+        'options': {
+            'expires': 4.0,  # Expire after 4 seconds if not started
+        },
+    },
+    # Auto-unmount inactive remote projects every 10 minutes
+    'auto-unmount-remote-projects': {
+        'task': 'apps.project_app.tasks.auto_unmount_inactive_remote_projects',
+        'schedule': 600.0,  # Every 10 minutes (in seconds)
+        'options': {
+            'expires': 540.0,  # Expire after 9 minutes if not started
+        },
+    },
+    # Clean up stale mounts every hour
+    'cleanup-stale-mounts': {
+        'task': 'apps.project_app.tasks.cleanup_stale_mounts',
+        'schedule': 3600.0,  # Every hour (in seconds)
+        'options': {
+            'expires': 3540.0,  # Expire after 59 minutes if not started
+        },
+    },
+}
+
 # ---------------------------------------
 # Logging
 # ---------------------------------------
@@ -368,25 +396,34 @@ LOGGING = {
         "null": {
             "class": "logging.NullHandler",
         },
-        # SciTeX Console logger (error cascading)
-        "console_file": {
+        # Django app logs
+        "django_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": str(BASE_DIR / "logs" / "console.log"),
-            "maxBytes": 10485760,  # 10MB
+            "filename": str(BASE_DIR / "logs" / "django.log"),
+            "maxBytes": 5242880,  # 5MB
             "backupCount": 5,
             "formatter": "standard",
             "level": "INFO",
         },
-        # SciTeX Errors logger
-        "error_file": {
+        # Celery task logs
+        "celery_file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": str(BASE_DIR / "logs" / "errors.log"),
-            "maxBytes": 10485760,  # 10MB
+            "filename": str(BASE_DIR / "logs" / "celery.log"),
+            "maxBytes": 5242880,  # 5MB
             "backupCount": 5,
             "formatter": "standard",
-            "level": "ERROR",
+            "level": "INFO",
         },
-        # Git operations logger
+        # SLURM job logs
+        "slurm_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(BASE_DIR / "logs" / "slurm.log"),
+            "maxBytes": 5242880,  # 5MB
+            "backupCount": 3,
+            "formatter": "standard",
+            "level": "INFO",
+        },
+        # Git operations logs
         "git_file": {
             "class": "logging.handlers.RotatingFileHandler",
             "filename": str(BASE_DIR / "logs" / "git.log"),
@@ -395,52 +432,66 @@ LOGGING = {
             "formatter": "standard",
             "level": "INFO",
         },
+        # Error logs (all errors)
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": str(BASE_DIR / "logs" / "errors.log"),
+            "maxBytes": 5242880,  # 5MB
+            "backupCount": 5,
+            "formatter": "standard",
+            "level": "ERROR",
+        },
     },
     "loggers": {
+        # Django framework
         "django": {
-            "handlers": ["console"],
+            "handlers": ["django_file", "console"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
         "django.request": {
-            "handlers": ["mail_admins"],
-            "level": "ERROR",
+            "handlers": ["django_file", "error_file"],
+            "level": "INFO",
             "propagate": False,
         },
         "django.security": {
-            "handlers": ["mail_admins"],
+            "handlers": ["error_file"],
             "level": "ERROR",
             "propagate": False,
         },
-        "django.template": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "scitex": {  # Application-specific logger
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        # SciTeX error cascading loggers
-        "scitex.console": {
-            "handlers": ["console_file", "console"],
+        # Celery tasks
+        "celery": {
+            "handlers": ["celery_file", "console"],
             "level": "INFO",
             "propagate": False,
         },
+        "celery.task": {
+            "handlers": ["celery_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # SLURM jobs
+        "scitex.slurm": {
+            "handlers": ["slurm_file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # Git operations
+        "scitex.git": {
+            "handlers": ["git_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # SciTeX app (general)
+        "scitex": {
+            "handlers": ["django_file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # All errors
         "scitex.errors": {
             "handlers": ["error_file", "console"],
             "level": "ERROR",
-            "propagate": False,
-        },
-        "scitex.git": {
-            "handlers": ["git_file", "console_file"],
-            "level": "INFO",
             "propagate": False,
         },
     },
