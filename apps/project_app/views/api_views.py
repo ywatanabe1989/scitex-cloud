@@ -73,10 +73,11 @@ def api_file_tree(request, username, slug):
             for item in sorted(
                 path.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())
             ):
-                # Skip hidden files except .git directory and .gitignore
+                # Skip hidden files except .git directory, .gitignore, and .gitkeep
                 if item.name.startswith(".") and item.name not in [
                     ".git",
                     ".gitignore",
+                    ".gitkeep",
                 ]:
                     continue
                 # Skip common non-essential directories

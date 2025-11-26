@@ -669,10 +669,31 @@ def server_status(request):
         containers = client.containers.list(all=True, filters={"name": "scitex-cloud-dev"})
 
         for container in containers:
+            # Get health status if available
+            health_status = None
+            try:
+                health = container.attrs.get('State', {}).get('Health', {})
+                health_status = health.get('Status') if health else None
+            except Exception:
+                pass
+
+            # Determine display status and health class
+            is_running = container.status == "running"
+            if health_status:
+                display_status = f"{container.status} ({health_status})"
+                health_class = health_status  # healthy, unhealthy, starting
+            else:
+                display_status = container.status
+                health_class = "healthy" if is_running else "down"
+
             status_data["services"].append({
                 "name": container.name.replace("scitex-cloud-dev-", "").replace("-1", ""),
                 "status": container.status,
-                "is_running": container.status == "running",
+                "display_status": display_status,
+                "health_status": health_status,
+                "health_class": health_class,
+                "is_running": is_running,
+                "is_healthy": is_running and health_status in (None, "healthy"),
                 "image": container.image.tags[0] if container.image.tags else "unknown",
             })
     except Exception as e:
@@ -680,7 +701,11 @@ def server_status(request):
         status_data["services"].append({
             "name": "Docker",
             "status": "unavailable",
+            "display_status": "unavailable",
+            "health_status": None,
+            "health_class": "down",
             "is_running": False,
+            "is_healthy": False,
             "error": str(e),
         })
 
@@ -697,11 +722,13 @@ def server_status(request):
         sock.settimeout(1)
         result = sock.connect_ex((ssh_check_host, 2200))
         sock.close()
+        is_running = result == 0
         status_data["ssh_services"].append({
             "name": "Workspace SSH Gateway",
             "port": 2200,
-            "is_running": result == 0,
-            "status": "running" if result == 0 else "down",
+            "is_running": is_running,
+            "status": "running" if is_running else "down",
+            "health_class": "healthy" if is_running else "down",
         })
     except Exception as e:
         status_data["ssh_services"].append({
@@ -709,6 +736,7 @@ def server_status(request):
             "port": 2200,
             "is_running": False,
             "status": "error",
+            "health_class": "unhealthy",
             "error": str(e),
         })
 
@@ -718,11 +746,13 @@ def server_status(request):
         sock.settimeout(1)
         result = sock.connect_ex((ssh_check_host, 2222))
         sock.close()
+        is_running = result == 0
         status_data["ssh_services"].append({
             "name": "Gitea SSH (Git operations)",
             "port": 2222,
-            "is_running": result == 0,
-            "status": "running" if result == 0 else "down",
+            "is_running": is_running,
+            "status": "running" if is_running else "down",
+            "health_class": "healthy" if is_running else "down",
         })
     except Exception as e:
         status_data["ssh_services"].append({
@@ -730,6 +760,7 @@ def server_status(request):
             "port": 2222,
             "is_running": False,
             "status": "error",
+            "health_class": "unhealthy",
             "error": str(e),
         })
 
@@ -740,6 +771,7 @@ def server_status(request):
             status_data["database"] = {
                 "is_running": True,
                 "status": "connected",
+                "health_class": "healthy",
                 "backend": connection.settings_dict['ENGINE'].split('.')[-1],
                 "name": connection.settings_dict['NAME'],
             }
@@ -747,6 +779,7 @@ def server_status(request):
         status_data["database"] = {
             "is_running": False,
             "status": "error",
+            "health_class": "unhealthy",
             "error": str(e),
         }
 
@@ -754,14 +787,17 @@ def server_status(request):
     try:
         cache.set('health_check', 'ok', 10)
         test_value = cache.get('health_check')
+        is_connected = test_value == 'ok'
         status_data["redis"] = {
-            "is_running": test_value == 'ok',
-            "status": "connected" if test_value == 'ok' else "error",
+            "is_running": is_connected,
+            "status": "connected" if is_connected else "error",
+            "health_class": "healthy" if is_connected else "unhealthy",
         }
     except Exception as e:
         status_data["redis"] = {
             "is_running": False,
             "status": "error",
+            "health_class": "unhealthy",
             "error": str(e),
         }
 
@@ -769,15 +805,96 @@ def server_status(request):
     try:
         disk = psutil.disk_usage('/')
         status_data["disk"] = {
-            "total_gb": round(disk.total / (1024**3), 2),
-            "used_gb": round(disk.used / (1024**3), 2),
-            "free_gb": round(disk.free / (1024**3), 2),
+            "total_tb": round(disk.total / (1024**4), 2),
+            "used_tb": round(disk.used / (1024**4), 2),
+            "free_tb": round(disk.free / (1024**4), 2),
             "percent_used": disk.percent,
             "is_healthy": disk.percent < 90,
         }
     except Exception as e:
         status_data["disk"] = {
             "is_healthy": False,
+            "error": str(e),
+        }
+
+    # Check SLURM status using sinfo (more reliable than scontrol ping)
+    import subprocess
+    try:
+        # Use sinfo to check if SLURM is responding - this is more reliable
+        result = subprocess.run(
+            ['sinfo', '--noheader', '-o', '%P %a %D %t'],
+            capture_output=True, text=True, timeout=5
+        )
+        is_up = result.returncode == 0 and result.stdout.strip()
+        status_data["slurm"] = {
+            "is_running": is_up,
+            "status": "running" if is_up else "down",
+            "health_class": "healthy" if is_up else "unhealthy",
+            "message": "SLURM cluster is operational" if is_up else result.stderr.strip() or "SLURM not responding",
+            "partitions": result.stdout.strip() if is_up else None,
+        }
+        # Get job queue info if SLURM is up
+        if is_up:
+            try:
+                squeue_result = subprocess.run(
+                    ['squeue', '--noheader', '-o', '%i %P %j %u %t %M'],
+                    capture_output=True, text=True, timeout=5
+                )
+                status_data["slurm"]["jobs"] = squeue_result.stdout.strip() or "No jobs running"
+            except Exception:
+                pass
+    except FileNotFoundError:
+        status_data["slurm"] = {
+            "is_running": False,
+            "status": "not installed",
+            "health_class": "down",
+            "error": "SLURM not installed",
+        }
+    except Exception as e:
+        status_data["slurm"] = {
+            "is_running": False,
+            "status": "error",
+            "health_class": "unhealthy",
+            "error": str(e),
+        }
+
+    # Check Apptainer/Singularity status
+    try:
+        # Try apptainer first, then singularity
+        container_cmd = None
+        for cmd in ['apptainer', 'singularity']:
+            try:
+                result = subprocess.run(
+                    [cmd, '--version'],
+                    capture_output=True, text=True, timeout=5
+                )
+                if result.returncode == 0:
+                    container_cmd = cmd
+                    version = result.stdout.strip()
+                    break
+            except FileNotFoundError:
+                continue
+
+        if container_cmd:
+            status_data["apptainer"] = {
+                "is_running": True,
+                "status": "available",
+                "health_class": "healthy",
+                "command": container_cmd,
+                "version": version,
+            }
+        else:
+            status_data["apptainer"] = {
+                "is_running": False,
+                "status": "not installed",
+                "health_class": "down",
+                "error": "Apptainer/Singularity not installed",
+            }
+    except Exception as e:
+        status_data["apptainer"] = {
+            "is_running": False,
+            "status": "error",
+            "health_class": "unhealthy",
             "error": str(e),
         }
 
@@ -859,8 +976,8 @@ def server_status(request):
             "cpu_cores_logical": cpu_count_logical,
             "cpu_name": cpu_name,
             "memory_percent": psutil.virtual_memory().percent,
-            "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 2),
-            "memory_total_gb": round(psutil.virtual_memory().total / (1024**3), 2),
+            "memory_available_tb": round(psutil.virtual_memory().available / (1024**4), 3),
+            "memory_total_tb": round(psutil.virtual_memory().total / (1024**4), 3),
             "gpu_info": gpu_info,
             "disk_read_mb": disk_read_mb,
             "disk_write_mb": disk_write_mb,
@@ -1109,12 +1226,12 @@ def server_metrics_export_csv(request):
             'CPU Cores',
             'CPU Cores Logical',
             'Memory %',
-            'Memory Used (GB)',
-            'Memory Total (GB)',
-            'Memory Available (GB)',
+            'Memory Used (TB)',
+            'Memory Total (TB)',
+            'Memory Available (TB)',
             'Disk %',
-            'Disk Used (GB)',
-            'Disk Total (GB)',
+            'Disk Used (TB)',
+            'Disk Total (TB)',
             'Disk Read (MB)',
             'Disk Write (MB)',
             'Network Sent (MB)',
@@ -1134,12 +1251,12 @@ def server_metrics_export_csv(request):
                 m.cpu_cores,
                 m.cpu_cores_logical,
                 m.memory_percent,
-                m.memory_used_gb,
-                m.memory_total_gb,
-                m.memory_available_gb,
+                round(m.memory_used_gb / 1024, 3) if m.memory_used_gb else None,
+                round(m.memory_total_gb / 1024, 3) if m.memory_total_gb else None,
+                round(m.memory_available_gb / 1024, 3) if m.memory_available_gb else None,
                 m.disk_percent,
-                m.disk_used_gb,
-                m.disk_total_gb,
+                round(m.disk_used_gb / 1024, 2) if m.disk_used_gb else None,
+                round(m.disk_total_gb / 1024, 2) if m.disk_total_gb else None,
                 m.disk_read_mb,
                 m.disk_write_mb,
                 m.net_sent_mb,

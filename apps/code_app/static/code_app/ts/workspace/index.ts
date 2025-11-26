@@ -4,7 +4,9 @@
  */
 
 import { MonacoManager } from "./editor/MonacoManager.js";
+import { ScratchManager } from "./editor/ScratchManager.js";
 import { PTYManager } from "./terminal/PTYManager.js";
+import { RunManager } from "./terminal/RunManager.js";
 import { FileTreeManager } from "./files/FileTreeManager.js";
 import { FileOperations } from "./files/FileOperations.js";
 import { FileTabManager } from "./files/FileTabManager.js";
@@ -12,14 +14,23 @@ import { FileStateManager } from "./files/FileStateManager.js";
 import { FileCommandHandler } from "./files/FileCommandHandler.js";
 import { GitStatusManager } from "./git/GitStatusManager.js";
 import { GitOperations } from "./git/GitOperations.js";
+import { CommitManager } from "./git/CommitManager.js";
 import { UIComponents } from "./ui/UIComponents.js";
+import { ModalManager } from "./ui/ModalManager.js";
+import { ShortcutsManager } from "./ui/ShortcutsManager.js";
 import { VisitorManager } from "./auth/VisitorManager.js";
-import { DEFAULT_SCRATCH_CONTENT, type EditorConfig } from "./core/types.js";
+import type { EditorConfig, OpenFile } from "./core/types.js";
 
 export class WorkspaceOrchestrator {
   private config: EditorConfig;
 
-  // Managers
+  // Emacs chord state for C-x prefix
+  private emacsChordState: { ctrlXPressed: boolean; timeout: number | null } = {
+    ctrlXPressed: false,
+    timeout: null,
+  };
+
+  // Core Managers
   private monacoManager: MonacoManager;
   private ptyManager: PTYManager;
   private fileTreeManager: FileTreeManager;
@@ -27,56 +38,78 @@ export class WorkspaceOrchestrator {
   private fileTabManager: FileTabManager;
   private fileStateManager: FileStateManager;
   private fileCommandHandler: FileCommandHandler;
+
+  // Git Managers
   private gitStatusManager: GitStatusManager;
   private gitOperations: GitOperations;
+  private commitManager: CommitManager;
+
+  // UI Managers
   private uiComponents: UIComponents;
+  private modalManager: ModalManager;
+  private shortcutsManager: ShortcutsManager;
+
+  // Specialized Managers
   private visitorManager: VisitorManager;
+  private scratchManager: ScratchManager;
+  private runManager: RunManager;
 
   constructor(config: EditorConfig) {
     this.config = config;
 
-    // Initialize managers
+    // Initialize core managers
     this.monacoManager = new MonacoManager(config);
     this.ptyManager = new PTYManager(config);
     this.fileOperations = new FileOperations(config);
-    this.gitStatusManager = new GitStatusManager(config);
-    this.gitOperations = new GitOperations(config);
+    this.modalManager = new ModalManager();
     this.visitorManager = new VisitorManager(config);
 
-    // Initialize FileTabManager with temporary callbacks (will be updated after FileStateManager)
-    this.fileTabManager = new FileTabManager(
-      new Map(), // Temporary, will be replaced
-      () => {}, // Temporary
-      () => {}  // Temporary
-    );
+    // Initialize git managers
+    this.gitStatusManager = new GitStatusManager(config);
+    this.gitOperations = new GitOperations(config);
+    this.commitManager = new CommitManager(config, this.gitOperations, this.gitStatusManager);
 
-    // Initialize FileStateManager (manages file state and switching)
+    // Initialize specialized managers
+    this.scratchManager = new ScratchManager(config, this.monacoManager);
+    this.runManager = new RunManager(config);
+    this.shortcutsManager = new ShortcutsManager(this.modalManager);
+
+    // Create shared openFiles map
+    const openFilesMap = new Map<string, OpenFile>();
+
+    // Initialize file managers with shared map
+    this.fileTabManager = new FileTabManager(openFilesMap, () => {}, () => {});
     this.fileStateManager = new FileStateManager(
       this.monacoManager,
       this.fileOperations,
       this.fileTabManager,
-      this.gitStatusManager
+      this.gitStatusManager,
+      openFilesMap
     );
 
-    // Update FileTabManager with actual callbacks from FileStateManager
-    this.fileTabManager = new FileTabManager(
-      this.fileStateManager.getOpenFiles(),
+    // Update FileTabManager callbacks
+    this.fileTabManager.setCallbacks(
       this.fileStateManager.switchToFile.bind(this.fileStateManager),
       this.fileStateManager.closeTab.bind(this.fileStateManager)
     );
+
+    // Set rename callback for file tabs
+    this.fileTabManager.setRenameCallback(async (oldPath: string, newPath: string) => {
+      await this.fileCommandHandler.renameFile(oldPath, newPath);
+    });
+
+    // Set new file callback for + button (inline input workflow)
+    this.fileTabManager.setNewFileCallback(async (fileName: string) => {
+      await this.fileCommandHandler.createFileWithName(fileName);
+    });
 
     this.fileTreeManager = new FileTreeManager(
       config,
       this.fileStateManager.handleFileClick.bind(this.fileStateManager)
     );
 
-    // Initialize UIComponents with placeholder callback (will delegate to fileCommandHandler)
-    this.uiComponents = new UIComponents(
-      config,
-      this.handleContextMenuAction.bind(this)
-    );
+    this.uiComponents = new UIComponents(config, this.handleContextMenuAction.bind(this));
 
-    // Initialize FileCommandHandler after all dependencies are ready
     this.fileCommandHandler = new FileCommandHandler(
       this.fileOperations,
       this.fileTreeManager,
@@ -104,223 +137,230 @@ export class WorkspaceOrchestrator {
     this.uiComponents.initializeAll();
 
     // Parallel async initialization
-    console.log("[WorkspaceOrchestrator] Starting parallel initialization...");
     const startTime = performance.now();
 
     try {
       await Promise.all([
         this.fileTreeManager.loadFileTree().catch(err => {
-          console.error("[WorkspaceOrchestrator] File tree initialization failed:", err);
+          console.error("[WorkspaceOrchestrator] File tree failed:", err);
         }),
-        this.initScratchBuffer().catch(err => {
-          console.error("[WorkspaceOrchestrator] Scratch buffer initialization failed:", err);
+        this.scratchManager.initialize(this.fileStateManager).catch(err => {
+          console.error("[WorkspaceOrchestrator] Scratch buffer failed:", err);
         }),
         this.ptyManager.initialize().catch(err => {
-          console.error("[WorkspaceOrchestrator] PTY initialization failed:", err);
+          console.error("[WorkspaceOrchestrator] PTY failed:", err);
         }),
       ]);
 
       const endTime = performance.now();
-      console.log(`[WorkspaceOrchestrator] All components initialized in ${Math.round(endTime - startTime)}ms`);
+      console.log(`[WorkspaceOrchestrator] Initialized in ${Math.round(endTime - startTime)}ms`);
 
-      // Set up theme change listeners
       this.setupThemeListeners();
     } catch (err) {
-      console.error("[WorkspaceOrchestrator] Critical initialization error:", err);
+      console.error("[WorkspaceOrchestrator] Critical error:", err);
     }
   }
 
-  /**
-   * Setup theme change listeners for Monaco editor and terminal
-   */
   private setupThemeListeners(): void {
     document.addEventListener('theme-changed', (event: Event) => {
       const customEvent = event as CustomEvent<{ theme: string }>;
       const theme = customEvent.detail.theme;
 
-      console.log(`[WorkspaceOrchestrator] Theme changed to: ${theme}`);
-
-      // Update Monaco editor theme
-      if (this.monacoManager) {
-        this.monacoManager.updateTheme(theme);
-      }
-
-      // Update terminal theme
-      if (this.ptyManager) {
-        this.ptyManager.updateTheme();
-      }
+      if (this.monacoManager) this.monacoManager.updateTheme(theme);
+      if (this.ptyManager) this.ptyManager.updateTheme();
     });
-
-    console.log('[WorkspaceOrchestrator] Theme change listeners registered');
   }
 
-  private async initScratchBuffer(): Promise<void> {
-    console.log("[WorkspaceOrchestrator] Initializing scratch buffer...");
-
-    await this.monacoManager.initialize("python");
-
-    const editor = this.monacoManager.getEditor();
-    if (!editor) {
-      console.error("[WorkspaceOrchestrator] Editor not available after initialization");
-      return;
-    }
-
-    // Show monaco editor, hide media preview
-    const monacoEditor = document.getElementById("monaco-editor");
-    const mediaPreview = document.getElementById("media-preview");
-    if (monacoEditor) monacoEditor.style.display = "block";
-    if (mediaPreview) mediaPreview.style.display = "none";
-
-    // Get default scratch content
-    const scratchContent = this.getScratchContent();
-    editor.setValue(scratchContent);
-
-    // Initialize scratch buffer in file state manager
-    this.fileStateManager.initializeScratchBuffer(scratchContent);
-
-    const toolbarFilePath = document.getElementById("toolbar-file-path");
-    if (toolbarFilePath) {
-      toolbarFilePath.textContent = "*scratch*";
-    }
-
-    // Enable Run button for scratch
-    const btnRun = document.getElementById("btn-run") as HTMLButtonElement;
-    if (btnRun) {
-      btnRun.disabled = false;
-      btnRun.title = "Run: python .scratch_temp.py (Ctrl+Enter)";
-    }
-
-    console.log("[WorkspaceOrchestrator] Scratch buffer initialized");
-  }
-
-  private getScratchContent(): string {
-    const username = this.config.currentProject?.owner || "username";
-    const projectName = this.config.currentProject?.name || "your-project";
-    const projectSlug = this.config.currentProject?.slug || "your-project";
-
-    const host = window.location.host;
-    const protocol = window.location.protocol;
-    const workspaceUrl = `${protocol}//${host}/code/`;
-    const projectUrl = `${protocol}//${host}/${username}/${projectSlug}/`;
-    const sshKeysUrl = `${protocol}//${host}/accounts/settings/ssh-keys/`;
-
-    const isDev = host.includes("127.0.0.1") || host.includes("localhost");
-    const sshHost = isDev ? "127.0.0.1" : "scitex.cloud";
-    const sshPort = isDev ? "2200" : "2200";
-
-    return `#!/usr/bin/env python3
-# SciTeX Code Workspace
-#
-# Project: ${projectName}
-# User:    ${username}
-#
-# URLs:
-#   Workspace:  ${workspaceUrl}
-#   Project:    ${projectUrl}
-#   SSH Keys:   ${sshKeysUrl}
-#
-# SSH Access:
-#   1. Add SSH key: ${sshKeysUrl}
-#   2. Connect:     ssh -p ${sshPort} ${username}@${sshHost}
-#
-# Keyboard Shortcuts:
-#   Ctrl+S         Save file
-#   Ctrl+Enter     Run Python file
-#   ⌨ button       Show all shortcuts
-#   Ctrl+Shift+R   Reset this buffer
-#
-# Editor Mode: Emacs | Vim | VS Code (toolbar dropdown)
-
-def hello():
-    """Example function"""
-    print("Hello from SciTeX!")
-    print(f"Project: ${projectName}")
-    print(f"User: ${username}")
-    print(f"SSH: ssh -p ${sshPort} ${username}@${sshHost}")
-
-if __name__ == "__main__":
-    hello()
-    `;
-  }
-
-
-  /**
-   * Delegate context menu actions to FileCommandHandler
-   */
   private handleContextMenuAction(action: string, target: string | null): void {
     this.fileCommandHandler.handleContextMenuAction(action, target);
   }
 
-
-  /**
-   * Create file in a specific folder (exposed globally for file tree buttons)
-   */
   public async createFileInFolder(folderPath: string): Promise<void> {
     await this.fileCommandHandler.createFileInFolder(folderPath);
   }
 
-  /**
-   * Create folder in a specific folder (exposed globally for file tree buttons)
-   */
   public async createFolderInFolder(parentPath: string): Promise<void> {
     await this.fileCommandHandler.createFolderInFolder(parentPath);
   }
 
   private attachEventListeners(): void {
     // Save button
-    const btnSave = document.getElementById("btn-save");
-    btnSave?.addEventListener("click", () => this.fileStateManager.saveCurrentFile());
+    document.getElementById("btn-save")?.addEventListener("click", () => {
+      this.fileStateManager.saveCurrentFile();
+    });
 
-    // New file button
-    const btnNewFile = document.getElementById("btn-new-file-tab");
-    btnNewFile?.addEventListener("click", () => this.fileCommandHandler.createNewFile());
+    // New file button (handled by FileTabManager's updateTabs method)
+    // The + button click is already handled in FileTabManager
 
     // Delete button
-    const btnDelete = document.getElementById("btn-delete");
-    btnDelete?.addEventListener("click", () => {
+    document.getElementById("btn-delete")?.addEventListener("click", () => {
       const currentFile = this.fileStateManager.getCurrentFile();
       if (currentFile && currentFile !== "*scratch*") {
         this.fileCommandHandler.deleteFile(currentFile);
       }
     });
 
-    // Keyboard shortcuts
-    document.addEventListener("keydown", (e) => {
-      // Ctrl+S: Save
-      if (e.ctrlKey && e.key === "s") {
-        e.preventDefault();
-        this.fileStateManager.saveCurrentFile();
-      }
+    // Commit button
+    document.getElementById("btn-commit")?.addEventListener("click", () => {
+      this.commitManager.showCommitModal();
+    });
 
-      // Ctrl+N: New file
-      if (e.ctrlKey && e.key === "n") {
-        e.preventDefault();
-        this.fileCommandHandler.createNewFile();
-      }
-
-      // Ctrl+Tab: Next tab
-      if (e.ctrlKey && e.key === "Tab") {
-        e.preventDefault();
-        this.fileTabManager.switchToNextTab();
-      }
+    // Run button
+    document.getElementById("btn-run")?.addEventListener("click", () => {
+      this.runCurrentFile();
     });
 
     // Keybinding mode selector
     const keybindingMode = document.getElementById("keybinding-mode") as HTMLSelectElement;
     keybindingMode?.addEventListener("change", (e) => {
-      const mode = (e.target as HTMLSelectElement).value;
-      this.monacoManager.setKeybindingMode(mode);
+      this.monacoManager.setKeybindingMode((e.target as HTMLSelectElement).value);
     });
 
-    // Monaco theme toggle button
-    const monacoThemeToggle = document.getElementById("monaco-theme-toggle");
-    monacoThemeToggle?.addEventListener("click", () => {
+    // Monaco theme toggle
+    document.getElementById("monaco-theme-toggle")?.addEventListener("click", () => {
       this.monacoManager.toggleEditorTheme();
     });
 
+    // Shortcuts buttons
+    document.getElementById("btn-editor-shortcuts")?.addEventListener("click", () => {
+      this.shortcutsManager.showEditorShortcuts();
+    });
+
+    document.getElementById("btn-terminal-shortcuts")?.addEventListener("click", () => {
+      this.shortcutsManager.showTerminalShortcuts();
+    });
+
+    // Keyboard shortcuts
+    this.attachKeyboardShortcuts();
+
     console.log("[WorkspaceOrchestrator] Event listeners attached");
+  }
+
+  private attachKeyboardShortcuts(): void {
+    // Use capture phase (true) for Emacs chords to intercept BEFORE Monaco handles them
+    document.addEventListener("keydown", (e) => {
+      const keybindingMode = (document.getElementById("keybinding-mode") as HTMLSelectElement)?.value || "emacs";
+      const isEmacs = keybindingMode === "emacs";
+
+      // Handle Emacs C-x prefix chord
+      if (isEmacs && e.ctrlKey && e.key === "x" && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent Monaco from seeing this
+        this.startEmacsChord();
+        console.log("[Emacs] C-x prefix started");
+        return;
+      }
+
+      // Handle Emacs C-x C-f (new file) and C-x C-s (save)
+      // MUST run in capture phase to intercept before Monaco's C-f handler
+      if (isEmacs && this.emacsChordState.ctrlXPressed && e.ctrlKey) {
+        if (e.key === "f") {
+          e.preventDefault();
+          e.stopPropagation(); // Prevent Monaco from handling C-f as cursor movement
+          this.clearEmacsChord();
+          console.log("[Emacs] C-x C-f triggered - showing inline new file input");
+          this.fileTabManager.triggerNewFileInput();
+          return;
+        }
+        if (e.key === "s") {
+          e.preventDefault();
+          e.stopPropagation(); // Prevent Monaco from handling C-s
+          this.clearEmacsChord();
+          console.log("[Emacs] C-x C-s triggered - saving file");
+          this.fileStateManager.saveCurrentFile();
+          return;
+        }
+        // Any other key after C-x clears the chord
+        this.clearEmacsChord();
+      }
+
+      // Ctrl+S: Save (all modes)
+      if (e.ctrlKey && e.key === "s") {
+        e.preventDefault();
+        this.fileStateManager.saveCurrentFile();
+      }
+
+      // Ctrl+N: New file (non-Emacs modes, as Emacs uses C-n for cursor down)
+      if (!isEmacs && e.ctrlKey && e.key === "n") {
+        e.preventDefault();
+        this.fileTabManager.triggerNewFileInput();
+      }
+
+      // Ctrl+Tab: Next file tab
+      if (e.ctrlKey && e.key === "Tab" && !e.shiftKey) {
+        e.preventDefault();
+        this.fileTabManager.switchToNextTab();
+      }
+
+      // Ctrl+Shift+T: New terminal tab
+      if (e.ctrlKey && e.shiftKey && e.key === "T") {
+        e.preventDefault();
+        this.ptyManager.createNewTerminal();
+      }
+
+      // Ctrl+PageDown/PageUp: Terminal tabs
+      if (e.ctrlKey && e.key === "PageDown") {
+        e.preventDefault();
+        this.ptyManager.switchToNextTab();
+      }
+      if (e.ctrlKey && e.key === "PageUp") {
+        e.preventDefault();
+        this.ptyManager.switchToPrevTab();
+      }
+    }, true); // Capture phase to intercept before Monaco
+  }
+
+  private startEmacsChord(): void {
+    this.emacsChordState.ctrlXPressed = true;
+    // Clear any existing timeout
+    if (this.emacsChordState.timeout) {
+      window.clearTimeout(this.emacsChordState.timeout);
+    }
+    // Set timeout to clear chord state after 2 seconds
+    this.emacsChordState.timeout = window.setTimeout(() => {
+      this.clearEmacsChord();
+      console.log("[Emacs] C-x chord timed out");
+    }, 2000);
+  }
+
+  private clearEmacsChord(): void {
+    this.emacsChordState.ctrlXPressed = false;
+    if (this.emacsChordState.timeout) {
+      window.clearTimeout(this.emacsChordState.timeout);
+      this.emacsChordState.timeout = null;
+    }
+  }
+
+  private async runCurrentFile(): Promise<void> {
+    const currentFile = this.fileStateManager.getCurrentFile();
+    const terminal = this.ptyManager.getTerminal();
+
+    if (!terminal) {
+      alert("Terminal not available. Please wait for it to initialize.");
+      return;
+    }
+
+    if (!currentFile) {
+      console.warn("[WorkspaceOrchestrator] No file to run");
+      return;
+    }
+
+    // Handle scratch buffer
+    if (currentFile === "*scratch*") {
+      const editor = this.monacoManager.getEditor();
+      if (editor) {
+        await this.runManager.runScratchBuffer(editor.getValue(), terminal);
+      }
+      return;
+    }
+
+    // Run regular file
+    await this.runManager.runFile(
+      currentFile,
+      terminal,
+      () => this.fileStateManager.saveCurrentFile()
+    );
   }
 }
 
 // Note: Initialization is handled by workspace.ts
-// This module only exports the WorkspaceOrchestrator class and utilities

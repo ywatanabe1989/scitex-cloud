@@ -165,6 +165,7 @@ def project_detail(request, username, slug):
     - /<username>/<project>?mode=writer - Writer module (legacy, use /writer/)
     - /<username>/<project>?mode=code - Code module (legacy, use /code/)
     - /<username>/<project>?mode=viz - Viz module (legacy, use /viz/)
+    - /<username>/<project>?port=6006 - Proxy to localhost:6006 (services)
 
     Note: Scholar module now only accessible via /scholar/
     """
@@ -174,6 +175,31 @@ def project_detail(request, username, slug):
 
     # project available in request.project from decorator
     project = request.project
+
+    # Check for port proxy request (e.g., ?port=6006)
+    port_param = request.GET.get("port")
+    if port_param:
+        from django.http import HttpResponse
+        try:
+            port = int(port_param)
+            from apps.project_app.utils.port_proxy import get_port_proxy_manager
+
+            proxy_manager = get_port_proxy_manager()
+            return proxy_manager.proxy_request(request, port)
+        except ValueError:
+            return HttpResponse(
+                f"Invalid port parameter: {port_param}",
+                status=400,
+                content_type='text/plain'
+            )
+        except Exception as e:
+            logger.error(f"Port proxy error: {e}", exc_info=True)
+            return HttpResponse(
+                f"Proxy error: {str(e)}",
+                status=500,
+                content_type='text/plain'
+            )
+
     mode = request.GET.get("mode", "overview")
     view = request.GET.get("view", "default")
 

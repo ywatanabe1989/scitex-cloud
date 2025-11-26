@@ -11,6 +11,7 @@ from .code_models import (
     CodeLibrary,
     ResourceUsage,
     ProjectService,
+    UserQuota,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "CodeLibrary",
     "ResourceUsage",
     "ProjectService",
+    "UserQuota",
 ]

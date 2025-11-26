@@ -41,7 +41,7 @@ export class FileCommandHandler {
   }
 
   /**
-   * Create new file in root directory
+   * Create new file in root directory (with modal - deprecated)
    */
   async createNewFile(): Promise<void> {
     // Show one-time warning for visitors
@@ -61,6 +61,24 @@ export class FileCommandHandler {
     if (success) {
       await this.fileTreeManager.loadFileTree();
       await this.fileStateManager.loadFile(fileName);
+    }
+  }
+
+  /**
+   * Create new file with given name (for inline input workflow)
+   */
+  async createFileWithName(fileName: string): Promise<void> {
+    if (!fileName || !fileName.trim()) return;
+
+    // Show one-time warning for visitors
+    if (this.visitorManager.isVisitor()) {
+      this.visitorManager.showVisitorWarningOnce();
+    }
+
+    const success = await this.fileOperations.createFile(fileName.trim(), "");
+    if (success) {
+      await this.fileTreeManager.loadFileTree();
+      await this.fileStateManager.loadFile(fileName.trim());
     }
   }
 
@@ -88,21 +106,22 @@ export class FileCommandHandler {
   }
 
   /**
-   * Rename existing file or folder
+   * Rename existing file or folder (with modal)
    */
-  async renameFile(oldPath: string): Promise<void> {
-    const newPath = await this.uiComponents.showFileModal(
+  async renameFile(oldPath: string, newPath?: string): Promise<void> {
+    // If newPath is provided, skip the modal
+    const targetPath = newPath ?? await this.uiComponents.showFileModal(
       "Rename File",
       "New name:",
       oldPath
     );
 
-    if (!newPath || newPath === oldPath) return;
+    if (!targetPath || targetPath === oldPath) return;
 
-    const success = await this.fileOperations.renameFile(oldPath, newPath);
+    const success = await this.fileOperations.renameFile(oldPath, targetPath);
     if (success) {
       // Update file state manager
-      this.fileStateManager.renameOpenFile(oldPath, newPath);
+      this.fileStateManager.renameOpenFile(oldPath, targetPath);
       await this.fileTreeManager.loadFileTree();
     }
   }

@@ -174,12 +174,12 @@ export class MonacoManager {
     // Initialize theme toggle button
     this.updateThemeToggleButton(initialTheme);
 
-    // Add Ctrl+Enter keybinding to run code (works in all modes)
-    this.addRunCodeKeybinding(monaco);
-
     // Apply saved keybinding mode
     const savedMode = localStorage.getItem("code-keybinding-mode") || "emacs";
     this.setKeybindingMode(savedMode);
+
+    // Add Ctrl+Enter keybinding AFTER setting mode (so it doesn't get cleared)
+    this.addRunCodeKeybinding(monaco);
   }
 
   private addRunCodeKeybinding(monaco: any): void {

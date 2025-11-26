@@ -244,6 +244,18 @@ function finalizeEditorSetup(
     } else {
       editor.setContent(content);
     }
+
+    // Trigger initial PDF preview compilation after content is loaded
+    // Skip for compiled sections (they show the PDF directly)
+    const isCompiledSection =
+      currentSection.endsWith("/compiled_pdf") ||
+      currentSection.endsWith("/compiled_tex");
+    if (!isCompiledSection && pdfPreviewManager) {
+      console.log("[Writer] Triggering initial PDF preview for:", currentSection);
+      setTimeout(() => {
+        pdfPreviewManager.compileQuick(content, currentSection);
+      }, 500);
+    }
   }
 
   // Show split view

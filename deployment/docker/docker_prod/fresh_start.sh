@@ -93,8 +93,8 @@ echo_success "Old containers removed"
 # Step 3: Remove Old Images
 echo_header "Step 3: Removing old images"
 
-docker rmi scitex-cloud-web:latest 2>/dev/null || echo_info "scitex-cloud-web:latest not found"
-docker rmi scitex-cloud-prod-web:latest 2>/dev/null || echo_info "scitex-cloud-prod-web:latest not found"
+docker rmi scitex-cloud-django:latest 2>/dev/null || echo_info "scitex-cloud-django:latest not found"
+docker rmi scitex-cloud-prod-django:latest 2>/dev/null || echo_info "scitex-cloud-prod-django:latest not found"
 
 echo_info "Cleaning up dangling images..."
 docker image prune -f
@@ -135,12 +135,12 @@ echo ""
 echo_info "Checking container health..."
 sleep 5
 
-# Check if web container is healthy
-if docker ps --filter "name=scitex-cloud-prod-web-1" --filter "health=healthy" | grep -q scitex-cloud-prod-web-1; then
-    echo_success "Web container is healthy"
+# Check if Django container is healthy
+if docker ps --filter "name=scitex-cloud-prod-django-1" --filter "health=healthy" | grep -q scitex-cloud-prod-django-1; then
+    echo_success "Django container is healthy"
 else
-    echo_warning "Web container not yet healthy (may still be starting)"
-    echo_info "Check logs with: make logs-web"
+    echo_warning "Django container not yet healthy (may still be starting)"
+    echo_info "Check logs with: make logs-django"
 fi
 
 # Check if db container is healthy

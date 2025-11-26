@@ -376,7 +376,7 @@ cleanup_containers() {
     echo_info "Cleaning up old containers..."
     docker compose -f docker-compose.yml down
     docker rm -f \
-        scitex-cloud-dev-db-1 scitex-cloud-dev-web-1 scitex-cloud-dev-redis-1 scitex-cloud-dev-gitea-1 \
+        scitex-cloud-dev-db-1 scitex-cloud-dev-django-1 scitex-cloud-dev-redis-1 scitex-cloud-dev-gitea-1 \
         2> /dev/null || true
 }
 
@@ -763,7 +763,7 @@ wait_for_web_healthy() {
     while [ $((SECONDS - START_TIME)) -lt $TIMEOUT ]; do
         # Check if container is healthy (matches "Up ... (healthy)" format)
         if docker compose -f docker-compose.yml ps \
-            | grep scitex-cloud-dev-web-1 \
+            | grep scitex-cloud-dev-django-1 \
             | grep -q "(healthy)"; then
             echo ""
             echo_success \
@@ -773,12 +773,12 @@ wait_for_web_healthy() {
         fi
 
         # Stream all new logs from container since last check
-        docker logs scitex-cloud-dev-web-1 2>&1 | tail -n +$((LAST_LOG_LINE + 1)) | while IFS= read -r line; do
+        docker logs scitex-cloud-dev-django-1 2>&1 | tail -n +$((LAST_LOG_LINE + 1)) | while IFS= read -r line; do
             echo "  $line"
         done
 
         # Update line count for next iteration
-        LAST_LOG_LINE=$(docker logs scitex-cloud-dev-web-1 2>&1 | wc -l)
+        LAST_LOG_LINE=$(docker logs scitex-cloud-dev-django-1 2>&1 | wc -l)
 
         sleep 2
     done

@@ -3,7 +3,7 @@
 # ============================================
 # Location: /containers/docker_prod/Makefile.prod
 
-.PHONY: help setup build build-ts start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis logs-nginx exec-web exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto list-envs
+.PHONY: help setup build build-ts start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-django logs-db logs-redis logs-nginx exec-django exec-db clean-python ssl-setup ssl-check ssl-create ssl-renew ssl-verify ssl-auto list-envs
 
 .DEFAULT_GOAL := help
 
@@ -11,7 +11,7 @@
 # Variables
 # ============================================
 COMPOSE := docker compose -f docker-compose.yml
-WEB_CONTAINER := scitex-cloud-prod-web-1
+DJANGO_CONTAINER := scitex-cloud-prod-django-1
 DB_CONTAINER := scitex-cloud-prod-db-1
 REDIS_CONTAINER := scitex-cloud-prod-redis-1
 NGINX_CONTAINER := scitex-cloud-prod-nginx-1
@@ -59,13 +59,13 @@ help:
 	@echo ""
 	@echo "$(CYAN)📋 Logs & Monitoring:$(NC)"
 	@echo "  make logs               - View all service logs"
-	@echo "  make logs-web           - View web container logs"
+	@echo "  make logs-django        - View Django container logs"
 	@echo "  make logs-db            - View database logs"
 	@echo "  make logs-redis         - View Redis logs"
 	@echo "  make logs-nginx         - View Nginx logs"
 	@echo ""
 	@echo "$(CYAN)🔧 Shell Access & Debug:$(NC)"
-	@echo "  make exec-web           - Shell into web container"
+	@echo "  make exec-django        - Shell into Django container"
 	@echo "  make exec-db            - Shell into database container"
 	@echo "  make list-envs          - List environment variables"
 	@echo ""
@@ -83,8 +83,8 @@ help:
 # Health Check
 # ============================================
 docker-check-health:
-	@if ! docker ps | grep -q "$(WEB_CONTAINER)"; then \
-		echo "$(RED)❌ Web container not running!$(NC)"; \
+	@if ! docker ps | grep -q "$(DJANGO_CONTAINER)"; then \
+		echo "$(RED)❌ Django container not running!$(NC)"; \
 		echo "$(YELLOW)Run 'make start' first.$(NC)"; \
 		exit 1; \
 	fi
@@ -145,20 +145,20 @@ rebuild:
 # ============================================
 migrate: docker-check-health
 	@echo "$(CYAN)🔄 Running migrations (production)...$(NC)"
-	$(COMPOSE) exec -T web python manage.py migrate
+	$(COMPOSE) exec -T django python manage.py migrate
 	@echo "$(GREEN)✅ Migrations applied$(NC)"
 
 makemigrations: docker-check-health
 	@echo "$(RED)⚠️  WARNING: This should be done in development!$(NC)"
 	@read -p "Continue anyway? Type 'yes' to confirm: " confirm && \
 	[ "$$confirm" = "yes" ] && \
-	$(COMPOSE) exec -T web python manage.py makemigrations || \
+	$(COMPOSE) exec -T django python manage.py makemigrations || \
 	echo "$(YELLOW)❌ Cancelled$(NC)"
 
 shell: docker-check-health
 	@echo "$(CYAN)🐍 Opening Django shell (production)...$(NC)"
 	@echo "$(YELLOW)⚠️  BE CAREFUL - This is production!$(NC)"
-	$(COMPOSE) exec web python manage.py shell
+	$(COMPOSE) exec django python manage.py shell
 
 build-ts:
 	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
@@ -167,7 +167,7 @@ build-ts:
 
 collectstatic: docker-check-health build-ts
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"
-	$(COMPOSE) exec -T web python manage.py collectstatic --noinput
+	$(COMPOSE) exec -T django python manage.py collectstatic --noinput
 	@echo "$(GREEN)✅ Static files collected$(NC)"
 
 # ============================================
@@ -193,9 +193,9 @@ logs:
 	@echo "$(CYAN)📋 Showing production logs (Ctrl+C to exit)...$(NC)"
 	$(COMPOSE) logs -f --tail=100
 
-logs-web:
-	@echo "$(CYAN)📋 Showing web logs...$(NC)"
-	$(COMPOSE) logs -f --tail=100 web
+logs-django:
+	@echo "$(CYAN)📋 Showing Django logs...$(NC)"
+	$(COMPOSE) logs -f --tail=100 django
 
 logs-db:
 	@echo "$(CYAN)📋 Showing database logs...$(NC)"
@@ -212,9 +212,9 @@ logs-nginx:
 # ============================================
 # Shell Access
 # ============================================
-exec-web: docker-check-health
-	@echo "$(CYAN)🐳 Opening shell in web container...$(NC)"
-	$(COMPOSE) exec web /bin/bash
+exec-django: docker-check-health
+	@echo "$(CYAN)🐳 Opening shell in Django container...$(NC)"
+	$(COMPOSE) exec django /bin/bash
 
 exec-db: docker-check-health
 	@echo "$(CYAN)🐳 Opening shell in database container...$(NC)"
@@ -347,24 +347,24 @@ ssl-setup:
 # Utilities
 # ============================================
 
-# List environment variables in web container
+# List environment variables in Django container
 list-envs:
-	@echo "$(CYAN)🔍 Environment variables in web container:$(NC)"
+	@echo "$(CYAN)🔍 Environment variables in Django container:$(NC)"
 	@echo ""
 	@echo "$(CYAN)━━━ SCITEX_CLOUD_* variables ━━━$(NC)"
-	@$(COMPOSE) exec -T web env | grep "^SCITEX_CLOUD_" | sort || true
+	@$(COMPOSE) exec -T django env | grep "^SCITEX_CLOUD_" | sort || true
 	@echo ""
 	@echo "$(CYAN)━━━ SCITEX_* variables (non-CLOUD) ━━━$(NC)"
-	@$(COMPOSE) exec -T web env | grep "^SCITEX_" | grep -v "^SCITEX_CLOUD_" | sort || true
+	@$(COMPOSE) exec -T django env | grep "^SCITEX_" | grep -v "^SCITEX_CLOUD_" | sort || true
 	@echo ""
 	@echo "$(CYAN)━━━ SCITEX_CLOUD_EMAIL_* variables ━━━$(NC)"
-	@$(COMPOSE) exec -T web env | grep "^SCITEX_CLOUD_EMAIL_" | sort || true
+	@$(COMPOSE) exec -T django env | grep "^SCITEX_CLOUD_EMAIL_" | sort || true
 	@echo ""
 	@echo "$(CYAN)━━━ Django variables ━━━$(NC)"
-	@$(COMPOSE) exec -T web env | grep -E "^(DEBUG|DJANGO_|SCITEX_CLOUD_DJANGO_SECRET_KEY|SCITEX_CLOUD_ALLOWED_HOSTS|SCITEX_CLOUD_POSTGRES_URL|SCITEX_CLOUD_REDIS_URL)" | sort || true
+	@$(COMPOSE) exec -T django env | grep -E "^(DEBUG|DJANGO_|SCITEX_CLOUD_DJANGO_SECRET_KEY|SCITEX_CLOUD_ALLOWED_HOSTS|SCITEX_CLOUD_POSTGRES_URL|SCITEX_CLOUD_REDIS_URL)" | sort || true
 	@echo ""
 	@echo "$(CYAN)━━━ Database variables ━━━$(NC)"
-	@$(COMPOSE) exec -T web env | grep -E "^(POSTGRES_|DB_)" | sort || true
+	@$(COMPOSE) exec -T django env | grep -E "^(POSTGRES_|DB_)" | sort || true
 
 # EOF
 

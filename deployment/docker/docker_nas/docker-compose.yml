@@ -1,3 +1,5 @@
+version: '3.8'
+
 # NAS Deployment with Cloudflare Tunnel
 # For: Synology DXP480T Plus (Home NAS)
 # No router access or port forwarding needed!
@@ -6,28 +8,37 @@
 name: scitex-cloud-nas
 
 services:
-  web:
+  django:
     build:
       context: ../../..
       dockerfile: deployment/docker/docker_nas/Dockerfile
       cache_from:
-        - scitex-cloud-nas-web:latest
+        - scitex-cloud-nas-django:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    image: scitex-cloud-nas-web:latest
-    # Use prod entrypoint (built into image)
-    # Use Daphne (ASGI) for WebSocket support like prod
-    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "--access-log", "-", "--proxy-headers", "config.asgi:application"]
+    image: scitex-cloud-nas-django:latest
+    entrypoint: ["/entrypoint.sh"]
+    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
       # No scitex-code mount - installed from PyPI in Dockerfile
-      # Docker socket for user workspace management (same as prod)
-      - /var/run/docker.sock:/var/run/docker.sock
+
       # User workspace data directory
       - ../../../data/users:/app/data/users
+
+      # Singularity/Apptainer container for secure user code execution
+      - ../../../deployment/singularity:/app/singularity:ro
+
+      # SLURM access (connects to host SLURM for job scheduling)
+      - /etc/slurm/slurm.conf:/etc/slurm/slurm.conf:ro
+      - /etc/munge:/etc/munge:ro
+      - /run/munge:/run/munge
+      - /var/log/slurm:/var/log/slurm
+
     ports:
       - "${SCITEX_CLOUD_SSH_PORT_NAS:-2200}:2200"  # SSH gateway for user workspaces
+
     expose:
       - "8000"
     env_file:
@@ -40,6 +51,12 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+
+    # Allow access to host SLURM
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "${SCITEX_CLOUD_SLURM_HOST:-DXP480TPLUS-994}:host-gateway"
+
     restart: always
     networks:
       - scitex-network
@@ -61,10 +78,9 @@ services:
     env_file:
       - .env
     environment:
-      # PostgreSQL expects POSTGRES_* variables (not SCITEX_CLOUD_POSTGRES_*)
-      - POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
-      - POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
+      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
+      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
+      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
     restart: always
     networks:
       - scitex-network
@@ -87,6 +103,119 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+
+  # Celery Worker (Async Task Processing)
+  celery_worker:
+    image: scitex-cloud-nas-django:latest
+    entrypoint: ["/entrypoint.sh"]
+    command: >
+      celery -A config --broker=redis://redis:6379/1 worker
+      --loglevel=info
+      --queues=celery,ai_queue,search_queue,compute_queue,vis_queue
+      --concurrency=8
+      --prefetch-multiplier=1
+
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - ../../../data/users:/app/data/users
+      - ../../../deployment/singularity:/app/singularity:ro
+      - /etc/slurm/slurm.conf:/etc/slurm/slurm.conf:ro
+      - /etc/munge:/etc/munge:ro
+      - /run/munge:/run/munge
+      - /var/log/slurm:/var/log/slurm
+
+    env_file:
+      - .env
+
+    environment:
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - PYTHONUNBUFFERED=1
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "${SCITEX_CLOUD_SLURM_HOST:-DXP480TPLUS-994}:host-gateway"
+
+    restart: always
+    networks:
+      - scitex-network
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; r = redis.Redis(host='redis', port=6379); r.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # Celery Beat (Periodic Task Scheduler)
+  celery_beat:
+    image: scitex-cloud-nas-django:latest
+    entrypoint: ["/entrypoint.sh"]
+    command: celery -A config --broker=redis://redis:6379/1 beat --loglevel=info --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+
+    volumes:
+      - ../../../data/users:/app/data/users
+
+    env_file:
+      - .env
+
+    environment:
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - PYTHONUNBUFFERED=1
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+    restart: always
+    networks:
+      - scitex-network
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; r = redis.Redis(host='redis', port=6379); r.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # Flower (Celery Monitoring Dashboard)
+  flower:
+    image: scitex-cloud-nas-django:latest
+    entrypoint: ["/entrypoint.sh"]
+    command: celery -A config --broker=redis://redis:6379/1 flower --port=5555
+
+    ports:
+      - "5555:5555"
+
+    env_file:
+      - .env
+
+    environment:
+      - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - PYTHONUNBUFFERED=1
+
+    depends_on:
+      - redis
+      - celery_worker
+
+    restart: always
+    networks:
+      - scitex-network
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 
   # Gitea - Git server (core feature)
   gitea:
@@ -129,7 +258,7 @@ services:
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
     depends_on:
-      - web
+      - django
       - gitea
     restart: always
     networks:

@@ -15,3 +15,7 @@ export { PropertiesManager } from './PropertiesManager.js';
 export { UIManager } from './UIManager.js';
 export { ResizerManager } from './ResizerManager.js';
 export { PlotDataManager } from './PlotDataManager.js';
+
+// UI modules
+export { DataTabManager } from './ui/DataTabManager.js';
+export { CanvasTabManager } from './ui/CanvasTabManager.js';

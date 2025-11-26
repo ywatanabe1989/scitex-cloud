@@ -171,7 +171,14 @@ export class EditorControls {
    */
   private loadFontSize(): void {
     const saved = localStorage.getItem(this.storageFontSizeKey);
-    const fontSize = saved ? parseInt(saved, 10) : this.defaultFontSize;
+    let fontSize = saved ? parseInt(saved, 10) : this.defaultFontSize;
+
+    // Ensure minimum font size of 12px for readability
+    if (fontSize < 12) {
+      console.warn(`[EditorControls] Font size ${fontSize}px is too small, resetting to 12px`);
+      fontSize = 12;
+      localStorage.setItem(this.storageFontSizeKey, '12');
+    }
 
     this.currentFontSize = fontSize;
 
@@ -349,8 +356,11 @@ export class EditorControls {
    * Set font size programmatically
    */
   public setFontSize(fontSize: number): void {
-    if (fontSize >= 10 && fontSize <= 20) {
+    if (fontSize >= 12 && fontSize <= 20) {
       this.updateFontSize(fontSize);
+    } else if (fontSize < 12) {
+      console.warn(`[EditorControls] Font size ${fontSize}px is too small, using minimum 12px`);
+      this.updateFontSize(12);
     }
   }
 

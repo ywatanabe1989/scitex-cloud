@@ -13,6 +13,8 @@
 {% block extra_css %}
   <!-- Shared sidebar styles from project_app for consistency -->
   <link rel="stylesheet" href="{% static 'project_app/css/shared/sidebar.css' %}" />
+  <!-- Shared workspace files tree component -->
+  <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}" />
   <!-- Code workspace specific styles -->
   <link rel="stylesheet" href="{% static 'code_app/css/workspace.css' %}" />
   <link rel="stylesheet" href="{% static 'code_app/css/context-menu.css' %}" />
@@ -304,11 +306,17 @@
       <!-- Terminal Header -->
       <div class="terminal-header">
         <div class="terminal-title">
-          <i class="fas fa-terminal"></i>
-          Terminal
+          <i class="fas fa-terminal" title="Terminal"></i>
           <button id="btn-terminal-shortcuts" class="btn-code-action" title="Terminal Shortcuts" style="margin-left: 8px;">
             <i class="fas fa-keyboard"></i>
           </button>
+        </div>
+      </div>
+
+      <!-- Terminal Tabs -->
+      <div id="terminal-tabs-container" class="terminal-tabs-container">
+        <div id="terminal-tabs" class="terminal-tabs">
+          <!-- Tabs will be dynamically added here -->
         </div>
       </div>
 
@@ -421,7 +429,7 @@
       </div>
       <div class="file-modal-footer">
         <button class="file-modal-btn" onclick="document.getElementById('commit-modal-overlay').classList.remove('active')">Cancel</button>
-        <button id="commit-modal-submit" class="file-modal-btn file-modal-btn-primary" style="background: #238636;">
+        <button id="commit-modal-submit" class="file-modal-btn file-modal-btn-primary" style="background: var(--status-success);">
           <i class="fas fa-code-branch"></i> Commit
         </button>
       </div>

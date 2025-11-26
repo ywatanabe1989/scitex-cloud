@@ -64,26 +64,27 @@ Check the current status of SciTeX Cloud services and infrastructure.
     border-radius: 12px;
     padding: 1.5rem;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .service-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.16);
 }
 
-.service-card.running {
+.service-card.running, .service-card.healthy {
     border-color: var(--status-success);
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(76, 175, 80, 0.05) 100%);
+    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(76, 175, 80, 0.12) 100%);
 }
 
-.service-card.down {
+.service-card.down, .service-card.unhealthy {
     border-color: var(--status-error);
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(244, 67, 54, 0.05) 100%);
+    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(244, 67, 54, 0.12) 100%);
 }
 
-.service-card.warning {
+.service-card.warning, .service-card.starting {
     border-color: var(--status-warning);
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(255, 152, 0, 0.05) 100%);
+    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(255, 152, 0, 0.12) 100%);
 }
 
 .service-header {
@@ -109,17 +110,17 @@ Check the current status of SciTeX Cloud services and infrastructure.
     font-weight: 500;
 }
 
-.status-badge.running {
+.status-badge.running, .status-badge.healthy {
     background: var(--status-success);
     color: white;
 }
 
-.status-badge.down {
+.status-badge.down, .status-badge.unhealthy {
     background: var(--status-error);
     color: white;
 }
 
-.status-badge.error {
+.status-badge.error, .status-badge.starting {
     background: var(--status-warning);
     color: white;
 }
@@ -138,11 +139,18 @@ Check the current status of SciTeX Cloud services and infrastructure.
 }
 
 .metric-card {
-    background: var(--bg-surface);
+    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(54, 162, 235, 0.08) 100%);
     border: 1px solid var(--border-default);
     border-radius: 12px;
     padding: 1.5rem;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 .metric-value {
@@ -203,6 +211,20 @@ Check the current status of SciTeX Cloud services and infrastructure.
 .info-box a:hover {
     text-decoration: underline;
 }
+
+.info-card {
+    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(5, 150, 105, 0.08) 100%);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
 </style>
 {% endblock %}
 
@@ -223,22 +245,6 @@ Check the current status of SciTeX Cloud services and infrastructure.
             Real-time monitoring of SciTeX Cloud infrastructure and services
         </p>
 
-        <!-- Export Controls -->
-        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; align-items: center; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-clock" style="color: var(--scitex-color-04);"></i>
-                <select id="exportTimeRange" class="form-select" style="width: auto;">
-                    <option value="1" selected>Last 1 hour</option>
-                    <option value="6">Last 6 hours</option>
-                    <option value="24">Last 24 hours</option>
-                    <option value="168">Last 7 days</option>
-                    <option value="720">Last 30 days</option>
-                </select>
-            </div>
-            <a href="/api/server-metrics/export/?hours=1" id="exportButton" class="btn btn-primary" download>
-                <i class="fas fa-download me-2"></i>Export Metrics as CSV
-            </a>
-        </div>
     </div>
 
     <!-- Unified System Metrics -->
@@ -275,9 +281,9 @@ Check the current status of SciTeX Cloud services and infrastructure.
                     <span id="memoryCurrentValue" style="font-size: 1.2rem; font-weight: bold; color: rgb(255, 99, 132);">--</span>
                 </div>
                 <canvas id="memoryChart" style="max-height: 200px;"></canvas>
-                {% if status_data.system.memory_total_gb %}
+                {% if status_data.system.memory_total_tb %}
                 <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
-                    {{ status_data.system.memory_available_gb }} GB / {{ status_data.system.memory_total_gb }} GB available
+                    {{ status_data.system.memory_available_tb }} TB / {{ status_data.system.memory_total_tb }} TB available
                 </div>
                 {% endif %}
             </div>
@@ -291,9 +297,9 @@ Check the current status of SciTeX Cloud services and infrastructure.
                     <span id="diskCurrentValue" style="font-size: 1.2rem; font-weight: bold; color: rgb(75, 192, 192);">--</span>
                 </div>
                 <canvas id="diskChart" style="max-height: 200px;"></canvas>
-                {% if status_data.disk.total_gb %}
+                {% if status_data.disk.total_tb %}
                 <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
-                    {{ status_data.disk.used_gb }} GB / {{ status_data.disk.total_gb }} GB used
+                    {{ status_data.disk.used_tb }} TB / {{ status_data.disk.total_tb }} TB used
                 </div>
                 {% endif %}
             </div>
@@ -381,17 +387,24 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             {% for service in status_data.services %}
-            <div class="service-card {% if service.is_running %}running{% else %}down{% endif %}">
+            <div class="service-card {{ service.health_class }}">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-cube"></i> {{ service.name|title }}
                     </div>
-                    <span class="status-badge {% if service.is_running %}running{% else %}down{% endif %}">
+                    <span class="status-badge {{ service.health_class }}">
                         <i class="fas fa-circle"></i>
-                        {{ service.status|upper }}
+                        {% if service.health_status %}
+                            {{ service.health_status|upper }}
+                        {% else %}
+                            {{ service.status|upper }}
+                        {% endif %}
                     </span>
                 </div>
                 <div class="service-details">
+                    {% if service.health_status and service.health_status != 'healthy' %}
+                    <div><strong>Container:</strong> {{ service.status }}</div>
+                    {% endif %}
                     {% if service.image %}
                     <div><strong>Image:</strong> {{ service.image }}</div>
                     {% endif %}
@@ -415,14 +428,14 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             {% for ssh in status_data.ssh_services %}
-            <div class="service-card {% if ssh.is_running %}running{% else %}down{% endif %}">
+            <div class="service-card {{ ssh.health_class }}">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-terminal"></i> {{ ssh.name }}
                     </div>
-                    <span class="status-badge {% if ssh.is_running %}running{% else %}down{% endif %}">
+                    <span class="status-badge {{ ssh.health_class }}">
                         <i class="fas fa-circle"></i>
-                        {{ ssh.status|upper }}
+                        {% if ssh.health_class == 'healthy' %}HEALTHY{% elif ssh.health_class == 'unhealthy' %}UNHEALTHY{% else %}{{ ssh.status|upper }}{% endif %}
                     </span>
                 </div>
                 <div class="service-details">
@@ -453,14 +466,14 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             <!-- PostgreSQL -->
-            <div class="service-card {% if status_data.database.is_running %}running{% else %}down{% endif %}">
+            <div class="service-card {{ status_data.database.health_class }}">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-database"></i> PostgreSQL
                     </div>
-                    <span class="status-badge {% if status_data.database.is_running %}running{% else %}down{% endif %}">
+                    <span class="status-badge {{ status_data.database.health_class }}">
                         <i class="fas fa-circle"></i>
-                        {{ status_data.database.status|upper }}
+                        {% if status_data.database.health_class == 'healthy' %}HEALTHY{% elif status_data.database.health_class == 'unhealthy' %}UNHEALTHY{% else %}{{ status_data.database.status|upper }}{% endif %}
                     </span>
                 </div>
                 <div class="service-details">
@@ -477,14 +490,14 @@ Check the current status of SciTeX Cloud services and infrastructure.
             </div>
 
             <!-- Redis -->
-            <div class="service-card {% if status_data.redis.is_running %}running{% else %}down{% endif %}">
+            <div class="service-card {{ status_data.redis.health_class }}">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-memory"></i> Redis Cache
                     </div>
-                    <span class="status-badge {% if status_data.redis.is_running %}running{% else %}down{% endif %}">
+                    <span class="status-badge {{ status_data.redis.health_class }}">
                         <i class="fas fa-circle"></i>
-                        {{ status_data.redis.status|upper }}
+                        {% if status_data.redis.health_class == 'healthy' %}HEALTHY{% elif status_data.redis.health_class == 'unhealthy' %}UNHEALTHY{% else %}{{ status_data.redis.status|upper }}{% endif %}
                     </span>
                 </div>
                 <div class="service-details">
@@ -494,6 +507,69 @@ Check the current status of SciTeX Cloud services and infrastructure.
                     {% endif %}
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Computational Services (SLURM & Apptainer) -->
+    <div class="status-section">
+        <h2 class="section-title">
+            <i class="fas fa-server"></i> Computational Services
+        </h2>
+        <div class="services-grid">
+            <!-- SLURM -->
+            <div class="service-card {{ status_data.slurm.health_class }}">
+                <div class="service-header">
+                    <div class="service-name">
+                        <i class="fas fa-tasks"></i> SLURM Workload Manager
+                    </div>
+                    <span class="status-badge {{ status_data.slurm.health_class }}">
+                        <i class="fas fa-circle"></i>
+                        {% if status_data.slurm.health_class == 'healthy' %}HEALTHY{% elif status_data.slurm.health_class == 'unhealthy' %}DOWN{% else %}{{ status_data.slurm.status|upper }}{% endif %}
+                    </span>
+                </div>
+                <div class="service-details">
+                    <div><strong>Purpose:</strong> Job Scheduling & Resource Management</div>
+                    {% if status_data.slurm.partitions %}
+                    <div><strong>Partitions:</strong> {{ status_data.slurm.partitions }}</div>
+                    {% endif %}
+                    {% if status_data.slurm.error %}
+                    <div style="color: var(--status-error);"><strong>Error:</strong> {{ status_data.slurm.error }}</div>
+                    {% endif %}
+                    {% if not status_data.slurm.is_running and not status_data.slurm.error %}
+                    <div style="color: var(--status-warning);"><strong>Hint:</strong> Run <code>make slurm-start</code> to start</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Apptainer/Singularity -->
+            <div class="service-card {{ status_data.apptainer.health_class }}">
+                <div class="service-header">
+                    <div class="service-name">
+                        <i class="fas fa-box"></i> {{ status_data.apptainer.command|default:"Apptainer"|title }}
+                    </div>
+                    <span class="status-badge {{ status_data.apptainer.health_class }}">
+                        <i class="fas fa-circle"></i>
+                        {% if status_data.apptainer.health_class == 'healthy' %}HEALTHY{% elif status_data.apptainer.health_class == 'unhealthy' %}ERROR{% else %}{{ status_data.apptainer.status|upper }}{% endif %}
+                    </span>
+                </div>
+                <div class="service-details">
+                    <div><strong>Purpose:</strong> Secure Container Runtime</div>
+                    {% if status_data.apptainer.version %}
+                    <div><strong>Version:</strong> {{ status_data.apptainer.version }}</div>
+                    {% endif %}
+                    {% if status_data.apptainer.error %}
+                    <div style="color: var(--status-error);"><strong>Error:</strong> {{ status_data.apptainer.error }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- HPC Info -->
+        <div class="info-box" style="margin-top: 1.5rem;">
+            <p>
+                <i class="fas fa-info-circle"></i>
+                <strong>HPC Terminal:</strong> User terminals run inside Apptainer containers via SLURM for security and resource management.
+            </p>
         </div>
     </div>
 
@@ -523,23 +599,30 @@ Check the current status of SciTeX Cloud services and infrastructure.
             padding: 1.5rem;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .slot-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
         }
 
         .slot-card.allocated {
             border-color: var(--status-warning);
-            background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(255, 152, 0, 0.05) 100%);
+            background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(255, 152, 0, 0.12) 100%);
         }
 
         .slot-card.free {
             border-color: var(--status-success);
-            background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(76, 175, 80, 0.05) 100%);
+            background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(76, 175, 80, 0.10) 100%);
         }
 
         .slot-card.current-user {
             border-color: var(--workspace-icon-primary);
             border-width: 3px;
-            background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(5, 150, 105, 0.15) 100%);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+            background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(5, 150, 105, 0.20) 100%);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
         }
 
         .slot-header {
@@ -645,7 +728,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
                 <!-- Slot Allocation -->
-                <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
+                <div class="info-card">
                     <h4 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
                         <i class="fas fa-user-tag" style="color: var(--workspace-icon-primary);"></i>
                         Slot Allocation
@@ -656,7 +739,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
                 </div>
 
                 <!-- Data Separation -->
-                <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
+                <div class="info-card">
                     <h4 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
                         <i class="fas fa-shield-alt" style="color: var(--workspace-icon-primary);"></i>
                         Data Privacy
@@ -667,7 +750,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
                 </div>
 
                 <!-- Session Duration -->
-                <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
+                <div class="info-card">
                     <h4 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
                         <i class="fas fa-clock" style="color: var(--workspace-icon-primary);"></i>
                         60-Minute Sessions
@@ -678,7 +761,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
                 </div>
 
                 <!-- Sign Up -->
-                <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
+                <div class="info-card">
                     <h4 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
                         <i class="fas fa-user-plus" style="color: var(--workspace-icon-primary);"></i>
                         Keep Your Work
@@ -1485,33 +1568,6 @@ window.addEventListener('load', function() {
     }
 
     initialize();
-
-    // Time range selector - updates both charts and export button
-    document.getElementById('exportTimeRange').addEventListener('change', async function(e) {
-        const hours = parseInt(e.target.value);
-
-        // Update export button
-        document.getElementById('exportButton').href = `/api/server-metrics/export/?hours=${hours}`;
-
-        // Show loading state
-        const metricsTitle = document.getElementById('metricsTitle');
-        const newTitle = formatTimeRangeText(hours);
-        const originalIcon = '<i class="fas fa-chart-area"></i>';
-        metricsTitle.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading data...';
-
-        try {
-            // Reload historical data with selected time range
-            await loadHistoricalData(hours);
-
-            // Update title with new time range
-            metricsTitle.innerHTML = `${originalIcon} System Metrics (${newTitle})`;
-
-            console.log(`Reloaded charts with ${hours} hours of data`);
-        } catch (error) {
-            console.error('Error reloading data:', error);
-            metricsTitle.innerHTML = `${originalIcon} System Metrics (${newTitle}) - Error loading data`;
-        }
-    });
 })();
 
 }); // End of window.addEventListener('load')

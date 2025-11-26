@@ -63,6 +63,10 @@ export class RulersManager {
      * Initialize rulers on canvas load
      */
     public initializeRulers(): void {
+        // Read theme from localStorage before drawing rulers
+        const globalTheme = localStorage.getItem('scitex-theme-preference') || 'dark';
+        const savedCanvasTheme = localStorage.getItem('canvas-theme') || globalTheme;
+        this.isDarkTheme = savedCanvasTheme === 'dark';
         this.drawRulers();
     }
 
@@ -183,11 +187,12 @@ export class RulersManager {
             }
         }
 
-        // Add column width markers (0.5, 1.0, 1.5 columns)
+        // Add column width markers (0.5, 1.0, 1.5, 2.0 columns)
         const columnMarkers = [
             { mm: 45, label: '0.5 col' },
             { mm: 90, label: '1.0 col' },
-            { mm: 135, label: '1.5 col' }
+            { mm: 135, label: '1.5 col' },
+            { mm: 180, label: '2.0 col' }
         ];
 
         columnMarkers.forEach(marker => {
@@ -253,7 +258,8 @@ export class RulersManager {
         const columnMarkersInch = [
             { inch: 45 / 25.4, label: '0.5 col' },
             { inch: 90 / 25.4, label: '1.0 col' },
-            { inch: 135 / 25.4, label: '1.5 col' }
+            { inch: 135 / 25.4, label: '1.5 col' },
+            { inch: 180 / 25.4, label: '2.0 col' }
         ];
 
         columnMarkersInch.forEach(marker => {

@@ -3,7 +3,7 @@
 # ============================================
 # Location: /containers/docker_nas/Makefile.nas
 
-.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-web logs-db logs-redis exec-web exec-db clean-python
+.PHONY: help setup build start restart stop down logs ps status rebuild migrate makemigrations shell collectstatic db-shell db-backup verify-health logs-django logs-db logs-redis exec-django exec-db clean-python
 
 .DEFAULT_GOAL := help
 
@@ -11,7 +11,7 @@
 # Variables
 # ============================================
 COMPOSE := docker compose -f docker-compose.yml
-WEB_CONTAINER := scitex-cloud-nas-web-1
+DJANGO_CONTAINER := scitex-cloud-nas-django-1
 DB_CONTAINER := scitex-cloud-nas-db-1
 REDIS_CONTAINER := scitex-cloud-nas-redis-1
 
@@ -58,12 +58,12 @@ help:
 	@echo ""
 	@echo "$(CYAN)📋 Logs & Monitoring:$(NC)"
 	@echo "  make logs               - View all service logs"
-	@echo "  make logs-web           - View web container logs"
+	@echo "  make logs-django        - View Django container logs"
 	@echo "  make logs-db            - View database logs"
 	@echo "  make logs-redis         - View Redis logs"
 	@echo ""
 	@echo "$(CYAN)🔧 Shell Access:$(NC)"
-	@echo "  make exec-web           - Shell into web container"
+	@echo "  make exec-django        - Shell into Django container"
 	@echo "  make exec-db            - Shell into database container"
 	@echo ""
 	@echo "$(CYAN)🔍 Health & Monitoring:$(NC)"
@@ -74,8 +74,8 @@ help:
 # Health Check
 # ============================================
 docker-check-health:
-	@if ! docker ps | grep -q "$(WEB_CONTAINER)"; then \
-		echo "$(RED)❌ Web container not running!$(NC)"; \
+	@if ! docker ps | grep -q "$(DJANGO_CONTAINER)"; then \
+		echo "$(RED)❌ Django container not running!$(NC)"; \
 		echo "$(YELLOW)Run 'make start' first.$(NC)"; \
 		exit 1; \
 	fi
@@ -127,21 +127,21 @@ rebuild: down build up migrate collectstatic
 # ============================================
 migrate: docker-check-health
 	@echo "$(CYAN)🔄 Running migrations...$(NC)"
-	$(COMPOSE) exec -T web python manage.py migrate
+	$(COMPOSE) exec -T django python manage.py migrate
 	@echo "$(GREEN)✅ Migrations applied$(NC)"
 
 makemigrations: docker-check-health
 	@echo "$(CYAN)📝 Creating migrations...$(NC)"
-	$(COMPOSE) exec -T web python manage.py makemigrations
+	$(COMPOSE) exec -T django python manage.py makemigrations
 	@echo "$(GREEN)✅ Migrations created$(NC)"
 
 shell: docker-check-health
 	@echo "$(CYAN)🐍 Opening Django shell...$(NC)"
-	$(COMPOSE) exec web python manage.py shell
+	$(COMPOSE) exec django python manage.py shell
 
 collectstatic: docker-check-health
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"
-	$(COMPOSE) exec -T web python manage.py collectstatic --noinput
+	$(COMPOSE) exec -T django python manage.py collectstatic --noinput
 	@echo "$(GREEN)✅ Static files collected$(NC)"
 
 # ============================================
@@ -166,9 +166,9 @@ logs:
 	@echo "$(CYAN)📋 Showing NAS logs (Ctrl+C to exit)...$(NC)"
 	$(COMPOSE) logs -f --tail=100
 
-logs-web:
-	@echo "$(CYAN)📋 Showing web logs...$(NC)"
-	$(COMPOSE) logs -f --tail=100 web
+logs-django:
+	@echo "$(CYAN)📋 Showing Django logs...$(NC)"
+	$(COMPOSE) logs -f --tail=100 django
 
 logs-db:
 	@echo "$(CYAN)📋 Showing database logs...$(NC)"
@@ -181,9 +181,9 @@ logs-redis:
 # ============================================
 # Shell Access
 # ============================================
-exec-web: docker-check-health
-	@echo "$(CYAN)🐳 Opening shell in web container...$(NC)"
-	$(COMPOSE) exec web /bin/bash
+exec-django: docker-check-health
+	@echo "$(CYAN)🐳 Opening shell in Django container...$(NC)"
+	$(COMPOSE) exec django /bin/bash
 
 exec-db: docker-check-health
 	@echo "$(CYAN)🐳 Opening shell in database container...$(NC)"

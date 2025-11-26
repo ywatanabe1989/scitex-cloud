@@ -2,12 +2,181 @@
 {% load static %}
 {% block meta_description %}Advanced semantic search for scientific literature{% endblock %}
 {% block extra_css %}
+    <!-- Workspace colors CSS for consistent theming -->
+    <link rel="stylesheet" href="{% static 'shared/css/primitives/colors.css' %}" />
     <!-- Hero gradients CSS -->
     <link rel="stylesheet" href="{% static 'shared/css/components/hero.css' %}" />
+    <!-- Workspace files tree CSS -->
+    <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}" />
     <!-- App-specific CSS -->
-    <link rel="stylesheet"
-          href="{% static 'shared/css/scholar_app/scholar_app.css' %}" />
+    <link rel="stylesheet" href="{% static 'scholar_app/css/common.css' %}" />
+    <!-- FORCE workspace colors - inline override -->
+    <style>
+    /* FORCE dark workspace colors - highest priority */
+    body.scholar-page,
+    body.workspace-page.scholar-page,
+    .scholar-page {
+        background: #0d0d0d !important;
+    }
+    body.scholar-page #main-content,
+    body.scholar-page .scholar-workspace {
+        background: #0d0d0d !important;
+    }
+    .scholar-sidebar,
+    .scholar-main,
+    .scholar-properties {
+        background: #0d0d0d !important;
+    }
+    .scholar-sidebar .sidebar-header,
+    .scholar-main .pane-header,
+    .scholar-properties .properties-header {
+        background: #151515 !important;
+        border-color: #3a3a3a !important;
+    }
+    .scholar-sidebar .sidebar-content,
+    .scholar-main .pane-content,
+    .scholar-properties .properties-content {
+        background: #0d0d0d !important;
+    }
+    .bibtex-card,
+    .bibtex-tile {
+        background: #151515 !important;
+        border-color: #3a3a3a !important;
+        border-radius: 0 !important;
+    }
+    .bibtex-card__header,
+    .bibtex-tile__header {
+        background: #1a1a1a !important;
+        border-color: #3a3a3a !important;
+    }
+    .bibtex-dropzone {
+        background: #0d0d0d !important;
+        border-color: #3a3a3a !important;
+        border-radius: 0 !important;
+    }
+    .bibtex-tile__title i,
+    .bibtex-card__title i,
+    .pane-header h5 i,
+    .properties-header h5 i,
+    .sidebar-header h5 i {
+        color: #6ba89a !important;
+    }
+    .bibtex-status-item {
+        background: #0d0d0d !important;
+        border-radius: 0 !important;
+    }
+    .terminal-log {
+        background: #0d0d0d !important;
+        border-radius: 0 !important;
+    }
+    /* Hide footer on scholar workspace */
+    body.scholar-page footer {
+        display: none !important;
+    }
+    </style>
 {% endblock %}
 {% block content %}
-    {% block search_content %}{% endblock %}
+    <!-- Three-panel layout always active for workspace consistency -->
+    <div class="scholar-workspace">
+        <!-- Left sidebar: File tree (only with project) -->
+        <aside class="scholar-sidebar {% if not current_project %}collapsed{% endif %}" id="scholar-sidebar">
+            <div class="sidebar-header">
+                <h5><i class="fas fa-folder-open"></i> Files</h5>
+                <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            <div class="sidebar-content" id="file-tree">
+                {% if current_project %}
+                <!-- WorkspaceFilesTree will render here -->
+                <div class="wft-loading">Loading...</div>
+                {% else %}
+                <div class="sidebar-no-project">
+                    <p class="text-muted">Select a project to browse files</p>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+        <!-- Main content area -->
+        <main class="scholar-main">
+            <div class="pane-header">
+                <h5><i class="fas fa-file-code"></i> BibTeX Enrichment</h5>
+                <div class="pane-header-actions">
+                    {% block pane_header_actions %}{% endblock %}
+                </div>
+            </div>
+            <div class="pane-content">
+                {% block search_content %}{% endblock %}
+            </div>
+        </main>
+        <!-- Right properties panel -->
+        <aside class="scholar-properties" id="scholar-properties">
+            <div class="properties-header">
+                <h5><i class="fas fa-tasks"></i> Status</h5>
+                <button class="properties-toggle" id="properties-toggle" title="Toggle properties">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="properties-content" id="scholar-status-panel">
+                {% block status_content %}
+                <!-- Default status content - can be overridden -->
+                <p class="text-muted">Status information</p>
+                {% endblock %}
+            </div>
+        </aside>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% if current_project %}
+    <script type="module">
+        // Initialize WorkspaceFilesTree for scholar mode
+        import { WorkspaceFilesTree } from '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tree = new WorkspaceFilesTree({
+                mode: 'scholar',
+                containerId: 'file-tree',
+                username: '{{ current_project.owner.username }}',
+                slug: '{{ current_project.slug }}',
+                showFolderActions: false,
+                showGitStatus: false,
+                onFileSelect: (path, item) => {
+                    console.log('[Scholar] File selected:', path);
+                    // Handle file selection - e.g., open PDF viewer, load BibTeX
+                    if (path.endsWith('.pdf')) {
+                        window.open(`/{{ current_project.owner.username }}/{{ current_project.slug }}/files/${path}`, '_blank');
+                    } else if (path.endsWith('.bib')) {
+                        // Could trigger BibTeX import
+                        console.log('BibTeX file selected:', path);
+                    }
+                }
+            });
+            await tree.initialize();
+
+            // Sidebar toggle
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('scholar-sidebar');
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    toggleBtn.querySelector('i').classList.toggle('fa-chevron-left');
+                    toggleBtn.querySelector('i').classList.toggle('fa-chevron-right');
+                });
+            }
+
+            // Properties panel toggle
+            const propsToggleBtn = document.getElementById('properties-toggle');
+            const propsPanel = document.getElementById('scholar-properties');
+            if (propsToggleBtn && propsPanel) {
+                propsToggleBtn.addEventListener('click', () => {
+                    propsPanel.classList.toggle('collapsed');
+                    propsToggleBtn.querySelector('i').classList.toggle('fa-chevron-right');
+                    propsToggleBtn.querySelector('i').classList.toggle('fa-chevron-left');
+                });
+            }
+        });
+    </script>
+    {% endif %}
 {% endblock %}

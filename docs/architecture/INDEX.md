@@ -24,6 +24,12 @@
 | [APPTAINER_SETUP.md](./APPTAINER_SETUP.md) | Container environment | ✅ Implemented |
 | [HYBRID_ARCHITECTURE.md](./HYBRID_ARCHITECTURE.md) | Docker + SLURM hybrid | ✅ Implemented |
 
+## Project Management
+
+| Document | Description | Status |
+|----------|-------------|--------|
+| [REMOTE_PROJECT_INTEGRATION.md](./REMOTE_PROJECT_INTEGRATION.md) | Remote filesystem access (TRAMP-like) | 📋 Planning |
+
 ## Quick Reference
 
 ### Which System Handles What?

@@ -11,15 +11,16 @@ services:
   # ============================================
   # Django Application
   # ============================================
-  web:
+  django:
     build:
       context: ../../..
       dockerfile: deployment/docker/docker_dev/Dockerfile
       cache_from:
-        - scitex-cloud-dev-web:latest
+        - scitex-cloud-dev-django:latest
       args:
         BUILDKIT_INLINE_CACHE: 1
-    image: scitex-cloud-dev-web:latest
+        SLURM_VERSION: ${SCITEX_CLOUD_SLURM_VERSION:-24.05.5}
+    image: scitex-cloud-dev-django:latest
 
     # Volumes - Live code reload
     volumes:
@@ -48,6 +49,16 @@ services:
 
       # User workspace data directory (also serves as user home via symlink)
       - ../../../data/users:/app/data/users
+
+      # Singularity/Apptainer container images for secure PTY terminal
+      - ../../../deployment/singularity:/app/singularity:ro
+
+      # SLURM access (connects to host SLURM for job scheduling)
+      # Mount host's actual slurm.conf for consistency with munge auth
+      - /etc/slurm/slurm.conf:/etc/slurm/slurm.conf:ro
+      - /etc/munge:/etc/munge:ro
+      - /run/munge:/run/munge
+      - /var/log/slurm:/var/log/slurm
 
       # Explicitly exclude generated files from host mount (performance)
       - /app/staticfiles
@@ -85,9 +96,11 @@ services:
     # Allow access to host hardware for monitoring
     privileged: true
 
-    # Allow access to host services (SSH, etc.)
+    # Allow access to host services (SSH, SLURM, etc.)
+    # SCITEX_CLOUD_SLURM_HOST should be set in .env to match /etc/slurm/slurm.conf SlurmctldHost
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "${SCITEX_CLOUD_SLURM_HOST:-localhost}:host-gateway"
 
     # Restart policy
     restart: unless-stopped
@@ -173,8 +186,10 @@ services:
       context: ../../..
       dockerfile: deployment/docker/docker_dev/Dockerfile
       cache_from:
-        - scitex-cloud-dev-web:latest
-    image: scitex-cloud-dev-web:latest
+        - scitex-cloud-dev-django:latest
+      args:
+        SLURM_VERSION: ${SCITEX_CLOUD_SLURM_VERSION:-24.05.5}
+    image: scitex-cloud-dev-django:latest
 
     volumes:
       - ../../..:/app:cached
@@ -204,6 +219,14 @@ services:
 
     restart: unless-stopped
 
+    # Override Dockerfile healthcheck (worker doesn't serve HTTP, check redis connectivity)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; r = redis.Redis(host='redis', port=6379); r.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
     networks:
       - scitex-dev
 
@@ -215,8 +238,10 @@ services:
       context: ../../..
       dockerfile: deployment/docker/docker_dev/Dockerfile
       cache_from:
-        - scitex-cloud-dev-web:latest
-    image: scitex-cloud-dev-web:latest
+        - scitex-cloud-dev-django:latest
+      args:
+        SLURM_VERSION: ${SCITEX_CLOUD_SLURM_VERSION:-24.05.5}
+    image: scitex-cloud-dev-django:latest
 
     volumes:
       - ../../..:/app:cached
@@ -241,6 +266,14 @@ services:
 
     restart: unless-stopped
 
+    # Override Dockerfile healthcheck (beat doesn't serve HTTP, check redis connectivity via python)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; r = redis.Redis(host='redis', port=6379); r.ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
     networks:
       - scitex-dev
 
@@ -252,8 +285,10 @@ services:
       context: ../../..
       dockerfile: deployment/docker/docker_dev/Dockerfile
       cache_from:
-        - scitex-cloud-dev-web:latest
-    image: scitex-cloud-dev-web:latest
+        - scitex-cloud-dev-django:latest
+      args:
+        SLURM_VERSION: ${SCITEX_CLOUD_SLURM_VERSION:-24.05.5}
+    image: scitex-cloud-dev-django:latest
 
     volumes:
       - ../../..:/app:cached
@@ -277,6 +312,14 @@ services:
     command: celery -A config --broker=redis://redis:6379/1 flower --port=5555
 
     restart: unless-stopped
+
+    # Override Dockerfile healthcheck (flower serves on port 5555, not 8000)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
 
     networks:
       - scitex-dev

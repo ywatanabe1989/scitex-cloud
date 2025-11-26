@@ -95,11 +95,12 @@ body::before {
 
 /* Remove/reduce padding for Code/Vis/Writer pages to maximize workspace */
 body.workspace-page #main-content {
-  padding-top: var(--spacing-xs); /* 4px instead of 32px */
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 body.workspace-page .site-footer {
-  margin-top: var(--spacing-xs); /* 4px instead of 32px */
+  display: none; /* Hide footer completely for workspace pages (Code, Vis, Writer) */
 }
 
 /* =========================

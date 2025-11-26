@@ -539,6 +539,39 @@
 .file-tree-children.expanded {
   display: block;
   margin-left: 10px; /* Reduced from 20px to 10px for compact indentation */
+  padding-left: 12px;
+  border-left: 1px solid rgba(128, 128, 128, 0.15);
+  position: relative;
+}
+
+/* Subtle tree guide lines - visible by default */
+.file-tree-children.expanded::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(128, 128, 128, 0.15);
+  transition: background 0.2s ease;
+}
+
+/* Slightly more visible on hover */
+.file-tree-children.expanded:hover::before {
+  background: rgba(128, 128, 128, 0.25);
+}
+
+/* Dark mode tree guides - even more subtle */
+[data-theme="dark"] .file-tree-children.expanded {
+  border-left-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .file-tree-children.expanded::before {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .file-tree-children.expanded:hover::before {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* Split button dropdown fix */

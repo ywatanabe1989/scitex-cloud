@@ -87,7 +87,7 @@
   --workspace-border-active: #6c8ba0; /* Active/dragging - even darker */
   --workspace-slider-hover: #6c8ba0;  /* Slider handle hover */
   --workspace-slider-active: #506b7a; /* Slider handle active */
-  --workspace-ruler-bg: #f3f4f6;      /* Rulers and guides background */
+  --workspace-ruler-bg: #d0dae5;      /* Rulers and guides background - distinct from white canvas */
   --workspace-ruler-border: #d0d7de;  /* Ruler borders */
 
   /* Workspace icons - softer green tones matching status-success */
@@ -189,7 +189,7 @@
   --workspace-border-active: #5a5a5a; /* Active/dragging - even lighter */
   --workspace-slider-hover: #6a6a6a;  /* Slider handle hover */
   --workspace-slider-active: #7a7a7a; /* Slider handle active */
-  --workspace-ruler-bg: #0a0a0a;      /* Rulers and guides background */
+  --workspace-ruler-bg: #1a1a1a;      /* Rulers and guides background - distinct from dark canvas */
   --workspace-ruler-border: #1a1a1a;  /* Ruler borders */
 
   /* Workspace icons - softer green tones matching status-success for dark mode */

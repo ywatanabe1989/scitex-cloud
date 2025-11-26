@@ -163,9 +163,48 @@ class VisitorPool:
 
             # Create directory if project is new OR directory doesn't exist
             if project_created or not (project_root and project_root.exists()):
-                success, project_path = manager.create_project_directory(project)
+                import shutil
+                import subprocess
+                from django.conf import settings
+
+                project_path = manager.base_path / project_slug
+
+                # Ensure directory doesn't exist before copying
+                if project_path.exists():
+                    shutil.rmtree(project_path)
+                    logger.info(f"[VisitorPool] Removed existing directory before template copy")
+
+                # Copy master template (fast, offline, reliable)
+                from pathlib import Path
+                template_master = Path(getattr(
+                    settings,
+                    "VISITOR_TEMPLATE_PATH",
+                    "/app/templates/research-master"
+                ))
+
+                try:
+                    if not template_master.exists():
+                        logger.warning(f"[VisitorPool] Master template not found at {template_master}, using basic directory")
+                        success, project_path = manager.create_project_directory(project)
+                    else:
+                        logger.info(f"[VisitorPool] Copying template from {template_master}")
+
+                        # Use shutil.copytree for reliable copying
+                        shutil.copytree(template_master, project_path, symlinks=True)
+
+                        success = True
+                        logger.info(f"[VisitorPool] Template copied successfully")
+
+                except Exception as e:
+                    logger.error(f"[VisitorPool] Template copy error: {e}, using basic directory")
+                    success, project_path = manager.create_project_directory(project)
 
                 if success:
+                    # Set git_clone_path for file operations (critical for Code workspace)
+                    project.git_clone_path = str(project_path)
+                    project.directory_created = True
+                    project.save(update_fields=["git_clone_path", "directory_created"])
+
                     logger.info(
                         f"[VisitorPool] Created project: {project_slug} at {project_path}"
                     )
@@ -186,6 +225,12 @@ class VisitorPool:
                 logger.info(
                     f"[VisitorPool] Project directory already exists: {project_root}"
                 )
+
+                # Set git_clone_path if not already set (critical for Code workspace)
+                if not project.git_clone_path:
+                    project.git_clone_path = str(project_root)
+                    project.save(update_fields=["git_clone_path"])
+                    logger.info(f"[VisitorPool] Set git_clone_path for existing project: {project_root}")
 
                 # Initialize writer workspace - let Writer() handle structure validation
                 from pathlib import Path
@@ -498,9 +543,47 @@ class VisitorPool:
             )
 
             manager = get_project_filesystem_manager(visitor_user)
-            success, project_path = manager.create_project_directory(project)
+            project_path = manager.base_path / project_slug
+
+            # Ensure directory doesn't exist before copying template
+            import shutil
+            from django.conf import settings
+            from pathlib import Path
+
+            if project_path.exists():
+                shutil.rmtree(project_path)
+                logger.info(f"[VisitorPool] Removed existing directory before template copy")
+
+            # Copy master template
+            template_master = Path(getattr(
+                settings,
+                "VISITOR_TEMPLATE_PATH",
+                "/app/templates/research-master"
+            ))
+
+            try:
+                if not template_master.exists():
+                    logger.warning(f"[VisitorPool] Master template not found at {template_master}, using basic directory")
+                    success, project_path = manager.create_project_directory(project)
+                else:
+                    logger.info(f"[VisitorPool] Resetting workspace from {template_master}")
+
+                    # Use shutil.copytree for reliable copying
+                    shutil.copytree(template_master, project_path, symlinks=True)
+
+                    success = True
+                    logger.info(f"[VisitorPool] Template copied successfully for reset")
+
+            except Exception as e:
+                logger.error(f"[VisitorPool] Template copy error during reset: {e}")
+                success, project_path = manager.create_project_directory(project)
 
             if success:
+                # Set git_clone_path for file operations (critical for Code workspace)
+                project.git_clone_path = str(project_path)
+                project.directory_created = True
+                project.save(update_fields=["git_clone_path", "directory_created"])
+
                 logger.info(f"[VisitorPool] Reset visitor workspace: {project_slug}")
 
                 # Initialize writer workspace for the fresh visitor project

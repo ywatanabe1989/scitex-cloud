@@ -4,13 +4,11 @@
 # Auto-loaded when running `docker compose` commands in dev
 # Provides dev-specific overrides without modifying main docker-compose.yml
 
-version: '3.8'
-
 services:
   # ============================================
-  # Web Service - Development Overrides
+  # Django Service - Development Overrides
   # ============================================
-  web:
+  django:
     # Development environment variables
     environment:
       - DEBUG=True

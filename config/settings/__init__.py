@@ -19,6 +19,8 @@ env = os.environ.get('SCITEX_CLOUD_ENV', 'development').lower()
 
 if env == 'production':
     from .settings_prod import *
+elif env == 'nas':
+    from .settings_nas import *
 elif env == 'development':
     from .settings_dev import *
 else:

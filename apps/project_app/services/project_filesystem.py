@@ -409,9 +409,13 @@ class ProjectFilesystemManager:
         self, project_path: Path, project, template_type: str = "research"
     ) -> bool:
         """
-        Clone full template structure from GitHub repository using scitex package.
+        Copy template structure from local master template (research)
+        or clone from GitHub for other templates.
 
-        This method clones the complete template repository structure including:
+        For research template: Uses fast local copy from /app/templates/research-master
+        For other templates: Falls back to git clone from GitHub
+
+        This method copies the complete template structure including:
         - scripts/ directory for analysis and preprocessing
         - data/ directory for raw and processed data
         - docs/ directory for manuscripts and notes
@@ -425,47 +429,66 @@ class ProjectFilesystemManager:
             template_type: Type of template ('research', 'pip_project', or 'singularity')
         """
         try:
-            # Import appropriate template cloner based on type
-            if template_type == "research":
-                from scitex.template import clone_research as clone_template
-            elif template_type == "pip_project":
-                from scitex.template import clone_pip_project as clone_template
-            elif template_type == "singularity":
-                from scitex.template import clone_singularity as clone_template
-            else:
-                print(f"Unknown template type: {template_type}, defaulting to research")
-                from scitex.template import clone_research as clone_template
-
             # Check if project_path already exists (should not for new projects)
             if project_path.exists():
-                print(f"Project path already exists: {project_path}, skipping template clone")
+                print(f"Project path already exists: {project_path}, skipping template creation")
                 return False
 
             # Ensure parent directory exists
             if not project_path.parent.exists():
                 project_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Clone the template repository to the project path
-            # clone_template expects: project_dir, git_strategy, branch, tag
-            # It will clone the entire template repository structure from GitHub
-            print(f"Cloning {template_type} template from GitHub to {project_path}...")
-            success = clone_template(
-                str(project_path),
-                git_strategy=None,  # Don't initialize git (will be handled by Django/Gitea)
-                branch=None,
-                tag=None
-            )
+            # For research template, use local master copy (fast, offline)
+            if template_type == "research":
+                from django.conf import settings
+
+                template_master = Path(getattr(
+                    settings,
+                    "VISITOR_TEMPLATE_PATH",
+                    "/app/templates/research-master"
+                ))
+
+                if not template_master.exists():
+                    print(f"[ProjectFS] Master template not found at {template_master}, falling back to git clone")
+                    # Fall back to git clone if master template not available
+                    from scitex.template import clone_research as clone_template
+                    success = clone_template(
+                        str(project_path),
+                        git_strategy=None,
+                        branch=None,
+                        tag=None
+                    )
+                else:
+                    print(f"[ProjectFS] Copying research template from {template_master} to {project_path}")
+                    shutil.copytree(template_master, project_path, symlinks=True)
+                    success = True
+
+            # For other template types, use git clone
+            else:
+                if template_type == "pip_project":
+                    from scitex.template import clone_pip_project as clone_template
+                elif template_type == "singularity":
+                    from scitex.template import clone_singularity as clone_template
+                else:
+                    print(f"Unknown template type: {template_type}, defaulting to research")
+                    from scitex.template import clone_research as clone_template
+
+                print(f"Cloning {template_type} template from GitHub to {project_path}...")
+                success = clone_template(
+                    str(project_path),
+                    git_strategy=None,  # Don't initialize git (will be handled by Django/Gitea)
+                    branch=None,
+                    tag=None
+                )
 
             if not success:
-                print(f"Failed to clone {template_type} template to {project_path}")
+                print(f"Failed to create {template_type} template at {project_path}")
                 return False
 
             # Customize copied template for this project
             self._customize_template_for_project(project_path, project, template_type)
 
-            print(
-                f"Successfully cloned {template_type} template from GitHub to {project_path}"
-            )
+            print(f"Successfully created {template_type} template at {project_path}")
             return True
 
         except ImportError as e:

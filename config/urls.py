@@ -26,6 +26,7 @@ from apps.project_app.views import project_create
 from apps.project_app.views import api_check_name_availability
 from apps.project_app.views import accept_invitation
 from apps.project_app.views import decline_invitation
+from apps.project_app.views.projects.api import api_switch_active_project
 
 
 # Functions
@@ -137,6 +138,7 @@ urlpatterns = [
     # API endpoints
     path("api/users/search/", api_search_users, name="api_search_users"),
     path("project/api/check-name/", api_check_name_availability, name="api_check_name"),
+    path("api/project/switch/", api_switch_active_project, name="api_switch_active_project"),
     # GitHub-like operations
     # /new - Create new project
     path("new/", project_create, name="project_create"),

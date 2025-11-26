@@ -2,19 +2,17 @@
 {% load static %}
 {% block title %}SciTeX Scholar - BibTeX Tools{% endblock %}
 {% block extra_css %}
+    {{ block.super }}
     <link rel="stylesheet" href="{% static 'shared/css/common.css' %}" />
     <link rel="stylesheet" href="{% static 'scholar_app/css/index.css' %}" />
-    <link rel="stylesheet"
-          href="{% static 'shared/css/components/terminal-log.css' %}" />
+    <link rel="stylesheet" href="{% static 'shared/css/components/terminal-log.css' %}" />
 {% endblock %}
-{% block content %}
-    <div class="container" style="padding-bottom: 2rem">
-        <div class="row">
-            <div class="col-12">
-                {% include "scholar_app/bibtex_partials/enrich.html" %}
-            </div>
-        </div>
-    </div>
+
+{% block pane_header_actions %}
+{% endblock %}
+
+{% block search_content %}
+    {% include "scholar_app/bibtex_partials/enrich.html" %}
     <!-- AI2 Prompt Modal -->
     {% if current_project %}
         {% include "writer_app/compilation_view_partials/ai2_modal.html" %}
@@ -35,14 +33,20 @@
     projectId: {{ current_project.id }}{% endif %}
   };
     </script>
-    {% block extra_js %}
-        <!-- Common Scripts -->
-        <script type="module"
-                src="{% static 'scholar_app/js/common/project-selector.js' %}"></script>
-        <!-- BibTeX scripts are loaded from bibtex_partials/enrich.html -->
-        <!-- AI2 Prompt Integration -->
-        {% if current_project %}
-            <script type="module">
+{% endblock %}
+
+{% block status_content %}
+    {% include "scholar_app/bibtex_partials/status_tiles.html" %}
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <!-- Common Scripts -->
+    <script type="module" src="{% static 'scholar_app/js/common/project-selector.js' %}"></script>
+    <!-- BibTeX scripts are loaded from bibtex_partials/enrich.html -->
+    <!-- AI2 Prompt Integration -->
+    {% if current_project %}
+        <script type="module">
   // Import AI2 prompt functions from writer app
   import {
     openAI2PromptModal,
@@ -63,9 +67,7 @@
     }
 
     // Initialize button click handler
-    const scholarAI2Btn = document.getElementById(
-      "generate-ai2-prompt-scholar-btn",
-    );
+    const scholarAI2Btn = document.getElementById("generate-ai2-prompt-scholar-btn");
     if (scholarAI2Btn) {
       scholarAI2Btn.addEventListener("click", () => {
         console.log("[Scholar AI2] Opening AI2 prompt modal");
@@ -106,7 +108,6 @@
 
     console.log("[Scholar AI2] AI2 prompt integration initialized");
   });
-            </script>
-        {% endif %}
-    {% endblock %}
+        </script>
+    {% endif %}
 {% endblock %}

@@ -52,13 +52,15 @@ def api_file_tree(request, username, slug):
     if not has_access:
         return JsonResponse({"success": False, "error": "Permission denied"})
 
-    # Get project directory
-    from apps.project_app.services.project_filesystem import (
-        get_project_filesystem_manager,
-    )
+    # Get project directory (works for both local and remote projects)
+    from apps.project_app.services.project_service_manager import ProjectServiceManager
 
-    manager = get_project_filesystem_manager(project.owner)
-    project_path = manager.get_project_root_path(project)
+    try:
+        service_manager = ProjectServiceManager(project)
+        project_path = service_manager.get_project_path()
+    except Exception as e:
+        logger.error(f"Failed to get project path for {username}/{slug}: {e}")
+        return JsonResponse({"success": False, "error": f"Failed to access project: {str(e)}"})
 
     if not project_path or not project_path.exists():
         return JsonResponse({"success": False, "error": "Project directory not found"})
@@ -743,6 +745,70 @@ def api_git_status(request, username, slug):
     except Exception as e:
         logger.error(f"Error getting git status: {e}")
         return JsonResponse({"success": False, "error": str(e)})
+
+
+@require_http_methods(["POST"])
+@login_required
+def api_initialize_scitex_structure(request, username, slug):
+    """
+    API endpoint to initialize SciTeX structure in a project.
+
+    Works for both local and remote projects.
+    Copies template files from templates/research-master/scitex/ to the project.
+    Non-destructive: Won't override existing files.
+
+    Returns:
+        {
+            "success": true,
+            "stats": {
+                "files_created": 42,
+                "files_skipped": 5,
+                "bytes_transferred": 123456
+            }
+        }
+    """
+    user = get_object_or_404(User, username=username)
+    project = get_object_or_404(Project, slug=slug, owner=user)
+
+    # Check permissions (owner or collaborator only)
+    if not (
+        request.user == project.owner
+        or project.collaborators.filter(id=request.user.id).exists()
+    ):
+        return JsonResponse({"success": False, "error": "Permission denied"}, status=403)
+
+    try:
+        # Use ProjectServiceManager for unified local/remote handling
+        from apps.project_app.services.project_service_manager import ProjectServiceManager
+
+        service_manager = ProjectServiceManager(project)
+        success, stats, error = service_manager.initialize_scitex_structure()
+
+        if not success:
+            logger.error(f"Failed to initialize SciTeX structure for {username}/{slug}: {error}")
+            return JsonResponse({
+                "success": False,
+                "error": error or "Failed to initialize SciTeX structure"
+            }, status=500)
+
+        logger.info(
+            f"✅ SciTeX structure initialized: {username}/{slug} - "
+            f"{stats['files_created']} files created, {stats['files_skipped']} skipped"
+        )
+
+        return JsonResponse({
+            "success": True,
+            "message": "SciTeX structure initialized successfully",
+            "stats": stats,
+            "project_type": project.project_type,
+        })
+
+    except Exception as e:
+        logger.error(f"Error initializing SciTeX structure for {username}/{slug}: {e}", exc_info=True)
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
 
 
 # EOF

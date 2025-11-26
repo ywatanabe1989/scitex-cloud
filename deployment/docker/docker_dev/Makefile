@@ -29,11 +29,11 @@
 	db-reset \
 	verify-env \
 	docker-check-health \
-	logs-web \
+	logs-django \
 	logs-db \
 	logs-gitea \
 	logs-redis \
-	exec-web \
+	exec-django \
 	exec-db \
 	exec-gitea \
 	gitea-token \
@@ -51,7 +51,7 @@
 # Variables
 # ============================================
 COMPOSE := docker compose -f docker-compose.yml
-WEB_CONTAINER := scitex-cloud-dev-web-1
+DJANGO_CONTAINER := scitex-cloud-dev-django-1
 DB_CONTAINER := scitex-cloud-dev-db-1
 GITEA_CONTAINER := scitex-cloud-dev-gitea-1
 REDIS_CONTAINER := scitex-cloud-dev-redis-1
@@ -103,13 +103,13 @@ help:
 	@echo ""
 	@echo "$(CYAN)📋 Logs & Monitoring:$(NC)"
 	@echo "  make logs               - View all service logs"
-	@echo "  make logs-web           - View web container logs"
+	@echo "  make logs-django        - View Django container logs"
 	@echo "  make logs-db            - View database logs"
 	@echo "  make logs-gitea         - View Gitea logs"
 	@echo "  make logs-redis         - View Redis logs"
 	@echo ""
 	@echo "$(CYAN)🔧 Shell Access:$(NC)"
-	@echo "  make exec-web           - Shell into web container"
+	@echo "  make exec-django        - Shell into Django container"
 	@echo "  make exec-db            - Shell into database container"
 	@echo "  make exec-gitea         - Shell into Gitea container"
 	@echo ""
@@ -144,12 +144,16 @@ restart:
 
 reload:
 	@echo "$(CYAN)⚡ Quick reload (for scitex code changes)...$(NC)"
-	$(COMPOSE) restart web
+	$(COMPOSE) restart django
 	@echo "$(GREEN)✅ Reloaded!$(NC)"
 
 build:
 	@echo "$(CYAN)🏗️  Building Docker images...$(NC)"
 	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 $(COMPOSE) build --parallel
+
+build-no-cache:
+	@echo "$(CYAN)🏗️  Building Docker images (without cache)...$(NC)"
+	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 $(COMPOSE) build --parallel --no-cache
 
 up:
 	@echo "$(CYAN)⬆️  Starting services...$(NC)"
@@ -183,8 +187,8 @@ clean:
 # Docker Health Check
 # ============================================
 docker-check-health:
-	@if ! docker ps | grep -q $(WEB_CONTAINER); then \
-		echo "$(RED)❌ Web container ($(WEB_CONTAINER)) is not running!$(NC)"; \
+	@if ! docker ps | grep -q $(DJANGO_CONTAINER); then \
+		echo "$(RED)❌ Django container ($(DJANGO_CONTAINER)) is not running!$(NC)"; \
 		echo "$(YELLOW)Run 'make start' first.$(NC)"; \
 		exit 1; \
 	fi
@@ -194,21 +198,21 @@ docker-check-health:
 # ============================================
 migrate: docker-check-health
 	@echo "$(CYAN)🔄 Running migrations...$(NC)"
-	$(COMPOSE) exec -T web python manage.py migrate
+	$(COMPOSE) exec -T django python manage.py migrate
 	@echo "$(GREEN)✅ Migrations applied$(NC)"
 
 makemigrations: docker-check-health
 	@echo "$(CYAN)📝 Creating migrations...$(NC)"
-	$(COMPOSE) exec -T web python manage.py makemigrations
+	$(COMPOSE) exec -T django python manage.py makemigrations
 	@echo "$(GREEN)✅ Migrations created$(NC)"
 
 shell: docker-check-health
 	@echo "$(CYAN)🐍 Opening Django shell...$(NC)"
-	$(COMPOSE) exec web python manage.py shell
+	$(COMPOSE) exec django python manage.py shell
 
 createsuperuser: docker-check-health
 	@echo "$(CYAN)👤 Creating superuser...$(NC)"
-	$(COMPOSE) exec web python manage.py createsuperuser
+	$(COMPOSE) exec django python manage.py createsuperuser
 
 build-ts:
 	@echo "$(CYAN)🔨 Building TypeScript...$(NC)"
@@ -217,24 +221,24 @@ build-ts:
 
 collectstatic: docker-check-health
 	@echo "$(CYAN)📦 Collecting static files...$(NC)"
-	$(COMPOSE) exec -T web python manage.py collectstatic --noinput
+	$(COMPOSE) exec -T django python manage.py collectstatic --noinput
 	@echo "$(GREEN)✅ Static files collected$(NC)"
 
 test: docker-check-health
 	@echo "$(CYAN)🧪 Running tests...$(NC)"
-	$(COMPOSE) exec -T web python manage.py test
+	$(COMPOSE) exec -T django python manage.py test
 	@echo "$(GREEN)✅ Tests completed$(NC)"
 
 # E2E Testing with Playwright
 test-e2e: docker-check-health
 	@echo "$(CYAN)🎭 Running E2E tests (headless)...$(NC)"
-	$(COMPOSE) exec -T web pytest tests/e2e/ -v -p no:zarr
+	$(COMPOSE) exec -T django pytest tests/e2e/ -v -p no:zarr
 	@echo "$(GREEN)✅ E2E tests completed$(NC)"
 
 test-e2e-headed: docker-check-health
 	@echo "$(CYAN)🎭 Running E2E tests (with browser)...$(NC)"
 	@echo "$(YELLOW)⚠️  Note: Headed mode requires X11 forwarding in Docker$(NC)"
-	$(COMPOSE) exec -T -e DISPLAY=$(DISPLAY) web pytest tests/e2e/ -v --headed --browser chromium
+	$(COMPOSE) exec -T -e DISPLAY=$(DISPLAY) django pytest tests/e2e/ -v --headed --browser chromium
 	@echo "$(GREEN)✅ E2E tests completed$(NC)"
 
 test-e2e-specific: docker-check-health
@@ -244,7 +248,7 @@ test-e2e-specific: docker-check-health
 		exit 1; \
 	fi
 	@echo "$(CYAN)🎭 Running specific E2E test: $(TEST)...$(NC)"
-	$(COMPOSE) exec -T web pytest $(TEST) -v -p no:zarr
+	$(COMPOSE) exec -T django pytest $(TEST) -v -p no:zarr
 	@echo "$(GREEN)✅ E2E test completed$(NC)"
 
 # ============================================
@@ -259,8 +263,8 @@ db-reset: docker-check-health
 	@read -p "Are you absolutely sure? Type 'yes' to confirm: " confirm && \
 	[ "$$confirm" = "yes" ] && \
 	(echo "$(RED)🔄 Resetting database...$(NC)" && \
-	$(COMPOSE) exec -T web python manage.py flush --noinput && \
-	$(COMPOSE) exec -T web python manage.py migrate && \
+	$(COMPOSE) exec -T django python manage.py flush --noinput && \
+	$(COMPOSE) exec -T django python manage.py migrate && \
 	echo "$(GREEN)✅ Database reset complete$(NC)") || \
 	echo "$(YELLOW)❌ Database reset cancelled$(NC)"
 
@@ -271,9 +275,9 @@ logs:
 	@echo "$(CYAN)📋 Showing all service logs (Ctrl+C to exit)...$(NC)"
 	$(COMPOSE) logs -f
 
-logs-web:
-	@echo "$(CYAN)📋 Showing web container logs...$(NC)"
-	$(COMPOSE) logs -f web
+logs-django:
+	@echo "$(CYAN)📋 Showing Django container logs...$(NC)"
+	$(COMPOSE) logs -f django
 
 logs-db:
 	@echo "$(CYAN)📋 Showing database logs...$(NC)"
@@ -290,9 +294,9 @@ logs-redis:
 # ============================================
 # Shell Access
 # ============================================
-exec-web: docker-check-health
-	@echo "$(CYAN)🐳 Opening shell in web container...$(NC)"
-	$(COMPOSE) exec web /bin/bash
+exec-django: docker-check-health
+	@echo "$(CYAN)🐳 Opening shell in Django container...$(NC)"
+	$(COMPOSE) exec django /bin/bash
 
 exec-db: docker-check-health
 	@echo "$(CYAN)🐳 Opening shell in database container...$(NC)"

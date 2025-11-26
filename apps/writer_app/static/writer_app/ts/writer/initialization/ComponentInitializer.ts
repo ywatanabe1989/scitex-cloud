@@ -210,16 +210,56 @@ export class ComponentInitializer {
    * Initialize PDF Preview Manager
    */
   private initializePDFPreviewManager(): PDFPreviewManager {
-    return new PDFPreviewManager({
+    const pdfPreview = new PDFPreviewManager({
       containerId: "text-preview",
       projectId: this.config.projectId || 0,
       manuscriptTitle: this.config.manuscriptTitle || "Untitled",
       author: this.config.username || "",
-      autoCompile: false, // Disabled - preview shows full manuscript PDF only
-      compileDelay: 2000, // 2 seconds delay for live preview
+      autoCompile: true, // Enable auto-preview during typing
+      compileDelay: 3000, // 3 seconds delay for live preview
       apiBaseUrl: "",
       docType: "manuscript",
     });
+
+    // Auto-start: Try to load existing PDF on page load
+    this.loadInitialPDF(pdfPreview);
+
+    return pdfPreview;
+  }
+
+  /**
+   * Load initial PDF preview on page start
+   */
+  private loadInitialPDF(pdfPreviewManager: PDFPreviewManager): void {
+    if (!this.config.projectId) return;
+
+    const colorMode = localStorage.getItem("pdf-color-mode") || "light";
+    const pdfUrl = `/writer/api/project/${this.config.projectId}/pdf/preview-abstract-${colorMode}.pdf`;
+
+    console.log("[ComponentInitializer] Auto-start: Checking for existing PDF...");
+
+    // Check if PDF exists and load it
+    fetch(pdfUrl, { method: "HEAD" })
+      .then((response) => {
+        if (response.ok) {
+          console.log("[ComponentInitializer] Auto-start: Found existing PDF, loading...");
+          // PDF exists, trigger display via custom event
+          window.dispatchEvent(new CustomEvent("writer:loadExistingPDF", { detail: { url: pdfUrl } }));
+        } else {
+          console.log("[ComponentInitializer] Auto-start: No existing PDF, will compile on first edit");
+          // No PDF exists, trigger initial compilation if content exists
+          const sections = this.config.sections;
+          if (sections && sections.abstract && sections.abstract.trim()) {
+            console.log("[ComponentInitializer] Auto-start: Content found, triggering initial preview compile...");
+            setTimeout(() => {
+              pdfPreviewManager.compileQuick(sections.abstract, "manuscript/abstract");
+            }, 1000); // Delay to ensure everything is initialized
+          }
+        }
+      })
+      .catch(() => {
+        console.log("[ComponentInitializer] Auto-start: Could not check for existing PDF");
+      });
   }
 
   /**

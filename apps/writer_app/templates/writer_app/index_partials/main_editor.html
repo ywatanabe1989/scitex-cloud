@@ -15,38 +15,23 @@
                 <div class="latex-panel">
                     <div class="panel-header">
                         <div class="header-left">
-                            <!-- Document Type & Section Selectors replace title -->
-                            <div class="horizontal-selector-group">
-                                <div class="horizontal-selector">
-                                    <select id="doctype-selector" class="form-select form-select-sm">
-                                        <option value="shared">Shared</option>
-                                        <option value="manuscript" selected>Manuscript</option>
-                                        <option value="supplementary">Supplementary</option>
-                                        <option value="revision">Revision</option>
-                                    </select>
-                                </div>
-                                <!-- Custom Section Selector with Drag & Drop -->
-                                <div class="horizontal-selector">
-                                    <div class="custom-section-selector">
-                                        <button id="section-selector-toggle"
-                                                class="section-selector-btn"
-                                                type="button">
-                                            <span id="section-selector-text">Loading...</span>
-                                            <svg width="12"
-                                                 height="12"
-                                                 viewBox="0 0 16 16"
-                                                 fill="currentColor"
-                                                 style="margin-left: 4px">
-                                                <path d="M4 6l4 4 4-4H4z" />
-                                            </svg>
-                                        </button>
-                                        <div id="section-selector-dropdown"
-                                             class="section-selector-dropdown"
-                                             style="display: none">
-                                            <!-- Sections will be populated here -->
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Current File Display -->
+                            <div class="current-file-display" id="current-file-display">
+                                <i class="fas fa-file-alt" style="color: var(--status-success); margin-right: 6px;"></i>
+                                <span id="current-file-name">Select a file</span>
+                            </div>
+                            <!-- Hidden selectors for backward compatibility -->
+                            <select id="doctype-selector" class="form-select form-select-sm" style="display: none;">
+                                <option value="shared">Shared</option>
+                                <option value="manuscript" selected>Manuscript</option>
+                                <option value="supplementary">Supplementary</option>
+                                <option value="revision">Revision</option>
+                            </select>
+                            <div class="custom-section-selector" style="display: none;">
+                                <button id="section-selector-toggle" class="section-selector-btn" type="button">
+                                    <span id="section-selector-text">Loading...</span>
+                                </button>
+                                <div id="section-selector-dropdown" class="section-selector-dropdown" style="display: none"></div>
                             </div>
                             <!-- Git Operations -->
                             <div style="display: flex;
@@ -97,8 +82,6 @@
                                            font-size: 0.75rem;
                                            padding: 0.2rem 0.5rem"
                                     aria-label="Font Size">
-                                <option value="10">10px</option>
-                                <option value="11">11px</option>
                                 <option value="12">12px</option>
                                 <option value="13">13px</option>
                                 <option value="14" selected>14px</option>

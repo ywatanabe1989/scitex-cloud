@@ -951,3 +951,111 @@
   outline: 2px solid var(--color-accent-emphasis);
   outline-offset: 2px;
 }
+
+/* =========================================
+   WRITER WORKSPACE WITH FILE TREE SIDEBAR
+   ========================================= */
+
+.writer-workspace {
+  display: flex;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.writer-sidebar {
+  width: 250px;
+  min-width: 250px;
+  background: var(--bg-page);
+  border-right: 1px solid var(--workspace-border-default);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease, min-width 0.2s ease;
+}
+
+.writer-sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  border-right: none;
+  overflow: hidden;
+}
+
+.writer-sidebar .sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--workspace-border-default);
+  background: var(--workspace-bg-secondary);
+}
+
+.writer-sidebar .sidebar-header h5 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.writer-sidebar .sidebar-header h5 i {
+  color: var(--workspace-icon-primary);
+}
+
+.writer-sidebar .sidebar-toggle {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.writer-sidebar .sidebar-toggle:hover {
+  color: var(--text-primary);
+}
+
+.writer-sidebar .sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.writer-workspace .writer-container {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .writer-sidebar {
+  background: #f6f8fa;
+  border-right-color: #d0d7de;
+}
+
+[data-theme="light"] .writer-sidebar .sidebar-header {
+  background: #f0f2f5;
+  border-bottom-color: #d0d7de;
+}
+
+/* Responsive: hide sidebar on small screens */
+@media (max-width: 768px) {
+  .writer-sidebar {
+    position: absolute;
+    left: 0;
+    top: 60px;
+    height: calc(100vh - 60px);
+    z-index: 100;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .writer-sidebar.collapsed {
+    display: none;
+  }
+
+  .writer-workspace {
+    flex-direction: column;
+    height: auto;
+  }
+}

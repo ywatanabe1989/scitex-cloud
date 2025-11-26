@@ -1,0 +1,142 @@
+{% load static %}
+<!-- BibTeX Status Tiles - For Right Panel -->
+<style>
+/* Status tiles in right panel - workspace colors */
+.bibtex-status-tiles {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.bibtex-status-tiles .bibtex-tile {
+    background: var(--workspace-bg-secondary, #151515);
+    border: none;
+    border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+    border-radius: 0;
+}
+
+.bibtex-status-tiles .bibtex-tile:last-child {
+    border-bottom: none;
+}
+
+.bibtex-status-tiles .bibtex-tile__header {
+    background: var(--workspace-bg-tertiary, #1a1a1a);
+    border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+    padding: 10px 12px;
+}
+
+.bibtex-status-tiles .bibtex-tile__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary, #d4e1e8);
+}
+
+.bibtex-status-tiles .bibtex-tile__title i {
+    color: var(--workspace-icon-primary, #6ba89a);
+}
+
+.bibtex-status-tiles .bibtex-tile__content {
+    background: var(--workspace-bg-secondary, #151515);
+    border-top: none;
+    padding: 12px;
+}
+
+.bibtex-status-tiles .bibtex-status-item {
+    background: var(--workspace-bg-primary, #0d0d0d);
+    border-radius: 0;
+}
+
+.bibtex-status-tiles .terminal-log {
+    background: var(--workspace-bg-primary, #0d0d0d);
+    border: 1px solid var(--workspace-border-default, #3a3a3a);
+    border-radius: 0;
+    font-size: 11px;
+    max-height: 150px;
+}
+
+.bibtex-status-tiles .bibtex-empty-state {
+    padding: 20px 10px;
+}
+</style>
+<div class="bibtex-status-tiles">
+    <!-- Progress Tile -->
+    <div class="bibtex-tile bibtex-tile--expanded" data-panel="progress">
+        <div class="bibtex-tile__header" onclick="toggleBibtexPanel(this)">
+            <div class="bibtex-tile__title">
+                <i class="fas fa-tasks"></i> Progress
+            </div>
+            <i class="fas fa-chevron-down bibtex-tile__toggle"></i>
+        </div>
+        <div class="bibtex-tile__content">
+            <div class="bibtex-tile__log-header">
+                <span>Log</span>
+                <button id="copyBibtexLogBtn" class="btn btn-outline-secondary btn-sm" title="Copy log">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div id="processingLog" class="terminal-log terminal-log--medium terminal-log--processing">
+                Initializing...
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Jobs Tile -->
+    <div class="bibtex-tile bibtex-tile--expanded" data-panel="recent-jobs">
+        <div class="bibtex-tile__header" onclick="toggleBibtexPanel(this)">
+            <div class="bibtex-tile__title">
+                <i class="fas fa-history"></i> Recent Jobs
+            </div>
+            <i class="fas fa-chevron-down bibtex-tile__toggle"></i>
+        </div>
+        <div class="bibtex-tile__content">
+            <div id="recentJobsContainer" class="bibtex-jobs-list">
+                <!-- Jobs loaded dynamically -->
+            </div>
+            <div id="noRecentJobsMessage" class="bibtex-empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No recent jobs yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Status Tile -->
+    <div class="bibtex-tile bibtex-tile--expanded" data-panel="server-status">
+        <div class="bibtex-tile__header" onclick="toggleBibtexPanel(this)">
+            <div class="bibtex-tile__title">
+                <i class="fas fa-server"></i> Server Status
+            </div>
+            <i class="fas fa-chevron-down bibtex-tile__toggle"></i>
+        </div>
+        <div class="bibtex-tile__content">
+            <span id="resourceRefreshTime" class="bibtex-refresh-time">Loading...</span>
+            <div class="bibtex-status-grid">
+                <div class="bibtex-status-item">
+                    <div class="bibtex-status-item__label">Active</div>
+                    <div class="bibtex-status-item__value bibtex-status-item__value--active">
+                        <span id="activeJobsCount">0</span>
+                    </div>
+                </div>
+                <div class="bibtex-status-item">
+                    <div class="bibtex-status-item__label">Queued</div>
+                    <div class="bibtex-status-item__value bibtex-status-item__value--queued">
+                        <span id="queuedJobsCount">0</span>
+                    </div>
+                </div>
+            </div>
+            <div id="activeJobsList" style="display: none;">
+                <div id="activeJobsContent"></div>
+            </div>
+            <div id="queuedJobsList" style="display: none;">
+                <div id="queuedJobsContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle panel function for tiles
+function toggleBibtexPanel(header) {
+    const tile = header.closest('.bibtex-tile');
+    tile.classList.toggle('bibtex-tile--expanded');
+}
+</script>

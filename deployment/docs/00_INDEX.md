@@ -1,58 +1,29 @@
-# SciTeX Cloud - Deployment Documentation
+# Deployment Docs
 
-> **Version:** 1.0.0 | **Updated:** 2025-11-25
+## Index
 
-## Document Index
-
-| # | Document | Description |
-|---|----------|-------------|
-| 01 | [Architecture Overview](./01_ARCHITECTURE_OVERVIEW.md) | System design, components, data flow |
-| 02 | [Fair Resource Allocation](./02_FAIR_RESOURCE_ALLOCATION.md) | Three-tier system, rate limits, quotas |
-| 03 | [SLURM Setup](./03_SLURM_SETUP.md) | Job scheduler for heavy compute |
-| 04 | [Celery Setup](./04_CELERY_SETUP.md) | Async task queue for I/O tasks |
-| 05 | [Apptainer Containers](./05_APPTAINER_CONTAINERS.md) | User workspace containers |
-| 06 | [Docker Services](./06_DOCKER_SERVICES.md) | Development/production services |
-| 07 | [Operations Guide](./07_OPERATIONS_GUIDE.md) | Commands, monitoring, troubleshooting |
-
-## Service URLs (Development)
-
-| Service | URL | Purpose |
-|---------|-----|---------|
-| Django | http://localhost:8000 | Web application |
-| Flower | http://localhost:5555 | Celery task monitoring |
-| Gitea | http://localhost:3001 | Git server |
+| # | Doc | About |
+|---|-----|-------|
+| 01 | [Architecture](./01_ARCHITECTURE_OVERVIEW.md) | System design |
+| 02 | [Resource Allocation](./02_FAIR_RESOURCE_ALLOCATION.md) | Quotas |
+| 03 | [SLURM](./03_SLURM_SETUP.md) | Job scheduler |
+| 04 | [Celery](./04_CELERY_SETUP.md) | Task queue |
+| 05 | [Apptainer](./05_APPTAINER_CONTAINERS.md) | User containers |
+| 06 | [Docker](./06_DOCKER_SERVICES.md) | Services |
+| 07 | [Operations](./07_OPERATIONS_GUIDE.md) | Commands |
+| 08 | [Port Proxy](./08_PORT_PROXY.md) | Service access |
 
 ## Quick Start
 
 ```bash
-# Start all services
-cd deployment/docker/docker_dev
-docker compose up -d
-
-# Check status
-docker compose ps
-squeue
+make env=dev start
+make env=dev status
 ```
 
-## System at a Glance
+## URLs
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  /scholar/  →  Celery (search) + SLURM (batch PDFs)        │
-│  /code/     →  SLURM (user scripts, ML training)           │
-│  /writer/   →  Celery (AI) + Django (editing)              │
-│  /vis/      →  Django (editing) + SLURM (batch export)     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Key Directories
-
-```
-deployment/
-├── docs/           # This documentation
-├── slurm/          # SLURM installation scripts
-├── singularity/    # Apptainer container definitions
-└── docker/         # Docker compose files
-    ├── docker_dev/     # Development environment
-    └── docker_prod/    # Production environment
-```
+| Service | URL |
+|---------|-----|
+| Django | http://localhost:8000 |
+| Flower | http://localhost:5555 |
+| Gitea | http://localhost:3001 |

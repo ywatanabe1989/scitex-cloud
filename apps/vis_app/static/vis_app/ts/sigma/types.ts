@@ -87,7 +87,7 @@ export interface Annotation {
  */
 export const CANVAS_CONSTANTS = {
     MAX_CANVAS_WIDTH: 2126,   // 180mm @ 300dpi
-    MAX_CANVAS_HEIGHT: 2835,  // 240mm @ 300dpi
+    MAX_CANVAS_HEIGHT: 2953,  // 250mm @ 300dpi
     DPI: 300,
     MM_TO_PX: 11.811,         // 1mm @ 300 DPI
     GRID_SIZE: 11.811,        // 1mm @ 300dpi
