@@ -16,7 +16,7 @@ export {
   type FileTreeOptions,
 } from "./file_tree/index.js";
 export { LatexWrapper, type LatexWrapperOptions } from "./latex-wrapper.js";
-export { PDFPreviewManager, type PDFPreviewOptions } from "./pdf-preview.js";
+export { PDFPreviewManager, type PDFPreviewOptions } from "./pdf-preview/index.js";
 export { PanelResizer } from "./panel-resizer.js";
 export {
   EditorControls,

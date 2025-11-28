@@ -5,7 +5,7 @@
 
 import type { WriterEditor } from "./editor.js";
 import type { SectionsManager } from "./sections.js";
-import type { PDFPreviewManager } from "./pdf-preview.js";
+import type { PDFPreviewManager } from "./pdf-preview/index.js";
 import { getCsrfToken } from "@/utils/csrf.js";
 import { getWriterConfig } from "../helpers.js";
 import { getUserContext } from "../utils/ui.js";
