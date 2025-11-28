@@ -169,7 +169,13 @@ export function setElementVisibility(
 ): void {
   const element = document.getElementById(elementId);
   if (element) {
-    element.style.display = visible ? "block" : "none";
+    if (visible) {
+      element.classList.remove("hidden");
+      element.style.display = "block";
+    } else {
+      element.classList.add("hidden");
+      element.style.display = "none";
+    }
   }
 }
 
