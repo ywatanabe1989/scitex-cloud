@@ -70,5 +70,7 @@
 @import "./base.css";
 @import "./inputs.css";
 @import "./selects.css";
-@import "./validation.css";
 @import "./layout.css";
+@import "./validation.css";
+@import "./helper-text.css";
+@import "./password.css";

@@ -111,7 +111,7 @@ export function loadPanelCSS(panel: string): Promise<void> {
 
     const cssFiles: Record<string, string> = {
       "citations": "/static/writer_app/css/editor/citations-panel/index.css",
-      "figures": "/static/writer_app/css/editor/figures-panel.css",
+      "figures": "/static/writer_app/css/editor/figures-panel/index.css",
       "tables": "/static/writer_app/css/editor/tables-panel.css",
       "collaboration": "/static/shared/css/collaboration/collaboration.css",
       "history": "/static/writer_app/css/shared/history-timeline/index.css"
