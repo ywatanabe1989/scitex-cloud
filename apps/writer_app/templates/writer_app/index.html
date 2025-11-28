@@ -23,6 +23,8 @@
           href="{% static 'writer_app/css/components/status-lamp.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'writer_app/css/components/shortcuts-modal.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/components/sidebar-controls.css' %}?v={{ request.timestamp|default:'1' }}" />
 
     <!-- Panel-specific CSS - will be lazy-loaded when panels are opened -->
     <!-- Citations panel CSS loaded dynamically on first open -->
@@ -119,13 +121,13 @@
                     <div class="sidebar-header-content">
                         <h5><i class="fas fa-folder-open"></i> Files</h5>
                         <!-- Doc Type / Section Selectors -->
-                        <div class="doctype-section-selectors" style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                        <div class="doctype-section-selectors">
                             <!-- Doc Type Selector -->
-                            <div class="selector-group" style="flex: 1; min-width: 120px;">
-                                <label for="doctype-selector" style="font-size: 0.7rem; color: var(--color-fg-muted); display: block; margin-bottom: 0.2rem;">
+                            <div class="selector-group">
+                                <label for="doctype-selector">
                                     <i class="fas fa-file-alt"></i> Document
                                 </label>
-                                <select id="doctype-selector" class="form-select form-select-sm" style="font-size: 0.75rem;">
+                                <select id="doctype-selector" class="form-select form-select-sm">
                                     <option value="shared">Shared</option>
                                     <option value="manuscript" selected>Manuscript</option>
                                     <option value="supplementary">Supplementary</option>
@@ -133,24 +135,24 @@
                                 </select>
                             </div>
                             <!-- Section Selector -->
-                            <div class="selector-group" style="flex: 1; min-width: 120px;">
-                                <label for="section-selector-toggle" style="font-size: 0.7rem; color: var(--color-fg-muted); display: block; margin-bottom: 0.2rem;">
+                            <div class="selector-group">
+                                <label for="section-selector-toggle">
                                     <i class="fas fa-file-code"></i> Section
                                 </label>
                                 <div class="custom-section-selector">
-                                    <button id="section-selector-toggle" class="section-selector-btn" type="button" style="width: 100%; font-size: 0.75rem; text-align: left; padding: 0.25rem 0.5rem; background: var(--color-canvas-subtle); border: 1px solid var(--color-border-default); border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                    <button id="section-selector-toggle" class="section-selector-btn" type="button">
                                         <span id="section-selector-text">Loading...</span>
-                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="flex-shrink: 0;">
+                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
                                             <path d="M4 6l4 4 4-4H4z"/>
                                         </svg>
                                     </button>
-                                    <div id="section-selector-dropdown" class="section-selector-dropdown" style="display: none; position: absolute; z-index: 1000; background: var(--color-canvas-default); border: 1px solid var(--color-border-default); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 0.25rem; min-width: 200px;">
+                                    <div id="section-selector-dropdown" class="section-selector-dropdown">
                                         <!-- Sections will be populated here -->
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="sidebar-header-hint" title="Click to select editable files" style="margin-top: 0.5rem;">
+                        <div class="sidebar-header-hint" title="Click to select editable files">
                             <i class="fas fa-info-circle"></i> .tex, .bib, .pdf, .png, .jpg, .csv
                         </div>
                     </div>
@@ -336,8 +338,8 @@
                     if (previewPanel) {
                         const pdfUrl = `/{{ project.owner.username }}/{{ project.slug }}/files/${path}`;
                         previewPanel.innerHTML = `
-                            <div class="pdfjs-viewer" style="width: 100%; height: 100%;">
-                                <iframe src="${pdfUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
+                            <div class="pdfjs-viewer">
+                                <iframe src="${pdfUrl}"></iframe>
                             </div>
                         `;
                     }
@@ -348,8 +350,8 @@
                     if (previewPanel) {
                         const imageUrl = `/{{ project.owner.username }}/{{ project.slug }}/files/${path}`;
                         previewPanel.innerHTML = `
-                            <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 20px;">
-                                <img src="${imageUrl}" alt="${path}" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div class="image-preview-container">
+                                <img src="${imageUrl}" alt="${path}">
                             </div>
                         `;
                     }
