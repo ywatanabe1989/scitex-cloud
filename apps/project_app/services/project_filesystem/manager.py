@@ -10,7 +10,7 @@ Extracted from project_filesystem.py for better maintainability.
 
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Optional, Tuple
 import logging
 
 from .core import ProjectFilesystemManager
@@ -18,6 +18,7 @@ from .file_ops import FileOperationsManager
 from .execution_ops import ExecutionOperationsManager
 from .template_ops import TemplateOperationsManager
 from .git_ops import GitOperationsManager
+from .directory_builder import DirectoryBuilderManager
 from ...models import Project
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ class ProjectOpsManager(ProjectFilesystemManager):
         self.execution_ops = ExecutionOperationsManager(self)
         self.template_ops = TemplateOperationsManager(self)
         self.git_ops = GitOperationsManager(self)
+        self.dir_builder = DirectoryBuilderManager(self)
 
     def create_project_directory(
         self,
@@ -49,15 +51,12 @@ class ProjectOpsManager(ProjectFilesystemManager):
         use_template: bool = False,
         template_type: str = "research",
     ) -> Tuple[bool, Optional[Path]]:
-        """
-        Create directory structure for a new repository.
-
-        Path: ./data/users/{username}/{project-slug}/
+        """Create directory structure for new repository.
 
         Args:
             project: Project instance
             use_template: If True, create full template structure
-            template_type: Type of template ('research', 'pip_project', 'singularity')
+            template_type: Template type ('research', 'pip_project', 'singularity')
 
         Returns:
             Tuple of (success: bool, path: Optional[Path])
@@ -133,43 +132,7 @@ class ProjectOpsManager(ProjectFilesystemManager):
         self, project_path: Path, project: Project, template_type: str
     ):
         """Create fallback directory structure if template fails."""
-        for main_dir, sub_structure in self.PROJECT_STRUCTURE.items():
-            main_path = project_path / main_dir
-            if not self._ensure_directory(main_path):
-                raise RuntimeError(f"Failed to create directory: {main_path}")
-
-            if main_dir == "scripts":
-                script_subdirs = [
-                    "analysis",
-                    "preprocessing",
-                    "modeling",
-                    "visualization",
-                    "utils",
-                ]
-                for subdir in script_subdirs:
-                    if not self._ensure_directory(main_path / subdir):
-                        raise RuntimeError(
-                            f"Failed to create directory: {main_path / subdir}"
-                        )
-
-            if isinstance(sub_structure, dict):
-                for sub_dir, sub_sub_dirs in sub_structure.items():
-                    sub_path = main_path / sub_dir
-                    if not self._ensure_directory(sub_path):
-                        raise RuntimeError(f"Failed to create directory: {sub_path}")
-
-                    for sub_sub_dir in sub_sub_dirs:
-                        if not self._ensure_directory(sub_path / sub_sub_dir):
-                            raise RuntimeError(
-                                f"Failed to create directory: {sub_path / sub_sub_dir}"
-                            )
-            elif isinstance(sub_structure, list):
-                for sub_dir in sub_structure:
-                    if not self._ensure_directory(main_path / sub_dir):
-                        raise RuntimeError(
-                            f"Failed to create directory: {main_path / sub_dir}"
-                        )
-
+        self.dir_builder.build_directory_tree(project_path)
         self.template_ops.create_project_readme(project, project_path)
         self.template_ops.create_project_config_files(project, project_path)
         self.template_ops.create_requirements_file(project, project_path)

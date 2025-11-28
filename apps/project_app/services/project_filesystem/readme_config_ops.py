@@ -1,20 +1,14 @@
 """
-README and Configuration Operations Module
+README File Generator Module
 
-Handles creation of README files and project configuration files
-including YAML/JSON configs, paths.json, and environment templates.
+Handles creation of README files for projects including minimal and comprehensive
+versions for empty and templated projects.
 """
 
-import json
 from pathlib import Path
 import logging
 
-try:
-    import yaml
-    HAS_YAML = True
-except ImportError:
-    HAS_YAML = False
-
+from .config_generator import ConfigGeneratorManager
 from ...models import Project
 
 logger = logging.getLogger(__name__)
@@ -31,6 +25,16 @@ class ReadmeConfigOperationsManager:
             filesystem_manager: Parent ProjectFilesystemManager instance
         """
         self.manager = filesystem_manager
+        self.config_gen = ConfigGeneratorManager(filesystem_manager)
+
+    # Delegate config operations
+    def create_project_config_files(self, project: Project, project_path: Path):
+        """Create essential configuration files for the project."""
+        return self.config_gen.create_project_config_files(project, project_path)
+
+    def create_requirements_file(self, project: Project, project_path: Path):
+        """Create requirements.txt with essential scientific packages."""
+        return self.config_gen.create_requirements_file(project, project_path)
 
     def create_minimal_readme(self, project: Project, project_path: Path):
         """Create minimal README file for empty projects."""
@@ -80,29 +84,11 @@ This is an empty project directory. You can:
 This project follows the standardized SciTeX research project structure:
 
 - `config/` - Configuration files (YAML, JSON, etc.)
-  - Project-specific configuration files
-  - PATH configurations and environment settings
-- `data/` - Research data and datasets
-  - `raw/` - Original, unprocessed datasets
-  - `processed/` - Cleaned and preprocessed data
-  - `figures/` - Generated figures and visualizations
-  - `models/` - Trained machine learning models
+- `data/` - Research data (raw, processed, figures, models)
 - `scripts/` - Source code and analysis scripts
-  - Script-specific output directories with execution logs
-  - Individual Python/R scripts for data processing and analysis
-  - Execution tracking with RUNNING/FINISHED_SUCCESS markers
-- `docs/` - Documentation and manuscripts
-  - `manuscripts/` - Draft papers and publications
-  - `notes/` - Research notes and documentation
-  - `references/` - Citations and reference materials
-- `results/` - Analysis outputs and reports
-  - `outputs/` - Generated results and analysis outputs
-  - `reports/` - Summary reports and findings
-  - `analysis/` - Detailed analysis results
-- `temp/` - Temporary and cache files
-  - `cache/` - Cached computations and intermediate results
-  - `logs/` - Execution logs and debugging information
-  - `tmp/` - Temporary processing files
+- `docs/` - Documentation (manuscripts, notes, references)
+- `results/` - Analysis outputs (outputs, reports, analysis)
+- `temp/` - Temporary files (cache, logs, tmp)
 
 ## Getting Started
 
@@ -127,153 +113,3 @@ This project directory is managed by SciTeX Cloud. You can:
         readme_path = project_path / "README.md"
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write(readme_content)
-
-    def create_project_config_files(self, project: Project, project_path: Path):
-        """Create essential configuration files for the project."""
-        config_path = project_path / "config"
-
-        project_config = {
-            "project": {
-                "name": project.name,
-                "id": project.id,
-                "description": project.description,
-                "created": project.created_at.isoformat(),
-                "owner": project.owner.username,
-                "progress": getattr(project, "progress", 0),
-            },
-            "paths": {
-                "data_raw": "./data/raw",
-                "data_processed": "./data/processed",
-                "data_figures": "./data/figures",
-                "data_models": "./data/models",
-                "scripts": "./scripts",
-                "results": "./results",
-                "docs": "./docs",
-                "temp": "./temp",
-            },
-            "execution": {
-                "python_version": "3.8+",
-                "requirements_file": "../requirements.txt",
-                "log_level": "INFO",
-                "cache_enabled": True,
-            },
-            "research": {
-                "hypotheses": getattr(project, "hypotheses", "") or "",
-                "keywords": [],
-                "collaborators": [],
-            },
-        }
-
-        if HAS_YAML:
-            with open(config_path / "project.yaml", "w") as f:
-                yaml.dump(project_config, f, default_flow_style=False, indent=2)
-        else:
-            with open(config_path / "project.json", "w") as f:
-                json.dump(project_config, f, indent=2)
-
-        paths_config = {
-            "data": {
-                "raw": str(project_path / "data" / "raw"),
-                "processed": str(project_path / "data" / "processed"),
-                "figures": str(project_path / "data" / "figures"),
-                "models": str(project_path / "data" / "models"),
-            },
-            "scripts": str(project_path / "scripts"),
-            "results": {
-                "outputs": str(project_path / "results" / "outputs"),
-                "reports": str(project_path / "results" / "reports"),
-                "analysis": str(project_path / "results" / "analysis"),
-            },
-            "docs": str(project_path / "docs"),
-            "temp": {
-                "cache": str(project_path / "temp" / "cache"),
-                "logs": str(project_path / "temp" / "logs"),
-                "tmp": str(project_path / "temp" / "tmp"),
-            },
-        }
-
-        with open(config_path / "paths.json", "w") as f:
-            json.dump(paths_config, f, indent=2)
-
-        env_template = f"""# SciTeX Project Environment Configuration
-# Project: {project.name}
-
-# Python Environment
-PYTHON_PATH=./scripts
-PYTHONPATH=${{PYTHONPATH}}:./scripts
-
-# Data Paths
-DATA_RAW=./data/raw
-DATA_PROCESSED=./data/processed
-DATA_FIGURES=./data/figures
-DATA_MODELS=./data/models
-
-# Output Paths
-RESULTS_OUTPUT=./results/outputs
-RESULTS_REPORTS=./results/reports
-RESULTS_ANALYSIS=./results/analysis
-
-# Temporary Paths
-TEMP_CACHE=./temp/cache
-TEMP_LOGS=./temp/logs
-TEMP_TMP=./temp/tmp
-
-# Project Settings
-PROJECT_NAME="{project.name}"
-PROJECT_ID={project.id}
-LOG_LEVEL=INFO
-CACHE_ENABLED=true
-
-# Add your custom environment variables below
-# API_KEY=your_api_key_here
-# SCITEX_CLOUD_POSTGRES_URL=your_database_url_here
-"""
-
-        with open(config_path / ".env.template", "w") as f:
-            f.write(env_template)
-
-    def create_requirements_file(self, project: Project, project_path: Path):
-        """Create requirements.txt with essential scientific packages."""
-        requirements = """# SciTeX Project Requirements
-# Core scientific computing packages
-numpy>=1.21.0
-pandas>=1.3.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
-scipy>=1.7.0
-
-# Data processing and analysis
-scikit-learn>=1.0.0
-statsmodels>=0.12.0
-
-# Visualization
-plotly>=5.0.0
-bokeh>=2.4.0
-
-# Jupyter and interactive computing
-jupyter>=1.0.0
-ipykernel>=6.0.0
-nbformat>=5.1.0
-
-# File I/O and data formats
-openpyxl>=3.0.0
-xlrd>=2.0.0
-h5py>=3.1.0
-
-# Development and testing
-pytest>=6.2.0
-black>=21.0.0
-flake8>=3.9.0
-
-# Documentation
-sphinx>=4.0.0
-sphinx-rtd-theme>=0.5.0
-
-# Add your project-specific requirements below:
-# tensorflow>=2.6.0
-# torch>=1.9.0
-# transformers>=4.9.0
-"""
-
-        with open(project_path / "requirements.txt", "w") as f:
-            f.write(requirements)
