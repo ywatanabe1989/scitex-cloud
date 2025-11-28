@@ -23,7 +23,7 @@
         </div>
         <div class="stats-box">
             <div class="stat-item">
-                <span class="stat-number">960+</span>
+                <span class="stat-number">970+</span>
                 <span class="stat-label">Total Commits</span>
             </div>
             <div class="stat-item">
@@ -48,8 +48,50 @@
         </div>
         <div class="release-month">
             <div class="month-header">
-                <h2>November 2025 — v0.4.2</h2>
+                <h2>November 2025 — v0.4.3</h2>
                 <span class="month-badge">Latest Release</span>
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <h3>🗄️ Database Service Clarity</h3>
+                    <p>
+                        Renamed database service from generic "db" to explicit "postgres" across entire codebase.
+                        Updated 20+ locations including Docker Compose files (dev/nas), environment variables,
+                        Django settings, and entrypoint scripts. Improved service naming consistency and
+                        reduced confusion in multi-database scenarios.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>🐳 Docker Configuration Consolidation</h3>
+                    <p>
+                        Merged docker-compose.override.yml patterns into main configuration files for both
+                        development and NAS deployments. Eliminated separate override files while preserving
+                        environment-specific debug settings. Simplified Docker architecture with single-file
+                        configuration per environment.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>⚙️ Enhanced Development Environment</h3>
+                    <p>
+                        Integrated debug settings directly into development Docker Compose: PostgreSQL query
+                        logging, Redis verbose logging, Gitea debug mode, and debugpy remote debugging port.
+                        All development-specific settings now consolidated in one place for easier maintenance.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>✅ Infrastructure Health Monitoring</h3>
+                    <p>
+                        All 7 Docker services (postgres, redis, django, gitea, celery_worker, celery_beat, flower)
+                        now running healthy with proper healthchecks. Fixed container recreation issues and
+                        ensured consistent environment variable propagation across full container lifecycle.
+                    </p>
+                </li>
+            </ul>
+        </div>
+        <div class="release-month">
+            <div class="month-header">
+                <h2>November 2025 — v0.4.2</h2>
+                <span class="month-badge">SLURM Terminal</span>
             </div>
             <ul class="feature-list">
                 <li class="feature-item">
@@ -489,6 +531,12 @@
         commits: 15,
         cumulative: 960,
         milestone: "SLURM Terminal (v0.4.2-alpha)",
+      },
+      {
+        date: "2025-11-28",
+        commits: 12,
+        cumulative: 972,
+        milestone: "Database Renaming (v0.4.3-alpha)",
       },
     ];
 
