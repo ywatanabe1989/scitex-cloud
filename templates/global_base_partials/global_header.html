@@ -684,7 +684,9 @@
 </header>
 <!-- JavaScript for dropdown menu -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  (function() {
+    // Initialize immediately if DOM is ready, otherwise wait
+    function initializeHeader() {
     // Generic dropdown functionality for all header nav dropdowns
     const dropdownGroups = document.querySelectorAll(".header-dropdown-group");
 
@@ -1275,7 +1277,7 @@
     // Visitor mode Files link - no longer needed, visitors have full access
 
     // Visitor Mode Countdown Timer
-    const visitorMenuToggle = document.getElementById("visitor-menu-toggle");
+    // Note: visitorMenuToggle is already declared above for dropdown functionality
     if (visitorMenuToggle && visitorMenuToggle.dataset.expiresAt) {
       const expiresAt = new Date(visitorMenuToggle.dataset.expiresAt);
       const countdownSpan = document.getElementById("visitor-countdown");
@@ -1396,6 +1398,14 @@
       updateServerStatus();
       setInterval(updateServerStatus, 30000);
     }
-  });
+  }
+
+  // Run immediately if DOM is ready, otherwise wait
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHeader);
+  } else {
+    initializeHeader();
+  }
+})();
 </script>
 <!-- test change 1763619732 -->
