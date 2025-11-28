@@ -53,7 +53,7 @@
 /* Form Elements */
 @import url("components/forms.css");
 @import url("utilities/autofill.css");
-@import url("components/buttons.css");
+@import url("components/buttons/index.css");
 @import url("components/buttons-dark.css");
 @import url("components/button-cta.css");
 @import url("components/toggles.css");
