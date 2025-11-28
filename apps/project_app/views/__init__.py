@@ -97,7 +97,6 @@ from .repository import (
 
 # Legacy flat views (to be refactored in future phases)
 from .api_views import *
-from .api_issues_views import *
 from .directory_views import *
 from .pr import *
 from .integration_views import *
