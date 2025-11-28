@@ -33,16 +33,40 @@ Module Structure:
 - template.py: Template copying and customization logic
 """
 
-# Import core class and factory function
-from .core import (
-    ProjectFilesystemManager,
-    get_project_filesystem_manager,
-)
+# Import base class from core
+from .core import ProjectFilesystemManager as _BaseProjectFilesystemManager
 
-# Import project operation utilities
+# Import extended class with all operations from project_ops
 from .project_ops import (
+    ProjectOpsManager,
     ensure_project_directory,
 )
+
+# Export ProjectOpsManager as ProjectFilesystemManager for backward compatibility
+# This ensures all code using ProjectFilesystemManager gets the full-featured class
+ProjectFilesystemManager = ProjectOpsManager
+
+
+def get_project_filesystem_manager(user):
+    """
+    Get or create a ProjectFilesystemManager for the user.
+
+    Returns the full-featured ProjectOpsManager with all methods.
+
+    Args:
+        user: Django User instance
+
+    Returns:
+        ProjectOpsManager instance (exported as ProjectFilesystemManager)
+    """
+    manager = ProjectOpsManager(user)
+
+    # Initialize workspace if it doesn't exist
+    if not manager.base_path.exists():
+        manager.initialize_workspace()
+
+    return manager
+
 
 # Define public API
 __all__ = [
