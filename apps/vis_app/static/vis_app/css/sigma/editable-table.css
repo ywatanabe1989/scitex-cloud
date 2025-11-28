@@ -2,9 +2,17 @@
    EDITABLE TABLE STYLES
    ======================================================================== */
 
+/* Base table structure */
+.editable-table table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
 /* Editable cells */
 .editable-table td,
 .editable-table th {
+    border: 1px solid var(--workspace-border-muted);
+    padding: 8px;
     outline: none;
     transition: background-color 0.15s ease, box-shadow 0.15s ease;
     position: relative;
