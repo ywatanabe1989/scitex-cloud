@@ -283,12 +283,11 @@ class TerminalConsumer(AsyncWebsocketConsumer):
             self._exec_plain_bash(username, project_dir)
             return
 
-        # Try to run with fakeroot for environments without user namespace support
-        # Use --compat flag for better Docker compatibility (avoids proc mount issues)
+        # Build container command
+        # Note: --fakeroot requires /etc/subuid mappings, which don't exist in Docker
+        # For Docker environments, run without fakeroot (Docker already provides isolation)
         cmd = [
             container_cmd, "shell",
-            "--fakeroot",  # Enables rootless execution without user namespaces
-            "--compat",    # Docker-compatible mode (minimal mounts)
             "--writable-tmpfs",
             "--hostname", "scitex-cloud",
             "--home", f"{user_data_dir}:/home/{username}",
@@ -307,7 +306,7 @@ class TerminalConsumer(AsyncWebsocketConsumer):
             "SCITEX_USER": username,
         }
 
-        logger.info(f"Spawning direct terminal for {username}: {container_cmd} --fakeroot")
+        logger.info(f"Spawning direct terminal for {username}: {container_cmd} shell")
         os.execvpe(container_cmd, cmd, env)
 
     def _exec_plain_bash(self, username: str, project_dir: Path):
