@@ -26,7 +26,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="sigma-editor-container"{% if current_project %} data-project-owner="{{ current_project.owner.username }}" data-project-slug="{{ current_project.slug }}"{% endif %} data-workspace-tree-url="{% static 'shared/js/components/workspace-files-tree/WorkspaceFilesTree.js' %}">
+<div class="sigma-editor-container"{% if current_project %} data-project-owner="{{ current_project.owner.username }}" data-project-slug="{{ current_project.slug }}" data-workspace-tree-url="/{{ current_project.owner.username }}/{{ current_project.slug }}/api/file-tree/"{% endif %}>
 
 
     <!-- ========================================================================

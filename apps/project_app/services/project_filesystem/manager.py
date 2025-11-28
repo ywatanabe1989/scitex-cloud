@@ -10,7 +10,7 @@ Extracted from project_filesystem.py for better maintainability.
 
 import shutil
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 import logging
 
 from .core import ProjectFilesystemManager
