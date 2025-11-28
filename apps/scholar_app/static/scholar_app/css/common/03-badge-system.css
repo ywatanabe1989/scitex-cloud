@@ -1,0 +1,208 @@
+/* Result Cards */
+.result-card {
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.result-title {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.result-title:hover {
+  color: var(--scitex-color-02);
+}
+
+.result-authors {
+  margin-bottom: 0.5rem;
+}
+
+.result-snippet {
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.year-badge {
+  padding: 0.25rem 0.5rem;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.open-access {
+  padding: 0.25rem 0.5rem;
+}
+
+/* Result Card Metadata Row */
+.result-metadata {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.result-metadata .year-badge {
+  background: var(--bg-muted);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-weight: 600;
+}
+
+.result-metadata .journal-name {
+  flex: 0 1 auto;
+}
+
+.result-metadata .citation-badge {
+  white-space: nowrap;
+}
+
+/* Result Badges Row - Horizontal action and source badges */
+.result-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 12px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.badge-chip i {
+  font-size: 0.75rem;
+}
+
+/* Action badge buttons (Cite, Save) */
+.badge-chip.badge-action {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  padding: 0.35rem 0.65rem;
+}
+
+.badge-chip.badge-action:hover {
+  background: var(--scitex-color-04);
+  color: white;
+  border-color: var(--scitex-color-04);
+}
+
+.badge-chip.badge-action:active {
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .badge-chip.badge-action {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .badge-chip.badge-action:hover {
+  background: var(--scitex-color-04);
+  color: white;
+  border-color: var(--scitex-color-04);
+}
+
+.badge-chip.badge-success {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.badge-chip.badge-success:hover {
+  background: rgba(40, 167, 69, 0.15);
+  border-color: rgba(40, 167, 69, 0.3);
+}
+
+.badge-chip.badge-info {
+  background: rgba(23, 162, 184, 0.1);
+  color: #17a2b8;
+  border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.badge-chip.badge-info:hover {
+  background: rgba(23, 162, 184, 0.15);
+  border-color: rgba(23, 162, 184, 0.3);
+}
+
+.badge-chip.badge-secondary {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.badge-chip.badge-secondary:hover {
+  background: rgba(108, 117, 125, 0.15);
+  border-color: rgba(108, 117, 125, 0.3);
+}
+
+.badge-chip.badge-muted {
+  background: rgba(128, 128, 128, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.badge-chip.badge-muted:hover {
+  background: rgba(128, 128, 128, 0.12);
+  border-color: rgba(128, 128, 128, 0.25);
+}
+
+/* Dark mode badge chip styles */
+[data-theme="dark"] .badge-chip.badge-success {
+  background: rgba(40, 167, 69, 0.15);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+[data-theme="dark"] .badge-chip.badge-success:hover {
+  background: rgba(40, 167, 69, 0.25);
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+[data-theme="dark"] .badge-chip.badge-info {
+  background: rgba(23, 162, 184, 0.15);
+  color: #06b6d4;
+  border-color: rgba(6, 182, 212, 0.2);
+}
+
+[data-theme="dark"] .badge-chip.badge-info:hover {
+  background: rgba(23, 162, 184, 0.25);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+[data-theme="dark"] .badge-chip.badge-secondary {
+  background: rgba(108, 117, 125, 0.15);
+  color: #a1a1a1;
+  border-color: rgba(161, 161, 161, 0.2);
+}
+
+[data-theme="dark"] .badge-chip.badge-secondary:hover {
+  background: rgba(108, 117, 125, 0.25);
+  border-color: rgba(161, 161, 161, 0.4);
+}
+
+[data-theme="dark"] .badge-chip.badge-muted {
+  background: rgba(128, 128, 128, 0.12);
+  color: #8b8b8b;
+  border-color: rgba(139, 139, 139, 0.2);
+}
+
+[data-theme="dark"] .badge-chip.badge-muted:hover {
+  background: rgba(128, 128, 128, 0.18);
+  border-color: rgba(139, 139, 139, 0.3);
+}

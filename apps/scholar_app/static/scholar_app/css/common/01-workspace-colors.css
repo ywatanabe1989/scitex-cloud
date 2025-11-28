@@ -1,0 +1,168 @@
+/*
+ * Scholar App - Common Styles
+ *
+ * Shared styles used across both Search and BibTeX features:
+ * - Split-screen layout
+ * - Panel structure (header, content, collapsed states)
+ * - Card components (result cards, paper cards)
+ * - Utility classes
+ */
+
+/* Disable smooth scrolling for Scholar app to prevent auto-scroll behavior */
+html {
+  scroll-behavior: auto !important;
+}
+
+/* ===============================================
+   WORKSPACE COLORS - Override all bluish backgrounds
+   Using darkish black with greenish accents like code/vis/writer
+   =============================================== */
+
+/* Force workspace background colors for entire scholar page - HARD OVERRIDE */
+body.scholar-page,
+.scholar-page,
+body.workspace-page.scholar-page {
+  background: #0d0d0d !important;
+}
+
+/* Main content area background */
+body.scholar-page #main-content,
+body.scholar-page main,
+body.scholar-page .scholar-workspace {
+  background: #0d0d0d !important;
+}
+
+/* Force footer to match */
+body.scholar-page footer,
+body.scholar-page .footer {
+  background: #0d0d0d !important;
+  border-top: 1px solid #3a3a3a !important;
+}
+
+/* Override any card/panel backgrounds - HARD CODED VALUES */
+body.scholar-page .card,
+body.scholar-page .panel,
+body.scholar-page .search-card,
+body.scholar-page .result-card,
+body.scholar-page .paper-card,
+body.scholar-page .split-panel,
+body.scholar-page .split-container,
+body.scholar-page .panel-content,
+body.scholar-page .card-body,
+body.scholar-page .bibtex-card,
+body.scholar-page .bibtex-tile {
+  background: #151515 !important;
+  border-color: #3a3a3a !important;
+  border-radius: 0 !important;
+}
+
+/* Override panel headers */
+body.scholar-page .panel-header,
+body.scholar-page .card-header,
+body.scholar-page .bibtex-card__header,
+body.scholar-page .bibtex-tile__header {
+  background: #1a1a1a !important;
+  border-color: #3a3a3a !important;
+}
+
+/* Remove bluish border-radius (flat design) */
+body.scholar-page .card,
+body.scholar-page .panel,
+body.scholar-page .split-panel {
+  border-radius: 0 !important;
+}
+
+/* BibTeX components - HARD CODED workspace colors */
+body.scholar-page .bibtex-enrichment-container {
+  background: #0d0d0d !important;
+  padding: 0 !important;
+}
+
+body.scholar-page .bibtex-card,
+body.scholar-page .bibtex-tile {
+  background: #151515 !important;
+  border-color: #3a3a3a !important;
+  border-radius: 0 !important;
+}
+
+body.scholar-page .bibtex-card__header,
+body.scholar-page .bibtex-tile__header {
+  background: #1a1a1a !important;
+  border-color: #3a3a3a !important;
+}
+
+body.scholar-page .bibtex-tile__content {
+  border-color: #3a3a3a !important;
+  background: #151515 !important;
+}
+
+body.scholar-page .bibtex-dropzone {
+  background: #0d0d0d !important;
+  border-color: #3a3a3a !important;
+  border-radius: 0 !important;
+}
+
+body.scholar-page .bibtex-dropzone:hover {
+  background: #1a1a1a !important;
+  border-color: #6ba89a !important;
+}
+
+body.scholar-page .bibtex-status-item {
+  background: #0d0d0d !important;
+  border-radius: 0 !important;
+}
+
+body.scholar-page .terminal-log {
+  background: #0d0d0d !important;
+  border-color: #3a3a3a !important;
+  border-radius: 0 !important;
+}
+
+/* Override bibtex tile icons to use workspace green */
+body.scholar-page .bibtex-tile__title i,
+body.scholar-page .bibtex-card__title i {
+  color: #6ba89a !important;
+}
+
+/* Scholar workspace panels - HARD CODED */
+body.scholar-page .scholar-sidebar,
+body.scholar-page .scholar-main,
+body.scholar-page .scholar-properties {
+  background: #0d0d0d !important;
+}
+
+body.scholar-page .scholar-sidebar .sidebar-header,
+body.scholar-page .scholar-main .pane-header,
+body.scholar-page .scholar-properties .properties-header {
+  background: #151515 !important;
+  border-color: #3a3a3a !important;
+}
+
+body.scholar-page .scholar-sidebar .sidebar-content,
+body.scholar-page .scholar-properties .properties-content {
+  background: #0d0d0d !important;
+}
+
+/* Pane content no padding for full bleed */
+body.scholar-page .scholar-main .pane-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #0d0d0d !important;
+}
+
+/* Light mode overrides */
+[data-theme="light"] body.scholar-page,
+[data-theme="light"] .scholar-page {
+  background: var(--workspace-bg-primary, #f3f4f6) !important;
+}
+
+[data-theme="light"] .scholar-page .card,
+[data-theme="light"] .scholar-page .panel,
+[data-theme="light"] .scholar-page .search-card,
+[data-theme="light"] .scholar-page .result-card,
+[data-theme="light"] .scholar-page .paper-card,
+[data-theme="light"] .scholar-page .split-panel {
+  background: var(--workspace-bg-secondary, #ebedef) !important;
+  border-color: var(--workspace-border-default, #b5c7d1) !important;
+}
+
