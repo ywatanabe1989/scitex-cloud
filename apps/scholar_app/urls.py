@@ -8,7 +8,7 @@ from django.urls import path
 from django.urls import include
 from rest_framework.routers import DefaultRouter
 from .views.search import views as search_views
-from .views.bibtex import views as bibtex_views
+from .views import bibtex as bibtex_views
 from .views.workspace import api_key_views
 from .views.workspace import views as workspace_views
 from .views.library import views as library_views
