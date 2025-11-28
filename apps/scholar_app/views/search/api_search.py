@@ -49,22 +49,191 @@ except ImportError:
 
 
 @require_http_methods(["GET"])
+def api_search_arxiv(request):
+    """API endpoint for arXiv search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 50)), 100)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_arxiv(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "arxiv",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"arXiv API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "arxiv", "error": str(e)}, status=500
+        )
 
 
 @require_http_methods(["GET"])
+def api_search_pubmed(request):
+    """API endpoint for PubMed search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 50)), 100)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_pubmed(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "pubmed",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"PubMed API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "pubmed", "error": str(e)}, status=500
+        )
 
 
 @require_http_methods(["GET"])
+def api_search_semantic(request):
+    """API endpoint for Semantic Scholar search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 10)), 20)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_semantic_scholar(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "semantic_scholar",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"Semantic Scholar API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "semantic_scholar", "error": str(e)},
+            status=500,
+        )
 
 
 @require_http_methods(["GET"])
+def api_search_pmc(request):
+    """API endpoint for PMC search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 50)), 100)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_pubmed_central(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "pmc",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"PMC API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "pmc", "error": str(e)}, status=500
+        )
 
 
 @require_http_methods(["GET"])
+def api_search_doaj(request):
+    """API endpoint for DOAJ search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 25)), 50)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_doaj(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "doaj",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"DOAJ API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "doaj", "error": str(e)}, status=500
+        )
 
 
 @require_http_methods(["GET"])
+def api_search_biorxiv(request):
+    """API endpoint for bioRxiv search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 25)), 50)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_biorxiv(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "biorxiv",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"bioRxiv API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "biorxiv", "error": str(e)}, status=500
+        )
 
 
 @require_http_methods(["GET"])
+def api_search_plos(request):
+    """API endpoint for PLOS search only."""
+    query = request.GET.get("q", "").strip()
+    max_results = min(int(request.GET.get("max_results", 25)), 50)
+
+    if not query:
+        return JsonResponse({"error": "Query parameter required"}, status=400)
+
+    try:
+        results = search_plos(query, max_results=max_results)
+        return JsonResponse(
+            {
+                "status": "success",
+                "source": "plos",
+                "query": query,
+                "count": len(results),
+                "results": results,
+            }
+        )
+    except Exception as e:
+        logger.error(f"PLOS API search failed: {e}")
+        return JsonResponse(
+            {"status": "error", "source": "plos", "error": str(e)}, status=500
+        )
 
