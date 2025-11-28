@@ -90,7 +90,7 @@ from .trending.views import (
 )
 
 # Import bibtex views
-from .bibtex.views import (
+from .bibtex import (
     bibtex_enrichment,
     bibtex_upload,
     bibtex_job_detail,

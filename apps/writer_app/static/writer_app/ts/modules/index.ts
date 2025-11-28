@@ -14,7 +14,7 @@ export {
   FileTreeManager,
   type FileTreeNode,
   type FileTreeOptions,
-} from "./file_tree.js";
+} from "./file_tree/index.js";
 export { LatexWrapper, type LatexWrapperOptions } from "./latex-wrapper.js";
 export { PDFPreviewManager, type PDFPreviewOptions } from "./pdf-preview.js";
 export { PanelResizer } from "./panel-resizer.js";
