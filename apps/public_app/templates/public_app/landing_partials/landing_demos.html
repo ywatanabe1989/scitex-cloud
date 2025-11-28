@@ -1,291 +1,18 @@
 {% load static %}
-<style>
-  .github-link-btn {
-    transition: all 0.3s ease;
-    padding: 0.5rem 1.5rem;
-  }
-
-  .github-link-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Modern Carousel */
-  .demos-carousel-wrapper {
-    position: relative;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 80px;
-  }
-
-  .demos-carousel-container {
-    overflow: hidden;
-    border-radius: 12px;
-  }
-
-  .demos-carousel-track {
-    display: flex;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .demos-carousel-slide {
-    flex: 0 0 100%;
-    min-width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* Modern Navigation Arrows */
-  .carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 100;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--scitex-color-06);
-    opacity: 0.7;
-  }
-
-  .carousel-nav:hover {
-    color: var(--scitex-color-07);
-    opacity: 1;
-    transform: translateY(-50%) scale(1.15);
-  }
-
-  .carousel-nav i {
-    font-size: 2.5rem;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-
-  .carousel-nav-prev {
-    left: 10px;
-  }
-
-  .carousel-nav-next {
-    right: 10px;
-  }
-
-  /* Modern Indicators */
-  .carousel-indicators {
-    display: flex !important;
-    justify-content: center !important;
-    gap: 2rem;
-    margin-top: 4rem !important;
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    margin-bottom: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  .carousel-indicator-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .carousel-indicator-label:hover .carousel-indicator {
-    background: var(--scitex-color-05);
-    transform: scale(1.3);
-  }
-
-  .carousel-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--scitex-color-04);
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 0;
-    opacity: 0.4;
-  }
-
-  .carousel-indicator.active {
-    background: var(--scitex-color-06);
-    width: 40px;
-    height: 8px;
-    border-radius: 4px;
-    opacity: 1;
-  }
-
-  .carousel-indicator-label span {
-    font-size: 0.75rem;
-    color: var(--scitex-color-05);
-    transition: all 0.3s ease;
-    font-weight: 500;
-    letter-spacing: 0.025em;
-  }
-
-  .carousel-indicator-label.active span {
-    color: var(--scitex-color-07);
-    font-weight: 700;
-    font-size: 0.85rem;
-  }
-
-  /* Module Navigation Cards - Ecosystem Style */
-  .module-nav-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 12px;
-    padding: 2rem 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    opacity: 0.6;
-    transform: scale(0.95);
-  }
-
-  .module-nav-card:hover {
-    opacity: 0.8;
-    transform: scale(0.98) translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
-    border-color: var(--scitex-color-04);
-  }
-
-  .module-nav-card.active {
-    background: var(--color-accent-subtle);
-    border-color: var(--color-accent-emphasis);
-    border-width: 3px;
-    box-shadow: 0 12px 40px rgba(107, 143, 179, 0.4);
-    opacity: 1;
-    transform: scale(1.05) translateY(-8px);
-  }
-
-  .module-nav-card.active:hover {
-    transform: scale(1.05) translateY(-8px);
-  }
-
-  .module-nav-card svg {
-    width: 56px;
-    height: 56px;
-    margin-bottom: 1rem;
-    opacity: 0.6;
-    transition: all 0.3s ease;
-    color: var(--_scitex-04) !important; /* Bluish tint */
-  }
-
-  .module-nav-card:hover svg {
-    opacity: 0.8;
-    color: var(--_scitex-04) !important;
-  }
-
-  .module-nav-card.active svg {
-    opacity: 1;
-    transform: scale(1.1);
-    color: var(--_scitex-04) !important;
-  }
-
-  .module-nav-card h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.02em;
-  }
-
-  .module-nav-card.active h3 {
-    color: var(--color-accent-emphasis);
-    font-size: 1.6rem;
-  }
-
-  .module-nav-card p {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  .module-nav-card.active p {
-    color: var(--text-primary);
-  }
-
-  .coming-soon-badge {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: var(--warning-color);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.625rem;
-    font-weight: 600;
-  }
-
-  /* Dark theme for module cards */
-  [data-theme="dark"] .module-nav-card {
-    background-color: var(--scitex-color-02);
-    border-color: var(--scitex-color-03);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  [data-theme="dark"] .module-nav-card:hover {
-    background-color: var(--scitex-color-03);
-    border-color: var(--scitex-color-04);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-  }
-
-  [data-theme="dark"] .module-nav-card h3 {
-    color: var(--scitex-color-07);
-  }
-
-  [data-theme="dark"] .module-nav-card p {
-    color: var(--scitex-color-05);
-  }
-
-  [data-theme="dark"] .module-nav-card svg {
-    color: var(--_scitex-06) !important; /* Lighter bluish tint for dark mode */
-  }
-
-  [data-theme="dark"] .module-nav-card:hover svg {
-    color: var(--_scitex-06) !important;
-  }
-
-  [data-theme="dark"] .module-nav-card.active svg {
-    color: var(--_scitex-07) !important; /* Even lighter for active state */
-  }
-</style>
+<link rel="stylesheet" href="{% static 'public_app/css/landing-demos-inline.css' %}">
+<script type="module" src="{% static 'public_app/js/landing-demos-inline.js' %}" defer></script>
 <!-- Unified Ecosystem & Demonstrations Section -->
 <section class="landing-section section-ecosystem-demos bg-pattern bg-pattern-dots-scattered bg-pattern-subtle"
          id="ecosystem">
     <div class="container">
-        <div class="section-heading"
-             style="text-align: center;
-                    margin-bottom: 4rem">
-            <h2 style="font-size: 2.5rem;
-                       color: var(--color-fg-default);
-                       margin-bottom: 1rem">SciTeX Ecosystem</h2>
-            <p style="font-size: 1.25rem; color: var(--color-fg-muted)">
+        <div class="section-heading landing-demos-section-heading">
+            <h2>SciTeX Ecosystem</h2>
+            <p>
                 Integrated research tools from literature to publication
             </p>
         </div>
         <!-- Interactive Module Navigation Cards -->
-        <div class="ecosystem-modules-nav"
-             style="display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                    gap: 1.5rem;
-                    margin-bottom: 4rem;
-                    max-width: 1400px;
-                    margin-left: auto;
-                    margin-right: auto">
+        <div class="ecosystem-modules-nav">
             <!-- Scholar -->
             <div class="module-nav-card active bg-pattern bg-pattern-dots-radial bg-pattern-subtle"
                  data-module="0"
@@ -398,12 +125,12 @@
             <button class="carousel-nav carousel-nav-prev"
                     onclick="demosCarousel.prev()"
                     aria-label="Previous demo">
-                <i class="fas fa-chevron-left" style="font-size: 1.25rem"></i>
+                <i class="fas fa-chevron-left carousel-nav-icon"></i>
             </button>
             <button class="carousel-nav carousel-nav-next"
                     onclick="demosCarousel.next()"
                     aria-label="Next demo">
-                <i class="fas fa-chevron-right" style="font-size: 1.25rem"></i>
+                <i class="fas fa-chevron-right carousel-nav-icon"></i>
             </button>
             <!-- Carousel Container (overflow hidden) -->
             <div class="demos-carousel-container">
@@ -428,17 +155,10 @@
                     <!-- Local Demo -->
                     <div class="demos-carousel-slide">
                         <div class="module-demo-container">
-                            <div class="module-demo-grid"
-                                 style="grid-template-columns: 1fr;
-                                        text-align: center;
-                                        padding: 3rem">
+                            <div class="module-demo-grid local-demo-grid">
                                 <div class="module-demo-features">
-                                    <h3 style="font-size: 2rem;
-                                               color: var(--color-fg-default);
-                                               margin-bottom: 1rem">Full Control, No Internet Required</h3>
-                                    <p style="font-size: 1.125rem;
-                                              color: var(--color-fg-muted);
-                                              margin-bottom: 2rem">
+                                    <h3 class="local-demo-heading">Full Control, No Internet Required</h3>
+                                    <p class="local-demo-description">
                                         Run SciTeX entirely on your local machine with complete
                                         privacy and control.
                                     </p>
@@ -462,81 +182,3 @@
         </div>
     </div>
 </section>
-<script>
-  // Demos Carousel Controller
-  const demosCarousel = {
-    currentSlide: 0,
-    totalSlides: 6,
-    track: null,
-    indicators: null,
-
-    init() {
-      this.track = document.getElementById("demosCarouselTrack");
-      this.indicators = document.querySelectorAll(".carousel-indicator-label");
-
-      // Set initial active state
-      this.updateCarousel();
-
-      // Keyboard navigation
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") this.prev();
-        if (e.key === "ArrowRight") this.next();
-      });
-
-      // Auto-play (optional)
-      // setInterval(() => this.next(), 5000);
-    },
-
-    goTo(index) {
-      this.currentSlide = index;
-      this.updateCarousel();
-    },
-
-    next() {
-      this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
-      this.updateCarousel();
-    },
-
-    prev() {
-      this.currentSlide =
-        (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
-      this.updateCarousel();
-    },
-
-    updateCarousel() {
-      // Update track position
-      if (this.track) {
-        this.track.style.transform = `translateX(-${this.currentSlide * 100}%)`;
-      }
-
-      // Update module navigation cards
-      const navCards = document.querySelectorAll(".module-nav-card");
-      navCards.forEach((card, index) => {
-        if (index === this.currentSlide) {
-          card.classList.add("active");
-        } else {
-          card.classList.remove("active");
-        }
-      });
-
-      // Update indicators
-      if (this.indicators) {
-        this.indicators.forEach((label, index) => {
-          const indicator = label.querySelector(".carousel-indicator");
-          if (index === this.currentSlide) {
-            label.classList.add("active");
-            if (indicator) indicator.classList.add("active");
-          } else {
-            label.classList.remove("active");
-            if (indicator) indicator.classList.remove("active");
-          }
-        });
-      }
-    },
-  };
-
-  // Initialize on page load
-  document.addEventListener("DOMContentLoaded", () => {
-    demosCarousel.init();
-  });
-</script>
