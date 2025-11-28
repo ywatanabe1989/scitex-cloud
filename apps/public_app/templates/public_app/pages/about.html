@@ -8,7 +8,24 @@
 {% endblock %}
 {% block extra_css %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'public_app/css/about.css' %}" />
+    <!-- About Page CSS Modules (refactored from monolithic about.css) -->
+    <link rel="stylesheet" href="{% static 'public_app/css/about/00-about.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/01-alpha-notice.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/02-context.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/03-technical-stack.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/04-use-cases.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/05-workflow-description.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/06-hero.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/07-section-styling.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/08-comparison.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/09-workflow.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/10-deployment-democracy.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/11-deployment-list.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/12-reproducibility.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/13-status-card.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/14-cta.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/15-join-actions.css' %}" />
+    <link rel="stylesheet" href="{% static 'public_app/css/about/16-responsive.css' %}" />
 {% endblock %}
 {% block content %}
     <div class="about-container">
