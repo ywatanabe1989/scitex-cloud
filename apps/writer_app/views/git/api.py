@@ -3,7 +3,7 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from ...decorators import writer_auth_required, writer_project_access_required
-from ...services.writer_service import WriterService
+from ...services import WriterService
 import json
 import logging
 
