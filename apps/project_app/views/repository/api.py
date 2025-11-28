@@ -47,7 +47,12 @@ def api_file_tree(request, username, slug):
             or project.visibility == "public"
         )
     else:
-        has_access = project.visibility == "public"
+        # For anonymous users, check if this is their allocated visitor project
+        visitor_project_id = request.session.get("visitor_project_id")
+        has_access = (
+            project.visibility == "public"
+            or (visitor_project_id and project.id == visitor_project_id)
+        )
 
     if not has_access:
         return JsonResponse({"success": False, "error": "Permission denied"})
