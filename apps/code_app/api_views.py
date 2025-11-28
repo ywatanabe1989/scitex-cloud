@@ -29,11 +29,11 @@ from rest_framework import status
 
 from .models import Notebook
 from .models import CodeExecutionJob
-from .jupyter_utils import NotebookManager
-from .jupyter_utils import NotebookExecutor
-from .jupyter_utils import NotebookConverter
-from .jupyter_utils import NotebookTemplates
-from .jupyter_utils import NotebookValidator
+from .jupyter import NotebookManager
+from .jupyter import NotebookExecutor
+from .jupyter import NotebookConverter
+from .jupyter import NotebookTemplates
+from .jupyter import NotebookValidator
 
 logger = logging.getLogger(__name__)
 
