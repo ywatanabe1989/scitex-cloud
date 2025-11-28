@@ -1,0 +1,270 @@
+{% extends "global_base.html" %}
+{% load static %}
+
+{% block title %}Session Expired - SciTeX Cloud{% endblock %}
+
+{% block meta_description %}
+Your visitor session has expired. Sign up to save your work or start a new session.
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.expired-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.expired-icon {
+    font-size: 5rem;
+    color: var(--status-warning);
+    margin-bottom: 2rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.expired-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.expired-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.expired-info-box {
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.05) 100%);
+    border-left: 4px solid var(--status-warning);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 3rem;
+    text-align: left;
+}
+
+.expired-info-box h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.expired-info-box h3 i {
+    color: var(--status-warning);
+}
+
+.expired-info-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.expired-info-box li {
+    padding: 0.75rem 0;
+    color: var(--text-primary);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.expired-info-box li i {
+    color: var(--status-warning);
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.expired-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.expired-action-card {
+    background: var(--bg-surface);
+    border: 2px solid var(--border-default);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.expired-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    border-color: var(--workspace-icon-primary);
+}
+
+.expired-action-card.primary {
+    background: linear-gradient(135deg, var(--workspace-icon-primary) 0%, rgba(5, 150, 105, 0.9) 100%);
+    border-color: var(--workspace-icon-primary);
+    color: white;
+}
+
+.expired-action-card.primary:hover {
+    box-shadow: 0 12px 24px rgba(5, 150, 105, 0.4);
+}
+
+.expired-action-card h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.expired-action-card p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.expired-action-card.primary p {
+    opacity: 1;
+}
+
+.session-details {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 3rem;
+}
+
+.session-details h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.session-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.session-detail-item {
+    text-align: left;
+}
+
+.session-detail-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.session-detail-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="expired-container">
+    <!-- Icon -->
+    <div class="expired-icon">
+        <i class="fas fa-hourglass-end"></i>
+    </div>
+
+    <!-- Title -->
+    <h1 class="expired-title">Your Visitor Session Has Expired</h1>
+    <p class="expired-subtitle">
+        Your 60-minute visitor session ended {{ expired_minutes_ago }} minute{{ expired_minutes_ago|pluralize }} ago.
+        {% if visitor_number %}You were using <strong>visitor-{{ visitor_number|stringformat:"03d" }}</strong>.{% endif %}
+    </p>
+
+    <!-- What Happened Box -->
+    <div class="expired-info-box">
+        <h3>
+            <i class="fas fa-info-circle"></i>
+            What Happened?
+        </h3>
+        <ul>
+            <li>
+                <i class="fas fa-clock"></i>
+                <span>Visitor sessions last 60 minutes to ensure fair access for everyone</span>
+            </li>
+            <li>
+                <i class="fas fa-database"></i>
+                <span>Your workspace data has been cleared to prepare the slot for the next visitor</span>
+            </li>
+            <li>
+                <i class="fas fa-recycle"></i>
+                <span>Your visitor slot is now available for other users to try SciTeX Cloud</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Actions -->
+    <div class="expired-actions">
+        <!-- Primary Action: Sign Up -->
+        <a href="{% url 'auth_app:signup' %}" class="expired-action-card primary">
+            <h3>
+                <i class="fas fa-user-plus"></i>
+                Save Your Work - Sign Up Free
+            </h3>
+            <p>
+                Create a free account to get unlimited sessions and permanent workspace storage.
+                Never lose your work again!
+            </p>
+        </a>
+
+        <!-- Secondary Action: New Session -->
+        <a href="{% url 'public_app:visitor_restart' %}" class="expired-action-card">
+            <h3>
+                <i class="fas fa-redo"></i>
+                Start a New Visitor Session
+            </h3>
+            <p>
+                Get another 60-minute session to continue exploring SciTeX Cloud.
+                Available if slots are free.
+            </p>
+        </a>
+    </div>
+
+    <!-- Session Details -->
+    {% if visitor_number or expired_at %}
+    <div class="session-details">
+        <h4><i class="fas fa-chart-bar"></i> Session Details</h4>
+        <div class="session-details-grid">
+            {% if visitor_number %}
+            <div class="session-detail-item">
+                <div class="session-detail-label">Visitor ID</div>
+                <div class="session-detail-value">visitor-{{ visitor_number|stringformat:"03d" }}</div>
+            </div>
+            {% endif %}
+            {% if expired_at %}
+            <div class="session-detail-item">
+                <div class="session-detail-label">Expired At</div>
+                <div class="session-detail-value">{{ expired_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            {% endif %}
+            <div class="session-detail-item">
+                <div class="session-detail-label">Session Duration</div>
+                <div class="session-detail-value">60 minutes</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

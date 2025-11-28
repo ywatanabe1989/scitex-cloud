@@ -213,6 +213,42 @@ def collect_server_metrics(self):
         raise
 
 
+@shared_task(
+    bind=True,
+    name="apps.public_app.tasks.cleanup_expired_visitor_allocations",
+    ignore_result=True,
+    soft_time_limit=30,
+    time_limit=60,
+)
+def cleanup_expired_visitor_allocations(self):
+    """
+    Clean up expired visitor slot allocations.
+
+    Runs periodically (every 5 minutes) to free up visitor slots whose
+    sessions have expired. This ensures slots are available for new visitors
+    even if the user didn't explicitly log out or their session wasn't cleaned up.
+
+    Returns:
+        int: Number of slots freed
+    """
+    try:
+        from apps.project_app.services.visitor_pool import VisitorPool
+
+        freed_count = VisitorPool.cleanup_expired_allocations()
+
+        if freed_count > 0:
+            logger.info(f"[VisitorPool] Cleaned up {freed_count} expired visitor allocations")
+        else:
+            logger.debug("[VisitorPool] No expired allocations to clean up")
+
+        return freed_count
+
+    except Exception as e:
+        logger.error(f"[VisitorPool] Failed to clean up expired allocations: {e}", exc_info=True)
+        # Re-raise to trigger Celery's retry mechanism
+        raise
+
+
 def _check_port(port: int, host: str = "127.0.0.1", timeout: int = 1) -> bool:
     """Check if a port is open/accessible."""
     try:

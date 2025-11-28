@@ -73,6 +73,81 @@ class VisitorAutoLoginMiddleware:
         return self.get_response(request)
 
 
+class VisitorExpirationMiddleware:
+    """
+    Redirect expired visitors to the expiration page.
+
+    Checks if authenticated visitor users have expired allocations
+    and redirects them to /visitor-expired/ with clear messaging.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only check for authenticated visitor users
+        if not request.user.is_authenticated:
+            return self.get_response(request)
+
+        # Skip if not a visitor user
+        if not request.user.username.startswith('visitor-'):
+            return self.get_response(request)
+
+        # Skip certain paths to avoid redirect loops and allow access to essential pages
+        path = request.path
+        skip_paths = (
+            '/visitor-expired/',  # The expiration page itself
+            '/visitor-restart/',  # Restart session flow
+            '/static/',
+            '/media/',
+            '/favicon.ico',
+            '/logout/',
+            '/signup/',
+            '/login/',
+            '/api/',
+            '/__debug__/',
+        )
+
+        if any(path.startswith(p) for p in skip_paths):
+            return self.get_response(request)
+
+        # Check if visitor's allocation is expired
+        try:
+            from apps.project_app.services.visitor_pool import VisitorPool
+            from apps.project_app.models import VisitorAllocation
+            from django.utils import timezone
+            from django.shortcuts import redirect
+
+            allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
+            if allocation_token:
+                try:
+                    allocation = VisitorAllocation.objects.get(
+                        allocation_token=allocation_token,
+                        is_active=True
+                    )
+
+                    # Check if allocation is expired
+                    if allocation.expires_at <= timezone.now():
+                        logger.info(
+                            f"[Middleware] Visitor {request.user.username} allocation expired, "
+                            f"redirecting to expiration page"
+                        )
+                        return redirect('public_app:visitor_expired')
+
+                except VisitorAllocation.DoesNotExist:
+                    # No active allocation found - visitor is expired
+                    logger.info(
+                        f"[Middleware] Visitor {request.user.username} has no active allocation, "
+                        f"redirecting to expiration page"
+                    )
+                    return redirect('public_app:visitor_expired')
+
+        except Exception as e:
+            logger.error(f"[Middleware] Error checking visitor expiration: {e}")
+
+        return self.get_response(request)
+
+
 class GuestSessionMiddleware:
     """
     Track user state including current/last accessed project.

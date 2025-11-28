@@ -40,6 +40,8 @@ urlpatterns = [
     path("api/server-metrics/history/", views.server_metrics_history_api, name="server_metrics_history"),
     path("api/server-metrics/export/", views.server_metrics_export_csv, name="server_metrics_export"),
     path("visitor-status/", views.visitor_status, name="visitor_status"),
+    path("visitor-expired/", views.visitor_expired, name="visitor_expired"),
+    path("visitor-restart/", views.visitor_restart_session, name="visitor_restart"),
     # API Documentation
     path("api-docs/", views.api_docs, name="api-docs"),
     # SciTeX API Key Management

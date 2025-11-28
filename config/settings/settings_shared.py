@@ -155,6 +155,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.project_app.middleware.VisitorAutoLoginMiddleware",  # Auto-login visitors from any page
+    "apps.project_app.middleware.VisitorExpirationMiddleware",  # Redirect expired visitors to expiration page
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.project_app.middleware.GuestSessionMiddleware",
@@ -349,6 +350,14 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 5.0,  # Every 5 seconds
         'options': {
             'expires': 4.0,  # Expire after 4 seconds if not started
+        },
+    },
+    # Clean up expired visitor allocations every 5 minutes
+    'cleanup-expired-visitor-allocations': {
+        'task': 'apps.public_app.tasks.cleanup_expired_visitor_allocations',
+        'schedule': 300.0,  # Every 5 minutes (in seconds)
+        'options': {
+            'expires': 270.0,  # Expire after 4.5 minutes if not started
         },
     },
     # Auto-unmount inactive remote projects every 10 minutes
