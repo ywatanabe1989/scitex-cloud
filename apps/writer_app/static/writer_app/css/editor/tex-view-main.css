@@ -1,0 +1,44 @@
+/**
+ * TeX View Main CSS Aggregator
+ * Imports all modularized tex-view component styles
+ *
+ * This file aggregates the refactored tex-view CSS modules.
+ * Individual modules can be found in ./tex-view/
+ */
+
+/* Layout & Structure */
+@import url('./tex-view/layout.css');
+@import url('./tex-view/split-view.css');
+@import url('./tex-view/responsive.css');
+
+/* Header & Navigation */
+@import url('./tex-view/header.css');
+@import url('./tex-view/panel-header.css');
+@import url('./tex-view/section-dropdown.css');
+
+/* Editor Components */
+@import url('./tex-view/editor-area.css');
+@import url('./tex-view/latex-editor.css');
+@import url('./tex-view/codemirror.css');
+@import url('./tex-view/scrollbars.css');
+
+/* Toolbar */
+@import url('./tex-view/toolbar-base.css');
+@import url('./tex-view/toolbar-buttons.css');
+@import url('./tex-view/toolbar-tabs.css');
+
+/* UI Controls */
+@import url('./tex-view/button-styles.css');
+@import url('./tex-view/buttons-feedback.css');
+@import url('./tex-view/font-control.css');
+@import url('./tex-view/preview-control.css');
+
+/* Panels & Sidebars */
+@import url('./tex-view/sidebar.css');
+@import url('./tex-view/compilation-output.css');
+@import url('./tex-view/text-preview.css');
+
+/* Banners & Alerts */
+@import url('./tex-view/banners.css');
+
+/* EOF */

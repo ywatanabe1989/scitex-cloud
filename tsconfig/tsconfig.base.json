@@ -41,6 +41,8 @@
     "**/node_modules/**",
     "**/js/**",
     "**/js-potentially-legacy/**",
-    "**/.tsbuild/**"
+    "**/.tsbuild/**",
+    "**/*_backup.ts",
+    "**/*.backup.ts"
   ]
 }
