@@ -7,7 +7,7 @@ import type { WriterEditor, SectionsManager, PDFPreviewManager } from "../../mod
 import { setLoadingContent } from "../../modules/index.js";
 import { getWriterConfig } from "../../helpers.js";
 import { getUserContext } from "../ui.js";
-import { syncDropdownToSection } from "../section-dropdown.js";
+import { syncDropdownToSection } from "../section-dropdown/index.js";
 import { updateSectionUI } from "./SectionUI.js";
 
 /**

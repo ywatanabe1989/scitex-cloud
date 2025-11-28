@@ -95,7 +95,7 @@ export {
   syncDropdownToSection,
   handleDocTypeSwitch,
   toggleSectionVisibility,
-} from "./section-dropdown.js";
+} from "./section-dropdown/index.js";
 
 // Section management utilities
 export {
