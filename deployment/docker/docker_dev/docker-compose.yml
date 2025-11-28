@@ -68,6 +68,7 @@ services:
     ports:
       - "${SCITEX_CLOUD_HTTP_PORT_DEV:-8000}:8000"
       - "${SCITEX_CLOUD_SSH_PORT_DEV:-2200}:2200"  # SSH gateway for user workspaces
+      - "5678:5678"  # debugpy/pdb port for remote debugging
     
     # Environment
     env_file:
@@ -75,14 +76,17 @@ services:
     
     environment:
       - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_dev
+      - DEBUG=True
+      - DJANGO_DEBUG=True
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
+      - WATCHFILES_FORCE_POLLING=true  # For NFS/network filesystems
       # scitex.writer specific
       - SCITEX_WRITER_CACHE_DIR=/app/.cache
     
     # Service dependencies
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_started
@@ -120,7 +124,7 @@ services:
   # ============================================
   # PostgreSQL Database
   # ============================================
-  db:
+  postgres:
     image: postgres:15-alpine
 
     volumes:
@@ -141,6 +145,16 @@ services:
       - POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
       - POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}
       - POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD:-scitex_dev_2025}
+
+    # Enable query logging in development
+    command:
+      - postgres
+      - -c
+      - log_statement=all
+      - -c
+      - log_destination=stderr
+      - -c
+      - logging_collector=off
 
     restart: unless-stopped
     
@@ -165,7 +179,8 @@ services:
     ports:
       - "6379:6379"
     
-    command: redis-server --appendonly yes
+    # More verbose logging in development
+    command: redis-server --appendonly yes --loglevel debug
     
     restart: unless-stopped
     
@@ -204,7 +219,7 @@ services:
       - PYTHONUNBUFFERED=1
 
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_started
@@ -256,7 +271,7 @@ services:
       - PYTHONUNBUFFERED=1
 
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_started
@@ -354,7 +369,7 @@ services:
       
       # Database connection
       - GITEA__database__DB_TYPE=postgres
-      - GITEA__database__HOST=db:5432
+      - GITEA__database__HOST=postgres:5432
       - GITEA__database__NAME=${SCITEX_CLOUD_POSTGRES_DB:-scitex_cloud_dev}
       - GITEA__database__USER=${SCITEX_CLOUD_POSTGRES_USER:-scitex_dev}
       - GITEA__database__PASSWD=${SCITEX_CLOUD_POSTGRES_PASSWORD:-scitex_dev_2025}
@@ -367,11 +382,14 @@ services:
       # Security
       - GITEA__security__INSTALL_LOCK=true
       - GITEA__service__DISABLE_REGISTRATION=false
-    
+
+      # Development - Debug logging
+      - GITEA__log__LEVEL=Debug
+
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-    
+
     restart: unless-stopped
     
     healthcheck:

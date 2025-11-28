@@ -111,7 +111,7 @@ else:
                 ),
                 "PASSWORD": DB_PASSWORD,
                 "HOST": os.environ.get(
-                    "SCITEX_CLOUD_DB_HOST_NAS", "db"
+                    "SCITEX_CLOUD_DB_HOST_NAS", "postgres"
                 ),
                 "PORT": os.environ.get("SCITEX_CLOUD_DB_PORT_NAS", "5432"),
                 "ATOMIC_REQUESTS": True,
@@ -130,7 +130,7 @@ else:
                 "NAME": os.environ.get("POSTGRES_DB", "scitex_cloud_nas"),
                 "USER": os.environ.get("POSTGRES_USER", "scitex_nas"),
                 "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "CHANGE_THIS_IN_NAS"),
-                "HOST": os.environ.get("SCITEX_CLOUD_DB_HOST_NAS", "db"),
+                "HOST": os.environ.get("SCITEX_CLOUD_DB_HOST_NAS", "postgres"),
                 "PORT": os.environ.get("SCITEX_CLOUD_DB_PORT_NAS", "5432"),
                 "ATOMIC_REQUESTS": True,
                 "CONN_MAX_AGE": 600,
