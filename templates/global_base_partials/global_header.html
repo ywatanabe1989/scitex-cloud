@@ -430,42 +430,35 @@
                 <i class="fas fa-server"></i>
             </a>
             {% if is_visitor %}
-                <!-- Visitor Mode indicator with countdown -->
-                <a href="{% url 'public_app:server_status' %}"
-                   class="header-visitor-badge"
-                   id="visitor-mode-badge"
-                   data-tooltip="Click to view server and visitor status"
-                   {% if visitor_expires_at %}
-                   data-expires-at="{{ visitor_expires_at.isoformat }}"
-                   {% endif %}>
-                    <svg width="14"
-                         height="14"
-                         viewBox="0 0 16 16"
-                         fill="currentColor"
-                         style="margin-right: 4px;
-                                vertical-align: text-bottom">
-                        <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z" />
-                    </svg>
-                    <span id="visitor-mode-text">Visitor Mode</span>
-                    {% if visitor_expires_at %}
-                    <span id="visitor-countdown" style="margin-left: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 600;">
-                        ⏰ --:--
-                    </span>
-                    {% endif %}
-                </a>
-            {% endif %}
-            {% if is_visitor %}
-                <!-- Visitor Menu (Sign up / Sign in) -->
+                <!-- Visitor Menu (Integrated badge + dropdown) -->
                 <div class="header-user-menu">
-                    <button class="header-user-toggle" id="visitor-menu-toggle" style="background: var(--color-attention-emphasis); color: white;">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z" />
+                    <button class="header-user-toggle"
+                            id="visitor-menu-toggle"
+                            style="background: linear-gradient(135deg, rgba(240, 173, 78, 0.15) 0%, rgba(240, 173, 78, 0.08) 100%); color: #f0ad4e; font-weight: 500; padding: 6px 12px; border: 1px solid rgba(240, 173, 78, 0.3);"
+                            {% if visitor_expires_at %}
+                            data-expires-at="{{ visitor_expires_at.isoformat }}"
+                            {% endif %}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 6px;">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                         </svg>
+                        <span id="visitor-mode-text">
+                            {% if visitor_username %}
+                                Visitor #{{ visitor_username|slice:"8:" }}
+                            {% else %}
+                                Visitor Mode
+                            {% endif %}
+                        </span>
+                        {% if visitor_expires_at %}
+                        <span id="visitor-countdown" style="margin-left: 6px; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 0.9em;">
+                            ⏰ --:--
+                        </span>
+                        {% endif %}
                         <svg width="12"
                              height="12"
                              viewBox="0 0 16 16"
                              fill="currentColor"
-                             style="margin-left: 4px">
+                             style="margin-left: 6px">
                             <path d="M4 6l4 4 4-4H4z" />
                         </svg>
                     </button>
@@ -483,7 +476,8 @@
                                  viewBox="0 0 16 16"
                                  fill="currentColor"
                                  style="margin-right: 4px; vertical-align: text-bottom; color: var(--color-attention-fg);">
-                                <path d="M8 1a.5.5 0 0 1 .5.5v.518A7.001 7.001 0 0 1 14.954 7.5h.518a.5.5 0 0 1 0 1h-.518A7.001 7.001 0 0 1 8.5 14.482v.518a.5.5 0 0 1-1 0v-.518A7.001 7.001 0 0 1 1.046 8.5H.528a.5.5 0 0 1 0-1h.518A7.001 7.001 0 0 1 7.5 2.018V1.5A.5.5 0 0 1 8 1zm-.5 2.02A6.001 6.001 0 0 0 2.02 7.5h.48a.5.5 0 0 1 0 1h-.48A6.001 6.001 0 0 0 7.5 13.98v-.48a.5.5 0 0 1 1 0v.48A6.001 6.001 0 0 0 13.98 8.5h-.48a.5.5 0 0 1 0-1h.48A6.001 6.001 0 0 0 8.5 3.02v.48a.5.5 0 0 1-1 0v-.48z" />
+                                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
                             </svg>
                             Your work won't be saved permanently. Create an account to keep it!
                         </div>
@@ -1276,16 +1270,16 @@
         }
 
         // Hard refresh (bypass cache) like Ctrl+Shift+R
-        window.location.reload(true);
+        window.location.reload();
       });
     }
 
     // Visitor mode Files link - no longer needed, visitors have full access
 
     // Visitor Mode Countdown Timer
-    const visitorBadge = document.getElementById("visitor-mode-badge");
-    if (visitorBadge && visitorBadge.dataset.expiresAt) {
-      const expiresAt = new Date(visitorBadge.dataset.expiresAt);
+    const visitorMenuToggle = document.getElementById("visitor-menu-toggle");
+    if (visitorMenuToggle && visitorMenuToggle.dataset.expiresAt) {
+      const expiresAt = new Date(visitorMenuToggle.dataset.expiresAt);
       const countdownSpan = document.getElementById("visitor-countdown");
 
       function updateCountdown() {
@@ -1293,11 +1287,11 @@
         const timeLeft = expiresAt - now;
 
         if (timeLeft <= 0) {
-          // Session expired - reload to get new allocation or show message
+          // Session expired - redirect to expiration page
           countdownSpan.textContent = "⏰ EXPIRED";
           countdownSpan.style.color = "#f44336";
           setTimeout(() => {
-            window.location.href = "{% url 'public_app:server_status' %}";
+            window.location.href = "/visitor-expired/";
           }, 2000);
           return;
         }
