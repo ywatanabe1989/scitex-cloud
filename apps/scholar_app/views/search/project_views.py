@@ -43,4 +43,71 @@ except ImportError:
 
 
 @login_required
+def project_library(request, project_id):
+    """Project-specific paper library showing only papers saved to this project."""
+    from apps.project_app.models import Project
 
+    try:
+        project = Project.objects.get(pk=project_id, owner=request.user)
+    except Project.DoesNotExist:
+        return render(
+            request,
+            "scholar_app/error.html",
+            {"error": "Project not found or access denied."},
+        )
+
+    # Get papers saved to this project
+    try:
+        # Try to get papers associated with this project
+        project_papers = (
+            UserLibrary.objects.filter(user=request.user, project__isnull=False)
+            .select_related("paper")
+            .order_by("-saved_at")
+        )
+
+        # If the project field is still a CharField, filter by project name
+        if hasattr(
+            project_papers.first().project if project_papers.exists() else None,
+            "__str__",
+        ):
+            project_papers = project_papers.filter(project=project.name)
+        else:
+            # If it's a ForeignKey to project_app.Project
+            project_papers = project_papers.filter(project=project)
+
+    except Exception as e:
+        logger.warning(f"Project library query failed: {e}")
+        # Fallback to all user papers
+        project_papers = (
+            UserLibrary.objects.filter(user=request.user)
+            .select_related("paper")
+            .order_by("-saved_at")
+        )
+
+    # Get user's collections for this project
+    try:
+        user_collections = Collection.objects.filter(user=request.user)
+        if (
+            hasattr(user_collections.first(), "project")
+            and user_collections.first().project
+        ):
+            project_collections = user_collections.filter(project=project)
+        else:
+            project_collections = user_collections
+    except (AttributeError, TypeError):
+        # Failed to filter by project, fallback to all user collections
+        project_collections = Collection.objects.filter(user=request.user)
+
+    context = {
+        "project": project,
+        "project_mode": True,
+        "saved_papers": project_papers,
+        "collections": project_collections,
+        "page_title": f"Library - {project.name}",
+        "paper_count": project_papers.count(),
+    }
+
+    return render(request, "scholar_app/project_library.html", context)
+
+
+# EOF

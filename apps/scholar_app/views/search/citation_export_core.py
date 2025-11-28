@@ -42,7 +42,15 @@ except ImportError:
     SCITEX_SCHOLAR_AVAILABLE = False
 
 
+# TODO: Implement citation export functionality
+# These are placeholder stubs created to fix import errors
+# Original implementation needs to be restored or re-implemented
+
 @require_http_methods(["POST"])
+@login_required
+def export_citation(request):
+    """Placeholder for export_citation - TODO: implement"""
+    return JsonResponse({"error": "Not implemented"}, status=501)
 
 
 def generate_citation(paper_data, format_type):
