@@ -14,11 +14,13 @@ import {
   renderHealthStatus,
   renderIssues,
   applyFilter,
+  escapeHtml,
+} from "./rendering.js";
+import {
   showDialog,
   closeDialog,
   showError,
   getCSRFToken,
-  escapeHtml,
 } from "./ui.js";
 import {
   confirmRestore,

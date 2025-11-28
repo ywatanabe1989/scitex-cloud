@@ -4,7 +4,8 @@
  */
 
 import { PendingAction } from "./types.js";
-import { escapeHtml, showDialog, getCSRFToken, showError } from "./ui.js";
+import { escapeHtml } from "./rendering.js";
+import { showDialog, getCSRFToken, showError } from "./ui.js";
 
 /**
  * Shows confirmation dialog for repository restoration
