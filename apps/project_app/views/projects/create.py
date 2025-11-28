@@ -10,15 +10,15 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.text import slugify
 from django.utils.safestring import mark_safe
 from django.conf import settings
 
 from ...models import Project
+from .create_remote import create_remote_project
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def project_create(request):
 
         # Handle remote project creation separately
         if project_type == "remote":
-            return _create_remote_project(
+            return create_remote_project(
                 request, name, description, remote_credential_id, remote_path
             )
 
@@ -183,13 +183,11 @@ def project_create(request):
                 project.refresh_from_db()
 
                 # Check if clone already succeeded (done by signal)
-                # Path must match signal handler: /data/users/{username}/proj/{slug}/
                 project_dir = (
                     Path(settings.BASE_DIR)
                     / "data"
                     / "users"
                     / project.owner.username
-                    / "proj"
                     / project.slug
                 )
 
@@ -201,7 +199,12 @@ def project_create(request):
                     success = True
                     result = str(project_dir)
 
-                if not success:
+                if success:
+                    messages.success(
+                        request,
+                        f'Project "{project.name}" created successfully!',
+                    )
+                else:
                     messages.error(
                         request,
                         f"Gitea repository created but clone failed: {result}",
@@ -221,7 +224,7 @@ def project_create(request):
                         "available_templates": available_templates,
                         "error": f"Clone failed: {result}",
                     }
-                    return render(request, "project_app/projects/create.html", context)
+                    return render(request, "project_app/create.html", context)
 
             except Exception as e:
                 error_msg = str(e)
@@ -247,7 +250,7 @@ def project_create(request):
                     "description": description,
                     "error": error_msg,
                 }
-                return render(request, "project_app/projects/create.html", context)
+                return render(request, "project_app/create.html", context)
 
         elif init_type == "github":
             # Import from GitHub/GitLab - Use direct Git clone instead of Gitea
@@ -268,13 +271,18 @@ def project_create(request):
                     "init_type": "github",
                     "git_url": git_url,
                 }
-                return render(request, "project_app/projects/create.html", context)
+                return render(request, "project_app/create.html", context)
 
             try:
                 # Clone from Git repository directly (no Gitea needed)
                 success, error_msg = manager.clone_from_git(project, git_url)
 
-                if not success:
+                if success:
+                    messages.success(
+                        request,
+                        f'Project "{project.name}" imported from Git repository successfully',
+                    )
+                else:
                     messages.error(request, f"Failed to clone repository: {error_msg}")
                     project.delete()
                     return redirect("new")
@@ -289,7 +297,12 @@ def project_create(request):
             success, path = manager.create_project_directory(
                 project, use_template=True, template_type=template_type
             )
-            if not success:
+            if success:
+                messages.success(
+                    request,
+                    f'Project "{project.name}" created with {template_type} template',
+                )
+            else:
                 messages.error(request, f"Failed to create project with template")
                 project.delete()
                 return redirect("project_app:list")
@@ -314,7 +327,12 @@ def project_create(request):
 
             # Clone from Git repository
             success, error_msg = manager.clone_from_git(project, git_url)
-            if not success:
+            if success:
+                messages.success(
+                    request,
+                    f'Project "{project.name}" created and cloned from Git repository',
+                )
+            else:
                 messages.error(
                     request, f"Project created but cloning failed: {error_msg}"
                 )
@@ -324,83 +342,27 @@ def project_create(request):
             success, path = manager.create_project_directory(
                 project, use_template=False
             )
-            if not success:
+            if success:
+                messages.success(
+                    request, f'Project "{project.name}" created successfully'
+                )
+            else:
                 messages.error(request, f"Failed to create project directory")
                 project.delete()
                 return redirect("project_app:list")
 
-        # Initialize SciTeX ecosystem if requested
+        # Initialize SciTeX Writer template if requested
         if init_scitex:
-            try:
-                import shutil
-                from pathlib import Path as PathLib
-
-                project_path = manager.get_project_root_path(project)
-                if project_path:
-                    # Use master template copy (fast, offline, reliable)
-                    # Same approach as visitor pool initialization
-                    template_master = PathLib(getattr(
-                        settings,
-                        "VISITOR_TEMPLATE_PATH",
-                        "/app/templates/research-master"
-                    ))
-
-                    if not template_master.exists():
-                        logger.warning(f"[ProjectCreate] Master template not found at {template_master}")
-                        messages.warning(
-                            request,
-                            f'Project "{project.name}" created but template not found. Creating basic directory structure.'
-                        )
-                        success = False
-                    else:
-                        logger.info(f"[ProjectCreate] Copying template from {template_master} to {project_path}")
-
-                        # Copy entire template to project directory
-                        # This will overwrite existing files if any
-                        try:
-                            # Remove existing contents if any
-                            for item in project_path.iterdir():
-                                if item.is_dir() and item.name != '.git':
-                                    shutil.rmtree(item)
-                                elif item.is_file():
-                                    item.unlink()
-
-                            # Copy template contents (not the directory itself)
-                            for item in template_master.iterdir():
-                                if item.name == '.git':
-                                    continue  # Skip .git from template
-
-                                dest = project_path / item.name
-                                if item.is_dir():
-                                    shutil.copytree(item, dest, symlinks=True)
-                                else:
-                                    shutil.copy2(item, dest)
-
-                            success = True
-                            messages.success(
-                                request,
-                                f'Project "{project.name}" created successfully with SciTeX ecosystem initialized!',
-                            )
-                        except Exception as copy_err:
-                            logger.error(f"[ProjectCreate] Failed to copy template: {copy_err}")
-                            success = False
-                            messages.warning(
-                                request,
-                                f'Project "{project.name}" created but template copy failed: {str(copy_err)}'
-                            )
-                else:
-                    messages.warning(
-                        request,
-                        f'Project "{project.name}" created but could not find project directory for SciTeX initialization.'
-                    )
-            except Exception as e:
-                logger.error(f"Failed to initialize SciTeX ecosystem: {e}")
+            success, writer_path = manager.initialize_scitex_writer_template(project)
+            if success:
+                messages.success(
+                    request, f"SciTeX Writer template initialized at scitex/writer/"
+                )
+            else:
                 messages.warning(
                     request,
-                    f'Project "{project.name}" created but SciTeX initialization failed: {str(e)}'
+                    f"Project created but SciTeX Writer template initialization failed",
                 )
-        else:
-            messages.success(request, f'Project "{project.name}" created successfully!')
 
         return redirect(
             "user_projects:detail",
@@ -433,8 +395,8 @@ def project_create(request):
             },
         ]
 
-    # Get user's remote credentials for remote project option
-    from apps.project_app.models import RemoteCredential
+    # Get remote credentials for remote project creation
+    from ...models import RemoteCredential
 
     remote_credentials = RemoteCredential.objects.filter(
         user=request.user, is_active=True
@@ -445,193 +407,6 @@ def project_create(request):
         "remote_credentials": remote_credentials,
     }
     return render(request, "project_app/projects/create.html", context)
-
-
-@login_required
-def project_create_from_template(request, username, slug):
-    """Create template structure for an existing empty project"""
-    user = get_object_or_404(User, username=username)
-    project = get_object_or_404(Project, slug=slug, owner=user)
-
-    # Only project owner can create template
-    if project.owner != request.user:
-        messages.error(request, "Only project owner can create template structure.")
-        return redirect("user_projects:detail", username=username, slug=slug)
-
-    if request.method == "POST":
-        # Create template structure
-        from apps.project_app.services.project_filesystem import (
-            get_project_filesystem_manager,
-        )
-
-        manager = get_project_filesystem_manager(project.owner)
-
-        try:
-            success, path = manager.create_project_from_template(project)
-
-            if success:
-                messages.success(
-                    request,
-                    f'Template structure created successfully for "{project.name}"!',
-                )
-            else:
-                messages.error(request, "Failed to create template structure.")
-        except Exception as e:
-            messages.error(request, f"Failed to create template structure: {str(e)}")
-
-        return redirect("user_projects:detail", username=username, slug=slug)
-
-    # GET request - show confirmation page or redirect
-    return redirect("user_projects:detail", username=username, slug=slug)
-
-
-def _create_remote_project(request, name, description, remote_credential_id, remote_path):
-    """
-    Create a remote project (SSHFS mount, no Git).
-
-    Args:
-        request: HTTP request
-        name: Project name
-        description: Project description
-        remote_credential_id: ID of RemoteCredential to use
-        remote_path: Absolute path on remote system
-
-    Returns:
-        HTTP response (redirect or render)
-    """
-    from apps.project_app.models import RemoteCredential, RemoteProjectConfig
-
-    # Validate inputs
-    if not all([name, remote_credential_id, remote_path]):
-        messages.error(request, "All fields are required for remote projects")
-        return redirect("project_app:create")
-
-    # Get remote credential
-    try:
-        credential = RemoteCredential.objects.get(
-            id=remote_credential_id, user=request.user
-        )
-    except RemoteCredential.DoesNotExist:
-        messages.error(request, "Invalid remote credential selected")
-        return redirect("project_app:create")
-
-    # Validate repository name
-    is_valid, error_message = Project.validate_repository_name(name)
-    if not is_valid:
-        messages.error(request, error_message)
-        return redirect("project_app:create")
-
-    # Check if name already exists for this user
-    if Project.objects.filter(name=name, owner=request.user).exists():
-        messages.error(
-            request,
-            f'You already have a project named "{name}". Please choose a different name.',
-        )
-        return redirect("project_app:create")
-
-    # Generate slug
-    slug = Project.generate_unique_slug(name, owner=request.user)
-
-    # Test SSH connection before creating project
-    from apps.project_app.services.remote_project_manager import RemoteProjectManager
-    import subprocess
-
-    logger.info(f"Testing SSH connection for remote project: {name}")
-
-    ssh_key_path = credential.private_key_path
-    cmd = [
-        "ssh",
-        "-p",
-        str(credential.ssh_port),
-        "-i",
-        ssh_key_path,
-        "-o",
-        "StrictHostKeyChecking=accept-new",
-        "-o",
-        "ConnectTimeout=10",
-        f"{credential.ssh_username}@{credential.ssh_host}",
-        f"test -d {remote_path} && echo 'OK' || echo 'NOT_FOUND'",
-    ]
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-
-        if result.returncode != 0:
-            messages.error(
-                request,
-                mark_safe(
-                    f"SSH connection failed: {result.stderr}<br>"
-                    f"Please verify your credentials and try again."
-                ),
-            )
-            return redirect("project_app:create")
-
-        if "NOT_FOUND" in result.stdout:
-            messages.warning(
-                request,
-                mark_safe(
-                    f"⚠️  Remote directory not found: {remote_path}<br>"
-                    f"The directory will be created when you access the project."
-                ),
-            )
-
-    except subprocess.TimeoutExpired:
-        messages.error(request, "SSH connection timeout. Please check your network and try again.")
-        return redirect("project_app:create")
-    except Exception as e:
-        messages.error(request, f"Connection test failed: {str(e)}")
-        return redirect("project_app:create")
-
-    # Create remote project
-    try:
-        project = Project.objects.create(
-            name=name,
-            slug=slug,
-            description=description,
-            owner=request.user,
-            project_type="remote",  # ✅ Remote project
-            visibility="private",  # Remote projects default to private
-        )
-
-        # Create remote configuration
-        remote_config = RemoteProjectConfig.objects.create(
-            project=project,
-            ssh_host=credential.ssh_host,
-            ssh_port=credential.ssh_port,
-            ssh_username=credential.ssh_username,
-            remote_credential=credential,
-            remote_path=remote_path,
-            is_mounted=False,  # Not mounted yet
-        )
-
-        project.remote_config = remote_config
-        project.save()
-
-        # Update credential last used timestamp
-        from django.utils import timezone
-
-        credential.last_used_at = timezone.now()
-        credential.save()
-
-        logger.info(
-            f"✅ Remote project created: {request.user.username}/{slug} "
-            f"→ {credential.ssh_username}@{credential.ssh_host}:{remote_path}"
-        )
-
-        messages.success(
-            request,
-            mark_safe(
-                f'✅ Remote project "{name}" created successfully!<br>'
-                f"Files will be accessed from: {credential.ssh_username}@{credential.ssh_host}:{remote_path}"
-            ),
-        )
-
-        return redirect("user_projects:detail", username=request.user.username, slug=slug)
-
-    except Exception as e:
-        logger.error(f"Failed to create remote project: {e}")
-        messages.error(request, f"Failed to create remote project: {str(e)}")
-        return redirect("project_app:create")
 
 
 # EOF

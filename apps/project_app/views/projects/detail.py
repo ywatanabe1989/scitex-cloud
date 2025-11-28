@@ -244,6 +244,17 @@ def project_detail(request, username, slug):
             user=request.user, project=project
         ).exists()
 
+    # Get Gitea URLs for clone button
+    from django.conf import settings
+    gitea_url = getattr(settings, 'SCITEX_CLOUD_GITEA_URL', 'http://127.0.0.1:3000')
+    gitea_ssh_domain = getattr(settings, 'SCITEX_CLOUD_GIT_DOMAIN', '127.0.0.1')
+    gitea_ssh_port = getattr(settings, 'SCITEX_CLOUD_GITEA_SSH_PORT', '2222')
+
+    gitea_https_url = f"{gitea_url}/{project.owner.username}/{project.slug}.git"
+    # Use SSH URI format with explicit port: ssh://user@host:port/path
+    gitea_ssh_url = f"ssh://git@{gitea_ssh_domain}:{gitea_ssh_port}/{project.owner.username}/{project.slug}.git"
+    download_zip_url = f"{gitea_url}/{project.owner.username}/{project.slug}/archive/{current_branch}.zip"
+
     context = {
         "project": project,
         "user": request.user,
@@ -259,6 +270,9 @@ def project_detail(request, username, slug):
         "fork_count": fork_count,
         "is_watching": is_watching,
         "is_starred": is_starred,
+        "gitea_https_url": gitea_https_url,
+        "gitea_ssh_url": gitea_ssh_url,
+        "download_zip_url": download_zip_url,
     }
     return render(request, "project_app/repository/browse.html", context)
 

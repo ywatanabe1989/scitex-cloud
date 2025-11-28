@@ -14,8 +14,8 @@ Status Views Package
 Server and visitor status monitoring.
 """
 
-from .server import (
-    server_status,
+from .server import server_status
+from .api import (
     server_status_api,
     server_metrics_history_api,
     server_metrics_export_csv,
