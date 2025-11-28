@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from ..models import Notebook, CodeExecutionJob
-from ..services.jupyter_service import (
+from ..services.jupyter import (
     NotebookManager,
     NotebookExecutor,
     NotebookConverter,

@@ -27,46 +27,22 @@ Usage:
 Module Structure:
 -----------------
 - core.py: Core ProjectFilesystemManager class and initialization
-- project_ops.py: Project directory operations and template management
-- files.py: File storage, listing, and project structure operations
-- execution.py: Script execution tracking with RUNNING/FINISHED markers
-- template.py: Template copying and customization logic
+- manager.py: ProjectOpsManager with integrated operations
+- file_ops.py: File storage and listing operations
+- execution_ops.py: Script execution tracking with RUNNING/FINISHED markers
+- template_ops.py: Template copying and customization logic
+- git_ops.py: Git repository cloning and integration
 """
 
-# Import base class from core
-from .core import ProjectFilesystemManager as _BaseProjectFilesystemManager
-
-# Import extended class with all operations from project_ops
-from .project_ops import (
+# Import the unified manager class
+from .manager import (
     ProjectOpsManager,
+    get_project_filesystem_manager,
     ensure_project_directory,
 )
 
-# Export ProjectOpsManager as ProjectFilesystemManager for backward compatibility
-# This ensures all code using ProjectFilesystemManager gets the full-featured class
+# For backward compatibility, export as ProjectFilesystemManager
 ProjectFilesystemManager = ProjectOpsManager
-
-
-def get_project_filesystem_manager(user):
-    """
-    Get or create a ProjectFilesystemManager for the user.
-
-    Returns the full-featured ProjectOpsManager with all methods.
-
-    Args:
-        user: Django User instance
-
-    Returns:
-        ProjectOpsManager instance (exported as ProjectFilesystemManager)
-    """
-    manager = ProjectOpsManager(user)
-
-    # Initialize workspace if it doesn't exist
-    if not manager.base_path.exists():
-        manager.initialize_workspace()
-
-    return manager
-
 
 # Define public API
 __all__ = [

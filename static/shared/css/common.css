@@ -51,7 +51,7 @@
    3. COMMON UI COMPONENTS
    ======================================== */
 /* Form Elements */
-@import url("components/forms.css");
+@import url("components/forms/index.css");
 @import url("utilities/autofill.css");
 @import url("components/buttons/index.css");
 @import url("components/buttons-dark.css");
