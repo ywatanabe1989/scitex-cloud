@@ -68,16 +68,18 @@
 
 ### ✅ COMPLETED Refactorings (5 Templates via Parallel Agents)
 
-#### 1. workspace.html (code_app) ✅
-- **Agent**: general-purpose-1
+#### 1. workspace.html (code_app) ✅ (Fixed)
+- **Agent**: general-purpose-1 (initial), general-purpose-6 (completion)
 - **Before**: 536 lines with inline CSS/JS
 - **After**: 250 lines (53% reduction)
 - **Extracted**:
-  - CSS: 347 lines → `apps/code_app/static/code_app/css/workspace-inline.css`
+  - CSS: 381 lines → `apps/code_app/static/code_app/css/workspace-inline.css`
   - TypeScript: 165 lines → `apps/code_app/static/code_app/ts/workspace-inline.ts`
-- **Removed**: 50+ inline style attributes + Monaco loader script + modal handlers
+- **Removed**: 137 inline style attributes + Monaco loader script + modal handlers
+- **Issue**: Initial agent left 87 inline styles (incomplete work)
+- **Resolution**: Second agent completed extraction (commit `9e6a4152`)
 - **Verification**: `grep -c 'style="' = 0` ✓
-- **Commit**: `5ec221aa`
+- **Commits**: `5ec221aa` (initial), `9e6a4152` (completion)
 
 #### 2. landing_demos.html (public_app) ✅
 - **Agent**: general-purpose-2
@@ -148,9 +150,15 @@ Current: 262 files exceed thresholds (vs 256 before)
 
 **Note**: File count increased slightly as we created new CSS/TS modules (proper separation of concerns), but we achieved 100% compliance with no-inline-code rule and significantly improved maintainability.
 
+### 📊 Inline CSS Status Across Codebase
+- **Templates fully cleaned**: 5 (workspace, landing_demos, visitor_status, explore, editor)
+- **Remaining templates with inline CSS**: ~180 templates
+- **Total inline styles remaining**: 1,672 across codebase
+- **Priority**: Moving to Python refactoring (higher impact)
+
 ### 🔜 Next Priority: CRITICAL Python Files
-- `apps/scholar_app/views/search/views.py` (4,421 lines, 17x threshold)
-- `apps/writer_app/views/editor/api.py` (2,529 lines, 10x threshold)
+- `apps/scholar_app/views/search/views.py` (4,421 lines, 17x threshold) ⚠️ CRITICAL
+- `apps/writer_app/views/editor/api.py` (2,529 lines, 10x threshold) ⚠️ CRITICAL
 
 ---
 
