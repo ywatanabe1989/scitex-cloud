@@ -25,6 +25,7 @@ export class MonacoManager {
 
   /**
    * Update Monaco editor theme when global theme changes
+   * This syncs Monaco with the global site theme
    */
   updateTheme(theme: string): void {
     if (!this.editor) {
@@ -40,7 +41,14 @@ export class MonacoManager {
 
     const monacoTheme = theme === "dark" ? "vs-dark" : "vs";
     this.editor.updateOptions({ theme: monacoTheme });
-    console.log(`[MonacoManager] Theme updated to: ${monacoTheme}`);
+
+    // Sync localStorage to match global theme
+    localStorage.setItem("monaco-editor-theme", monacoTheme);
+
+    // Update toggle button to reflect new theme
+    this.updateThemeToggleButton(monacoTheme);
+
+    console.log(`[MonacoManager] Theme synced to global: ${monacoTheme}`);
   }
 
   /**

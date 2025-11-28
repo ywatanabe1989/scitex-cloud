@@ -51,19 +51,13 @@ def index_view(request):
         "document_type": document_type,
     }
 
-    if request.user.is_authenticated:
-        # Check if this is a visitor without an allocation
-        if request.user.username.startswith("visitor-"):
-            from apps.project_app.services.visitor_pool import VisitorPool
+    # Visitor auto-login is handled by VisitorAutoLoginMiddleware
 
-            allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
-            if not allocation_token:
-                # Visitor without allocation - allocate one now
-                try:
-                    visitor_project, visitor_user = VisitorPool.allocate_visitor(request.session)
-                    logger.info(f"[Writer] Auto-allocated visitor slot for {request.user.username}")
-                except Exception as e:
-                    logger.error(f"[Writer] Visitor re-allocation failed: {e}", exc_info=True)
+    if request.user.is_authenticated:
+        # Mark as demo if visitor
+        if request.user.username.startswith("visitor-"):
+            context["is_demo"] = True
+            context["visitor_username"] = request.user.username
 
         # Get user's projects for project selector
         user_projects = Project.objects.filter(owner=request.user).order_by("name")
@@ -113,74 +107,6 @@ def index_view(request):
         else:
             # User authenticated but no project selected
             context["needs_project_creation"] = True
-    else:
-        # Anonymous user - allocate from visitor pool
-        from apps.project_app.services.visitor_pool import VisitorPool
-        from django.contrib.auth import login
-
-        try:
-            visitor_project, visitor_user = VisitorPool.allocate_visitor(
-                request.session
-            )
-        except Exception as e:
-            logger.error(f"[Writer] Visitor pool allocation failed: {e}", exc_info=True)
-            context["pool_error"] = True
-            context["pool_error_message"] = (
-                "Visitor pool not initialized. Please run: python manage.py create_visitor_pool"
-            )
-            context["is_demo"] = True
-            return render(request, "writer_app/index.html", context)
-
-        if not visitor_project:
-            # Pool exhausted
-            logger.warning("[Writer] Visitor pool exhausted - all slots in use")
-            context["pool_exhausted"] = True
-            context["is_demo"] = True
-            return render(request, "writer_app/index.html", context)
-
-        # Log in the visitor user to make them authenticated
-        if visitor_user and not request.user.is_authenticated:
-            login(request, visitor_user, backend='django.contrib.auth.backends.ModelBackend')
-            logger.info(f"[Writer] Logged in visitor: {visitor_user.username}")
-
-        context["is_demo"] = True
-        context["project"] = visitor_project
-        context["visitor_username"] = visitor_user.username if visitor_user else None
-
-        # Get or create manuscript for visitor project
-        # Since project is OneToOneField, only use project for lookup
-        manuscript, manuscript_created = Manuscript.objects.get_or_create(
-            project=visitor_project,
-            defaults={
-                "owner": visitor_project.owner,
-                "title": f"{visitor_project.name} Manuscript",
-                "description": "Try out SciTeX Writer - sign up to save!",
-            },
-        )
-
-        # Check if writer workspace actually exists and update flag if needed
-        if not manuscript.writer_initialized:
-            from apps.project_app.services.project_filesystem import (
-                get_project_filesystem_manager,
-            )
-
-            manager = get_project_filesystem_manager(visitor_project.owner)
-            project_root = manager.get_project_root_path(visitor_project)
-            if project_root:
-                writer_dir = project_root / "scitex" / "writer"
-                manuscript_dir = writer_dir / "01_manuscript"
-                if manuscript_dir.exists():
-                    # Workspace exists - writer_initialized property will auto-detect this
-                    logger.info(
-                        f"Writer workspace detected for visitor project: {visitor_project.slug}"
-                    )
-
-        context["manuscript"] = manuscript
-        context["manuscript_id"] = manuscript.id
-        context["writer_initialized"] = manuscript.writer_initialized
-
-        # Note: Section content is now loaded dynamically via API when user
-        # selects from hierarchical dropdown. No need to pre-load.
 
     return render(request, "writer_app/index.html", context)
 

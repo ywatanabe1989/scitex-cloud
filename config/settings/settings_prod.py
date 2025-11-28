@@ -160,7 +160,7 @@ SCITEX_CLOUD_GITEA_URL = os.environ.get(
 )
 SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "git.scitex.ai")
 SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
-    "SCITEX_CLOUD_GITEA_SSH_PORT_PROD", "22"
+    "SCITEX_CLOUD_GITEA_SSH_PORT_PROD", "2222"
 )
 
 # ---------------------------------------

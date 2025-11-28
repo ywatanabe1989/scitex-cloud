@@ -1,7 +1,7 @@
 <!-- ---
-!-- Timestamp: 2025-11-26 23:45:00
+!-- Timestamp: 2025-11-27 05:19:51
 !-- Author: ywatanabe
-!-- File: /home/ywatanabe/proj/scitex-cloud/deployment/slurm/README.md
+!-- File: /ssh:ug:/home/ywatanabe/proj/scitex-cloud/deployment/slurm/README.md
 !-- --- -->
 
 # SLURM
@@ -25,6 +25,21 @@ sudo ./fix.sh
 
 ```bash
 make env=dev status
+```
+
+# Fix host config
+
+``` bash
+sed -i 's/SlurmctldHost=DXP480TPLUS-994/SlurmctldHost=host.docker.internal/' slurm-docker-nas.conf
+```
+
+
+
+# Restart SLURM
+``` bash
+sudo systemctl restart slurmctld slurmd
+sleep 2
+sudo scontrol update nodename=DXP480TPLUS-994 state=idle
 ```
 
 <!-- EOF -->

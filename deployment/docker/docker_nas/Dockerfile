@@ -22,6 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     git \
     curl \
+    # SLURM build dependencies
+    libmunge-dev \
+    libmunge2 \
+    munge \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -45,6 +49,49 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 RUN --mount=type=cache,target=/root/.cache/ms-playwright \
     python -m playwright install chromium && \
     python -m playwright install-deps
+
+# ============================================
+# SLURM Client (build from source to match host)
+# ============================================
+# MUST match host SLURM version exactly for munge auth
+ARG SLURM_VERSION=24.05.5
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libmunge-dev \
+    libhwloc-dev \
+    libhttp-parser-dev \
+    libjson-c-dev \
+    liblz4-dev \
+    libyaml-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -L -o /tmp/slurm-${SLURM_VERSION}.tar.bz2 \
+        "https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2" \
+    && cd /tmp && tar xjf slurm-${SLURM_VERSION}.tar.bz2 \
+    && cd slurm-${SLURM_VERSION} \
+    && ./configure --prefix=/usr --sysconfdir=/etc/slurm \
+    && make -j$(nproc) \
+    && make install \
+    && cd / && rm -rf /tmp/slurm-* \
+    && useradd -r -s /bin/false slurm
+
+# ============================================
+# Apptainer/Singularity (for status checks)
+# ============================================
+# NAS uses Debian Bookworm which has libfuse3-3 natively (no compatibility package needed)
+RUN APPTAINER_VERSION=1.3.4 && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        uidmap \
+        squashfs-tools \
+        fuse2fs \
+        fuse-overlayfs \
+        libseccomp2 \
+        fakeroot \
+    && curl -L -o /tmp/apptainer.deb \
+        "https://github.com/apptainer/apptainer/releases/download/v${APPTAINER_VERSION}/apptainer_${APPTAINER_VERSION}_amd64.deb" \
+    && dpkg -i /tmp/apptainer.deb \
+    && rm /tmp/apptainer.deb \
+    && rm -rf /var/lib/apt/lists/* \
+    && apptainer --version
 
 # ============================================
 # Stage 2: Node.js Tools Builder
@@ -89,6 +136,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     jq \
     git \
+    # Docker client (for status checks and workspace management)
+    docker.io \
+    # Apptainer runtime dependencies (for fakeroot/user namespaces)
+    uidmap \
+    fuse-overlayfs \
+    # Munge for SLURM auth
+    munge \
     # Database runtime library (not dev package)
     libpq5 \
     # LaTeX runtime
@@ -139,12 +193,36 @@ COPY --from=python-builder /usr/local/bin /usr/local/bin
 # Copy Playwright cache if it exists (use wildcard to avoid failure if missing)
 COPY --from=python-builder /root/.cache/ms-playwright* /root/.cache/
 
-# Copy Node.js and Mermaid from node-builder
-COPY --from=node-builder /usr/local/bin/node /usr/local/bin/node
-COPY --from=node-builder /usr/local/bin/npm /usr/local/bin/npm
-COPY --from=node-builder /usr/local/lib/node_modules /usr/local/lib/node_modules
-RUN ln -s /usr/local/lib/node_modules/@mermaid-js/mermaid-cli/src/cli.js /usr/local/bin/mmdc && \
-    chmod +x /usr/local/bin/mmdc
+# Copy SLURM binaries and libraries from builder
+# Note: SLURM binaries start with 's' (sinfo, squeue, sbatch, srun, etc.)
+COPY --from=python-builder /usr/bin/sinfo /usr/bin/sinfo
+COPY --from=python-builder /usr/bin/squeue /usr/bin/squeue
+COPY --from=python-builder /usr/bin/sbatch /usr/bin/sbatch
+COPY --from=python-builder /usr/bin/scancel /usr/bin/scancel
+COPY --from=python-builder /usr/bin/srun /usr/bin/srun
+COPY --from=python-builder /usr/bin/sacct /usr/bin/sacct
+COPY --from=python-builder /usr/bin/scontrol /usr/bin/scontrol
+# Copy SLURM libraries (libslurm.so, etc.)
+COPY --from=python-builder /usr/lib/libslurm* /usr/lib/
+COPY --from=python-builder /usr/lib/libpmi* /usr/lib/
+# Copy SLURM plugin directory (must preserve directory structure for PluginDir)
+COPY --from=python-builder /usr/lib/slurm /usr/lib/slurm
+# Create /etc/slurm directory (config mounted from host at runtime)
+RUN mkdir -p /etc/slurm
+
+# Copy Apptainer from builder (binaries, libraries, and config)
+COPY --from=python-builder /usr/bin/apptainer /usr/bin/apptainer
+COPY --from=python-builder /usr/bin/singularity /usr/bin/singularity
+COPY --from=python-builder /usr/libexec/apptainer /usr/libexec/apptainer
+COPY --from=python-builder /etc/apptainer /etc/apptainer
+# Create Apptainer runtime directories
+RUN mkdir -p /var/lib/apptainer/mnt/session && chmod 755 /var/lib/apptainer
+
+# Install Node.js and npm properly (needed for TypeScript build)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    npm install -g @mermaid-js/mermaid-cli && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy yq from tool-builder
 COPY --from=tool-builder /usr/local/bin/yq /usr/local/bin/yq
@@ -156,15 +234,24 @@ RUN if [ -f /etc/ImageMagick-6/policy.xml ]; then \
 
 # Create non-root user and directories
 RUN useradd -m -u 1000 scitex && \
+    # Create slurm system user (for SLURM commands)
+    useradd -r -s /bin/false slurm && \
+    # Change docker group GID from 103 to 121 (to match host docker socket)
+    groupmod -g 121 docker && \
+    # Add scitex to docker group for Docker socket access
+    usermod -aG docker scitex && \
     mkdir -p /app/staticfiles /app/media /app/logs /app/run /app/.cache/containers && \
-    chown -R scitex:scitex /app
+    chown -R scitex:scitex /app && \
+    # Setup subuid/subgid for apptainer fakeroot (required for newuidmap/newgidmap)
+    echo "scitex:100000:65536" >> /etc/subuid && \
+    echo "scitex:100000:65536" >> /etc/subgid
 
 # Copy application code (last - changes most frequently)
 COPY --chown=scitex:scitex . .
 
 
-# Copy prod-specific entrypoint
-COPY --chown=scitex:scitex deployment/docker/docker_prod/entrypoint.sh /entrypoint.sh
+# Copy NAS-specific entrypoint
+COPY --chown=scitex:scitex deployment/docker/docker_nas/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Switch to non-root user for security

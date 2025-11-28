@@ -337,7 +337,7 @@ services:
     
     ports:
       - "${SCITEX_CLOUD_GITEA_HTTP_PORT_DEV:-3001}:3000"
-      - "${SCITEX_CLOUD_GITEA_SSH_PORT_DEV:-2222}:22"
+      - "${SCITEX_CLOUD_GITEA_SSH_PORT_DEV}:22"
     
     env_file:
       - .env

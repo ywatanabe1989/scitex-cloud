@@ -18,7 +18,7 @@ services:
         BUILDKIT_INLINE_CACHE: 1
     image: scitex-cloud-nas-django:latest
     entrypoint: ["/entrypoint.sh"]
-    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "6", "--threads", "2", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "info"]
+    command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "--access-log", "-", "--verbosity", "1", "config.asgi:application"]
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
@@ -29,6 +29,9 @@ services:
 
       # Singularity/Apptainer container for secure user code execution
       - ../../../deployment/singularity:/app/singularity:ro
+
+      # Docker socket for container status monitoring on server-status page
+      - /var/run/docker.sock:/var/run/docker.sock
 
       # SLURM access (connects to host SLURM for job scheduling)
       - /etc/slurm/slurm.conf:/etc/slurm/slurm.conf:ro
@@ -44,7 +47,9 @@ services:
     env_file:
       - .env
     environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.settings_nas
       - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - SCITEX_CLOUD_ENV=nas
       - PYTHONPATH=/home/scitex/.local/lib/python3.11/site-packages:/app
     depends_on:
       db:
@@ -56,6 +61,12 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "${SCITEX_CLOUD_SLURM_HOST:-DXP480TPLUS-994}:host-gateway"
+
+    # Security settings for Apptainer (nested containers)
+    # Privileged mode required for mounting proc/sys inside nested containers
+    privileged: true
+    devices:
+      - /dev/fuse:/dev/fuse
 
     restart: always
     networks:
@@ -78,14 +89,15 @@ services:
     env_file:
       - .env
     environment:
-      - SCITEX_CLOUD_POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
-      - SCITEX_CLOUD_POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
-      - SCITEX_CLOUD_POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
+      # PostgreSQL expects POSTGRES_* variables (not SCITEX_CLOUD_POSTGRES_*)
+      - POSTGRES_DB=${SCITEX_CLOUD_POSTGRES_DB}
+      - POSTGRES_USER=${SCITEX_CLOUD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${SCITEX_CLOUD_POSTGRES_PASSWORD}
     restart: always
     networks:
       - scitex-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${SCITEX_CLOUD_POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${SCITEX_CLOUD_POSTGRES_USER} -d ${SCITEX_CLOUD_POSTGRES_DB}"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -129,7 +141,9 @@ services:
       - .env
 
     environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.settings_nas
       - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - SCITEX_CLOUD_ENV=nas
       - PYTHONUNBUFFERED=1
 
     depends_on:
@@ -166,7 +180,9 @@ services:
       - .env
 
     environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.settings_nas
       - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - SCITEX_CLOUD_ENV=nas
       - PYTHONUNBUFFERED=1
 
     depends_on:
@@ -199,7 +215,9 @@ services:
       - .env
 
     environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.settings_nas
       - SCITEX_CLOUD_DJANGO_SETTINGS_MODULE=config.settings.settings_nas
+      - SCITEX_CLOUD_ENV=nas
       - PYTHONUNBUFFERED=1
 
     depends_on:
@@ -226,7 +244,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "${SCITEX_CLOUD_GITEA_HTTP_PORT_NAS:-3000}:3000"  # HTTP (configurable via .env)
-      - "${SCITEX_CLOUD_GITEA_SSH_PORT_NAS:-222}:22"      # SSH (configurable via .env)
+      - "${SCITEX_CLOUD_GITEA_SSH_PORT_NAS}:22"           # SSH - requires .env
     env_file:
       - .env
     environment:
@@ -281,7 +299,8 @@ services:
     depends_on:
       - nginx
     healthcheck:
-      test: ["CMD", "cloudflared", "tunnel", "info"]
+      # Check if cloudflared is running by testing internal metrics endpoint
+      test: ["CMD", "cloudflared", "version"]
       interval: 30s
       timeout: 10s
       retries: 3

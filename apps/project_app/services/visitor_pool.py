@@ -1,17 +1,17 @@
 """
 Visitor Pool Manager
 
-Pre-allocated visitor accounts (visitor-001 to visitor-004) for anonymous users.
+Pre-allocated visitor accounts for anonymous users.
 Each visitor gets a default project that can be claimed on signup.
 
 Architecture:
-- Fixed pool: 4 visitor accounts with default projects (rotated automatically)
+- Configurable pool size via SCITEX_VISITOR_POOL_SIZE env var (default: 4)
 - Allocation: Session-based with security token (1h lifetime)
 - Signup: Transfer project ownership (visitor → real user)
 - Reset: Clear workspace, free slot back to pool
-
-With proper rotation and expiration, 4 slots are sufficient for development.
 """
+
+import os
 
 import logging
 import secrets
@@ -39,7 +39,7 @@ class VisitorPool:
 
     VISITOR_USER_PREFIX = "visitor-"
     DEFAULT_PROJECT_PREFIX = "default-project-"
-    POOL_SIZE = 4
+    POOL_SIZE = int(os.environ.get("SCITEX_VISITOR_POOL_SIZE", 4))  # Configurable via env
     SESSION_LIFETIME_HOURS = 1  # 1-hour sessions with data migration on signup
     SESSION_KEY_PROJECT_ID = "visitor_project_id"
     SESSION_KEY_VISITOR_ID = "visitor_user_id"

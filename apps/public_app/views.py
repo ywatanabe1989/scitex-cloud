@@ -31,22 +31,8 @@ def index(request):
     Cloud app index view - Landing page for all users.
 
     Shows the landing page to all visitors, including authenticated users.
-    This allows the logo to always return to the landing page.
+    Visitor auto-login is handled by VisitorAutoLoginMiddleware.
     """
-    # Auto-allocate visitor slot if user is a visitor without an allocation
-    if request.user.is_authenticated and request.user.username.startswith("visitor-"):
-        from apps.project_app.services.visitor_pool import VisitorPool
-
-        # Check if visitor has an active allocation
-        allocation_token = request.session.get(VisitorPool.SESSION_KEY_ALLOCATION_TOKEN)
-        if not allocation_token:
-            # No allocation - allocate one now
-            project, user = VisitorPool.allocate_visitor(request.session)
-            logger.info(f"[Landing] Auto-allocated visitor slot for {request.user.username}")
-
-    # Show landing page to all users (removed auto-redirect for logged-in users)
-    # Users can navigate to their profile via the header navigation
-
     # Features are now in HTML partials at:
     # apps/public_app/templates/public_app/landing_partials/features/
 
@@ -652,6 +638,7 @@ def server_status(request):
     from pathlib import Path
     from django.db import connection
     from django.core.cache import cache
+    import os
 
     status_data = {
         "services": [],
@@ -662,11 +649,15 @@ def server_status(request):
         "system": {},
     }
 
+    # Determine environment for container name filter
+    scitex_env = os.environ.get("SCITEX_CLOUD_ENV", "dev")
+    container_name_prefix = f"scitex-cloud-{scitex_env}"
+
     # Check Docker containers
     try:
         import docker
         client = docker.from_env()
-        containers = client.containers.list(all=True, filters={"name": "scitex-cloud-dev"})
+        containers = client.containers.list(all=True, filters={"name": container_name_prefix})
 
         for container in containers:
             # Get health status if available
@@ -740,16 +731,17 @@ def server_status(request):
             "error": str(e),
         })
 
-    # Gitea SSH (port 2222)
+    # Gitea SSH (port from settings - dev: 2222, nas: 222, prod: 22)
+    gitea_ssh_port = int(getattr(settings, 'SCITEX_CLOUD_GITEA_SSH_PORT', 2222))
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(1)
-        result = sock.connect_ex((ssh_check_host, 2222))
+        result = sock.connect_ex((ssh_check_host, gitea_ssh_port))
         sock.close()
         is_running = result == 0
         status_data["ssh_services"].append({
             "name": "Gitea SSH (Git operations)",
-            "port": 2222,
+            "port": gitea_ssh_port,
             "is_running": is_running,
             "status": "running" if is_running else "down",
             "health_class": "healthy" if is_running else "down",
@@ -757,7 +749,7 @@ def server_status(request):
     except Exception as e:
         status_data["ssh_services"].append({
             "name": "Gitea SSH",
-            "port": 2222,
+            "port": gitea_ssh_port,
             "is_running": False,
             "status": "error",
             "health_class": "unhealthy",
@@ -976,8 +968,8 @@ def server_status(request):
             "cpu_cores_logical": cpu_count_logical,
             "cpu_name": cpu_name,
             "memory_percent": psutil.virtual_memory().percent,
-            "memory_available_tb": round(psutil.virtual_memory().available / (1024**4), 3),
-            "memory_total_tb": round(psutil.virtual_memory().total / (1024**4), 3),
+            "memory_available_gb": round(psutil.virtual_memory().available / (1024**3), 1),
+            "memory_total_gb": round(psutil.virtual_memory().total / (1024**3), 1),
             "gpu_info": gpu_info,
             "disk_read_mb": disk_read_mb,
             "disk_write_mb": disk_write_mb,

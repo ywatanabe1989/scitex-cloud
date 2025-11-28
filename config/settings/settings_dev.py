@@ -171,9 +171,7 @@ SCITEX_CLOUD_GITEA_URL = os.environ.get(
     "SCITEX_CLOUD_GITEA_URL_DEV", "http://127.0.0.1:3000"
 )
 SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "127.0.0.1")
-SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
-    "SCITEX_CLOUD_GITEA_SSH_PORT_DEV", "2222"
-)
+SCITEX_CLOUD_GITEA_SSH_PORT = require_env("SCITEX_CLOUD_GITEA_SSH_PORT_DEV")
 
 # Development Cache Configuration - fallback to dummy cache if Redis not available
 # Override cache configuration for development if Redis is not available

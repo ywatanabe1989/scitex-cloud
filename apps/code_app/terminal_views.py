@@ -274,18 +274,21 @@ class TerminalConsumer(AsyncWebsocketConsumer):
         if not shutil.which(container_cmd):
             # Ultimate fallback: plain bash (only for development)
             logger.warning("No container runtime - using plain bash (DEV ONLY)")
-            os.chdir(str(project_dir))
-            env = os.environ.copy()
-            env["TERM"] = "xterm-256color"
-            env["SCITEX_CLOUD"] = "true"
-            env["SCITEX_PROJECT"] = self.project.slug
-            os.execvpe("/bin/bash", ["bash", "--login"], env)
+            self._exec_plain_bash(username, project_dir)
             return
 
+        # Check if container image exists and is accessible
+        if not Path(container_path).exists():
+            logger.warning(f"Container image not found: {container_path} - using plain bash")
+            self._exec_plain_bash(username, project_dir)
+            return
+
+        # Try to run with fakeroot for environments without user namespace support
+        # Use --compat flag for better Docker compatibility (avoids proc mount issues)
         cmd = [
             container_cmd, "shell",
-            "--containall",
-            "--cleanenv",
+            "--fakeroot",  # Enables rootless execution without user namespaces
+            "--compat",    # Docker-compatible mode (minimal mounts)
             "--writable-tmpfs",
             "--hostname", "scitex-cloud",
             "--home", f"{user_data_dir}:/home/{username}",
@@ -304,8 +307,18 @@ class TerminalConsumer(AsyncWebsocketConsumer):
             "SCITEX_USER": username,
         }
 
-        logger.info(f"Spawning direct terminal for {username}: {container_cmd}")
+        logger.info(f"Spawning direct terminal for {username}: {container_cmd} --fakeroot")
         os.execvpe(container_cmd, cmd, env)
+
+    def _exec_plain_bash(self, username: str, project_dir: Path):
+        """Fallback to plain bash when container execution fails"""
+        logger.warning(f"Falling back to plain bash for {username}")
+        os.chdir(str(project_dir))
+        env = os.environ.copy()
+        env["TERM"] = "xterm-256color"
+        env["SCITEX_CLOUD"] = "true"
+        env["SCITEX_PROJECT"] = self.project.slug
+        os.execvpe("/bin/bash", ["bash", "--login"], env)
 
     async def _ensure_workspace(self, user_data_dir: Path, username: str, project_slug: str):
         """Ensure user workspace exists with proper structure"""

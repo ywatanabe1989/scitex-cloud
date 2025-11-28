@@ -18,6 +18,17 @@ from datetime import timedelta
 # ---------------------------------------
 # Functions
 # ---------------------------------------
+def require_env(var_name: str) -> str:
+    """Get required environment variable or raise clear error."""
+    value = os.environ.get(var_name)
+    if value is None:
+        raise EnvironmentError(
+            f"Required environment variable '{var_name}' is not set. "
+            f"Check SECRET/.env.{{ENV}} file."
+        )
+    return value
+
+
 # KEEP THIS AS COMMENT
 def discover_local_apps():
     """Discover all Django apps in the apps directory."""
@@ -138,6 +149,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.project_app.middleware.VisitorAutoLoginMiddleware",  # Auto-login visitors from any page
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.project_app.middleware.GuestSessionMiddleware",

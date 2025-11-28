@@ -161,9 +161,7 @@ SCITEX_CLOUD_GITEA_URL = os.environ.get(
     "SCITEX_CLOUD_GITEA_URL_NAS", "https://git.scitex.ai"
 )
 SCITEX_CLOUD_GIT_DOMAIN = os.environ.get("SCITEX_CLOUD_GIT_DOMAIN", "git.scitex.ai")
-SCITEX_CLOUD_GITEA_SSH_PORT = os.environ.get(
-    "SCITEX_CLOUD_GITEA_SSH_PORT_NAS", "222"
-)
+SCITEX_CLOUD_GITEA_SSH_PORT = require_env("SCITEX_CLOUD_GITEA_SSH_PORT_NAS")
 
 # ---------------------------------------
 # Logging
