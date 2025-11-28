@@ -2,6 +2,7 @@
 
 import { PlotData, Plot, PlotSettings, PlotArea, Scale, NATURE_COLORS } from './types.js';
 import { generateNiceTicks, formatNumber } from './utils.js';
+import { drawLine, drawScatter, drawBar } from './plot-drawers.js';
 
 const DPI = 300;
 const MM_TO_PX = DPI / 25.4;
@@ -167,88 +168,13 @@ export class PlotRenderer {
             const colorStr = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
 
             if (plot.type === 'line') {
-                this.drawLine(xData, yData, colorStr, plotArea, xScale, yScale);
+                drawLine(this.ctx, xData, yData, colorStr, plotArea, xScale, yScale, this.settings);
             } else if (plot.type === 'scatter') {
-                this.drawScatter(xData, yData, colorStr, plotArea, xScale, yScale);
+                drawScatter(this.ctx, xData, yData, colorStr, plotArea, xScale, yScale, this.settings);
             } else if (plot.type === 'bar') {
-                this.drawBar(xData, yData, colorStr, plotArea, yScale);
+                drawBar(this.ctx, xData, yData, colorStr, plotArea, yScale, this.settings);
             }
         });
-    }
-
-    private drawLine(
-        xData: (number | null)[],
-        yData: (number | null)[],
-        color: string,
-        plotArea: PlotArea,
-        xScale: Scale,
-        yScale: Scale
-    ): void {
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = this.mm(this.settings.lineWidth);
-        this.ctx.beginPath();
-
-        let firstPoint = true;
-        for (let i = 0; i < xData.length; i++) {
-            if (xData[i] !== null && yData[i] !== null) {
-                const x = this.toCanvasX(xData[i] as number, plotArea, xScale);
-                const y = this.toCanvasY(yData[i] as number, plotArea, yScale);
-                if (firstPoint) {
-                    this.ctx.moveTo(x, y);
-                    firstPoint = false;
-                } else {
-                    this.ctx.lineTo(x, y);
-                }
-            }
-        }
-        this.ctx.stroke();
-    }
-
-    private drawScatter(
-        xData: (number | null)[],
-        yData: (number | null)[],
-        color: string,
-        plotArea: PlotArea,
-        xScale: Scale,
-        yScale: Scale
-    ): void {
-        this.ctx.fillStyle = color;
-        const radius = this.mm(this.settings.markerSize) / 2;
-
-        for (let i = 0; i < xData.length; i++) {
-            if (xData[i] !== null && yData[i] !== null) {
-                const x = this.toCanvasX(xData[i] as number, plotArea, xScale);
-                const y = this.toCanvasY(yData[i] as number, plotArea, yScale);
-                this.ctx.beginPath();
-                this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-                this.ctx.fill();
-            }
-        }
-    }
-
-    private drawBar(
-        xData: (number | null)[],
-        yData: (number | null)[],
-        color: string,
-        plotArea: PlotArea,
-        yScale: Scale
-    ): void {
-        this.ctx.fillStyle = color;
-        this.ctx.strokeStyle = '#000000';
-        this.ctx.lineWidth = this.mm(this.settings.axisWidth);
-
-        const barWidth = plotArea.width / xData.length * 0.8;
-
-        for (let i = 0; i < xData.length; i++) {
-            if (xData[i] !== null && yData[i] !== null) {
-                const x = plotArea.x + (i + 0.5) * (plotArea.width / xData.length) - barWidth / 2;
-                const y = this.toCanvasY(yData[i] as number, plotArea, yScale);
-                const height = plotArea.y + plotArea.height - y;
-
-                this.ctx.fillRect(x, y, barWidth, height);
-                this.ctx.strokeRect(x, y, barWidth, height);
-            }
-        }
     }
 
     private drawLabels(plotArea: PlotArea): void {

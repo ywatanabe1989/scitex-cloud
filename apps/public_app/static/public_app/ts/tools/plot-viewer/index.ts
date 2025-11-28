@@ -8,6 +8,7 @@ export { ControlsManager } from './controls.js';
 export { ExportManager } from './export.js';
 export { parseCSV, detectPlots, getDemoData } from './data.js';
 export { generateNiceTicks, formatNumber, updateInfoPanel } from './utils.js';
+export { drawLine, drawScatter, drawBar } from './plot-drawers.js';
 export type { PlotSettings, PlotData, Plot, PlotArea, Scale, Margin } from './types.js';
 export { NATURE_COLORS, DEFAULT_SETTINGS } from './types.js';
 
