@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}" />
   <!-- Code workspace specific styles -->
   <link rel="stylesheet" href="{% static 'code_app/css/workspace.css' %}" />
+  <link rel="stylesheet" href="{% static 'code_app/css/workspace-inline.css' %}" />
   <link rel="stylesheet" href="{% static 'code_app/css/context-menu.css' %}" />
   <link rel="stylesheet" href="{% static 'code_app/css/file-modal.css' %}" />
   <!-- Monaco Editor CSS - Use cdnjs like writer app -->
@@ -104,37 +105,36 @@
        data-project-name="{{ current_project.name }}"
        data-project-owner="{{ current_project.owner.username }}"
        data-project-slug="{{ current_project.slug }}"
-       {% endif %}
-       style="display: none;">
+       {% endif %}>
   </div>
   <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
   {% if pool_exhausted %}
     <!-- Visitor pool exhausted message -->
-    <div class="code-workspace" style="padding: 2rem;">
-      <div style="max-width: 600px; margin: 0 auto; text-align: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; margin: 0 auto; color: var(--text-muted);">
+    <div class="code-workspace pool-message-wrapper">
+      <div class="pool-message-content">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="pool-message-icon">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
-        <h2 style="margin-top: 1rem; color: var(--text-default);">Visitor Slots Full</h2>
-        <p style="color: var(--text-muted); margin-top: 0.5rem;">
-          All visitor demo slots are currently in use. Please try again in a few minutes, or <a href="/accounts/signup/" style="color: var(--workspace-border-active);">sign up for a free account</a> to get full access.
+        <h2 class="pool-message-title">Visitor Slots Full</h2>
+        <p class="pool-message-text">
+          All visitor demo slots are currently in use. Please try again in a few minutes, or <a href="/accounts/signup/" class="pool-message-link">sign up for a free account</a> to get full access.
         </p>
       </div>
     </div>
   {% elif pool_error %}
     <!-- Visitor pool error message -->
-    <div class="code-workspace" style="padding: 2rem;">
-      <div style="max-width: 600px; margin: 0 auto; text-align: center;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; margin: 0 auto; color: var(--text-muted);">
+    <div class="code-workspace pool-message-wrapper">
+      <div class="pool-message-content">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="pool-message-icon">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
         </svg>
-        <h2 style="margin-top: 1rem; color: var(--text-default);">Service Temporarily Unavailable</h2>
-        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+        <h2 class="pool-message-title">Service Temporarily Unavailable</h2>
+        <p class="pool-message-text">
           {{ pool_error_message }}
         </p>
-        <p style="color: var(--text-muted); margin-top: 0.5rem;">
-          Please <a href="/accounts/signup/" style="color: var(--workspace-border-active);">sign up for a free account</a> to access the code workspace.
+        <p class="pool-message-text">
+          Please <a href="/accounts/signup/" class="pool-message-link">sign up for a free account</a> to access the code workspace.
         </p>
       </div>
     </div>
@@ -146,8 +146,8 @@
           {% if current_project %}
             {% if current_project.owner.username|slice:":8" == "visitor-" %}
               <!-- Visitor: Show non-clickable project name with signup prompt -->
-              <div class="sidebar-title-link" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
+              <div class="sidebar-title-link sidebar-title-visitor">
+                <div class="sidebar-visitor-project">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
                     <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
                   </svg>
@@ -160,9 +160,8 @@
             {% else %}
               <!-- Authenticated user: Show clickable link -->
               <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
-                 class="sidebar-title-link"
-                 title="{{ current_project.name }}"
-                 style="display: inline-flex;">
+                 class="sidebar-title-link sidebar-title-auth"
+                 title="{{ current_project.name }}">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
                   <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
                 </svg>
@@ -208,7 +207,7 @@
           <i class="fas fa-trash"></i>
         </button>
         <div class="code-toolbar-spacer"></div>
-        <select id="keybinding-mode" class="btn-code-action" title="Editor keybindings" style="padding: 6px 8px;">
+        <select id="keybinding-mode" class="btn-code-action" title="Editor keybindings">
           <option value="vscode">VS Code</option>
           <option value="vim">Vim</option>
           <option value="emacs" selected>Emacs</option>
@@ -229,61 +228,61 @@
       <!-- Editor Container -->
       <div id="editor-container" class="code-editor-container">
         <!-- Welcome Screen (hidden by default - scratch buffer shown instead) -->
-        <div id="welcome-screen" class="code-welcome" style="display: none;">
+        <div id="welcome-screen" class="code-welcome">
           <svg class="code-welcome-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
           </svg>
           <h2 class="code-welcome-title">Welcome to Code Workspace</h2>
           <p class="code-welcome-subtitle">A powerful editor with integrated terminal for your research projects</p>
 
-          <div style="margin-top: 32px; max-width: 600px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; text-align: left;">
-              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                  <i class="fas fa-file-code" style="color: var(--scitex-color-04);"></i>
+          <div class="welcome-features-container">
+            <div class="welcome-features-grid">
+              <div class="welcome-feature-card">
+                <div class="welcome-feature-header">
+                  <i class="fas fa-file-code welcome-feature-icon"></i>
                   <strong>Multi-Language Support</strong>
                 </div>
-                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                <p class="welcome-feature-text">
                   Python, JavaScript, TypeScript, HTML, CSS, JSON, Markdown, and more
                 </p>
               </div>
 
-              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                  <i class="fas fa-terminal" style="color: var(--scitex-color-04);"></i>
+              <div class="welcome-feature-card">
+                <div class="welcome-feature-header">
+                  <i class="fas fa-terminal welcome-feature-icon"></i>
                   <strong>Integrated Terminal</strong>
                 </div>
-                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                <p class="welcome-feature-text">
                   Run scripts, manage files, and execute commands directly
                 </p>
               </div>
 
-              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                  <i class="fas fa-keyboard" style="color: var(--scitex-color-04);"></i>
+              <div class="welcome-feature-card">
+                <div class="welcome-feature-header">
+                  <i class="fas fa-keyboard welcome-feature-icon"></i>
                   <strong>Flexible Keybindings</strong>
                 </div>
-                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                <p class="welcome-feature-text">
                   Choose VS Code, Vim, or Emacs keybindings to match your workflow
                 </p>
               </div>
 
-              <div style="padding: 16px; background: var(--color-canvas-subtle); border-radius: 6px;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                  <i class="fas fa-save" style="color: var(--scitex-color-04);"></i>
+              <div class="welcome-feature-card">
+                <div class="welcome-feature-header">
+                  <i class="fas fa-save welcome-feature-icon"></i>
                   <strong>Auto-Save</strong>
                 </div>
-                <p style="margin: 0; font-size: 13px; color: var(--color-fg-muted);">
+                <p class="welcome-feature-text">
                   Your changes are automatically saved to your project
                 </p>
               </div>
             </div>
 
-            <div style="margin-top: 24px; padding: 16px; background: var(--color-accent-subtle); border-left: 3px solid var(--scitex-color-04); border-radius: 4px;">
-              <strong style="color: var(--color-fg-default);">
+            <div class="welcome-quickstart">
+              <strong class="welcome-quickstart-title">
                 <i class="fas fa-lightbulb"></i> Quick Start
               </strong>
-              <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px; color: var(--color-fg-muted);">
+              <ul class="welcome-quickstart-list">
                 <li>Click <strong>+ File</strong> or <strong>+ Folder</strong> to create new items</li>
                 <li>Select a file from the sidebar to start editing</li>
                 <li>Use <kbd>Ctrl+S</kbd> to save, <kbd>Ctrl+Enter</kbd> to run Python scripts</li>
@@ -307,7 +306,7 @@
       <div class="terminal-header">
         <div class="terminal-title">
           <i class="fas fa-terminal" title="Terminal"></i>
-          <button id="btn-terminal-shortcuts" class="btn-code-action" title="Terminal Shortcuts" style="margin-left: 8px;">
+          <button id="btn-terminal-shortcuts" class="btn-code-action" title="Terminal Shortcuts">
             <i class="fas fa-keyboard"></i>
           </button>
         </div>
@@ -321,19 +320,19 @@
       </div>
 
       <!-- PTY Terminal Container (xterm.js with inline image support) -->
-      <div id="pty-terminal" class="terminal-body" style="padding: 0;"></div>
+      <div id="pty-terminal" class="terminal-body"></div>
     </div>
   </div>
   {% endif %}
 
   <!-- Shortcuts Help Modal (Editor) -->
   <div id="shortcuts-modal-overlay" class="file-modal-overlay">
-    <div class="file-modal" style="max-width: 800px;">
+    <div class="file-modal shortcuts-modal">
       <div class="file-modal-header">
         <span id="shortcuts-modal-title" class="file-modal-title"><i class="fas fa-keyboard"></i> Confirmed Shortcuts</span>
         <button class="file-modal-close" onclick="document.getElementById('shortcuts-modal-overlay').classList.remove('active')">×</button>
       </div>
-      <div class="file-modal-body" id="shortcuts-modal-body" style="max-height: 70vh; overflow-y: auto;">
+      <div class="file-modal-body shortcuts-modal-body" id="shortcuts-modal-body">
         <!-- Content will be dynamically populated by JavaScript based on keybinding mode -->
       </div>
       <div class="file-modal-footer">
@@ -344,34 +343,34 @@
 
   <!-- Terminal Shortcuts Modal -->
   <div id="terminal-shortcuts-modal" class="file-modal-overlay">
-    <div class="file-modal" style="max-width: 700px;">
+    <div class="file-modal terminal-shortcuts-modal">
       <div class="file-modal-header">
         <span class="file-modal-title"><i class="fas fa-terminal"></i> Terminal Shortcuts</span>
         <button class="file-modal-close" onclick="document.getElementById('terminal-shortcuts-modal').classList.remove('active')">×</button>
       </div>
-      <div class="file-modal-body" style="max-height: 70vh; overflow-y: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <div class="file-modal-body terminal-shortcuts-body">
+        <table class="terminal-shortcuts-table">
           <thead>
-            <tr style="background: var(--color-canvas-subtle); border-bottom: 2px solid var(--color-border-default);">
-              <th style="padding: 8px; text-align: left; font-weight: 600;">Shortcut</th>
-              <th style="padding: 8px; text-align: left; font-weight: 600;">Description</th>
+            <tr>
+              <th>Shortcut</th>
+              <th>Description</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">Navigation</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-a</kbd> / <kbd>C-e</kbd></td><td style="padding: 6px 8px;">Beginning/End of line</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-f</kbd> / <kbd>C-b</kbd></td><td style="padding: 6px 8px;">Forward/Backward character</td></tr>
-            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">History</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>M-p</kbd> / <kbd>M-n</kbd></td><td style="padding: 6px 8px;">Previous/Next command</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>↑</kbd> / <kbd>↓</kbd></td><td style="padding: 6px 8px;">Previous/Next command (alternative)</td></tr>
-            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">Editing</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-d</kbd></td><td style="padding: 6px 8px;">Delete character at cursor</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-k</kbd></td><td style="padding: 6px 8px;">Kill line (delete to end, copy to clipboard)</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-y</kbd></td><td style="padding: 6px 8px;">Yank (paste from clipboard)</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>Tab</kbd></td><td style="padding: 6px 8px;">File/command completion</td></tr>
-            <tr style="background: var(--color-canvas-subtle);"><td colspan="2" style="padding: 6px 8px; font-weight: bold;">Other</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-l</kbd></td><td style="padding: 6px 8px;">Clear terminal screen</td></tr>
-            <tr><td style="padding: 6px 8px;"><kbd>C-m</kbd> or <kbd>Enter</kbd></td><td style="padding: 6px 8px;">Execute command</td></tr>
+            <tr class="section-header"><td colspan="2">Navigation</td></tr>
+            <tr><td><kbd>C-a</kbd> / <kbd>C-e</kbd></td><td>Beginning/End of line</td></tr>
+            <tr><td><kbd>C-f</kbd> / <kbd>C-b</kbd></td><td>Forward/Backward character</td></tr>
+            <tr class="section-header"><td colspan="2">History</td></tr>
+            <tr><td><kbd>M-p</kbd> / <kbd>M-n</kbd></td><td>Previous/Next command</td></tr>
+            <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Previous/Next command (alternative)</td></tr>
+            <tr class="section-header"><td colspan="2">Editing</td></tr>
+            <tr><td><kbd>C-d</kbd></td><td>Delete character at cursor</td></tr>
+            <tr><td><kbd>C-k</kbd></td><td>Kill line (delete to end, copy to clipboard)</td></tr>
+            <tr><td><kbd>C-y</kbd></td><td>Yank (paste from clipboard)</td></tr>
+            <tr><td><kbd>Tab</kbd></td><td>File/command completion</td></tr>
+            <tr class="section-header"><td colspan="2">Other</td></tr>
+            <tr><td><kbd>C-l</kbd></td><td>Clear terminal screen</td></tr>
+            <tr><td><kbd>C-m</kbd> or <kbd>Enter</kbd></td><td>Execute command</td></tr>
           </tbody>
         </table>
       </div>
@@ -407,29 +406,29 @@
 
   <!-- Commit Modal -->
   <div id="commit-modal-overlay" class="file-modal-overlay">
-    <div class="file-modal" style="max-width: 600px;">
+    <div class="file-modal commit-modal">
       <div class="file-modal-header">
         <span class="file-modal-title"><i class="fas fa-code-branch"></i> Commit Changes</span>
         <button class="file-modal-close" onclick="document.getElementById('commit-modal-overlay').classList.remove('active')">×</button>
       </div>
       <div class="file-modal-body">
-        <div style="margin-bottom: 12px;">
-          <label for="commit-message" style="display: block; margin-bottom: 6px; font-weight: 600;">Commit message:</label>
-          <textarea id="commit-message" class="file-modal-input" rows="4" placeholder="Brief description of changes..." style="width: 100%; resize: vertical; font-family: inherit; padding: 8px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); color: var(--color-fg-default);"></textarea>
+        <div class="commit-message-group">
+          <label for="commit-message" class="commit-message-label">Commit message:</label>
+          <textarea id="commit-message" class="file-modal-input commit-message-textarea" rows="4" placeholder="Brief description of changes..."></textarea>
         </div>
-        <div style="margin-bottom: 12px;">
-          <div id="commit-files-preview" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--color-border-default); border-radius: 6px; padding: 8px; background: var(--color-canvas-subtle); font-size: 12px; font-family: monospace;">
+        <div class="commit-preview-group">
+          <div id="commit-files-preview" class="commit-files-preview">
             Loading changed files...
           </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <input type="checkbox" id="commit-and-push" checked style="cursor: pointer;">
-          <label for="commit-and-push" style="cursor: pointer; margin: 0;">Push to remote after commit</label>
+        <div class="commit-checkbox-container">
+          <input type="checkbox" id="commit-and-push" checked class="commit-checkbox">
+          <label for="commit-and-push" class="commit-checkbox-label">Push to remote after commit</label>
         </div>
       </div>
       <div class="file-modal-footer">
         <button class="file-modal-btn" onclick="document.getElementById('commit-modal-overlay').classList.remove('active')">Cancel</button>
-        <button id="commit-modal-submit" class="file-modal-btn file-modal-btn-primary" style="background: var(--status-success);">
+        <button id="commit-modal-submit" class="file-modal-btn file-modal-btn-primary commit-submit-btn">
           <i class="fas fa-code-branch"></i> Commit
         </button>
       </div>
@@ -438,36 +437,36 @@
 
   <!-- Signup Warning Modal (for visitor users) -->
   <div id="signup-warning-modal" class="file-modal-overlay">
-    <div class="file-modal" style="max-width: 500px;">
+    <div class="file-modal signup-warning-modal">
       <div class="file-modal-header">
         <span class="file-modal-title">
-          <i class="fas fa-save" style="color: var(--workspace-icon-primary);"></i>
+          <i class="fas fa-save signup-modal-title-icon"></i>
           Save Your Work
         </span>
         <button class="file-modal-close" onclick="document.getElementById('signup-warning-modal').classList.remove('active')">×</button>
       </div>
       <div class="file-modal-body">
-        <div style="text-align: center; padding: 1rem 0;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 64px; height: 64px; margin: 0 auto 1rem; color: var(--workspace-icon-primary);">
+        <div class="signup-warning-content">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="signup-warning-icon">
             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21" stroke="currentColor" stroke-width="2" fill="none"/>
-            <polyline points="7 3 7 8 15 8" stroke="currentColor" stroke-width="2" fill="none"/>
+            <polyline points="17 21 17 13 7 13 7 21" class="signup-modal-svg-stroke"/>
+            <polyline points="7 3 7 8 15 8" class="signup-modal-svg-stroke"/>
           </svg>
 
-          <h3 style="margin-bottom: 1rem; color: var(--text-default); font-size: 1.25rem;">
+          <h3 class="signup-warning-title">
             Create an Account to Save Files
           </h3>
 
-          <p style="color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6;">
+          <p class="signup-warning-text">
             You're currently using a guest session. To create files, save your work,
             and access your projects anytime, you'll need a free SciTeX account.
           </p>
 
-          <div style="background: var(--workspace-bg-secondary); border-left: 3px solid var(--workspace-icon-primary); padding: 1rem; border-radius: 6px; text-align: left; margin-bottom: 1rem;">
-            <strong style="color: var(--text-default); display: block; margin-bottom: 0.5rem;">
-              <i class="fas fa-check-circle" style="color: var(--status-success);"></i> With a free account you get:
+          <div class="signup-benefits-box">
+            <strong class="signup-benefits-title">
+              <i class="fas fa-check-circle signup-benefits-icon"></i> With a free account you get:
             </strong>
-            <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-muted); font-size: 14px;">
+            <ul class="signup-benefits-list">
               <li>Save and organize your code files</li>
               <li>Create unlimited projects</li>
               <li>Access your work from anywhere</li>
@@ -476,12 +475,12 @@
           </div>
         </div>
       </div>
-      <div class="file-modal-footer" style="gap: 12px;">
+      <div class="file-modal-footer signup-warning-footer">
         <button class="file-modal-btn" onclick="document.getElementById('signup-warning-modal').classList.remove('active')">
           Continue Browsing
         </button>
-        <a href="/accounts/signup/" class="file-modal-btn file-modal-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-          <i class="fas fa-user-plus" style="margin-right: 6px;"></i>
+        <a href="/accounts/signup/" class="file-modal-btn file-modal-btn-primary signup-warning-link">
+          <i class="fas fa-user-plus signup-warning-link-icon"></i>
           Sign Up Free
         </a>
       </div>

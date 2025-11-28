@@ -285,8 +285,8 @@
     </div>
 {% endblock %}
 {% block extra_js %}
-    <script src="{% static 'project_app/js/components/DiffMerge.js' %}"></script>
-    <script>
+    <script src="{% static 'project_app/js/components/DiffMerge/index.js' %}" type="module"></script>
+    <script type="module">
     // Initialize DiffMerge component
     document.addEventListener('DOMContentLoaded', function() {
         const diffMerge = new DiffMerge({

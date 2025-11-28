@@ -1,0 +1,38 @@
+/* Split View Layout */
+.editor-view.split-view {
+  flex-direction: row !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+.latex-panel,
+.preview-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  background: var(--workspace-bg-primary) !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.latex-panel {
+  flex: 0 0 50%; /* Default 50% width, overridden by JS */
+  /* border-right removed - resizer handle provides visual separation */
+}
+
+.preview-panel {
+  flex: 0 0 50%; /* Default 50% width, overridden by JS */
+}
+
+.latex-panel > textarea,
+.latex-panel > .CodeMirror,
+.latex-panel > .CodeMirror-wrap {
+  flex: 1;
+  min-height: 0;
+  background: var(--workspace-bg-primary) !important;
+}
+
