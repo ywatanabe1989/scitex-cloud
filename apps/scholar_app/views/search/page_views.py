@@ -11,7 +11,13 @@ Extracted from monolithic views.py for better modularity.
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from ...models import UserLibrary, Collection
+from .search_core import simple_search_with_tab
 from apps.project_app.services import get_current_project
+
+
+def simple_search(request):
+    """Advanced search interface with comprehensive filtering."""
+    return simple_search_with_tab(request, active_tab="search")
 
 
 def index(request):
