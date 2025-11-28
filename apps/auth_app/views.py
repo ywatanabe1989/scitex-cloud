@@ -59,7 +59,7 @@ def signup(request):
                 logger.warning(f"Gitea sync failed for {username}: {e}")
                 # Don't fail signup if Gitea sync fails
 
-            # Migrate anonymous session data if exists
+            # Migrate visitor session data if exists
             if request.session.session_key:
                 from apps.project_app.services.anonymous_storage import (
                     migrate_to_user_storage,
@@ -68,7 +68,7 @@ def signup(request):
                 migrated = migrate_to_user_storage(request.session.session_key, user)
                 if migrated:
                     logger.info(
-                        f"Migrated anonymous session data for new user {username}"
+                        f"Migrated visitor session data for new user {username}"
                     )
 
             # Claim visitor project if user was using visitor pool
@@ -163,7 +163,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-                # Migrate anonymous session data before login if exists
+                # Migrate visitor session data before login if exists
                 if request.session.session_key:
                     from apps.project_app.services.anonymous_storage import (
                         migrate_to_user_storage,
@@ -177,7 +177,7 @@ def login_view(request):
 
                         logger = logging.getLogger(__name__)
                         logger.info(
-                            f"Migrated anonymous session data for user {user.username}"
+                            f"Migrated visitor session data for user {user.username}"
                         )
                         messages.info(
                             request,
@@ -539,7 +539,7 @@ def api_get_theme_preference(request):
     }
     """
     if not request.user.is_authenticated:
-        # Return defaults for anonymous users
+        # Return defaults for visitor users
         return JsonResponse(
             {
                 "theme": "dark",
