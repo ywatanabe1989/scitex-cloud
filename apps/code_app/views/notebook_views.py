@@ -44,7 +44,7 @@ def notebook_detail(request, notebook_id):
 def create_notebook(request):
     """Create a new notebook."""
     try:
-        from ..services.jupyter_service import NotebookManager, NotebookTemplates
+        from ..services.jupyter import NotebookManager, NotebookTemplates
 
         data = json.loads(request.body)
         title = data.get("title", "").strip()
@@ -99,7 +99,7 @@ def create_notebook(request):
 def execute_notebook(request, notebook_id):
     """Execute a Jupyter notebook."""
     try:
-        from ..services.jupyter_service import NotebookExecutor
+        from ..services.jupyter import NotebookExecutor
 
         notebook = get_object_or_404(
             Notebook, notebook_id=notebook_id, user=request.user
