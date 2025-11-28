@@ -35,7 +35,7 @@ export class PanelSwitcher {
       }
 
       const cssFiles: Record<string, string> = {
-        citations: "/static/writer_app/css/editor/citations-panel.css",
+        citations: "/static/writer_app/css/editor/citations-panel/index.css",
         figures: "/static/writer_app/css/editor/figures-panel.css",
         tables: "/static/writer_app/css/editor/tables-panel.css",
         collaboration: "/static/shared/css/collaboration/collaboration.css",

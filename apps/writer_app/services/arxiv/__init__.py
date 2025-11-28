@@ -1,26 +1,25 @@
 """
-arXiv Integration Services
+arXiv Integration Services for SciTeX Writer
 
-Services for arXiv submission, validation, and formatting.
+This module provides services for integrating with arXiv submission system,
+including account verification, manuscript formatting, and submission workflow.
 """
 
-from .arxiv_service import (
-    ArxivAPIException,
-    ArxivAccountService,
-    ArxivCategoryService,
-    ArxivValidationService,
-    ArxivFormattingService,
-    ArxivSubmissionService,
-    ArxivIntegrationService,
-)
-from .formatters import *
+from .account import ArxivAccountService
+from .category import ArxivCategoryService
+from .formatting import ArxivFormattingException, ArxivFormattingService
+from .service import ArxivAPIException, ArxivIntegrationService
+from .submission import ArxivSubmissionException, ArxivSubmissionService
+from .validation import ArxivValidationService
 
 __all__ = [
     "ArxivAPIException",
     "ArxivAccountService",
     "ArxivCategoryService",
-    "ArxivValidationService",
+    "ArxivFormattingException",
     "ArxivFormattingService",
-    "ArxivSubmissionService",
     "ArxivIntegrationService",
+    "ArxivSubmissionException",
+    "ArxivSubmissionService",
+    "ArxivValidationService",
 ]
