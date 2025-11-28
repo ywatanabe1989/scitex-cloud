@@ -225,6 +225,45 @@ Check the current status of SciTeX Cloud services and infrastructure.
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
 }
+
+/* Tooltip styles */
+.has-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.has-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%);
+    padding: 0.75rem 1rem;
+    background: #2d3748;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: normal;
+    line-height: 1.5;
+    white-space: normal;
+    width: max-content;
+    max-width: 320px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.has-tooltip:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 4px);
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #2d3748;
+    z-index: 10001;
+    pointer-events: none;
+}
 </style>
 {% endblock %}
 
@@ -245,11 +284,32 @@ Check the current status of SciTeX Cloud services and infrastructure.
             Real-time monitoring of SciTeX Cloud infrastructure and services
         </p>
 
+        <!-- Health Status Legend -->
+        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+            <div class="has-tooltip" data-tooltip="Green = Service is running and passes its health check (e.g., HTTP 200, database query succeeds, port is open)." style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--status-success);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-muted);">
+                    <strong>Healthy:</strong> Running normally
+                </span>
+            </div>
+            <div class="has-tooltip" data-tooltip="Orange = Service is running but health check not yet passing (within start_period grace period)." style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--status-warning);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-muted);">
+                    <strong>Starting:</strong> Initializing
+                </span>
+            </div>
+            <div class="has-tooltip" data-tooltip="Red = Service is stopped, crashed, or health check failing (e.g., HTTP 500, database unreachable, port closed)." style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: var(--status-error);"></div>
+                <span style="font-size: 0.9rem; color: var(--text-muted);">
+                    <strong>Unhealthy:</strong> Service down
+                </span>
+            </div>
+        </div>
     </div>
 
     <!-- Unified System Metrics -->
     <div class="status-section">
-        <h2 class="section-title" id="metricsTitle">
+        <h2 class="section-title has-tooltip" id="metricsTitle" data-tooltip="Real-time metrics from the entire host computer (all processes, not just SciTeX). Charts update every 2 seconds.">
             <i class="fas fa-chart-area"></i> System Metrics (Last 1 Hour)
         </h2>
         <div class="services-grid" style="grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));">
@@ -353,7 +413,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Visitor Pool Chart -->
             <div class="metric-card">
                 <div class="metric-label" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span>
+                    <span class="has-tooltip" data-tooltip="Shows how many visitor slots are currently allocated. When full, new anonymous users must wait for a slot to free up (sessions expire after 60 minutes).">
                         <i class="fas fa-users" style="color: rgb(201, 203, 207);"></i> Visitor Pool Status
                     </span>
                     <span id="visitorPoolCurrentValue" style="font-size: 1.2rem; font-weight: bold; color: rgb(201, 203, 207);">--</span>
@@ -367,7 +427,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Active Users Chart -->
             <div class="metric-card">
                 <div class="metric-label" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                    <span>
+                    <span class="has-tooltip" data-tooltip="Registered users with active sessions (not visitors). Counted based on Django session activity within the last 15 minutes.">
                         <i class="fas fa-user-check" style="color: rgb(75, 192, 192);"></i> Active Users
                     </span>
                     <span id="activeUsersCurrentValue" style="font-size: 1.2rem; font-weight: bold; color: rgb(75, 192, 192);">--</span>
@@ -382,7 +442,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
     <!-- Docker Services -->
     <div class="status-section">
-        <h2 class="section-title">
+        <h2 class="section-title has-tooltip" data-tooltip="Containers managed by docker-compose. Health determined by Docker's built-in healthcheck commands (e.g., 'curl http://localhost:PORT/' for web services).">
             <i class="fab fa-docker"></i> Docker Services
         </h2>
         <div class="services-grid">
@@ -423,7 +483,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
     <!-- SSH Services -->
     <div class="status-section">
-        <h2 class="section-title">
+        <h2 class="section-title has-tooltip" data-tooltip="SSH gateways for terminal access. Health checked by TCP socket connection test. All services use key-based authentication only (no passwords).">
             <i class="fas fa-key"></i> SSH Services
         </h2>
         <div class="services-grid">
@@ -461,7 +521,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
     <!-- Database & Cache -->
     <div class="status-section">
-        <h2 class="section-title">
+        <h2 class="section-title has-tooltip" data-tooltip="PostgreSQL: Main database (health = 'SELECT 1' query succeeds). Redis: Session storage and cache (health = cache.set/get works).">
             <i class="fas fa-database"></i> Database & Cache
         </h2>
         <div class="services-grid">
@@ -512,7 +572,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
     <!-- Computational Services (SLURM & Apptainer) -->
     <div class="status-section">
-        <h2 class="section-title">
+        <h2 class="section-title has-tooltip" data-tooltip="SLURM: Job scheduler and resource manager (health = 'sinfo' command returns partitions). Apptainer: Secure container runtime for user code execution (health = version command succeeds).">
             <i class="fas fa-server"></i> Computational Services
         </h2>
         <div class="services-grid">
@@ -575,7 +635,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
     <!-- Visitor Pool Slots -->
     <div class="status-section">
-        <h2 class="section-title">
+        <h2 class="section-title has-tooltip" data-tooltip="Anonymous users get temporary visitor slots (visitor-001, visitor-002, etc.) with 60-minute sessions. Pool size configured via SCITEX_VISITOR_POOL_SIZE in .env file.">
             <i class="fas fa-users"></i> Visitor Pool Status
             {% if status_data.visitor_pool.pool_status %}
             <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: normal; margin-left: 1rem;">
