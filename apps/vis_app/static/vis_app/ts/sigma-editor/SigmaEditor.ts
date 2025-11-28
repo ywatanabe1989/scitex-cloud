@@ -27,13 +27,13 @@ import { setupExportFunctionality } from './export.js';
  */
 export class SigmaEditor {
     // Manager instances
-    private rulersManager: RulersManager;
-    private canvasManager: CanvasManager;
-    private dataTableManager: DataTableManager;
-    private propertiesManager: PropertiesManager;
-    private uiManager: UIManager;
-    private dataTabManager: DataTabManager;
-    private canvasTabManager: CanvasTabManager;
+    private rulersManager!: RulersManager;
+    private canvasManager!: CanvasManager;
+    private dataTableManager!: DataTableManager;
+    private propertiesManager!: PropertiesManager;
+    private uiManager!: UIManager;
+    private dataTabManager!: DataTabManager;
+    private canvasTabManager!: CanvasTabManager;
 
     // Plot-related state
     private currentPlot: any = null;
@@ -87,7 +87,7 @@ export class SigmaEditor {
             () => this.dataTableManager.loadDemoData(),
             (count: number) => this.dataTableManager.addColumns(count),
             (count: number) => this.dataTableManager.addRows(count),
-            () => this.dataTableManager['copySelectionToClipboard'](),
+            () => (this.dataTableManager as any)['copySelectionToClipboard'](),
             (plotType: string) => this.createQuickPlot(plotType),
             () => this.canvasManager.zoomIn(),
             () => this.canvasManager.zoomOut(),

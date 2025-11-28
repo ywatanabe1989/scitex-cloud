@@ -1,0 +1,31 @@
+/*
+ * @component Button Base
+ * @description Base button styles and common properties
+ * @file /static/shared/css/components/buttons/base.css
+ */
+
+/* =========================================
+   BASE BUTTON STYLES
+   ========================================= */
+
+.btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  margin: var(--spacing-sm);
+  border: 2px solid var(--border-default);
+  background: transparent;
+  color: var(--text-primary);
+  border-radius: var(--border-radius-lg);
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  line-height: 1.4;
+}
+
+.btn:hover {
+  background: var(--bg-muted);
+  border-color: var(--scitex-color-04);
+}

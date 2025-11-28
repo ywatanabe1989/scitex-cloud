@@ -114,7 +114,7 @@ export function loadPanelCSS(panel: string): Promise<void> {
       "figures": "/static/writer_app/css/editor/figures-panel.css",
       "tables": "/static/writer_app/css/editor/tables-panel.css",
       "collaboration": "/static/shared/css/collaboration/collaboration.css",
-      "history": "/static/writer_app/css/shared/history-timeline.css"
+      "history": "/static/writer_app/css/shared/history-timeline/index.css"
     };
 
     const cssUrl = cssFiles[panel];

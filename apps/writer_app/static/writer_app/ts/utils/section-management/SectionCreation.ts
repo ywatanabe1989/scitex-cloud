@@ -6,7 +6,7 @@
 import type { WriterEditor, SectionsManager } from "../../modules/index.js";
 import { getCsrfToken } from "@/utils/csrf.js";
 import { showToast } from "../ui.js";
-import { populateSectionDropdownDirect } from "../section-dropdown.js";
+import { populateSectionDropdownDirect } from "../section-dropdown/index.js";
 import { switchSection } from "./SectionLoading.js";
 
 /**

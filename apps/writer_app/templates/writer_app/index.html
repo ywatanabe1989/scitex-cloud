@@ -284,7 +284,7 @@
                 src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
         <!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
         <script type="module"
-                src="{% static 'shared/js/collaboration/writer-collaboration.js' %}?v={{ build_id|default:'dev' }}"></script>
+                src="{% static 'shared/js/collaboration/writer/index.js' %}?v={{ build_id|default:'dev' }}"></script>
         {% if project %}
         <!-- Workspace Files Tree for Writer -->
         <script type="module">

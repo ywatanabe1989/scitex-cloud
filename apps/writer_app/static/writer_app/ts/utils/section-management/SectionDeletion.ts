@@ -6,7 +6,7 @@
 import type { WriterEditor, SectionsManager } from "../../modules/index.js";
 import { getCsrfToken } from "@/utils/csrf.js";
 import { showToast } from "../ui.js";
-import { populateSectionDropdownDirect, handleDocTypeSwitch } from "../section-dropdown.js";
+import { populateSectionDropdownDirect, handleDocTypeSwitch } from "../section-dropdown/index.js";
 
 /**
  * Core sections that cannot be deleted
