@@ -24,7 +24,7 @@ def code_workspace(request):
     Visitor auto-login is handled by VisitorAutoLoginMiddleware.
     """
     context = {
-        "is_anonymous": not request.user.is_authenticated,
+        "is_visitor": not request.user.is_authenticated,
         "module_name": "Code",
         "module_icon": "fa-code",
     }

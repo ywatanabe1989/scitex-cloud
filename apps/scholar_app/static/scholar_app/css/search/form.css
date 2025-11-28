@@ -1,0 +1,125 @@
+/*
+ * Search Form Styles
+ *
+ * Styles for search input and submission:
+ * - Search input field
+ * - Search button
+ * - Form controls
+ * - Input groups
+ */
+
+/* Search Input */
+.search-input {
+  font-size: 2rem;
+}
+
+.search-input::placeholder {
+  opacity: 0.6;
+}
+
+/* Dark mode specific styles for search input */
+[data-theme="dark"] .search-input {
+  /* background: var(--scitex-color-01-light); */
+  /* border-color: var(--scitex-color-03); */
+  /* color: var(--scitex-color-06); */
+}
+
+[data-theme="dark"] .search-input::placeholder {
+  /* color: var(--scitex-color-05); */
+  opacity: 0.7;
+}
+
+.search-input:focus {
+  /* border-color: var(--scitex-color-03); */
+  /* box-shadow: 0 0 0 0.2rem rgba(var(--scitex-color-03-rgb), 0.25); */
+}
+
+[data-theme="dark"] .search-input:focus {
+  /* border-color: var(--scitex-color-04); */
+  /* box-shadow: 0 0 0 0.2rem rgba(108, 139, 160, 0.25); */
+}
+
+/* Enhance search input styling */
+.scholar-search-input {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.scholar-search-input:focus {
+  border-color: var(--scitex-color-03);
+  box-shadow: 0 0 0 3px rgba(79, 90, 102, 0.1);
+  outline: none;
+}
+
+.scholar-search-input:hover:not(:focus) {
+  border-color: var(--border-muted);
+}
+
+/* Ensure search form has proper styling */
+.scholar-search-form input[type="text"],
+.scholar-search-form input[type="search"] {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 6px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.scholar-search-form input[type="text"]:focus,
+.scholar-search-form input[type="search"]:focus {
+  border-color: var(--scitex-color-03);
+  box-shadow: 0 0 0 3px rgba(79, 90, 102, 0.1);
+  outline: none;
+}
+
+/* Search button */
+.search-btn {
+  padding: 1rem 2rem;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0 !important;
+  transition: all 0.2s ease;
+}
+
+.search-btn:focus,
+.search-btn:active {
+  /* background: #34495e !important; */
+  /* border-color: #34495e !important; */
+  /* color: white !important; */
+}
+
+/* Ensure search input and button heights match */
+.input-group-lg .form-control {
+  height: auto;
+  min-height: 2.5rem;
+}
+
+/* Override for search input specifically */
+.search-container-full-width .input-group-lg .search-input {
+  min-height: 1rem !important;
+}
+
+/* Fix header button focus states to follow SciTeX design */
+.btn:focus,
+.btn:active,
+.btn.active {
+  /* box-shadow: none !important; */
+}
+
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+  /* background-color: #1a2332 !important; */
+  /* border-color: #1a2332 !important; */
+}
+
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+  /* background-color: #1a2332 !important; */
+  /* border-color: #1a2332 !important; */
+  /* color: white !important; */
+}

@@ -12,7 +12,7 @@ from django.shortcuts import render
 
 
 def bibtex_enrichment(request):
-    """BibTeX enrichment landing page - upload and manage enrichment jobs (anonymous allowed)."""
+    """BibTeX enrichment landing page - upload and manage enrichment jobs (visitor allowed)."""
     from apps.project_app.models import Project
     from ...models import BibTeXEnrichmentJob
 
@@ -30,7 +30,7 @@ def bibtex_enrichment(request):
         )
         current_project = user_projects.first() if user_projects.exists() else None
     else:
-        # For anonymous users, get jobs by session key
+        # For visitor users, get jobs by session key
         recent_jobs = (
             BibTeXEnrichmentJob.objects.filter(
                 session_key=request.session.session_key
@@ -57,7 +57,7 @@ def bibtex_enrichment(request):
         "recent_jobs": recent_jobs,
         "user_projects": user_projects,
         "current_project": current_project,
-        "is_anonymous": not request.user.is_authenticated,
+        "is_visitor": not request.user.is_authenticated,
         "show_save_prompt": not request.user.is_authenticated,
     }
 

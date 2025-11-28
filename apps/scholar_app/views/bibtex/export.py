@@ -25,7 +25,7 @@ def bibtex_get_urls(request, job_id):
     """API endpoint to extract URLs and DOIs from enriched BibTeX file."""
     import bibtexparser
 
-    # Get the job (handle both authenticated and anonymous users)
+    # Get the job (handle both authenticated and visitor users)
     if request.user.is_authenticated:
         try:
             job = BibTeXEnrichmentJob.objects.get(id=job_id, user=request.user)
@@ -34,7 +34,7 @@ def bibtex_get_urls(request, job_id):
                 {"error": "Job not found or access denied."}, status=404
             )
     else:
-        # For anonymous users, check by session_key
+        # For visitor users, check by session_key
         try:
             job = BibTeXEnrichmentJob.objects.get(
                 id=job_id, session_key=request.session.session_key

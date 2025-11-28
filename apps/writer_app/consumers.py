@@ -29,7 +29,7 @@ class WriterConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"manuscript_{self.manuscript_id}"
         self.user = self.scope["user"]
 
-        # Reject anonymous users
+        # Reject visitor users
         if not self.user.is_authenticated:
             await self.close()
             return

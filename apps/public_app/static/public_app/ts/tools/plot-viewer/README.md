@@ -6,17 +6,18 @@ Modular TypeScript implementation of the SciTeX plot viewer.
 
 ```
 plot-viewer/
-├── index.ts          # Main entry point and barrel export
+├── index.ts          # Main entry point and barrel export (41 lines)
 ├── PlotViewer.ts     # Main PlotViewer class (109 lines)
 ├── types.ts          # Type definitions and constants (77 lines)
 ├── data.ts           # CSV parsing and plot detection (122 lines)
 ├── utils.ts          # Utility functions (64 lines)
 ├── controls.ts       # UI controls management (133 lines)
-├── renderers.ts      # Canvas rendering logic (304 lines)
+├── renderers.ts      # Canvas rendering orchestration (230 lines)
+├── plot-drawers.ts   # Individual plot type renderers (99 lines)
 └── export.ts         # Export functionality (24 lines)
 ```
 
-Total: 833 lines (refactored from 593 lines monolithic file)
+Total: 899 lines (refactored from 593 lines monolithic file)
 
 ## File Responsibilities
 
@@ -41,9 +42,17 @@ Total: 833 lines (refactored from 593 lines monolithic file)
 - Settings reset functionality
 
 ### renderers.ts
-- Canvas-based plot rendering
-- Nature journal specifications (300 DPI)
-- Axes, ticks, and data plotting
+- Canvas setup and configuration
+- Plot area calculation and scaling
+- Axes and ticks rendering
+- Coordinate transformations
+- Main rendering orchestration
+
+### plot-drawers.ts
+- Line plot rendering
+- Scatter plot rendering
+- Bar chart rendering
+- Modular plot type implementations
 
 ### export.ts
 - PNG export functionality

@@ -39,7 +39,7 @@ class BibTeXEnrichmentJob(models.Model):
         blank=True,
     )
     session_key = models.CharField(
-        max_length=40, blank=True, null=True, help_text="For anonymous users"
+        max_length=40, blank=True, null=True, help_text="For visitor users"
     )
 
     # Input
@@ -117,7 +117,7 @@ class BibTeXEnrichmentJob(models.Model):
         if self.user:
             return f"BibTeX Job #{self.id} - {self.user.username} ({self.status})"
         else:
-            return f"BibTeX Job #{self.id} - anonymous ({self.status})"
+            return f"BibTeX Job #{self.id} - visitor ({self.status})"
 
     def get_progress_percentage(self):
         """Calculate progress percentage."""

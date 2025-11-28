@@ -65,7 +65,7 @@
                             <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
                             <h3 class="mb-3">Visitor Pool Not Initialized</h3>
                             <p class="text-muted mb-4">
-                                The visitor pool needs to be set up before anonymous users can try
+                                The visitor pool needs to be set up before visitor users can try
                                 Writer.
                             </p>
                             <div class="alert alert-info text-start mb-4">
@@ -226,7 +226,7 @@
       username: {% if user.is_authenticated %}'{{ user.username|escapejs }}'{% else %}null{% endif %},
       visitorUsername: {% if visitor_username %}'{{ visitor_username|escapejs }}'{% else %}null{% endif %},
       isDemo: {% if is_demo %}true{% else %}false{% endif %},
-      isAnonymous: {% if is_anonymous %}true{% else %}false{% endif %},
+      isVisitor: {% if is_visitor %}true{% else %}false{% endif %},
       isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
       writerInitialized: {% if writer_initialized %}true{% else %}false{% endif %},
       documentType: '{{ document_type|default:"manuscript" }}',  // Current document type
@@ -252,7 +252,7 @@
   };
 
   // Log visitor allocation info
-  if (window.WRITER_CONFIG.isAnonymous && window.WRITER_CONFIG.visitorUsername) {
+  if (window.WRITER_CONFIG.isVisitor && window.WRITER_CONFIG.visitorUsername) {
       console.log('%c[VisitorPool] ✓ Allocated:', 'color: #4CAF50; font-weight: bold', window.WRITER_CONFIG.visitorUsername);
       console.log('%c[VisitorPool] Project ID:', 'color: #2196F3', window.WRITER_CONFIG.projectId);
       console.log('%c[VisitorPool] Project:', 'color: #2196F3', window.WRITER_CONFIG.projectName);

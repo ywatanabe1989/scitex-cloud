@@ -12,7 +12,7 @@ import { getCsrfToken } from './utilities.js';
 import { updateActiveFilterCount } from './filters.js';
 
 /**
- * Save source preferences to database (authenticated users) or localStorage (anonymous users)
+ * Save source preferences to database (authenticated users) or localStorage (visitor users)
  */
 export function saveSourcePreferences(): void {
   const preferences: { [key: string]: boolean } = {};
@@ -45,7 +45,7 @@ export function saveSourcePreferences(): void {
         console.error("Error saving preferences:", error),
       );
   } else {
-    // For anonymous users, use localStorage
+    // For visitor users, use localStorage
     localStorage.setItem(
       "scholar_source_preferences",
       JSON.stringify(preferences),
@@ -54,7 +54,7 @@ export function saveSourcePreferences(): void {
 }
 
 /**
- * Load source preferences from database (authenticated users) or localStorage (anonymous users)
+ * Load source preferences from database (authenticated users) or localStorage (visitor users)
  */
 export function loadSourcePreferences(): void {
   if (
@@ -80,7 +80,7 @@ export function loadSourcePreferences(): void {
         loadSourcePreferencesFromStorage();
       });
   } else {
-    // Load from localStorage for anonymous users
+    // Load from localStorage for visitor users
     loadSourcePreferencesFromStorage();
   }
 }

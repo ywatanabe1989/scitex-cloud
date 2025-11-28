@@ -23,7 +23,7 @@ export function getUserContext(): string {
   } else if (config.username) {
     return `[${config.username}]`;
   }
-  return "[anonymous]";
+  return "[visitor]";
 }
 
 /**

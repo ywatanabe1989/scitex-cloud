@@ -231,7 +231,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Infrastructure
 - Visitor pool system (visitor-001 to visitor-032)
-- Demo project pool for anonymous visitors
+- Demo project pool for visitor visitors
 - Environment variable consolidation to SECRET/ directory
 - Standardized SCITEX_CLOUD_ prefix for environment variables
 

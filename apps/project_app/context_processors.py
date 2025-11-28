@@ -101,7 +101,7 @@ def project_context(request):
 
     This makes 'project' available in all templates for context-aware navigation.
 
-    For anonymous users (visitors), provides allocated project from visitor pool.
+    For visitor users (visitors), provides allocated project from visitor pool.
     """
     # Pattern: /<username>/<project-slug>/...
     pattern = r"^/([^/]+)/([^/]+)/"
@@ -152,7 +152,7 @@ def project_context(request):
 
     # Provide default project URL
     # Logged-in users: /<username>/default
-    # Anonymous users: /guest-<session-id>/default
+    # Visitor users: /guest-<session-id>/default
     if request.user.is_authenticated:
         default_project_url = f"/{request.user.username}/default"
     else:
@@ -163,7 +163,7 @@ def project_context(request):
             default_project_url = "/guest/default"
 
     return {
-        "project": project,  # Include visitor project for anonymous users
+        "project": project,  # Include visitor project for visitor users
         "guest_project_url": default_project_url,
         "default_project_url": default_project_url,
         "is_guest_session": not request.user.is_authenticated,

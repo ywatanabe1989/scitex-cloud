@@ -140,15 +140,16 @@ export class WorkspaceFilesTree {
   }
 
   private async autoExpandFocusPath(): Promise<void> {
-    const focusPath = this.config.focusPath;
+    // Get focus path from state manager for this mode
+    const focusPath = this.stateManager.getFocusPath(this.config.mode);
     if (!focusPath) return;
 
     const parentPaths = this.getParentPaths(focusPath);
     parentPaths.forEach(path => {
-      this.stateManager.setExpanded(path, true);
+      this.stateManager.expand(path);
     });
 
-    this.stateManager.setSelectedPath(focusPath);
+    this.stateManager.setSelected(focusPath);
     this.rerender();
 
     await new Promise(resolve => setTimeout(resolve, 100));

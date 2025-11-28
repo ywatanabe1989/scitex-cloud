@@ -35,7 +35,7 @@ def index_view(request):
     2. Section selector (filtered by document type)
 
     For authenticated users: loads their project
-    For anonymous users: provides demo workspace
+    For visitor users: provides demo workspace
     """
     # Get document type from URL parameter or default to manuscript
     document_type = request.GET.get("doc_type", "manuscript")
@@ -46,7 +46,7 @@ def index_view(request):
         document_type = "manuscript"
 
     context = {
-        "is_anonymous": not request.user.is_authenticated,
+        "is_visitor": not request.user.is_authenticated,
         "writer_initialized": False,
         "document_type": document_type,
     }
@@ -114,7 +114,7 @@ def index_view(request):
 def initialize_workspace(request):
     """Initialize Writer workspace for a project.
 
-    Supports both authenticated users and anonymous visitors.
+    Supports both authenticated users and visitor visitors.
 
     POST body:
         {

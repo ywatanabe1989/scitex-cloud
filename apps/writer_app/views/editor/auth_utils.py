@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Authentication utilities for Writer API views.
 
-Handles both authenticated users and anonymous visitors with demo projects.
+Handles both authenticated users and visitor visitors with demo projects.
 """
 
 from functools import wraps
@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 def api_login_optional(view_func):
-    """Decorator that allows both authenticated and anonymous users to access API endpoints.
+    """Decorator that allows both authenticated and visitor users to access API endpoints.
 
     For authenticated users: validates project ownership
-    For anonymous users: validates visitor project session
+    For visitor users: validates visitor project session
 
     Returns JSON error (not HTML redirect) if authentication/authorization fails.
     """
@@ -69,7 +69,7 @@ def api_login_optional(view_func):
                             status=403,
                         )
         else:
-            # Anonymous user - verify visitor pool session
+            # Visitor user - verify visitor pool session
             visitor_project_id = request.session.get("visitor_project_id")
             visitor_user_id = request.session.get("visitor_user_id")
 

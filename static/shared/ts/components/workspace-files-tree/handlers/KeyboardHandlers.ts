@@ -16,7 +16,7 @@ export class KeyboardHandlers {
   ) {}
 
   handleKeyboard(e: KeyboardEvent): void {
-    const selected = this.stateManager.getSelectedPath();
+    const selected = this.stateManager.getSelected();
     if (!selected) return;
 
     switch (e.key) {
@@ -57,20 +57,20 @@ export class KeyboardHandlers {
 
   private navigateTree(direction: number): void {
     const allItems = Array.from(this.container.querySelectorAll('[data-path]:not(.wft-hidden)'));
-    const selectedPath = this.stateManager.getSelectedPath();
+    const selectedPath = this.stateManager.getSelected();
     const currentIndex = allItems.findIndex(item => item.getAttribute('data-path') === selectedPath);
-    
+
     if (currentIndex === -1) return;
 
     const nextIndex = currentIndex + direction;
     if (nextIndex >= 0 && nextIndex < allItems.length) {
       const nextItem = allItems[nextIndex];
       const nextPath = nextItem.getAttribute('data-path')!;
-      
+
       if (nextItem.classList.contains('wft-file')) {
         this.onSelectFile(nextPath);
       } else {
-        this.stateManager.setSelectedPath(nextPath);
+        this.stateManager.setSelected(nextPath);
       }
     }
   }
@@ -80,7 +80,7 @@ export class KeyboardHandlers {
     if (parts.length > 1) {
       const parentPath = parts.slice(0, -1).join('/');
       this.onToggleFolder(parentPath);
-      this.stateManager.setSelectedPath(parentPath);
+      this.stateManager.setSelected(parentPath);
     }
   }
 }

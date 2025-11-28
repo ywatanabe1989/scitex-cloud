@@ -70,7 +70,7 @@ def bibtex_enrichment_view(request, template_name="scholar_app/index.html"):
             .order_by("-created_at")[:10]
         )
     else:
-        # For anonymous users, get jobs by session key
+        # For visitor users, get jobs by session key
         recent_jobs = (
             BibTeXEnrichmentJob.objects.filter(
                 session_key=request.session.session_key

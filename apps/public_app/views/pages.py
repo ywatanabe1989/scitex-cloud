@@ -116,7 +116,7 @@ def donate(request):
     # Get recent public donations
     recent_donations = (
         Donation.objects.filter(
-            is_public=True, is_anonymous=False, status="completed"
+            is_public=True, is_visitor=False, status="completed"
         ).select_related("user")[:10]
         if Donation.objects.exists()
         else []

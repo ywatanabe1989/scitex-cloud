@@ -14,7 +14,7 @@ from django.http import JsonResponse
 
 @require_http_methods(["POST"])
 def bibtex_preview(request):
-    """Preview BibTeX file contents before enrichment (anonymous allowed)."""
+    """Preview BibTeX file contents before enrichment (visitor allowed)."""
     import bibtexparser
 
     # Check if file was uploaded

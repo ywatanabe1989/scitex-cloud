@@ -17,17 +17,17 @@ export class FileActions {
   ) {}
 
   toggleFolder(path: string): void {
-    const isExpanded = this.stateManager.isExpanded(path);
-    this.stateManager.setExpanded(path, !isExpanded);
-    
+    const wasExpanded = this.stateManager.isExpanded(path);
+    this.stateManager.toggle(path);
+
     // Auto-select folder when expanding
-    if (!isExpanded) {
-      this.stateManager.setSelectedPath(path);
+    if (!wasExpanded) {
+      this.stateManager.setSelected(path);
     }
   }
 
   selectFile(path: string): void {
-    this.stateManager.setSelectedPath(path);
+    this.stateManager.setSelected(path);
     this.emitEvent('file-select', { path });
   }
 

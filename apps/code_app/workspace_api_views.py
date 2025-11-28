@@ -99,7 +99,7 @@ def api_save_file(request):
                 or request.user in project.collaborators.all()
             )
         else:
-            # For anonymous users, check if this is their allocated visitor project
+            # For visitor users, check if this is their allocated visitor project
             visitor_project_id = request.session.get("visitor_project_id")
             has_access = (visitor_project_id and project.id == visitor_project_id)
 
@@ -174,7 +174,7 @@ def api_execute_script(request):
                 or request.user in project.collaborators.all()
             )
         else:
-            # For anonymous users, check if this is their allocated visitor project
+            # For visitor users, check if this is their allocated visitor project
             visitor_project_id = request.session.get("visitor_project_id")
             has_access = (visitor_project_id and project.id == visitor_project_id)
 
@@ -242,7 +242,7 @@ def api_execute_command(request):
                 or request.user in project.collaborators.all()
             )
         else:
-            # For anonymous users, check if this is their allocated visitor project
+            # For visitor users, check if this is their allocated visitor project
             visitor_project_id = request.session.get("visitor_project_id")
             has_access = (visitor_project_id and project.id == visitor_project_id)
 
@@ -333,7 +333,7 @@ def api_create_file(request):
                 or request.user in project.collaborators.all()
             )
         else:
-            # For anonymous users, check if this is their allocated visitor project
+            # For visitor users, check if this is their allocated visitor project
             visitor_project_id = request.session.get("visitor_project_id")
             has_access = (visitor_project_id and project.id == visitor_project_id)
 
@@ -410,7 +410,7 @@ def api_delete_file(request):
                 or request.user in project.collaborators.all()
             )
         else:
-            # For anonymous users, check if this is their allocated visitor project
+            # For visitor users, check if this is their allocated visitor project
             visitor_project_id = request.session.get("visitor_project_id")
             has_access = (visitor_project_id and project.id == visitor_project_id)
 
@@ -598,7 +598,7 @@ def api_git_commit(request):
                 or request.user in project.collaborators.all()
             )
         else:
-            # For anonymous users, check if this is their allocated visitor project
+            # For visitor users, check if this is their allocated visitor project
             visitor_project_id = request.session.get("visitor_project_id")
             has_access = (visitor_project_id and project.id == visitor_project_id)
 

@@ -83,7 +83,7 @@ def save_user_preferences(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def save_source_preferences(request):
-    """Save source selection preferences (for both logged in and anonymous users)"""
+    """Save source selection preferences (for both logged in and visitor users)"""
     try:
         data = json.loads(request.body)
         sources = data.get("sources", {})
@@ -102,7 +102,7 @@ def save_source_preferences(request):
                 }
             )
         else:
-            # For anonymous users, return success (they can use localStorage)
+            # For visitor users, return success (they can use localStorage)
             return JsonResponse(
                 {
                     "status": "success",

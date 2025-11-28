@@ -348,7 +348,7 @@ DATABASES = {
 | Paper Search | Rate limit | 30/minute | Per worker |
 | PDF Processing | Rate limit | 20/minute | Per worker |
 | API Requests | Throttle | 1000/day | Per user |
-| Anonymous | Throttle | 100/day | Per IP |
+| Visitor | Throttle | 100/day | Per IP |
 
 ### User Quotas
 

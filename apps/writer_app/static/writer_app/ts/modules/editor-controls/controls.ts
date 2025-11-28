@@ -1,11 +1,12 @@
 /**
- * Editor Controls Module
- * Handles font size adjustment and auto-preview functionality
+ * Main Editor Controls Class
+ * Coordinates font size management and auto-preview functionality
  */
 
 console.log(
-  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/editor-controls.ts loaded",
+  "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/modules/editor-controls/controls.ts loaded",
 );
+
 export interface EditorControlsOptions {
   pdfPreviewManager?: any;
   compilationManager?: any;

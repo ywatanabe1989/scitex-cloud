@@ -1,7 +1,7 @@
 """
 Visitor Pool Manager
 
-Pre-allocated visitor accounts for anonymous users.
+Pre-allocated visitor accounts for visitor users.
 Each visitor gets a default project that can be claimed on signup.
 
 Architecture:

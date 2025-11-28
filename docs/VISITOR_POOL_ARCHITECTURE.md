@@ -2,7 +2,7 @@
 
 ## Overview
 
-The SciTeX Visitor Pool system provides secure, isolated temporary access to the platform for anonymous users without requiring account creation. This document explains how visitor slots are allocated, how data is separated between visitors, and the security model.
+The SciTeX Visitor Pool system provides secure, isolated temporary access to the platform for visitor users without requiring account creation. This document explains how visitor slots are allocated, how data is separated between visitors, and the security model.
 
 ## Architecture Summary
 

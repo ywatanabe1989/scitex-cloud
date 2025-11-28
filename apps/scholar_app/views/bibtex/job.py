@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def bibtex_job_detail(request, job_id):
-    """View details and progress of a BibTeX enrichment job (anonymous allowed)."""
+    """View details and progress of a BibTeX enrichment job (visitor allowed)."""
     from .utils import process_bibtex_job
 
     # Get job by user or session key
@@ -79,7 +79,7 @@ def bibtex_job_status(request, job_id):
 
 @require_http_methods(["GET"])
 def bibtex_job_papers(request, job_id):
-    """API endpoint to get all papers in a job as placeholders (anonymous allowed)."""
+    """API endpoint to get all papers in a job as placeholders (visitor allowed)."""
     import bibtexparser
 
     # Get job by user or session key
@@ -141,7 +141,7 @@ def bibtex_job_papers(request, job_id):
 
 @require_http_methods(["GET"])
 def bibtex_recent_jobs(request):
-    """API endpoint to get user's recent jobs with summary (anonymous allowed)."""
+    """API endpoint to get user's recent jobs with summary (visitor allowed)."""
 
     # Get recent jobs
     if request.user.is_authenticated:
@@ -151,7 +151,7 @@ def bibtex_recent_jobs(request):
             .order_by("-created_at")[:10]
         )
     else:
-        # For anonymous users, get jobs by session key
+        # For visitor users, get jobs by session key
         jobs = (
             BibTeXEnrichmentJob.objects.filter(
                 session_key=request.session.session_key

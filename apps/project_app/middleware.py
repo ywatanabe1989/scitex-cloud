@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class VisitorAutoLoginMiddleware:
     """
-    Middleware that auto-logs in anonymous users as visitors.
+    Middleware that auto-logs in visitor users as visitors.
 
     Works on any page - landing, /code/, /writer/, /scholar/, /vis/, etc.
     Skips non-browser requests (bots, health checks, automated scripts).
@@ -156,7 +156,7 @@ class GuestSessionMiddleware:
     - Tracks current project in session
     - Used for smart module navigation
 
-    For anonymous users (no longer used):
+    For visitor users (no longer used):
     - Previously generated guest session IDs
     """
 

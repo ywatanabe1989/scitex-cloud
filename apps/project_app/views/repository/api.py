@@ -47,7 +47,7 @@ def api_file_tree(request, username, slug):
             or project.visibility == "public"
         )
     else:
-        # For anonymous users, check if this is their allocated visitor project
+        # For visitor users, check if this is their allocated visitor project
         visitor_project_id = request.session.get("visitor_project_id")
         has_access = (
             project.visibility == "public"

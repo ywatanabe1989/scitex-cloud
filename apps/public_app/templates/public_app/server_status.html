@@ -157,14 +157,14 @@ Check the current status of SciTeX Cloud services and infrastructure.
             <!-- Visitor Pool Chart -->
             <div class="metric-card">
                 <div class="metric-label">
-                    <span class="has-tooltip" data-tooltip="Shows how many visitor slots are currently allocated. When full, new anonymous users must wait for a slot to free up (sessions expire after 60 minutes).">
+                    <span class="has-tooltip" data-tooltip="Shows how many visitor slots are currently allocated. When full, new visitor users must wait for a slot to free up (sessions expire after 60 minutes).">
                         <i class="fas fa-users metric-icon-visitor-pool"></i> Visitor Pool Status
                     </span>
                     <span id="visitorPoolCurrentValue" class="metric-current-value metric-current-value-visitor-pool">--</span>
                 </div>
                 <canvas id="visitorPoolChart" class="metric-chart"></canvas>
                 <div class="metric-info">
-                    Anonymous visitor sessions (1h lifetime each)
+                    Visitor visitor sessions (1h lifetime each)
                 </div>
             </div>
 
@@ -385,7 +385,7 @@ Check the current status of SciTeX Cloud services and infrastructure.
 
     <!-- Visitor Pool Slots -->
     <div class="status-section">
-        <h2 class="section-title has-tooltip" data-tooltip="Anonymous users get temporary visitor slots (visitor-001, visitor-002, etc.) with 60-minute sessions. Pool size configured via SCITEX_VISITOR_POOL_SIZE in .env file.">
+        <h2 class="section-title has-tooltip" data-tooltip="Visitor users get temporary visitor slots (visitor-001, visitor-002, etc.) with 60-minute sessions. Pool size configured via SCITEX_VISITOR_POOL_SIZE in .env file.">
             <i class="fas fa-users"></i> Visitor Pool Status
             {% if status_data.visitor_pool.pool_status %}
             <span class="visitor-pool-status-count">

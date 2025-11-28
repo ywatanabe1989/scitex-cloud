@@ -209,10 +209,23 @@ def server_status_api(request):
 
     # Store in database for history
     try:
+        mem = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+
         ServerMetrics.objects.create(
-            cpu_usage=metrics["cpu"],
-            memory_usage=metrics["memory"],
-            disk_usage=metrics["disk"],
+            timestamp=datetime.now(),
+            cpu_percent=metrics["cpu"],
+            memory_percent=metrics["memory"],
+            memory_used_gb=mem.used / (1024**3),
+            memory_total_gb=mem.total / (1024**3),
+            memory_available_gb=mem.available / (1024**3),
+            disk_percent=metrics["disk"],
+            disk_used_gb=disk.used / (1024**3),
+            disk_total_gb=disk.total / (1024**3),
+            disk_read_mb=0,  # psutil.disk_io_counters() not always available
+            disk_write_mb=0,
+            net_sent_mb=metrics.get("network", {}).get("bytes_sent", 0) / (1024**2),
+            net_recv_mb=metrics.get("network", {}).get("bytes_recv", 0) / (1024**2),
         )
 
         # Clean up old metrics (keep only last 24 hours)

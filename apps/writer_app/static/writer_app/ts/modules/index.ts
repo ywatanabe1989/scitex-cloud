@@ -21,7 +21,7 @@ export { PanelResizer } from "./panel-resizer.js";
 export {
   EditorControls,
   type EditorControlsOptions,
-} from "./editor-controls.js";
+} from "./editor-controls/index.js";
 export { CitationsPanel, type Citation } from "./citations-panel.js";
 export { FiguresPanel, type Figure } from "./figures-panel.js";
 export { TablesPanel, type Table } from "./tables-panel.js";

@@ -1,0 +1,32 @@
+/*
+ * Search Results Styles
+ *
+ * Styles for search result display:
+ * - Result cards
+ * - Selection and export controls
+ * - Results container
+ */
+
+/* Selection/Export div styling */
+.selection-export-container {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+[data-theme="dark"] .selection-export-container {
+  /* background: var(--scitex-color-01-light); */
+  /* border-color: var(--scitex-color-03); */
+}
+
+.selection-info {
+  /* color: var(--text-primary); */
+  /* font-weight: 500; */
+}
+
+[data-theme="dark"] .selection-info {
+  /* color: var(--scitex-color-06); */
+}

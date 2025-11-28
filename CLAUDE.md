@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-28 14:12:18
+!-- Timestamp: 2025-11-29 04:54:30
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -36,8 +36,7 @@ We are using docker containers for developmental server as well. Please check ./
 ---
 
 ## Subagents
-Time is more than money.
-Launch up to eight agents in parallel when beneficial.
+When time can be shortened, launch and delegate your tasks to subagents up to 32 instances in parallel, under your supervision. Agents have -{HAIKU,SONNET,OPUS} suffixes so that please specify these model variants based on the difficulty of the task to delegate. HAIKU is faster, SONNET is balanced, and OPUS is more intelligent.
 ## Autonomous Development
 Based on the following conditions, please proceed development autonomously
 ### Test user
@@ -67,7 +66,7 @@ It would be better to place .env file in project root and load it to specify SCI
 `./docs/MONETIZATION_STRATEGY_IMPLEMENTATION.md`
 
 ## Project-centric application
-The SciTeX ecosystem is project-centric; scholar, code, viz, writer should be linked to a project of the user or a group. However, basic functionalities should be offered to anonymous users or users with no projects associated.
+The SciTeX ecosystem is project-centric; scholar, code, viz, writer should be linked to a project of the user or a group. However, basic functionalities should be offered to visitor users or users with no projects associated.
 
 ## Environmental Variables
 `./SECRETS/.env.{dev,prod}` will be useful

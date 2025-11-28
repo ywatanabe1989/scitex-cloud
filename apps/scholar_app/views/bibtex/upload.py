@@ -39,7 +39,7 @@ def bibtex_upload(request):
         user = request.user
         is_authenticated = request.user.is_authenticated
 
-        # Ensure session exists for anonymous users
+        # Ensure session exists for visitor users
         if not is_authenticated and not request.session.session_key:
             request.session.create()
 
@@ -93,7 +93,7 @@ def bibtex_upload(request):
             )
 
     else:
-        # Anonymous users: Ask if they want to cancel old job
+        # Visitor users: Ask if they want to cancel old job
         existing_jobs = (
             BibTeXEnrichmentJob.objects.filter(
                 session_key=request.session.session_key,
@@ -175,7 +175,7 @@ def bibtex_upload(request):
     if is_authenticated:
         user_identifier = str(user.id)
     else:
-        user_identifier = f"anonymous_{request.session.session_key}"
+        user_identifier = f"visitor_{request.session.session_key}"
 
     file_path = default_storage.save(
         f"bibtex_uploads/{user_identifier}/{bibtex_file.name}",

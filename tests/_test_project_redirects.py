@@ -21,8 +21,8 @@ def test_project_redirects():
     print("Testing Project Redirect Functionality")
     print("=" * 50)
     
-    # Test 1: Anonymous user accessing /projects/
-    print("1. Testing anonymous user access to /projects/...")
+    # Test 1: Visitor user accessing /projects/
+    print("1. Testing visitor user access to /projects/...")
     response = client.get('/projects/', follow=True)
     print(f"   Status: {response.status_code}")
     print(f"   Final URL: {response.request['PATH_INFO']}")

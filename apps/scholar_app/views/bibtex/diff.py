@@ -24,7 +24,7 @@ def bibtex_job_diff(request, job_id):
     import bibtexparser
     from apps.project_app.services.project_utils import get_current_project
 
-    # Get the job (handle both authenticated and anonymous users)
+    # Get the job (handle both authenticated and visitor users)
     if request.user.is_authenticated:
         try:
             job = BibTeXEnrichmentJob.objects.get(id=job_id, user=request.user)
@@ -34,7 +34,7 @@ def bibtex_job_diff(request, job_id):
                 status=404,
             )
     else:
-        # For anonymous users, check by session_key
+        # For visitor users, check by session_key
         try:
             job = BibTeXEnrichmentJob.objects.get(
                 id=job_id, session_key=request.session.session_key

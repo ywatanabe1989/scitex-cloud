@@ -129,7 +129,7 @@ export class CanvasManager {
             if (this.statusBarCallback) {
                 this.statusBarCallback('Grid enabled');
             }
-        }, { crossOrigin: 'anonymous' });
+        }, { crossOrigin: 'visitor' });
     }
 
     /**

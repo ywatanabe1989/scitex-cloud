@@ -76,9 +76,9 @@ def process_bibtex_job(job):
                 / ".scitex"
             )
         else:
-            session_key = job.session_key or "anonymous"
+            session_key = job.session_key or "visitor"
             user_scitex_dir = (
-                Path(settings.BASE_DIR) / "data" / "anonymous" / session_key / ".scitex"
+                Path(settings.BASE_DIR) / "data" / "visitor" / session_key / ".scitex"
             )
 
         user_scitex_dir.mkdir(parents=True, exist_ok=True)
@@ -162,7 +162,7 @@ def process_bibtex_job(job):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = f"{original_name}-enriched-by-scitex_{timestamp}.bib"
 
-        user_dir = str(job.user.id) if job.user else "anonymous"
+        user_dir = str(job.user.id) if job.user else "visitor"
         output_path = (
             Path(settings.MEDIA_ROOT) / "bibtex_enriched" / user_dir / output_filename
         )

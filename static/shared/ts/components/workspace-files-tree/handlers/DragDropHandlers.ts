@@ -18,30 +18,33 @@ export class DragDropHandlers {
 
     // Make items draggable
     treeEl.addEventListener('dragstart', (e) => {
-      const target = e.target as HTMLElement;
+      const dragEvent = e as DragEvent;
+      const target = dragEvent.target as HTMLElement;
       const item = target.closest('[data-path]');
-      if (item && e.dataTransfer) {
+      if (item && dragEvent.dataTransfer) {
         const path = item.getAttribute('data-path')!;
-        e.dataTransfer.setData('text/plain', path);
-        e.dataTransfer.effectAllowed = 'move';
+        dragEvent.dataTransfer.setData('text/plain', path);
+        dragEvent.dataTransfer.effectAllowed = 'move';
         item.classList.add('wft-dragging');
       }
     });
 
     // Drag over folder
     treeEl.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      const target = e.target as HTMLElement;
+      const dragEvent = e as DragEvent;
+      dragEvent.preventDefault();
+      const target = dragEvent.target as HTMLElement;
       const folderItem = target.closest('.wft-folder[data-path]');
-      if (folderItem && e.dataTransfer) {
-        e.dataTransfer.dropEffect = 'move';
+      if (folderItem && dragEvent.dataTransfer) {
+        dragEvent.dataTransfer.dropEffect = 'move';
         folderItem.classList.add('wft-drop-target');
       }
     });
 
     // Drag leave
     treeEl.addEventListener('dragleave', (e) => {
-      const target = e.target as HTMLElement;
+      const dragEvent = e as DragEvent;
+      const target = dragEvent.target as HTMLElement;
       const folderItem = target.closest('.wft-folder[data-path]');
       if (folderItem) {
         folderItem.classList.remove('wft-drop-target');
@@ -50,14 +53,15 @@ export class DragDropHandlers {
 
     // Drop
     treeEl.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      const target = e.target as HTMLElement;
+      const dragEvent = e as DragEvent;
+      dragEvent.preventDefault();
+      const target = dragEvent.target as HTMLElement;
       const folderItem = target.closest('.wft-folder[data-path]');
-      
-      if (folderItem && e.dataTransfer) {
-        const sourcePath = e.dataTransfer.getData('text/plain');
+
+      if (folderItem && dragEvent.dataTransfer) {
+        const sourcePath = dragEvent.dataTransfer.getData('text/plain');
         const targetPath = folderItem.getAttribute('data-path')!;
-        
+
         if (sourcePath && targetPath && sourcePath !== targetPath) {
           await this.createSymlink(sourcePath, targetPath);
         }
