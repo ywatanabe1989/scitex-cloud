@@ -1,183 +1,10 @@
-{% load static %}
-<link rel="stylesheet" href="{% static 'scholar_app/css/bibtex/bibtex-enrichment.css' %}?v={{ request.timestamp|default:'1' }}" />
-<!-- BibTeX Enrichment - Single Column for Main Panel -->
-<div class="bibtex-enrichment-container">
-    <!-- Single Column Layout (status tiles moved to right panel) -->
-    <div class="bibtex-main-area">
-        <!-- Left Column: Main Upload Area -->
-        <div class="bibtex-main-column">
-            <!-- Upload Card (header moved to pane header) -->
-            <div class="bibtex-card bibtex-card--upload bibtex-card--no-header">
-                <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
-                    {% csrf_token %}
+/* BibTeX Enrichment Styles - Using Workspace Colors */
 
-                    {% include "scholar_app/search_partials/asta_tooltip.html" %}
-
-                    <!-- Drop Zone -->
-                    <div id="dropZone" class="bibtex-dropzone">
-                        <i class="fas fa-cloud-upload-alt bibtex-dropzone__icon"></i>
-                        <h4 class="bibtex-dropzone__title">Upload your .bib file here</h4>
-                        <p class="bibtex-dropzone__subtitle">
-                            Enrich with <strong>Abstract</strong>, <strong>URL</strong>, <strong>Citation Count</strong>, and <strong>Impact Factor</strong>
-                        </p>
-                        <div id="fileNameDisplay" class="bibtex-dropzone__filename hidden">
-                            <i class="fas fa-check-circle"></i> <span id="fileName"></span>
-                        </div>
-                        <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required class="bibtex-dropzone__input">
-                    </div>
-
-                    <!-- Save Path Highlight -->
-                    {% if current_project %}
-                    <div class="bibtex-save-path">
-                        <i class="fas fa-folder-open"></i>
-                        <span>Save to: <code>./scitex/scholar/bib_files/enriched_*.bib</code></span>
-                    </div>
-                    {% endif %}
-
-                    <!-- Action Buttons -->
-                    <div class="bibtex-actions">
-                        <button type="button" id="saveToProjectBtn" onclick="handleSaveToProject()" disabled class="btn btn-warning">
-                            <i class="fas fa-bookmark"></i> Save to Project
-                        </button>
-                        <button id="downloadBtn" onclick="handleDownload()" disabled class="btn btn-success">
-                            <i class="fas fa-file-download"></i> Download Enriched
-                        </button>
-                        <button id="viewChangesBtn" onclick="showBibtexDiff()" disabled class="btn btn-secondary" title="See what fields were added">
-                            <i class="fas fa-code-branch"></i> View Changes
-                        </button>
-                        <button id="openUrlsMainBtn" onclick="openAllPaperUrls()" disabled class="btn btn-info">
-                            <i class="fas fa-external-link-alt"></i> <span id="urlButtonText">Open All URLs</span>
-                        </button>
-                    </div>
-
-                    <!-- Hidden fields -->
-                    {% if user.is_authenticated and user_projects %}
-                    <input type="hidden" name="project_id" id="projectSelector" value="{% if current_project %}{{ current_project.id }}{% endif %}">
-                    {% endif %}
-                    <input type="hidden" name="num_workers" value="4">
-                </form>
-            </div>
-
-            <!-- Running Indicator (shown when processing) -->
-            <div id="enrichmentRunningIndicator" class="bibtex-card bibtex-card--running hidden">
-                <div class="bibtex-running__header">
-                    <div class="green-pulse-dot"></div>
-                    <div class="bibtex-running__info">
-                        <h4><i class="fas fa-magic"></i> Enrichment in Progress</h4>
-                        <p>Processing your BibTeX file... This may take a few moments.</p>
-                    </div>
-                </div>
-                <div class="bibtex-progress">
-                    <div class="bibtex-progress__bar">
-                        <div id="enrichmentProgressBar" class="bibtex-progress__fill"></div>
-                    </div>
-                    <div class="bibtex-progress__labels">
-                        <span id="progressPercent">0%</span>
-                        <span id="progressStatus">Initializing...</span>
-                    </div>
-                </div>
-                <div class="bibtex-running__log">
-                    <div class="bibtex-running__log-header">
-                        <span>Processing Log</span>
-                        <button onclick="toggleProcessingLogVisibility()" class="btn-icon">
-                            <i class="fas fa-chevron-down" id="logToggleIcon"></i>
-                        </button>
-                    </div>
-                    <div id="enrichmentProcessingLog" class="terminal-log terminal-log--medium terminal-log--processing">
-                        Initializing enrichment process...
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Status tiles moved to right panel (status_tiles.html) -->
-    </div>
-</div>
-
-<!-- Project Selector Modal -->
-<div id="projectSelectorModal" class="bibtex-modal hidden">
-    <div class="bibtex-modal__backdrop" onclick="closeProjectSelectorModal()"></div>
-    <div class="bibtex-modal__content">
-        <h3 class="bibtex-modal__title">
-            <i class="fas fa-folder-open"></i> Select Project
-        </h3>
-        {% if user.is_authenticated and user_projects %}
-        <div class="bibtex-modal__body">
-            <label>Choose a project to save the enriched BibTeX file:</label>
-            <select id="projectSelectorDropdown" class="form-control">
-                {% for project in user_projects %}
-                <option value="{{ project.id }}" {% if current_project and current_project.id == project.id %}selected{% endif %}>
-                    {{ project.name }}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="bibtex-modal__footer">
-            <button onclick="closeProjectSelectorModal()" class="btn btn-outline-secondary">Cancel</button>
-            <button onclick="confirmProjectSelection()" class="btn btn-warning">
-                <i class="fas fa-bookmark"></i> Save to Project
-            </button>
-        </div>
-        {% else %}
-        <div class="bibtex-modal__body">
-            <p class="text-muted">
-                {% if not user.is_authenticated %}
-                Please sign in to save files to projects.
-                {% else %}
-                You don't have any projects yet. Create a project first.
-                {% endif %}
-            </p>
-        </div>
-        <div class="bibtex-modal__footer">
-            <button onclick="closeProjectSelectorModal()" class="btn btn-outline-secondary">Close</button>
-            {% if not user.is_authenticated %}
-            <a href="/auth/signin/" class="btn btn-primary">Sign In</a>
-            {% else %}
-            <a href="/new/" class="btn btn-primary">Create Project</a>
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Diff View Modal -->
-<div id="bibtexDiffModal" class="bibtex-modal bibtex-modal--large hidden">
-    <div class="bibtex-modal__backdrop" onclick="closeBibtexDiff()"></div>
-    <div class="bibtex-modal__content">
-        <button onclick="closeBibtexDiff()" class="bibtex-modal__close">&times;</button>
-        <h3 class="bibtex-modal__title">
-            <i class="fas fa-code-branch"></i> BibTeX Enhancement Comparison
-        </h3>
-        <p class="bibtex-modal__legend">
-            <span class="text-success"><i class="fas fa-check-circle"></i> Green</span> = Added fields,
-            <span class="text-muted"><i class="fas fa-circle"></i> Gray</span> = Original fields
-        </p>
-        <div id="bibtexDiffContent" class="bibtex-diff-content">Loading...</div>
-    </div>
-</div>
-
-<!-- Scripts -->
-<script type="module" src="{% static 'shared/js/components/confirm-modal.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/shared/collapsible-panels.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/bibtex/bibtex-enrichment.js' %}"></script>
-<script type="module" src="{% static 'scholar_app/js/bibtex/queue-management.js' %}"></script>
-
-<script>
-// Toggle panel function for tiles
-function toggleBibtexPanel(header) {
-    const tile = header.closest('.bibtex-tile');
-    tile.classList.toggle('bibtex-tile--expanded');
+/* Hidden elements */
+.hidden {
+    display: none;
 }
 
-// Initialize all tiles as expanded by default
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.bibtex-tile').forEach(tile => {
-        tile.classList.add('bibtex-tile--expanded');
-    });
-});
-</script>
-
-<style>
-/* BibTeX Enrichment Styles - Using Workspace Colors */
 .bibtex-enrichment-container {
     padding: 1.5rem;
     height: 100%;
@@ -320,6 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
     font-weight: 500;
+}
+
+#openUrlsMainBtn {
+    opacity: 0.6;
 }
 
 /* Running Card */
@@ -675,4 +506,3 @@ document.addEventListener('DOMContentLoaded', () => {
 [data-theme="light"] .bibtex-save-path {
     background: rgba(210, 153, 34, 0.1);
 }
-</style>

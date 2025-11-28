@@ -1,0 +1,28 @@
+/**
+ * Scholar Search Page Inline Styles
+ * Extracted from scholar_app/templates/scholar_app/scholar_search.html
+ */
+
+/* Container padding */
+.scholar-search-container {
+    padding-bottom: 2rem;
+}
+
+/* Page header flex layout */
+.scholar-search-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+/* BibTeX enrichment button */
+.scholar-bibtex-btn {
+    white-space: nowrap;
+}
+
+/* SVG icon spacing */
+.scholar-bibtex-btn svg {
+    margin-right: 6px;
+    vertical-align: text-bottom;
+}

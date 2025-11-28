@@ -13,7 +13,6 @@
           href="{% static 'images/vectorstock_38853699/vectorstock_38853699-navy-inverted-192x192.png' %}?v=3" />
 {% endblock %}
 {% block extra_css %}
-    {% load static %}
     <link rel="stylesheet" href="{% static 'public_app/css/tools/plot-viewer.css' %}">
 {% endblock %}
 {% block content %}
@@ -254,6 +253,10 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block extra_js %}
+    {% load static %}
+    <script src="{% static 'public_app/js/tools/plot-viewer.js' %}"></script>
 {% endblock %}
 {% block extra_js %}
     {% load static %}
