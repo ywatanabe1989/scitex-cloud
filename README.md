@@ -83,17 +83,6 @@ make shell                    # Django shell
 </details>
 
 <details>
-<summary><b>Production</b></summary>
-
-```bash
-make ENV=prod start           # Deploy production
-make ENV=prod db-backup       # Backup database
-make ENV=prod verify-health   # Health check
-```
-
-</details>
-
-<details>
 <summary><b>NAS/Home Server</b></summary>
 
 ```bash
@@ -104,7 +93,7 @@ make ENV=nas db-backup        # Backup
 
 </details>
 
-**All commands:** `make help` or `make ENV=prod help`
+**All commands:** `make help` or `make ENV=nas help`
 
 ---
 
@@ -115,8 +104,7 @@ make ENV=nas db-backup        # Backup
 
 Place `.env` files in `SECRET/` directory (gitignored):
 - `SECRET/.env.dev` - Development
-- `SECRET/.env.prod` - Production
-- `SECRET/.env.nas` - NAS
+- `SECRET/.env.nas` - NAS/Home Server
 
 **Required variables:**
 ```bash
@@ -135,9 +123,8 @@ SCITEX_CLOUD_GITEA_TOKEN=your-token
 ```
 
 **Templates available:**
-- `containers/docker_dev/.env.dev.example`
-- `containers/docker_prod/.env.prod.example`
-- `containers/docker_nas/.env.nas.example`
+- `deployment/docker/docker_dev/.env.dev.example`
+- `deployment/docker/docker_nas/.env.nas.example`
 
 </details>
 
@@ -161,14 +148,14 @@ make recreate-testuser        # Recreate test user (dev only)
 </details>
 
 <details>
-<summary><b>Production</b></summary>
+<summary><b>NAS Deployment</b></summary>
 
 ```bash
-make ENV=prod start           # Deploy production
-make ENV=prod migrate         # Prod migrations
-make ENV=prod db-backup       # Backup database
-make ENV=prod verify-health   # Health check
-make ENV=prod logs            # View logs
+make ENV=nas start            # Deploy to NAS
+make ENV=nas migrate          # Run migrations
+make ENV=nas db-backup        # Backup database
+make ENV=nas verify-health    # Health check
+make ENV=nas logs             # View logs
 ```
 
 </details>
@@ -178,7 +165,7 @@ make ENV=prod logs            # View logs
 
 ```bash
 make test                     # Run test suite (dev)
-make ENV=prod verify-health   # Health check (prod)
+make ENV=nas verify-health    # Health check (NAS)
 ```
 
 </details>
@@ -203,15 +190,13 @@ scitex-cloud/
 │   ├── gitea_app/          # Git hosting integration
 │   └── dev_app/            # Design system
 │
-├── containers/              # Container deployments
+├── deployment/docker/       # Container deployments
 │   ├── docker_dev/         # Development
-│   ├── docker_prod/        # Production
 │   ├── docker_nas/         # NAS/Home server
 │   └── common/             # Shared resources
 │
 ├── SECRET/                  # Environment files (gitignored)
 │   ├── .env.dev            # Development secrets
-│   ├── .env.prod           # Production secrets
 │   └── .env.nas            # NAS secrets
 │
 ├── config/                  # Django configuration
@@ -222,10 +207,9 @@ scitex-cloud/
 ```
 
 **Documentation:**
-- `containers/README.md` - Docker setup
-- `containers/docker_dev/README.dev.md` - Dev environment
-- `containers/docker_prod/README.prod.md` - Production
-- `containers/docker_nas/README.nas.md` - NAS deployment
+- `deployment/docker/README.md` - Docker setup
+- `deployment/docker/docker_dev/README.md` - Dev environment
+- `deployment/docker/docker_nas/README.md` - NAS deployment
 
 </details>
 

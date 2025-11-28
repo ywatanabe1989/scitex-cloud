@@ -1,6 +1,7 @@
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Specific.gitignore ###
 .README.md
 TODOS/90_COMPARISON_TABLE.md
+slurm_logs
 
 ### Source: /home/ywatanabe/.git-templates/.gitignore-templates/Custom/Claude.gitignore ###
 .claude

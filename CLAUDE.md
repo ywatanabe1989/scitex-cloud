@@ -1,5 +1,5 @@
 <!-- ---
-!-- Timestamp: 2025-11-26 23:57:49
+!-- Timestamp: 2025-11-28 14:12:18
 !-- Author: ywatanabe
 !-- File: /home/ywatanabe/proj/scitex-cloud/CLAUDE.md
 !-- --- -->
@@ -11,6 +11,24 @@
 
 ## Keep it simple
 I have significant challenges with memory and reading comprehension, so please keep things simple and well-organized. Write document files, README.md or docs/ii_XXX.md, with necessary and sufficient contents. Structure (project, directory, file) and names (directory name, file name, class/function name, variable name) are part of documents. Code themselves must be readable document as well. All scripts are expected to run from project root.
+
+## Be explicity
+Do not use hard coding
+Do not prepare unexpected fallbacks
+Insetad handle errors explicitly
+Error with guidance is much better than silent success
+
+## Development and NAS
+Now, NAS is the first production environment.
+Current _prod settings are old ones for VPS.
+We decided to use home NAS for service deployment and not to use VPS servers due to high cost and low computational powers
+Hide current prod and use only dev and prod
+Key files are:
+  ./deployment
+  ./SECRET/.env.{dev,nas}
+  ./config/settings/settings_{shared,dev,nas}.py
+  
+Keep consistency across deployment environments for stability, testability, and future expansibility.
 
 ## Developmental Environment
 We are using docker containers for developmental server as well. Please check ./deployment/docker/docker_dev/ for detals. Makefiles would be also useful. Also, we are not accepting direct call of `python manage.py` to avoid confusion. Please use docker.

@@ -1,7 +1,7 @@
 # ============================================
 # SciTeX Cloud - Environment Orchestrator
 # ============================================
-# Exclusive environment management for dev/prod/nas
+# Exclusive environment management for dev/nas
 # Location: /Makefile
 #
 # Key Features:
@@ -9,13 +9,13 @@
 # - Mandatory environment specification (NO defaults!)
 # - State file + Docker reality validation
 # - Conflict detection and prevention
-# - Safety confirmations for production
+# - Safety confirmations for NAS deployment
 #
 # Usage:
 #   make status                    # Show active environment
 #   make ENV=dev start             # Start dev (stops others first)
-#   make ENV=prod switch           # Switch to prod
-#   make ENV=prod rebuild          # Rebuild prod (with confirmation)
+#   make ENV=nas switch            # Switch to NAS
+#   make ENV=nas rebuild           # Rebuild NAS (with confirmation)
 
 .PHONY: \
 	help \
@@ -80,7 +80,7 @@
 # ============================================
 # Configuration
 # ============================================
-VALID_ENVS := dev prod nas
+VALID_ENVS := dev nas
 
 # Colors
 GREEN := \033[0;32m
@@ -101,7 +101,7 @@ endif
 # Check if ENV is specified and valid
 ifdef ENV
   ifeq ($(filter $(ENV),$(VALID_ENVS)),)
-    $(error Invalid ENV='$(ENV)'. Must be one of: dev, prod, nas)
+    $(error Invalid ENV='$(ENV)'. Must be one of: dev, nas)
   endif
   DOCKER_DIR := deployment/docker/docker_$(ENV)
   MAKEFILE := $(DOCKER_DIR)/Makefile
@@ -109,7 +109,7 @@ else
   # ENV not specified - only allow non-operational commands
   ifneq ($(MAKECMDGOALS),)
     ifneq ($(filter-out help status validate-docker stop-all force-stop-all format format-python format-web format-shell lint lint-web check-file-sizes slurm-start slurm-stop slurm-restart slurm-status slurm-fix slurm-resume slurm-reset info,$(MAKECMDGOALS)),)
-      $(error ❌ ENV not specified! Use: make ENV=<dev|prod|nas> <command>)
+      $(error ❌ ENV not specified! Use: make ENV=<dev|nas> <command>)
     endif
   endif
 endif
@@ -186,7 +186,7 @@ help:
 	@echo "$(CYAN)💡 Examples:$(NC)"
 	@echo "  make status                       # Check what's running"
 	@echo "  make ENV=dev start                # Start development"
-	@echo "  make ENV=prod switch              # Switch to production"
+	@echo "  make ENV=nas switch               # Switch to NAS"
 	@echo "  make ENV=nas rebuild              # Rebuild NAS environment"
 	@echo ""
 	@echo "$(CYAN)🔧 Utilities:$(NC)"
@@ -203,12 +203,6 @@ help:
 	@echo "  make format-python                # Format & lint Python with Ruff"
 	@echo "  make format-web                   # Format & lint web (⚠️  MODIFIES FILES)"
 	@echo "  make format-shell                 # Format & lint shell scripts"
-	@echo ""
-	@echo "$(CYAN)🔒 SSL/HTTPS (prod only):$(NC)"
-	@echo "  make ENV=prod ssl-verify          # Verify HTTPS is working"
-	@echo "  make ENV=prod ssl-check           # Check certificate status"
-	@echo "  make ENV=prod ssl-renew           # Renew certificates"
-	@echo "  make ENV=prod ssl-setup           # Manual SSL setup (interactive)"
 	@echo ""
 
 # ============================================
@@ -363,10 +357,10 @@ build:
 	@echo "$(GREEN)✅ Build complete for $(ENV)$(NC)"
 
 rebuild: validate-docker
-	@# Production safety check
-	@if [ "$(ENV)" = "prod" ]; then \
+	@# NAS safety check
+	@if [ "$(ENV)" = "nas" ]; then \
 		echo ""; \
-		echo "$(RED)⚠️  WARNING: Production rebuild!$(NC)"; \
+		echo "$(RED)⚠️  WARNING: NAS rebuild!$(NC)"; \
 		echo "$(YELLOW)   This will cause downtime.$(NC)"; \
 		echo ""; \
 		printf "Type 'yes' to confirm: "; \
@@ -389,10 +383,10 @@ rebuild: validate-docker
 	@$(MAKE) --no-print-directory validate
 
 rebuild-no-cache: validate-docker
-	@# Production safety check
-	@if [ "$(ENV)" = "prod" ]; then \
+	@# NAS safety check
+	@if [ "$(ENV)" = "nas" ]; then \
 		echo ""; \
-		echo "$(RED)⚠️  WARNING: Production rebuild without cache!$(NC)"; \
+		echo "$(RED)⚠️  WARNING: NAS rebuild without cache!$(NC)"; \
 		echo "$(YELLOW)   This will cause downtime and take longer.$(NC)"; \
 		echo ""; \
 		printf "Type 'yes' to confirm: "; \
@@ -699,43 +693,10 @@ endif
 # ============================================
 verify-health: validate
 	@if [ "$(ENV)" = "dev" ]; then \
-		echo "$(YELLOW)❌ verify-health only available in prod/nas$(NC)"; \
+		echo "$(YELLOW)❌ verify-health only available in nas$(NC)"; \
 		exit 1; \
 	fi
 	@cd $(DOCKER_DIR) && $(MAKE) -f Makefile verify-health
-
-ssl-setup:
-ifeq ($(ENV),prod)
-	@echo "$(CYAN)🔒 Setting up SSL/HTTPS for production...$(NC)"
-	cd $(DOCKER_DIR) && $(MAKE) ssl-setup
-else
-	@echo "$(YELLOW)❌ ssl-setup only available in prod environment$(NC)"
-	@exit 1
-endif
-
-ssl-verify:
-ifeq ($(ENV),prod)
-	cd $(DOCKER_DIR) && $(MAKE) ssl-verify
-else
-	@echo "$(YELLOW)❌ ssl-verify only available in prod environment$(NC)"
-	@exit 1
-endif
-
-ssl-check:
-ifeq ($(ENV),prod)
-	cd $(DOCKER_DIR) && $(MAKE) ssl-check
-else
-	@echo "$(YELLOW)❌ ssl-check only available in prod environment$(NC)"
-	@exit 1
-endif
-
-ssl-renew:
-ifeq ($(ENV),prod)
-	cd $(DOCKER_DIR) && $(MAKE) ssl-renew
-else
-	@echo "$(YELLOW)❌ ssl-renew only available in prod environment$(NC)"
-	@exit 1
-endif
 
 # ============================================
 # Utilities

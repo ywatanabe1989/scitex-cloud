@@ -13,7 +13,11 @@ class VisitorAutoLoginMiddleware:
     Middleware that auto-logs in anonymous users as visitors.
 
     Works on any page - landing, /code/, /writer/, /scholar/, /vis/, etc.
-    Skips health checks and internal requests.
+    Skips non-browser requests (bots, health checks, automated scripts).
+
+    Uses User-Agent based browser detection (standard pattern):
+    - Allocates visitor slot for real browsers (Chrome, Firefox, Safari, etc.)
+    - Skips automated requests (curl, wget, empty UA, crawlers)
     """
 
     def __init__(self, get_response):
@@ -22,23 +26,6 @@ class VisitorAutoLoginMiddleware:
     def __call__(self, request):
         # Skip if already authenticated
         if request.user.is_authenticated:
-            return self.get_response(request)
-
-        # Skip health checks and internal requests
-        # Use X-Forwarded-For to get real user IP (behind Cloudflare/nginx)
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
-        real_ip = x_forwarded_for.split(',')[0].strip() if x_forwarded_for else request.META.get('REMOTE_ADDR', '')
-
-        is_health_check = (
-            'curl' in user_agent.lower() or
-            'wget' in user_agent.lower() or
-            real_ip.startswith('127.') or
-            real_ip.startswith('::1') or
-            not user_agent
-        )
-
-        if is_health_check:
             return self.get_response(request)
 
         # Skip static files, media, and paths that don't need visitor
@@ -58,7 +45,21 @@ class VisitorAutoLoginMiddleware:
         if any(path.startswith(p) for p in skip_paths):
             return self.get_response(request)
 
-        # Auto-login as visitor
+        # Skip non-browser requests (bots, health checks, automated scripts)
+        # Use User-Agent based detection (standard pattern)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+        # Check if it's a real browser
+        is_browser = any(
+            browser in user_agent
+            for browser in ['Mozilla', 'Chrome', 'Safari', 'Firefox', 'Edge', 'Opera']
+        )
+
+        # Skip if not a browser (includes curl, wget, empty UA, bots, crawlers)
+        if not is_browser:
+            return self.get_response(request)
+
+        # Auto-login as visitor for real browser requests
         try:
             from apps.project_app.services.visitor_pool import VisitorPool
 
