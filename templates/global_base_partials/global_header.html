@@ -406,9 +406,7 @@
             <!-- Refresh Button (Ctrl+Shift+R alternative) -->
             <button id="page-refresh-btn"
                     class="theme-toggle"
-                    data-tooltip="Refresh page (Ctrl+Shift+R)"
-                    style="font-size: 18px;"
-                    onclick="this.querySelector('i').classList.add('fa-spin'); window.location.reload();">
+                    data-tooltip="Refresh page (Ctrl+Shift+R)">
                 <i class="fas fa-sync-alt"></i>
             </button>
             <!-- Server Status with live health indicator -->
@@ -433,9 +431,8 @@
             {% if is_visitor %}
                 <!-- Visitor Menu (Integrated badge + dropdown) -->
                 <div class="header-user-menu">
-                    <button class="header-user-toggle"
+                    <button class="header-user-toggle visitor-button"
                             id="visitor-menu-toggle"
-                            style="background: linear-gradient(135deg, rgba(240, 173, 78, 0.15) 0%, rgba(240, 173, 78, 0.08) 100%); color: #f0ad4e; font-weight: 500; padding: 6px 12px; border: 1px solid rgba(240, 173, 78, 0.3);"
                             {% if visitor_expires_at %}
                             data-expires-at="{{ visitor_expires_at.isoformat }}"
                             {% endif %}>
