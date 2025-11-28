@@ -1,0 +1,138 @@
+/* ========================================
+   DATA TABLE TABS
+   ======================================== */
+.data-tabs-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: var(--sigma-bg-secondary);
+    border-bottom: 1px solid var(--workspace-border-muted);
+    padding: 0;
+    height: 32px;
+    min-height: 32px;
+    flex-shrink: 0;
+}
+
+.data-tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    flex: 1;
+    scrollbar-width: none;
+    padding: 0 4px;
+}
+
+.data-tabs-container::-webkit-scrollbar {
+    display: none;
+}
+
+.data-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 400;
+    cursor: grab;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    position: relative;
+    user-select: none;
+}
+
+.data-tab:hover {
+    background: var(--sigma-bg-hover);
+    color: var(--text-primary);
+}
+
+.data-tab.active {
+    background: transparent;
+    color: var(--text-primary);
+    font-weight: 500;
+    border-bottom: 2px solid rgba(16, 185, 129, 0.8);
+}
+
+.data-tab.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.data-tab.drag-over {
+    border-left: 2px solid var(--status-success);
+}
+
+.data-tab i {
+    font-size: 10px;
+    color: inherit;
+}
+
+.data-tab-label {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.data-tab-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    pointer-events: auto;
+    padding: 0;
+    margin-left: 2px;
+    background: transparent;
+    border: none;
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.15s ease;
+}
+
+.data-tab:hover .data-tab-close {
+    opacity: 0.7;
+}
+
+.data-tab-close:hover {
+    background: var(--status-error-bg);
+    color: var(--status-error);
+    opacity: 1;
+}
+
+.data-tab-new {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin: 2px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.data-tab-new:hover {
+    background: var(--sigma-bg-hover);
+    color: var(--text-primary);
+}
+
+/* Tab modified indicator */
+.data-tab.modified .data-tab-label::after {
+    content: ' *';
+    color: var(--status-warning);
+}
+

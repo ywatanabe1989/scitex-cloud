@@ -1,0 +1,27 @@
+/* ========================================================================
+   DRAG AND DROP STYLES
+   ======================================================================== */
+
+/* Drag over state for buttons */
+.ribbon-btn.drag-over {
+    background: var(--status-success-bg);
+    border-color: var(--status-success);
+    box-shadow: 0 0 0 3px rgba(74, 155, 126, 0.2);
+    transform: scale(1.05);
+}
+
+/* Drag over state for data table container */
+.data-table-container.drag-over,
+.empty-state.drag-over {
+    background: var(--status-success-bg);
+    border: 2px dashed var(--status-success);
+    box-shadow: 0 0 0 4px rgba(74, 155, 126, 0.1);
+}
+
+/* Smooth transition for drag states */
+.ribbon-btn,
+.data-table-container,
+.empty-state {
+    transition: all 0.2s ease;
+}
+

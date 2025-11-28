@@ -1,0 +1,54 @@
+/* ========================================================================
+   SciTeX Sigma Editor - SigmaPlot-Inspired Layout
+   ======================================================================== */
+
+/* Color Variables - Professional theme matching Code/Writer modules
+ * Uses workspace color system for consistency across all workspace apps
+ *
+ * DESIGN PRINCIPLE:
+ * - Light mode: Clean, professional light surfaces with readable text
+ * - Dark mode: Deep blacks (#0d0d0d) with subtle elevated surfaces
+ * - Both themes use semantic color tokens for consistency
+ */
+:root,
+[data-theme="light"] {
+    /* Ruler colors - distinct from canvas */
+    --sigma-ruler-bg: var(--workspace-ruler-bg, #d0dae5);
+    --sigma-ruler-border: var(--workspace-ruler-border, #d0d7de);
+
+    /* Semantic aliases for sigma editor - consistent with code_app/workspace.css */
+    --sigma-bg-primary: var(--workspace-bg-secondary, #f3f4f6);
+    --sigma-bg-secondary: var(--workspace-bg-tertiary, #ebedef);
+    --sigma-bg-hover: var(--workspace-bg-tertiary, #ebedef);
+    --sigma-border: var(--workspace-border-default, #b5c7d1);
+    --sigma-text-primary: var(--text-primary, #1a2a40);
+    --sigma-text-muted: var(--text-muted, #6c8ba0);
+}
+
+[data-theme="dark"] {
+    /* Use global workspace colors for consistency across Code/Writer/Vis */
+    --sigma-ruler-bg: var(--workspace-ruler-bg, #1a1a1a);
+    --sigma-ruler-border: var(--workspace-ruler-border, #1a1a1a);
+    --sigma-bg-primary: var(--workspace-bg-primary, #0d0d0d);
+    --sigma-bg-secondary: var(--workspace-bg-secondary, #151515);
+    --sigma-bg-hover: var(--workspace-bg-tertiary, #1a1a1a);
+    --sigma-border: var(--workspace-border-default, #3a3a3a);
+    --sigma-text-primary: var(--text-primary, #d4e1e8);
+    --sigma-text-muted: var(--text-muted, #6c8ba0);
+}
+
+/* Main Container - Grid Layout */
+.sigma-editor-container {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+    background: var(--sigma-bg-primary);
+    color: var(--sigma-text-primary);
+    overflow: hidden;
+}
+
+/* Dark mode: unified background with workspace modules */
+[data-theme="dark"] .sigma-editor-container {
+    background: var(--workspace-bg-primary) !important;
+}
+

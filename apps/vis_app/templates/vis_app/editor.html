@@ -5,7 +5,23 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma.css' %}">
+<!-- Sigma Editor CSS Modules (refactored from monolithic sigma.css) -->
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/variables.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/layout.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/ribbon.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/workspace.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/properties-panel.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/status-bar.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/theme.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/split-view.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/data-table.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/controls.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/drag-drop.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/editable-table.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/resize-handles.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/tree.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/sigma/scrollbars.css' %}">
 {% endblock %}
 
 {% block content %}

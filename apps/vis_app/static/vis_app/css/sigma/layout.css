@@ -1,0 +1,29 @@
+/* ========================================================================
+   MAIN CONTENT AREA
+   ======================================================================== */
+
+.sigma-main {
+    grid-row: 2;
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    overflow: hidden;
+    background: var(--sigma-bg-primary);
+}
+
+/* Dark mode: unified background */
+[data-theme="dark"] .sigma-main {
+    background: var(--workspace-bg-primary) !important;
+}
+
+/* Collapsed states */
+.sigma-main.sidebar-collapsed .sigma-sidebar {
+    width: 0;
+    min-width: 0;
+}
+
+.sigma-main.properties-collapsed .sigma-properties {
+    width: 0;
+    min-width: 0;
+}
+
