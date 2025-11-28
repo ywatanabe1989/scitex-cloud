@@ -41,16 +41,6 @@ def search_pubmed_central_fast(query, max_results=50, filters=None):
             "retmax": min(max_results, 20),  # Reduced max results
             "retmode": "json",
             "sort": "relevance",
-def search_pubmed_central_fast(query, max_results=50, filters=None):
-    """Fast PMC search with reduced complexity."""
-    try:
-        base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-        params = {
-            "db": "pmc",
-            "term": f'{query} AND "open access"[Filter]',
-            "retmax": min(max_results, 20),  # Reduced max results
-            "retmode": "json",
-            "sort": "relevance",
         }
 
         response = requests.get(base_url, params=params, timeout=3)  # Reduced timeout
