@@ -1,0 +1,72 @@
+/* ASTA Tooltip Component - Workspace Colors */
+
+.asta-tooltip-container {
+    background: #151515;
+    border-left: 4px solid #6ba89a;
+    border-radius: 0;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 1.25rem 1.5rem 1.25rem;
+    border: 1px solid #3a3a3a;
+    border-left: 4px solid #6ba89a;
+}
+
+.asta-tooltip-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.asta-tooltip-icon {
+    color: #6ba89a;
+    font-size: 1.5rem;
+}
+
+.asta-tooltip-body {
+    flex: 1;
+}
+
+.asta-tooltip-title {
+    color: #f0f3f6;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.asta-tooltip-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: #768390;
+    font-size: 0.9rem;
+}
+
+.asta-tooltip-options a {
+    color: #6ba89a;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.asta-tooltip-badge {
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
+
+.asta-generate-prompt-btn {
+    white-space: nowrap;
+    border-color: #6ba89a;
+    color: #6ba89a;
+}
+
+.asta-tooltip-footer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #3a3a3a;
+    font-size: 0.85rem;
+    color: #768390;
+}
+
+.asta-tooltip-footer a {
+    color: #6ba89a;
+    text-decoration: underline;
+}
