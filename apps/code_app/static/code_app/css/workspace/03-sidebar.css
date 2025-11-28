@@ -1,0 +1,20 @@
+/* Left Sidebar - unified background with editor and terminal */
+.code-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background-color: var(--code-bg) !important;
+  border-right: 1px solid var(--code-border);
+  border-radius: 0 !important;
+  border-left: none;
+  border-top: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Dark mode: unified background with editor and terminal */
+[data-theme="dark"] .code-sidebar,
+[data-theme="dark"] .code-sidebar.repo-sidebar {
+  background-color: var(--workspace-bg-primary) !important;
+  border-right-color: var(--workspace-border-default);
+}
+

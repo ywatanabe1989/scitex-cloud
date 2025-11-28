@@ -1,0 +1,17 @@
+/* Right: Terminal panel - professional styling */
+.code-terminal-panel {
+  width: 400px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--code-toolbar-bg);
+  border-left: 1px solid var(--code-border);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .code-terminal-panel {
+  background: var(--workspace-bg-secondary) !important;
+  border-left-color: var(--workspace-border-default);
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.3);
+}
+

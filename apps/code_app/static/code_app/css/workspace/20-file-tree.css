@@ -1,0 +1,11 @@
+/* File tree spacer */
+.file-tree-spacer {
+  width: 16px;
+  display: inline-block;
+}
+
+/* File tree folder name - add left margin */
+.file-tree-folder-name {
+  margin-left: 2px;
+}
+

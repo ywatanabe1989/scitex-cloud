@@ -1,0 +1,18 @@
+/* Sidebar header - sleek professional design */
+.sidebar-header {
+  padding: 0 16px;
+  margin-top: 0 !important;
+  background: var(--code-bg);
+  border-top: 1px solid var(--workspace-border-default);
+  border-bottom: 1px solid var(--workspace-border-default);
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .sidebar-header {
+  background: var(--workspace-bg-secondary) !important;
+}
+
