@@ -138,7 +138,7 @@
     {% if current_project %}
     <script type="module">
         // Initialize WorkspaceFilesTree for scholar mode
-        import { WorkspaceFilesTree } from '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js';
+        import { WorkspaceFilesTree } from '{% static "shared/js/components/workspace-files-tree/WorkspaceFilesTree.js" %}';
 
         document.addEventListener('DOMContentLoaded', async () => {
             const tree = new WorkspaceFilesTree({

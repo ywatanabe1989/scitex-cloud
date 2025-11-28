@@ -167,6 +167,7 @@ class SlurmManager:
 #SBATCH --cpus-per-task={cpus}
 #SBATCH --mem={memory_gb}G
 #SBATCH --time={time_limit}
+#SBATCH --chdir={workspace}
 #SBATCH --output={output_dir}/slurm-%j.out
 #SBATCH --error={output_dir}/slurm-%j.err
 #SBATCH --account=user_{user_id}

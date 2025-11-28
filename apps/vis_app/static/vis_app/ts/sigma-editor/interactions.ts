@@ -65,8 +65,12 @@ export function setupInteractionHandlers(editor: SigmaEditor): InteractionHandle
 
             console.log(`[InteractionHandlers] Initializing WorkspaceFilesTree for ${projectOwner}/${projectSlug}`);
 
+            // Get the WorkspaceFilesTree URL from the data attribute injected by Django template
+            const container = document.querySelector('.sigma-editor-container');
+            const treeUrl = container?.getAttribute('data-workspace-tree-url') || '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js';
+
             // Dynamically import the shared WorkspaceFilesTree component
-            const module = await (Function('return import("/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js")')()) as any;
+            const module = await (Function(`return import("${treeUrl}")`)()) as any;
             const { WorkspaceFilesTree } = module;
 
             // Initialize the tree

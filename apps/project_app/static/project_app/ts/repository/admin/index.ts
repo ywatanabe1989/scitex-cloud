@@ -13,13 +13,17 @@ export type {
   FilterType,
 } from "./types.js";
 
-// Export UI functions
+// Export rendering functions
 export {
   escapeHtml,
   renderHealthStatus,
   renderIssue,
   renderIssues,
   applyFilter,
+} from "./rendering.js";
+
+// Export UI interaction functions
+export {
   showDialog,
   closeDialog,
   showError,
