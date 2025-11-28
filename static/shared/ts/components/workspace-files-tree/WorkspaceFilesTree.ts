@@ -100,7 +100,7 @@ export class WorkspaceFilesTree {
     this.isLoading = true;
 
     try {
-      const response = await fetch(`/${this.config.username}/${this.config.slug}/api/files/tree/`);
+      const response = await fetch(`/${this.config.username}/${this.config.slug}/api/file-tree/`);
       const data = await response.json();
 
       if (data.success) {
