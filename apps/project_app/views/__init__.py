@@ -99,7 +99,7 @@ from .repository import (
 from .api_views import *
 from .api_issues_views import *
 from .directory_views import *
-from .pr_views import *
+from .pr import *
 from .integration_views import *
 from .collaboration_views import *
 from .settings_views import *

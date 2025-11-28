@@ -6,6 +6,7 @@ including account verification, manuscript formatting, and submission workflow.
 """
 
 from .account import ArxivAccountService
+from .arxiv_service_new import ArxivService
 from .category import ArxivCategoryService
 from .formatting import ArxivFormattingException, ArxivFormattingService
 from .service import ArxivAPIException, ArxivIntegrationService
@@ -19,6 +20,7 @@ __all__ = [
     "ArxivFormattingException",
     "ArxivFormattingService",
     "ArxivIntegrationService",
+    "ArxivService",
     "ArxivSubmissionException",
     "ArxivSubmissionService",
     "ArxivValidationService",

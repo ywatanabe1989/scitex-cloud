@@ -17,7 +17,7 @@ from ..views.directory_views import (
     file_history_view,
     commit_detail,
 )
-from ..views.project_views import (
+from ..views.project import (
     project_detail,
 )
 from ..views.api_views import (
