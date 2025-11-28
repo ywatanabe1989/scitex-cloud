@@ -132,7 +132,8 @@
        data-project-name="{{ current_project.name }}"
        data-project-owner="{{ current_project.owner.username }}"
        data-project-slug="{{ current_project.slug }}"
-       {% endif %}>
+       {% endif %}
+       data-workspace-tree-url="{% static 'shared/js/components/workspace-files-tree/WorkspaceFilesTree.js' %}">
   </div>
   <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 
