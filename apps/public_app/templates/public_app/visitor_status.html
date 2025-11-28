@@ -8,220 +8,7 @@ Check the current status of SciTeX visitor mode slots and availability.
 {% endblock %}
 
 {% block extra_css %}
-<style>
-.visitor-status-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 4rem 2rem;
-}
-
-.status-hero {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.status-hero-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
-}
-
-.status-hero-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.status-overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.status-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.status-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.status-card-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
-
-.status-card-value {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.status-card-label {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.slots-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.slot-card {
-    background: var(--bg-surface);
-    border: 2px solid var(--border-default);
-    border-radius: 12px;
-    padding: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.slot-card.allocated {
-    border-color: var(--status-warning);
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(255, 152, 0, 0.05) 100%);
-}
-
-.slot-card.free {
-    border-color: var(--status-success);
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(76, 175, 80, 0.05) 100%);
-}
-
-.slot-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.slot-number {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.slot-status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.slot-status-badge.allocated {
-    background: rgba(255, 152, 0, 0.2);
-    color: #ff9800;
-}
-
-.slot-status-badge.free {
-    background: rgba(76, 175, 80, 0.2);
-    color: #4caf50;
-}
-
-.slot-info {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
-
-.slot-time-remaining {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: rgba(255, 152, 0, 0.1);
-    border-radius: 8px;
-}
-
-.slot-time-remaining i {
-    color: #ff9800;
-}
-
-.info-banner {
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
-    border-left: 4px solid #2196f3;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-}
-
-.info-banner p {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.slot-card.current-user {
-    border-color: var(--workspace-icon-primary);
-    border-width: 3px;
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(5, 150, 105, 0.15) 100%);
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
-}
-
-/* Tooltips for status cards */
-.status-card {
-    position: relative;
-    cursor: help;
-}
-
-.status-card::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 1000;
-}
-
-.status-card::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(2px);
-    border: 6px solid transparent;
-    border-top-color: rgba(0, 0, 0, 0.9);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 1000;
-}
-
-.status-card:hover::after,
-.status-card:hover::before {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-12px);
-}
-
-.status-card:hover::before {
-    transform: translateX(-50%) translateY(-6px);
-}
-
-</style>
+<link rel="stylesheet" href="{% static 'public_app/css/visitor-status.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -229,13 +16,13 @@ Check the current status of SciTeX visitor mode slots and availability.
     <!-- Hero Section -->
     <div class="status-hero">
         <h1 class="status-hero-title">
-            <i class="fas fa-users" style="color: var(--workspace-icon-primary);"></i>
+            <i class="fas fa-users status-hero-icon"></i>
             Visitor Mode Status
         </h1>
     </div>
 
     <!-- Slots Grid -->
-    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary);">
+    <h2 class="section-title">
         <i class="fas fa-cube"></i> Visitor Slots
     </h2>
 
@@ -244,7 +31,7 @@ Check the current status of SciTeX visitor mode slots and availability.
         <div class="slot-card {{ allocation.status }} {% if allocation.is_current_user %}current-user{% endif %}">
             <div class="slot-header">
                 <div class="slot-number">
-                    <i class="fas fa-cube" style="margin-right: 0.5rem; color: var(--workspace-icon-primary);"></i>
+                    <i class="fas fa-cube slot-number-icon"></i>
                     Slot #{{ allocation.slot_number }}
                 </div>
                 <span class="slot-status-badge {{ allocation.status }}">
@@ -254,8 +41,8 @@ Check the current status of SciTeX visitor mode slots and availability.
 
             {% if allocation.status == "allocated" %}
             <div class="slot-info">
-                <i class="fas fa-user" style="color: #ff9800; margin-right: 0.5rem;"></i>
-                {{ allocation.visitor_username }}{% if allocation.is_current_user %} <strong style="color: var(--workspace-icon-primary);">(You)</strong>{% endif %}
+                <i class="fas fa-user slot-user-icon"></i>
+                {{ allocation.visitor_username }}{% if allocation.is_current_user %} <strong class="slot-current-user-badge">(You)</strong>{% endif %}
             </div>
             <div class="slot-time-remaining">
                 <i class="fas fa-clock"></i>
@@ -265,7 +52,7 @@ Check the current status of SciTeX visitor mode slots and availability.
             </div>
             {% else %}
             <div class="slot-info">
-                <i class="fas fa-check-circle" style="color: #4caf50; margin-right: 0.5rem;"></i>
+                <i class="fas fa-check-circle slot-available-icon"></i>
                 Available
             </div>
             {% endif %}
@@ -274,53 +61,53 @@ Check the current status of SciTeX visitor mode slots and availability.
     </div>
 
     <!-- How It Works (Short) -->
-    <div style="margin-top: 4rem;">
-        <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary);">
+    <div class="how-it-works-section">
+        <h2 class="section-title">
             <i class="fas fa-info-circle"></i> How It Works
         </h2>
 
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+        <div class="how-it-works-grid">
             <!-- Slot Allocation -->
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
-                <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
-                    <i class="fas fa-user-tag" style="color: var(--workspace-icon-primary);"></i>
+            <div class="how-it-works-card">
+                <h3 class="how-it-works-card-title">
+                    <i class="fas fa-user-tag how-it-works-card-icon"></i>
                     Slot Allocation
                 </h3>
-                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin: 0;">
+                <p class="how-it-works-card-text">
                     Navigate to any workspace to get assigned a visitor slot (e.g., <code>visitor-001</code>). First-come, first-served.
                 </p>
             </div>
 
             <!-- Data Separation -->
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
-                <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
-                    <i class="fas fa-shield-alt" style="color: var(--workspace-icon-primary);"></i>
+            <div class="how-it-works-card">
+                <h3 class="how-it-works-card-title">
+                    <i class="fas fa-shield-alt how-it-works-card-icon"></i>
                     Data Privacy
                 </h3>
-                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin: 0;">
+                <p class="how-it-works-card-text">
                     Your data is completely isolated. Each visitor has a private workspace. No one else can see your work.
                 </p>
             </div>
 
             <!-- Session Duration -->
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
-                <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
-                    <i class="fas fa-clock" style="color: var(--workspace-icon-primary);"></i>
+            <div class="how-it-works-card">
+                <h3 class="how-it-works-card-title">
+                    <i class="fas fa-clock how-it-works-card-icon"></i>
                     60-Minute Sessions
                 </h3>
-                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin: 0;">
+                <p class="how-it-works-card-text">
                     Slots expire after 1 hour. Sign up to migrate your data and get unlimited access.
                 </p>
             </div>
 
             <!-- Sign Up -->
-            <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px; padding: 1.5rem;">
-                <h3 style="font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--text-primary);">
-                    <i class="fas fa-user-plus" style="color: var(--workspace-icon-primary);"></i>
+            <div class="how-it-works-card">
+                <h3 class="how-it-works-card-title">
+                    <i class="fas fa-user-plus how-it-works-card-icon"></i>
                     Keep Your Work
                 </h3>
-                <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin: 0;">
-                    <a href="{% url 'auth_app:signup' %}" style="color: var(--workspace-icon-primary);">Sign up</a> anytime to save your work permanently. All data auto-migrates.
+                <p class="how-it-works-card-text">
+                    <a href="{% url 'auth_app:signup' %}" class="how-it-works-link">Sign up</a> anytime to save your work permanently. All data auto-migrates.
                 </p>
             </div>
         </div>
@@ -328,48 +115,8 @@ Check the current status of SciTeX visitor mode slots and availability.
 
 </div>
 
-<!-- Auto-refresh every 60 seconds to keep status current -->
-<script>
-// Live countdown timer for allocated slots
-function updateCountdowns() {
-    document.querySelectorAll('.slot-time-remaining span').forEach(function(element) {
-        const text = element.textContent.trim();
-        const match = text.match(/Expires in (\d+) min/);
-        if (match) {
-            let minutes = parseInt(match[1]);
-            let totalSeconds = minutes * 60;
+{% endblock %}
 
-            // Store initial time if not already stored
-            if (!element.dataset.initialSeconds) {
-                element.dataset.initialSeconds = totalSeconds;
-                element.dataset.startTime = Date.now();
-            }
-
-            // Calculate elapsed seconds since page load
-            const elapsedSeconds = Math.floor((Date.now() - parseInt(element.dataset.startTime)) / 1000);
-            const remainingSeconds = Math.max(0, parseInt(element.dataset.initialSeconds) - elapsedSeconds);
-
-            // Convert to minutes
-            const remainingMinutes = Math.floor(remainingSeconds / 60);
-
-            // Update display
-            element.textContent = `Expires in ${remainingMinutes} min`;
-
-            // Reload page if expired
-            if (remainingSeconds <= 0) {
-                location.reload();
-            }
-        }
-    });
-}
-
-// Update countdowns every second
-setInterval(updateCountdowns, 1000);
-updateCountdowns(); // Initial call
-
-// Refresh page every 60 seconds to get server updates
-setTimeout(function() {
-    location.reload();
-}, 60000);
-</script>
+{% block extra_js %}
+<script type="module" src="{% static 'public_app/js/visitor-status.js' %}"></script>
 {% endblock %}
