@@ -25,15 +25,16 @@ class VisitorAutoLoginMiddleware:
             return self.get_response(request)
 
         # Skip health checks and internal requests
+        # Use X-Forwarded-For to get real user IP (behind Cloudflare/nginx)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
-        remote_ip = request.META.get('REMOTE_ADDR', '')
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+        real_ip = x_forwarded_for.split(',')[0].strip() if x_forwarded_for else request.META.get('REMOTE_ADDR', '')
 
         is_health_check = (
             'curl' in user_agent.lower() or
             'wget' in user_agent.lower() or
-            remote_ip.startswith('127.') or
-            remote_ip.startswith('172.') or
-            remote_ip.startswith('10.') or
+            real_ip.startswith('127.') or
+            real_ip.startswith('::1') or
             not user_agent
         )
 

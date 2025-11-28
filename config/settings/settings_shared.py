@@ -78,6 +78,11 @@ def discover_local_apps():
 SCITEX_CLOUD_VERSION = "0.4.2-alpha"
 
 # ---------------------------------------
+# Visitor Pool Configuration
+# ---------------------------------------
+SCITEX_VISITOR_POOL_SIZE = int(os.environ.get("SCITEX_VISITOR_POOL_SIZE", 4))
+
+# ---------------------------------------
 # Paths
 # ---------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

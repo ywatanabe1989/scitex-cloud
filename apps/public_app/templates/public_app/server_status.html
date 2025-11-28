@@ -447,7 +447,8 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             {% for service in status_data.services %}
-            <div class="service-card {{ service.health_class }}">
+            <div class="service-card {{ service.health_class }} has-tooltip"
+                 data-tooltip="Health Check: Docker healthcheck command verifies service is responding. {% if 'django' in service.name|lower %}curl http://localhost:8000/{% elif 'nginx' in service.name|lower %}curl http://localhost:80/{% elif 'postgres' in service.name|lower or 'db' in service.name|lower %}pg_isready command{% elif 'redis' in service.name|lower %}redis-cli ping{% elif 'gitea' in service.name|lower %}curl http://localhost:3000/{% elif 'flower' in service.name|lower %}curl http://localhost:5555/{% elif 'celery' in service.name|lower %}Python redis ping test{% elif 'cloudflared' in service.name|lower %}cloudflared version check{% endif %}">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-cube"></i> {{ service.name|title }}
@@ -488,7 +489,8 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             {% for ssh in status_data.ssh_services %}
-            <div class="service-card {{ ssh.health_class }}">
+            <div class="service-card {{ ssh.health_class }} has-tooltip"
+                 data-tooltip="Health Check: TCP socket connection test to port {{ ssh.port }}. Returns healthy if port is open and accepting connections.">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-terminal"></i> {{ ssh.name }}
@@ -526,7 +528,8 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             <!-- PostgreSQL -->
-            <div class="service-card {{ status_data.database.health_class }}">
+            <div class="service-card {{ status_data.database.health_class }} has-tooltip"
+                 data-tooltip="Health Check: Executes 'SELECT 1' query. Returns healthy if database connection succeeds and query returns result.">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-database"></i> PostgreSQL
@@ -550,7 +553,8 @@ Check the current status of SciTeX Cloud services and infrastructure.
             </div>
 
             <!-- Redis -->
-            <div class="service-card {{ status_data.redis.health_class }}">
+            <div class="service-card {{ status_data.redis.health_class }} has-tooltip"
+                 data-tooltip="Health Check: Performs cache.set() and cache.get() operations. Returns healthy if both operations succeed.">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-memory"></i> Redis Cache
@@ -577,7 +581,8 @@ Check the current status of SciTeX Cloud services and infrastructure.
         </h2>
         <div class="services-grid">
             <!-- SLURM -->
-            <div class="service-card {{ status_data.slurm.health_class }}">
+            <div class="service-card {{ status_data.slurm.health_class }} has-tooltip"
+                 data-tooltip="Health Check: Executes 'sinfo' command. Returns healthy if command succeeds and returns partition information.">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-tasks"></i> SLURM Workload Manager
@@ -602,7 +607,8 @@ Check the current status of SciTeX Cloud services and infrastructure.
             </div>
 
             <!-- Apptainer/Singularity -->
-            <div class="service-card {{ status_data.apptainer.health_class }}">
+            <div class="service-card {{ status_data.apptainer.health_class }} has-tooltip"
+                 data-tooltip="Health Check: Executes 'apptainer --version' command. Returns healthy if command succeeds and returns version string.">
                 <div class="service-header">
                     <div class="service-name">
                         <i class="fas fa-box"></i> {{ status_data.apptainer.command|default:"Apptainer"|title }}
