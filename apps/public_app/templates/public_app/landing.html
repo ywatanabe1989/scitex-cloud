@@ -8,8 +8,25 @@
     SciTeX - The complete scientific research platform for researchers and academics
 {% endblock %}
 {% block extra_css %}
-        <!-- Landing page-specific styles -->
-        <link rel="stylesheet" href="{% static 'public_app/css/landing.css' %}" />
+        <!-- Landing Page CSS Modules (refactored from monolithic landing.css) -->
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/00-landing.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/01-hero.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/02-manuscript-preview.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/03-landing-sections.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/04-ecosystem-cards.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/05-section-styles.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/06-products.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/07-benefits.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/08-features.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/09-demo-video.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/10-testimonials.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/11-pricing.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/12-faq.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/13-cta.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/14-footer-legal.css' %}" />
+        <link rel="stylesheet" href="{% static 'public_app/css/landing/15-responsive.css' %}" />
+
+        <!-- Additional landing page styles -->
         <link rel="stylesheet"
               href="{% static 'public_app/css/landing-enhanced.css' %}" />
         <link rel="stylesheet"
