@@ -1,38 +1,35 @@
+{% load static %}
 <!-- Project Type Selection: Local vs Remote -->
-<div class="form-group" style="margin-bottom: 2rem; padding: 1.5rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle);">
-    <label class="form-label" style="display: block; margin-bottom: 1rem; font-size: 16px; font-weight: 600;">
+<div class="form-group project-type-container">
+    <label class="form-label">
         Project Type
     </label>
 
-    <div class="project-type-options" style="display: flex; flex-direction: column; gap: 1rem;">
+    <div class="project-type-options">
         <!-- Local Project (Default) -->
-        <label class="project-type-card" style="display: flex; align-items: start; padding: 1rem; border: 2px solid var(--color-border-default); border-radius: 6px; cursor: pointer; background: var(--color-canvas-default); transition: all 0.2s;">
-            <input type="radio" name="project_type" value="local" checked
-                   style="margin-top: 0.25rem; margin-right: 1rem;"
-                   onchange="toggleProjectType()">
+        <label class="project-type-card">
+            <input type="radio" name="project_type" value="local" checked>
             <div>
-                <div style="font-weight: 600; font-size: 15px; margin-bottom: 0.25rem;">
+                <div class="card-title">
                     📁 Local Repository
                 </div>
-                <div style="font-size: 13px; color: var(--color-fg-muted);">
+                <div class="card-description">
                     Git-enabled, fast, stored on SciTeX Cloud, full version control
                 </div>
             </div>
         </label>
 
         <!-- Remote Project -->
-        <label class="project-type-card" style="display: flex; align-items: start; padding: 1rem; border: 2px solid var(--color-border-default); border-radius: 6px; cursor: pointer; background: var(--color-canvas-default); transition: all 0.2s;">
-            <input type="radio" name="project_type" value="remote"
-                   style="margin-top: 0.25rem; margin-right: 1rem;"
-                   onchange="toggleProjectType()">
+        <label class="project-type-card">
+            <input type="radio" name="project_type" value="remote">
             <div>
-                <div style="font-weight: 600; font-size: 15px; margin-bottom: 0.25rem;">
+                <div class="card-title">
                     🌐 Remote Filesystem
                 </div>
-                <div style="font-size: 13px; color: var(--color-fg-muted);">
+                <div class="card-description">
                     TRAMP-like access, SSH mount, no Git, slower but privacy-preserving
                 </div>
-                <div style="font-size: 12px; color: var(--color-attention-fg); margin-top: 0.5rem;">
+                <div class="card-warning">
                     ⚠️ Requires remote credential setup
                 </div>
             </div>
@@ -41,21 +38,20 @@
 </div>
 
 <!-- Remote Project Configuration (Hidden by default) -->
-<div id="remote-project-fields" style="display: none; margin-bottom: 2rem; padding: 1.5rem; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-subtle);">
-    <h3 style="margin: 0 0 1rem 0; font-size: 16px; font-weight: 600;">
+<div id="remote-project-fields">
+    <h3>
         Remote Configuration
     </h3>
 
     {% if remote_credentials %}
         <!-- Remote Credential Selection -->
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" for="remote_credential_id" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+        <div class="form-group">
+            <label class="form-label" for="remote_credential_id">
                 Remote Credential*
             </label>
             <select id="remote_credential_id"
                     name="remote_credential_id"
-                    class="form-input"
-                    style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default);">
+                    class="form-input">
                 <option value="">Select a remote system...</option>
                 {% for cred in remote_credentials %}
                     <option value="{{ cred.id }}">
@@ -63,29 +59,28 @@
                     </option>
                 {% endfor %}
             </select>
-            <p class="form-help" style="font-size: 12px; color: var(--color-fg-muted); margin-top: 0.25rem;">
+            <p class="form-help">
                 Select which remote system to connect to
             </p>
         </div>
 
         <!-- Remote Path -->
-        <div class="form-group" style="margin-bottom: 1rem;">
-            <label class="form-label" for="remote_path" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+        <div class="form-group">
+            <label class="form-label" for="remote_path">
                 Remote Path*
             </label>
             <input type="text"
                    id="remote_path"
                    name="remote_path"
-                   class="form-input"
-                   placeholder="/home/username/projects/my-project"
-                   style="width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-default); border-radius: 6px; background: var(--color-canvas-default); font-family: 'SF Mono', Monaco, monospace;">
-            <p class="form-help" style="font-size: 12px; color: var(--color-fg-muted); margin-top: 0.25rem;">
+                   class="form-input monospace"
+                   placeholder="/home/username/projects/my-project">
+            <p class="form-help">
                 Absolute path on the remote system where your project files are located
             </p>
         </div>
 
-        <div style="padding: 1rem; background: var(--color-attention-subtle); border: 1px solid var(--color-attention-muted); border-radius: 6px; margin-top: 1rem;">
-            <p style="margin: 0; font-size: 13px; color: var(--color-fg-default);">
+        <div class="remote-note">
+            <p>
                 <strong>Note:</strong> Files will be accessed on-demand via SSHFS. No local copy will be stored.
                 Git operations are not available for remote projects.
             </p>
@@ -93,53 +88,19 @@
 
     {% else %}
         <!-- No Remote Credentials Available -->
-        <div style="padding: 2rem; text-align: center; background: var(--color-canvas-default); border: 1px dashed var(--color-border-default); border-radius: 6px;">
-            <div style="font-size: 48px; margin-bottom: 1rem; opacity: 0.5;">🔑</div>
-            <h4 style="margin: 0 0 0.5rem 0;">No remote credentials yet</h4>
-            <p style="margin: 0 0 1rem 0; color: var(--color-fg-muted); font-size: 14px;">
+        <div class="no-credentials-state">
+            <div class="icon">🔑</div>
+            <h4>No remote credentials yet</h4>
+            <p>
                 You need to add a remote credential before creating remote projects
             </p>
             <a href="{% url 'accounts_app:ssh_keys' %}#remote-credentials"
-               class="btn btn-primary"
-               style="display: inline-block; padding: 8px 16px; background: var(--color-btn-primary-bg); color: white; text-decoration: none; border-radius: 6px;">
+               class="btn btn-primary">
                 Add Remote Credential
             </a>
         </div>
     {% endif %}
 </div>
 
-<style>
-.project-type-card input[type="radio"]:checked + div {
-    color: var(--color-accent-fg);
-}
-
-.project-type-card:has(input:checked) {
-    border-color: var(--color-accent-emphasis);
-    background: var(--color-accent-subtle);
-}
-
-.project-type-card:hover {
-    border-color: var(--color-accent-muted);
-}
-</style>
-
-<script>
-function toggleProjectType() {
-    const projectType = document.querySelector('input[name="project_type"]:checked').value;
-    const localOptions = document.getElementById('local-init-options');
-    const remoteFields = document.getElementById('remote-project-fields');
-
-    if (projectType === 'local') {
-        localOptions.style.display = 'block';
-        remoteFields.style.display = 'none';
-    } else if (projectType === 'remote') {
-        localOptions.style.display = 'none';
-        remoteFields.style.display = 'block';
-    }
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    toggleProjectType();
-});
-</script>
+<link rel="stylesheet" href="{% static 'project_app/css/create_project_type.css' %}">
+<script type="module" src="{% static 'project_app/ts/create_project_type.js' %}"></script>
