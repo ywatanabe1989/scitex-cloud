@@ -30,7 +30,22 @@
 @import url("primitives/z-index.css");
 @import url("layouts/layout.css");
 @import url("primitives/typography.css");
-@import url("utilities/utilities.css");
+
+/* Utility Class Modules (refactored from monolithic utilities.css) */
+@import url("utilities/utils/00-utilities.css");
+@import url("utilities/utils/01-spacing.css");
+@import url("utilities/utils/02-display.css");
+@import url("utilities/utils/03-flexbox.css");
+@import url("utilities/utils/04-grid.css");
+@import url("utilities/utils/05-text.css");
+@import url("utilities/utils/06-width-height.css");
+@import url("utilities/utils/07-border.css");
+@import url("utilities/utils/08-overflow.css");
+@import url("utilities/utils/09-position.css");
+@import url("utilities/utils/10-shadow.css");
+@import url("utilities/utils/11-cursor.css");
+@import url("utilities/utils/12-transition.css");
+@import url("utilities/utils/13-responsive.css");
 
 /* ========================================
    3. COMMON UI COMPONENTS
