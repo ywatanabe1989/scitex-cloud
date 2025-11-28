@@ -17,8 +17,24 @@
           href="{% static 'shared/css/components/alerts.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'shared/css/components/terminal-log.css' %}?v={{ request.timestamp|default:'1' }}" />
-    <link rel="stylesheet"
-          href="{% static 'writer_app/css/shared/index-ui-components.css' %}?v=2" />
+
+    <!-- Writer Index UI Components CSS Modules (refactored from monolithic index-ui-components.css) -->
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/00-index-ui.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/01-panel-header.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/02-latex-panel.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/03-preview-panel.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/04-toolbar.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/05-compilation-output.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/06-split-view.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/07-panel-resizer.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/08-save-status.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/09-button-styling.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/10-dark-mode.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/11-responsive.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/12-initialization-prompt.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/13-accessibility.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet" href="{% static 'writer_app/css/shared/index-ui/14-workspace-sidebar.css' %}?v={{ request.timestamp|default:'1' }}" />
+
     <link rel="stylesheet"
           href="{% static 'writer_app/css/components/status-lamp.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"

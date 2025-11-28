@@ -1,0 +1,60 @@
+/* =========================================
+   PREVIEW PANEL (Mirror LaTeX Panel Style)
+   ========================================= */
+
+.preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--workspace-border-default);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.preview-panel .panel-header {
+  margin-bottom: 0;
+}
+
+.text-preview {
+  flex: 1;
+  padding: 0; /* No padding - let PDF viewer fill full space */
+  background: var(--bg-page) !important;
+  color: var(--text-primary) !important;
+  overflow-y: auto;
+  font-family: "Georgia", "Cambria", serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none !important;
+}
+
+/* Remove all focus outlines from preview pane */
+.text-preview:focus,
+.text-preview:focus-visible,
+.text-preview *:focus,
+.text-preview *:focus-visible,
+.text-preview iframe:focus,
+.text-preview iframe:focus-visible {
+  outline: none !important;
+}
+
+.text-preview:empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.text-preview:empty::before {
+  content: "Preview will appear here";
+  color: var(--text-muted);
+  font-style: italic;
+}
+

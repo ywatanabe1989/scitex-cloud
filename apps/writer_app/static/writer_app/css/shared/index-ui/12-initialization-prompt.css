@@ -1,0 +1,52 @@
+/* =========================================
+   INITIALIZATION PROMPT
+   ========================================= */
+
+#writer-init-prompt {
+  margin: 2rem auto;
+  max-width: 900px;
+}
+
+#writer-init-prompt .alert {
+  background: var(--color-accent-subtle) !important;
+  border: 1px solid var(--color-accent-muted) !important;
+  border-left: 4px solid var(--color-accent-emphasis) !important;
+  border-radius: 8px !important;
+  padding: 2rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#writer-init-prompt .alert h5 {
+  color: var(--text-primary) !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+#writer-init-prompt .alert p {
+  color: var(--text-muted) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+  margin-bottom: 0 !important;
+  display: block !important;
+}
+
+#writer-init-prompt .btn {
+  padding: 0.75rem 1.5rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+#writer-init-prompt .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#writer-init-prompt .btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+

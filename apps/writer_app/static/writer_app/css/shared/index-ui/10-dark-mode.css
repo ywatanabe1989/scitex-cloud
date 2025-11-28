@@ -1,0 +1,31 @@
+/* =========================================
+   DARK MODE ADJUSTMENTS
+   ========================================= */
+
+[data-theme="dark"] .panel-header {
+  background-color: var(--workspace-bg-primary);
+  border-bottom-color: var(--workspace-border-default);
+}
+
+[data-theme="dark"] .latex-panel,
+[data-theme="dark"] .preview-panel {
+  border-color: var(--workspace-border-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .split-view {
+  background: var(--bg-page);
+}
+
+[data-theme="dark"] .horizontal-selector-group:hover {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .horizontal-selector-group:focus-within {
+  background: var(--workspace-bg-tertiary);
+}
+
+[data-theme="dark"] .horizontal-selector .form-select:hover {
+  background: var(--workspace-bg-tertiary);
+}
+

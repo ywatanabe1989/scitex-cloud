@@ -1,0 +1,22 @@
+/* =========================================
+   SPLIT VIEW CONTAINER
+   ========================================= */
+
+.split-view {
+  display: flex;
+  gap: 1.875rem;
+  padding: 1.25rem;
+  height: calc(100% - 60px);
+  overflow: hidden;
+  background: var(--bg-muted) !important;
+}
+
+.split-view .latex-panel,
+.split-view .preview-panel {
+  min-width: 0;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--bg-page) !important;
+  flex: 1;
+}
+

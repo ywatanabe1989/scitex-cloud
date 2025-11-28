@@ -1,0 +1,63 @@
+/* =========================================
+   PANEL HEADER STYLING (Matching /code/ and /vis/)
+   ========================================= */
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-top: 0 !important;
+  margin-bottom: 0;
+  height: 50px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: var(--workspace-bg-primary);
+  border-bottom: 1px solid var(--workspace-border-default);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.panel-header .header-left,
+.panel-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-btn-inline {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  width: 1em;
+  line-height: 1;
+}
+
+.preview-btn-inline:hover {
+  color: var(--color-accent-fg);
+  transform: rotate(180deg);
+}
+
+.panel-header i {
+  color: var(--workspace-icon-primary); /* Green icon color matching vis */
+  font-size: 0.85rem;
+}
+
+.panel-header span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+

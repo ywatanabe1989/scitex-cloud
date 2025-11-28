@@ -1,0 +1,17 @@
+/* =========================================
+   PANEL RESIZER
+   ========================================= */
+
+/* Panel resizer now uses standard workspace resizer from shared/css/components/panel-resizer.css */
+/* No custom overrides needed - standard grayish theme works perfectly */
+
+/* Ensure writer-editor has proper background */
+.writer-editor {
+  background: var(--bg-muted) !important;
+}
+
+/* Ensure editor content wrapper has proper background */
+.editor-content-wrapper {
+  background: var(--bg-muted) !important;
+}
+
