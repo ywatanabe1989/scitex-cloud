@@ -2,7 +2,7 @@
 Repository services - Dataset and DOI management
 """
 
-from .repository_services import *
+from .services import *
 from .doi_exceptions import (
     DOIServiceError,
     DOIMetadataError,
