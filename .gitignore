@@ -836,3 +836,4 @@ RULES/
 GITIGNORED/
 .legacy/
 **/*_before_*.ts
+tsconfig.tsbuildinfo
