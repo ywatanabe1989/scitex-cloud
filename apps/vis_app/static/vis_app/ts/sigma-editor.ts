@@ -5,7 +5,7 @@
  * REFACTORED: Modular structure with separate concerns
  */
 
-import { initializeSigmaEditor } from './sigma/index.js';
+import { initializeSigmaEditor } from './sigma-editor/index.js';
 
 // Initialize the editor
 initializeSigmaEditor();
