@@ -407,7 +407,8 @@
             <button id="page-refresh-btn"
                     class="theme-toggle"
                     data-tooltip="Refresh page (Ctrl+Shift+R)"
-                    style="font-size: 18px;">
+                    style="font-size: 18px;"
+                    onclick="this.querySelector('i').classList.add('fa-spin'); window.location.reload();">
                 <i class="fas fa-sync-alt"></i>
             </button>
             <!-- Server Status with live health indicator -->
