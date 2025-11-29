@@ -236,7 +236,7 @@ def _create_paper_authors(paper, authors_str):
             )
 
             # Link author to paper
-            from ..models import AuthorPaper
+            from ...models import AuthorPaper
 
             AuthorPaper.objects.get_or_create(
                 author=author, paper=paper, defaults={"author_order": i + 1}

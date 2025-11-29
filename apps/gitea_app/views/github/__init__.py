@@ -1,33 +1,45 @@
 """
-Gitea App Views
-Main views module with backward-compatible imports
+GitHub Integration Views
+Modular organization of GitHub-related views for SciTeX Cloud
 """
 
-# GitHub Integration Views (backward compatibility)
-from .github import (
+# OAuth and Authentication
+from .oauth import (
     github_oauth_initiate,
     github_oauth_callback,
+)
+
+# Repository Management
+from .repositories import (
     github_create_repository,
     github_link_repository,
     github_list_repositories,
+)
+
+# Status and Sync
+from .status import (
     github_get_status,
     github_sync_status,
+)
+
+# Git Operations
+from .operations import (
     github_commit_files,
     github_push_changes,
 )
 
 __all__ = [
-    # GitHub OAuth
+    # OAuth
     "github_oauth_initiate",
     "github_oauth_callback",
-    # GitHub Repositories
+    # Repositories
     "github_create_repository",
     "github_link_repository",
     "github_list_repositories",
-    # GitHub Status
+    # Status
     "github_get_status",
     "github_sync_status",
-    # GitHub Operations
+    # Operations
     "github_commit_files",
     "github_push_changes",
 ]
