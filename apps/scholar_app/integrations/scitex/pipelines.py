@@ -8,6 +8,10 @@ logger = logging.getLogger(__name__)
 _single_pipeline = None
 _parallel_pipeline = None
 
+# Availability flags
+SCITEX_AVAILABLE = False
+SCITEX_IMPORT_ERROR = None
+
 try:
     from scitex.scholar.pipelines.ScholarPipelineSearchSingle import (
         ScholarPipelineSearchSingle,

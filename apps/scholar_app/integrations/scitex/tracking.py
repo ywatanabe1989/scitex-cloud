@@ -1,6 +1,7 @@
 """Search query tracking utilities."""
 
 import logging
+from typing import Dict
 from ...models import SearchQuery
 
 logger = logging.getLogger(__name__)
@@ -41,12 +42,5 @@ def track_search_query(
     except Exception as e:
         logger.warning(f"Failed to track search query: {e}")
 
-
-# ============================================================================
-# Django View Functions
-# ============================================================================
-
-
-@require_http_methods(["GET"])
 
 # EOF

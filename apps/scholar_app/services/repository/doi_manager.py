@@ -9,7 +9,7 @@ from typing import Dict, Optional, Any
 from django.utils import timezone
 
 from ...models import Dataset, RepositoryConnection
-from .repository_services import RepositoryServiceFactory
+from .services.factory import RepositoryServiceFactory
 from .doi_exceptions import DOIAssignmentError, DOIMetadataError
 from .doi_metadata_builder import DatasetMetadataBuilder
 

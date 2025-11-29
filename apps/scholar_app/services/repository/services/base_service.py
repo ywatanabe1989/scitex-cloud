@@ -2,9 +2,11 @@
 
 import requests
 import logging
+import mimetypes
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any
-from ....models import RepositoryConnection
+from django.utils import timezone
+from ....models import RepositoryConnection, Dataset, DatasetFile
 from .exceptions import AuthenticationError, APIError
 
 logger = logging.getLogger(__name__)

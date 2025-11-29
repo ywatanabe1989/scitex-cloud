@@ -135,7 +135,4 @@ def api_scitex_search_single(request):
         return JsonResponse({"error": str(e), "results": []}, status=500)
 
 
-@require_http_methods(["GET"])
-def api_scitex_capabilities(request):
-
 # EOF

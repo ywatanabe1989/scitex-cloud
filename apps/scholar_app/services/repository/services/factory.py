@@ -2,7 +2,8 @@
 
 import logging
 from ....models import RepositoryConnection
-from .exceptions import ValidationError
+from .exceptions import ValidationError, RepositoryServiceError
+from .base_service import BaseRepositoryService
 from .zenodo_service import ZenodoService
 
 logger = logging.getLogger(__name__)

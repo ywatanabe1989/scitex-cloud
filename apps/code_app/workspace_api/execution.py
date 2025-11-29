@@ -176,5 +176,4 @@ def api_execute_command(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-@require_http_methods(["POST"])
 # EOF

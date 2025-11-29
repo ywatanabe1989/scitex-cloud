@@ -78,5 +78,4 @@ def api_get_file_content(request, file_path):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-@require_http_methods(["POST"])
 # EOF

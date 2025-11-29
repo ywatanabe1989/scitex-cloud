@@ -1,6 +1,7 @@
 """Synchronization and upload utilities for repository services."""
 
 import logging
+from typing import List
 from django.utils import timezone
 from ....models import Dataset, RepositorySync, DatasetFile
 from .factory import RepositoryServiceFactory
