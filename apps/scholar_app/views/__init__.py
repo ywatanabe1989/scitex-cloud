@@ -103,7 +103,7 @@ from .bibtex import (
 )
 
 # Import repository views
-from .repository.views import (
+from .repository import (
     list_repositories,
     create_repository_connection,
     sync_status,
