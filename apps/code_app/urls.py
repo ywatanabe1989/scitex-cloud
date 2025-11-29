@@ -1,5 +1,6 @@
 from django.urls import path
-from . import views, api_views, default_workspace_views, workspace_views, workspace_api_views, job_api_views
+from . import views, api_views, default_workspace_views, workspace_views, job_api_views
+from . import workspace_api as workspace_api_views
 from .views import service_api_lifecycle, service_api_list
 
 app_name = "code"
