@@ -14,6 +14,11 @@ from django.contrib.auth.decorators import login_required
 
 from ...models import Project, ProjectWatch, ProjectStar, ProjectFork
 from ...decorators import project_access_required
+from .detail_helpers import (
+    get_directory_contents,
+    get_readme_content,
+    get_branches,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -104,129 +109,13 @@ def project_detail(request, username, slug):
     manager = get_project_filesystem_manager(project.owner)
     project_path = manager.get_project_root_path(project)
 
-    # Get root directory files (like GitHub)
-    files = []
-    dirs = []
-    readme_content = None
-    readme_html = None
-
-    if project_path and project_path.exists():
-        try:
-            # Helper function to get git commit info for a file/folder
-            def get_git_info(path):
-                """Get last commit message, author, hash, and time for a file/folder"""
-                try:
-                    import subprocess
-
-                    # Get last commit for this file (including hash)
-                    result = subprocess.run(
-                        [
-                            "git",
-                            "log",
-                            "-1",
-                            "--format=%an|%ar|%s|%h",
-                            "--",
-                            str(path.name),
-                        ],
-                        cwd=project_path,
-                        capture_output=True,
-                        text=True,
-                        timeout=5,
-                    )
-
-                    if result.returncode == 0 and result.stdout.strip():
-                        author, time_ago, message, commit_hash = (
-                            result.stdout.strip().split("|", 3)
-                        )
-                        return {
-                            "author": author,
-                            "time_ago": time_ago,
-                            "message": message[:80],  # Truncate to 80 chars
-                            "hash": commit_hash,
-                        }
-                except Exception as e:
-                    logger.debug(f"Error getting git info for {path}: {e}")
-
-                return {"author": "", "time_ago": "", "message": "", "hash": ""}
-
-            for item in project_path.iterdir():
-                # Show all files including dotfiles
-                git_info = get_git_info(item)
-
-                if item.is_file():
-                    files.append(
-                        {
-                            "name": item.name,
-                            "path": str(item.relative_to(project_path)),
-                            "size": item.stat().st_size,
-                            "modified": item.stat().st_mtime,
-                            "author": git_info.get("author", ""),
-                            "time_ago": git_info.get("time_ago", ""),
-                            "message": git_info.get("message", ""),
-                            "hash": git_info.get("hash", ""),
-                        }
-                    )
-                elif item.is_dir():
-                    dirs.append(
-                        {
-                            "name": item.name,
-                            "path": str(item.relative_to(project_path)),
-                            "author": git_info.get("author", ""),
-                            "time_ago": git_info.get("time_ago", ""),
-                            "message": git_info.get("message", ""),
-                            "hash": git_info.get("hash", ""),
-                        }
-                    )
-
-            # Read README.md if exists and convert to HTML
-            readme_path = project_path / "README.md"
-            if readme_path.exists():
-                readme_content = readme_path.read_text(encoding="utf-8")
-                # Convert markdown to HTML
-                import markdown
-
-                readme_html = markdown.markdown(
-                    readme_content,
-                    extensions=["fenced_code", "tables", "nl2br"],
-                )
-        except Exception:
-            pass
-
-    # Sort: directories first, then files
-    dirs.sort(key=lambda x: x["name"].lower())
-    files.sort(key=lambda x: x["name"].lower())
+    # Get directory contents and README
+    files, dirs = get_directory_contents(project_path)
+    readme_content, readme_html = get_readme_content(project_path)
 
     # Get branches for branch selector
-    branches = []
     current_branch = project.current_branch or "develop"
-    if project_path and project_path.exists():
-        try:
-            import subprocess
-
-            result = subprocess.run(
-                ["git", "branch", "-a"],
-                cwd=project_path,
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            if result.returncode == 0:
-                for line in result.stdout.split("\n"):
-                    line = line.strip()
-                    if line:
-                        # Remove * prefix and remotes/origin/ prefix
-                        branch = line.replace("*", "").strip()
-                        branch = branch.replace("remotes/origin/", "")
-                        if branch and branch not in branches:
-                            branches.append(branch)
-                        # Check if this is the current branch
-                        if line.startswith("*"):
-                            current_branch = branch
-        except Exception as e:
-            logger.debug(f"Error getting branches: {e}")
-
-    if not branches:
-        branches = [current_branch]
+    branches, current_branch = get_branches(project_path, current_branch)
 
     # Get social interaction counts
     watch_count = ProjectWatch.objects.filter(project=project).count()
@@ -244,6 +133,17 @@ def project_detail(request, username, slug):
             user=request.user, project=project
         ).exists()
 
+    # Get Gitea URLs for clone button
+    from django.conf import settings
+    gitea_url = getattr(settings, 'SCITEX_CLOUD_GITEA_URL', 'http://127.0.0.1:3000')
+    gitea_ssh_domain = getattr(settings, 'SCITEX_CLOUD_GIT_DOMAIN', '127.0.0.1')
+    gitea_ssh_port = getattr(settings, 'SCITEX_CLOUD_GITEA_SSH_PORT', '2222')
+
+    gitea_https_url = f"{gitea_url}/{project.owner.username}/{project.slug}.git"
+    # Use SSH URI format with explicit port: ssh://user@host:port/path
+    gitea_ssh_url = f"ssh://git@{gitea_ssh_domain}:{gitea_ssh_port}/{project.owner.username}/{project.slug}.git"
+    download_zip_url = f"{gitea_url}/{project.owner.username}/{project.slug}/archive/{current_branch}.zip"
+
     context = {
         "project": project,
         "user": request.user,
@@ -259,33 +159,11 @@ def project_detail(request, username, slug):
         "fork_count": fork_count,
         "is_watching": is_watching,
         "is_starred": is_starred,
+        "gitea_https_url": gitea_https_url,
+        "gitea_ssh_url": gitea_ssh_url,
+        "download_zip_url": download_zip_url,
     }
     return render(request, "project_app/repository/browse.html", context)
-
-
-@login_required
-def project_detail_redirect(request, pk=None, slug=None):
-    """Redirect old URLs to new username/project URLs for backward compatibility"""
-    if pk:
-        # Redirect from /projects/id/123/ to /username/project-name/
-        project = get_object_or_404(Project, pk=pk, owner=request.user)
-        return redirect(
-            "project_app:detail",
-            username=project.owner.username,
-            slug=project.slug,
-            permanent=True,
-        )
-    elif slug:
-        # Redirect from /projects/project-name/ to /username/project-name/
-        project = get_object_or_404(Project, slug=slug, owner=request.user)
-        return redirect(
-            "project_app:detail",
-            username=project.owner.username,
-            slug=project.slug,
-            permanent=True,
-        )
-    else:
-        return redirect("project_app:list")
 
 
 # EOF

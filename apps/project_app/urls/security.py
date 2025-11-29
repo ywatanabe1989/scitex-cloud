@@ -11,14 +11,14 @@ GitHub-style patterns:
 """
 
 from django.urls import path
-from ..views.security_views import (
+from ..views.security import (
     security_overview,
     security_alerts,
     security_alert_detail,
-    security_policy_edit,
+    security_policy,
     security_advisories,
-    dependency_graph,
-    scan_history,
+    security_dependency_graph,
+    security_scan_history,
     trigger_security_scan,
     dismiss_alert,
     reopen_alert,
@@ -35,13 +35,13 @@ urlpatterns = [
     path("alerts/", security_alerts, name="alerts"),
     path("alerts/<int:alert_id>/", security_alert_detail, name="alert_detail"),
     # Security policy
-    path("policy/", security_policy_edit, name="policy"),
+    path("policy/", security_policy, name="policy"),
     # Security advisories
     path("advisories/", security_advisories, name="advisories"),
     # Dependency graph
-    path("dependabot/", dependency_graph, name="dependency_graph"),
+    path("dependabot/", security_dependency_graph, name="dependency_graph"),
     # Scan history
-    path("scans/", scan_history, name="scan_history"),
+    path("scans/", security_scan_history, name="scan_history"),
     # Security API endpoints
     path("api/scan/", trigger_security_scan, name="api_trigger_scan"),
     path("api/alerts/<int:alert_id>/dismiss/", dismiss_alert, name="api_dismiss_alert"),

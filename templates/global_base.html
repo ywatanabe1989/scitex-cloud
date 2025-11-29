@@ -1,4 +1,5 @@
 {% load static %}
+{% load django_browser_reload %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -31,5 +32,6 @@
         {% include 'global_base_partials/global_footer.html' %}
         {% include 'global_base_partials/global_body_scripts.html' %}
         {% block extra_js %}{% endblock %}
+        {% django_browser_reload_script %}
     </body>
 </html>

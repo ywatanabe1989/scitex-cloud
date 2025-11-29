@@ -9,14 +9,20 @@ Repository API Module
 Re-exports all repository API endpoints from modular structure.
 """
 
-# File operations
-from .files import (
-    api_file_tree,
-    api_create_symlink,
-    api_concatenate_directory,
-    api_git_status,
-    api_initialize_scitex_structure,
-)
+# File tree navigation
+from .file_tree import api_file_tree
+
+# Symlink operations
+from .symlink import api_create_symlink
+
+# Directory operations
+from .directory import api_concatenate_directory
+
+# Git status operations
+from .git_status import api_git_status
+
+# SciTeX initialization
+from .scitex import api_initialize_scitex_structure
 
 # Repository health management
 from .repository_health import (

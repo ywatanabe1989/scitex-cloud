@@ -31,8 +31,6 @@ The main config/urls.py includes this at: path('<str:username>/', include('apps.
 from django.urls import path, include
 from .. import views
 from ..api_views_module import api_views
-from ..views import security_views
-from ..views import issues_views, api_issues_views
 from ..views import pr as pr_views
 
 app_name = "user_projects"

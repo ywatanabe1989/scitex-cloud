@@ -3,6 +3,12 @@
 {% block title %}
     Create Pull Request - {{ project.name }}
 {% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/project_app.css' %}" />
+    <link rel="stylesheet"
+          href="{% static 'project_app/css/pull_requests/form.css' %}" />
+{% endblock %}
 {% block content %}
     <div class="container-fluid mt-4">
         <!-- Breadcrumb -->

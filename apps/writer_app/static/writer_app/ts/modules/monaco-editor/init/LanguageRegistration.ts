@@ -62,6 +62,6 @@ export function registerLatexLanguage(monaco: any): void {
         [/\$\$/, "string"],
         [/\$/, "string"],
       ],
-    ],
+    },
   });
 }

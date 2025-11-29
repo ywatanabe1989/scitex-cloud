@@ -42,7 +42,7 @@
 }
 
 .terminal-info {
-  color: var(--status-info);
+  color: #9ca3af; /* Gray to match shell script ANSI gray (\033[0;90m) */
 }
 
 .terminal-warning {

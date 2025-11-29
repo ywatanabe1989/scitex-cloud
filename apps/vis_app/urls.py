@@ -1,5 +1,6 @@
 from django.urls import path
-from . import views, api_views
+from . import views
+from .views import api as api_views
 
 app_name = "vis"
 

@@ -32,7 +32,7 @@
   --_success: #4a9b7e;
   --_warning: #b8956a;
   --_error: #a67373;
-  --_info: #6b8fb3;
+  --_info: #6b7280;
 
   /* CTA colors */
   --_cta: #3b82f6;
@@ -225,7 +225,7 @@
   --status-success: #6ba89a;
   --status-warning: #d4a87a;
   --status-error: #c08888;
-  --status-info: #8fa9cc;
+  --status-info: #9ca3af;
 
   /* Aliases for forms and other components */
   --success-color: #6ba89a;

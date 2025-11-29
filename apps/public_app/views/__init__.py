@@ -1,18 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Timestamp: "2025-11-28 21:31:00 (ywatanabe)"
-# File: /home/ywatanabe/proj/scitex-cloud/apps/public_app/views/__init__.py
-# ----------------------------------------
-from __future__ import annotations
-
-__FILE__ = "./apps/public_app/views/__init__.py"
-# ----------------------------------------
-
 """
 Public App Views Package
 
 Exports all view functions for URL routing.
+
+Refactored tools.py into:
+- tools_main.py: Main tools index page
+- tool_views.py: Individual tool detail pages
 """
+
+from __future__ import annotations
 
 # Landing and marketing pages
 from .landing import index, premium_subscription
@@ -37,9 +33,11 @@ from .status import (
 # API and developer pages
 from .api import api_docs, scitex_api_keys, releases_view
 
-# Research tools
-from .tools import (
-    tools,
+# Research tools - main page
+from .tools_main import tools
+
+# Research tools - individual tool pages
+from .tool_views import (
     tool_element_inspector,
     tool_asta_citation_scraper,
     tool_image_concatenator,
@@ -125,5 +123,3 @@ __all__ = [
     "donation_success",
     "send_donation_confirmation",
 ]
-
-# EOF

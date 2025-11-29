@@ -204,12 +204,7 @@ class BibtexEnrichmentOrchestrator {
   private handleJobCompletion(jobId: string): void {
     console.log("[Orchestrator] Job completed:", jobId);
 
-    const downloadUrl = `/scholar/api/bibtex/job/${jobId}/download/`;
-
-    // Auto-download the enriched file
-    autoDownloadBibtexFile(downloadUrl).catch((error: Error) => {
-      console.error("[Auto-Download on Complete] Failed:", error);
-    });
+    // Auto-download removed - user can manually download using the Download button
   }
 
   /**

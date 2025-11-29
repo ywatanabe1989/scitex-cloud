@@ -15,7 +15,7 @@ from .views.library import views as library_views
 from .views.export import views as export_views
 from .views.annotation import views as annotation_views
 from .views.trending import views as trending_views
-from .views.repository import views as repository_views
+from .views import repository as repository_views
 from .integrations import scitex_search
 
 app_name = "scholar_app"
