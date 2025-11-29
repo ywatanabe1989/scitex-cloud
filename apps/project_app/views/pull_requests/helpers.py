@@ -109,3 +109,105 @@ def get_pr_timeline(pr):
     timeline = sorted(chain(comments, events), key=attrgetter("created_at"))
 
     return timeline
+
+
+def get_project_branches(project):
+    """
+    Get list of branches for a project.
+
+    Returns:
+        list: Branch names
+    """
+    try:
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
+
+        manager = get_project_filesystem_manager(project.owner)
+        project_path = manager.get_project_root_path(project)
+
+        if not project_path or not project_path.exists():
+            return []
+
+        # Get branches from git
+        result = subprocess.run(
+            ["git", "branch", "-a"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        if result.returncode != 0:
+            return []
+
+        # Parse branch names
+        branches = []
+        for line in result.stdout.split("\n"):
+            line = line.strip()
+            if line and not line.startswith("*"):
+                # Remove remote prefix
+                branch = line.replace("remotes/origin/", "")
+                if branch not in branches:
+                    branches.append(branch)
+
+        return sorted(branches)
+
+    except Exception as e:
+        logger.error(f"Failed to get branches: {e}")
+        return []
+
+
+def compare_branches(project, base, head):
+    """
+    Compare two branches.
+
+    Returns:
+        dict: Comparison data (commits, files changed, diff)
+    """
+    try:
+        from apps.project_app.services.project_filesystem import (
+            get_project_filesystem_manager,
+        )
+
+        manager = get_project_filesystem_manager(project.owner)
+        project_path = manager.get_project_root_path(project)
+
+        if not project_path or not project_path.exists():
+            return None
+
+        # Get diff between branches
+        result = subprocess.run(
+            ["git", "diff", f"{base}...{head}", "--stat"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        # Get commit count
+        commit_result = subprocess.run(
+            ["git", "rev-list", "--count", f"{base}..{head}"],
+            cwd=project_path,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        commit_count = (
+            int(commit_result.stdout.strip()) if commit_result.returncode == 0 else 0
+        )
+
+        return {
+            "base": base,
+            "head": head,
+            "commit_count": commit_count,
+            "diff_stat": result.stdout,
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to compare branches: {e}")
+        return None
