@@ -78,5 +78,21 @@ def api_get_file_content(request, file_path):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-@require_http_methods(["POST"])
+def _detect_language(file_path):
+    """Detect programming language from file extension."""
+    ext = file_path.split('.')[-1].lower()
+    language_map = {
+        'py': 'python',
+        'js': 'javascript',
+        'ts': 'typescript',
+        'html': 'html',
+        'css': 'css',
+        'md': 'markdown',
+        'json': 'json',
+        'yaml': 'yaml',
+        'yml': 'yaml',
+    }
+    return language_map.get(ext, 'plaintext')
+
+
 # EOF
