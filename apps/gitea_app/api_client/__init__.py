@@ -14,6 +14,7 @@ from .files import FileOperationsMixin
 from .organizations import OrganizationOperationsMixin
 from .ssh_keys import SSHKeyOperationsMixin
 from .client import GiteaClient
+from ..exceptions import GiteaAPIError
 
 __all__ = [
     "BaseGiteaClient",
@@ -24,6 +25,7 @@ __all__ = [
     "OrganizationOperationsMixin",
     "SSHKeyOperationsMixin",
     "GiteaClient",
+    "GiteaAPIError",
 ]
 
 # EOF

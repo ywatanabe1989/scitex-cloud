@@ -11,7 +11,7 @@ class PullRequestCommit(models.Model):
     """
 
     pull_request = models.ForeignKey(
-        "pull_requests.PullRequest",
+        "project_app.PullRequest",
         on_delete=models.CASCADE,
         related_name="commits",
         help_text="PR this commit belongs to",
