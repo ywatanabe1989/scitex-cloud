@@ -1,16 +1,14 @@
 """
-Terminal Views - Backward Compatibility Wrapper
+Terminal Views Module
+Provides PTY terminal functionality via WebSocket
 
-This file maintains backward compatibility for existing imports.
-Actual implementation has been moved to apps/code_app/views/terminal/
-
-Migration:
-    Old: from apps.code_app.terminal_views import TerminalConsumer
-    New: from apps.code_app.views.terminal import TerminalConsumer
+Backward Compatibility:
+    from apps.code_app.terminal_views import TerminalConsumer
+    → from apps.code_app.views.terminal import TerminalConsumer
 """
 
-from apps.code_app.views.terminal import (
-    TerminalConsumer,
+from .consumer import TerminalConsumer
+from .config import (
     BASE_CONTAINER_PATH,
     USER_DATA_ROOT,
     SLURM_PARTITION,

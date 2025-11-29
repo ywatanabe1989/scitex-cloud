@@ -188,7 +188,7 @@ def _get_git_file_info(project_path, file_path, request, project):
     """
     git_info = {}
     try:
-        from apps.project_app.views.api_views import get_current_branch_from_session
+        from apps.project_app.api_views_module.api_views import get_current_branch_from_session
 
         current_branch = get_current_branch_from_session(request, project)
         git_info["current_branch"] = current_branch
