@@ -1,18 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Timestamp: "2025-11-04 (auto-generated)"
-# File: /home/ywatanabe/proj/scitex-cloud/apps/project_app/views/issues/api.py
-# ----------------------------------------
 """
-Issue-related REST API endpoints
-
-This module contains API endpoints for:
-- Issue comments
-- Issue state management (close, reopen)
-- Issue assignments
-- Issue labels
-- Issue milestones
-- Issue search
+Issue Metadata API endpoints - Assignments, Labels, and Milestones.
 """
 
 from __future__ import annotations
@@ -22,149 +9,16 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.http import require_POST
 
 from ...models import (
     Project,
     Issue,
-    IssueComment,
     IssueLabel,
     IssueMilestone,
     IssueAssignment,
     IssueEvent,
 )
-
-
-@require_POST
-@login_required
-def api_issue_comment(request, username, slug, issue_number):
-    """
-    API: Add a comment to an issue
-    POST /<username>/<slug>/api/issues/<issue_number>/comment/
-    """
-    project = get_object_or_404(Project, owner__username=username, slug=slug)
-    issue = get_object_or_404(Issue, project=project, number=issue_number)
-
-    # Check permissions
-    if not issue.can_comment(request.user):
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "You do not have permission to comment on this issue",
-            },
-            status=403,
-        )
-
-    content = request.POST.get("content", "").strip()
-    if not content:
-        return JsonResponse(
-            {"success": False, "error": "Comment content is required"}, status=400
-        )
-
-    # Create comment
-    comment = IssueComment.objects.create(
-        issue=issue, author=request.user, content=content
-    )
-
-    return JsonResponse(
-        {
-            "success": True,
-            "message": "Comment added successfully",
-            "comment": {
-                "id": comment.id,
-                "author": comment.author.username,
-                "content": comment.content,
-                "created_at": comment.created_at.isoformat(),
-            },
-        }
-    )
-
-
-@require_POST
-@login_required
-def api_issue_close(request, username, slug, issue_number):
-    """
-    API: Close an issue
-    POST /<username>/<slug>/api/issues/<issue_number>/close/
-    """
-    project = get_object_or_404(Project, owner__username=username, slug=slug)
-    issue = get_object_or_404(Issue, project=project, number=issue_number)
-
-    # Check permissions
-    if not issue.can_edit(request.user):
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "You do not have permission to close this issue",
-            },
-            status=403,
-        )
-
-    if issue.state == "closed":
-        return JsonResponse(
-            {"success": False, "error": "Issue is already closed"}, status=400
-        )
-
-    # Close issue
-    issue.close(request.user)
-
-    # Create event
-    IssueEvent.objects.create(issue=issue, event_type="closed", actor=request.user)
-
-    return JsonResponse(
-        {
-            "success": True,
-            "message": "Issue closed successfully",
-            "issue": {
-                "number": issue.number,
-                "state": issue.state,
-                "closed_at": issue.closed_at.isoformat() if issue.closed_at else None,
-            },
-        }
-    )
-
-
-@require_POST
-@login_required
-def api_issue_reopen(request, username, slug, issue_number):
-    """
-    API: Reopen a closed issue
-    POST /<username>/<slug>/api/issues/<issue_number>/reopen/
-    """
-    project = get_object_or_404(Project, owner__username=username, slug=slug)
-    issue = get_object_or_404(Issue, project=project, number=issue_number)
-
-    # Check permissions
-    if not issue.can_edit(request.user):
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "You do not have permission to reopen this issue",
-            },
-            status=403,
-        )
-
-    if issue.state == "open":
-        return JsonResponse(
-            {"success": False, "error": "Issue is already open"}, status=400
-        )
-
-    # Reopen issue
-    issue.reopen()
-
-    # Create event
-    IssueEvent.objects.create(issue=issue, event_type="reopened", actor=request.user)
-
-    return JsonResponse(
-        {
-            "success": True,
-            "message": "Issue reopened successfully",
-            "issue": {
-                "number": issue.number,
-                "state": issue.state,
-            },
-        }
-    )
 
 
 @require_POST
@@ -411,60 +265,3 @@ def api_issue_milestone(request, username, slug, issue_number):
             else None,
         }
     )
-
-
-@require_http_methods(["GET"])
-def api_issue_search(request, username, slug):
-    """
-    API: Search issues
-    GET /<username>/<slug>/api/issues/search/?q=<query>&state=<state>
-    """
-    project = get_object_or_404(Project, owner__username=username, slug=slug)
-
-    # Check permissions
-    if not project.can_view(request.user):
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "You do not have permission to view this project",
-            },
-            status=403,
-        )
-
-    query = request.GET.get("q", "").strip()
-    state = request.GET.get("state", "open")
-
-    issues = project.issues.select_related("author")
-
-    if state != "all":
-        issues = issues.filter(state=state)
-
-    if query:
-        from django.db.models import Q
-
-        issues = issues.filter(
-            Q(title__icontains=query) | Q(description__icontains=query)
-        )
-
-    # Limit to 10 results
-    issues = issues[:10]
-
-    return JsonResponse(
-        {
-            "success": True,
-            "issues": [
-                {
-                    "number": issue.number,
-                    "title": issue.title,
-                    "state": issue.state,
-                    "author": issue.author.username,
-                    "created_at": issue.created_at.isoformat(),
-                    "url": issue.get_absolute_url(),
-                }
-                for issue in issues
-            ],
-        }
-    )
-
-
-# EOF
