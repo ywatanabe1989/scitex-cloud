@@ -52,7 +52,7 @@
 .bibtex-dropzone {
     margin: 1.25rem;
     padding: 2.5rem 2rem;
-    border: 2px dashed var(--workspace-border-default, #3a3a3a);
+    border: 2px dashed var(--success-color, #3fb950);
     border-radius: 0;
     text-align: center;
     cursor: pointer;
