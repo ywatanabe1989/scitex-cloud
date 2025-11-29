@@ -216,14 +216,15 @@ def process_bibtex_job(job):
                 results = regenerate_bibliography(project_path, job.project.name)
 
                 if results["success"]:
+                    scholar_count = results.get("scholar_count", 0)
+                    duplicates = results.get("duplicates_removed", 0)
                     logger.info(
                         f"Bibliography regenerated: "
-                        f"scholar={results['scholar_count']}, "
-                        f"writer={results['writer_count']}, "
-                        f"total={results['total_count']}"
+                        f"scholar={scholar_count} entries, "
+                        f"duplicates_removed={duplicates}"
                     )
                     job.enrichment_summary["bibliography_merged"] = True
-                    job.enrichment_summary["total_citations"] = results["total_count"]
+                    job.enrichment_summary["total_citations"] = scholar_count
                 else:
                     logger.warning(
                         f"Bibliography regeneration had errors: {results['errors']}"
