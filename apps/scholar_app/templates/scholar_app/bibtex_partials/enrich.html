@@ -26,14 +26,6 @@
                         <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required class="bibtex-dropzone__input">
                     </div>
 
-                    <!-- Save Path Highlight -->
-                    {% if current_project %}
-                    <div class="bibtex-save-path">
-                        <i class="fas fa-folder-open"></i>
-                        <span>Save to: <code>./scitex/scholar/bib_files/enriched_*.bib</code></span>
-                    </div>
-                    {% endif %}
-
                     <!-- Action Buttons -->
                     <div class="bibtex-actions">
                         <button type="button" id="saveToProjectBtn" onclick="handleSaveToProject()" disabled class="btn btn-warning">
