@@ -177,10 +177,41 @@ def bibtex_upload(request):
     else:
         user_identifier = f"visitor_{request.session.session_key}"
 
+    file_content = bibtex_file.read()
     file_path = default_storage.save(
         f"bibtex_uploads/{user_identifier}/{bibtex_file.name}",
-        ContentFile(bibtex_file.read()),
+        ContentFile(file_content),
     )
+
+    # Also save uploaded file to project's bib_files directory if project exists
+    if project and project.git_clone_path:
+        try:
+            import shutil
+            from datetime import datetime
+            from django.conf import settings
+
+            # Create bib_files directory in project
+            project_bib_dir = (
+                Path(project.git_clone_path) / "scitex" / "scholar" / "bib_files"
+            )
+            project_bib_dir.mkdir(parents=True, exist_ok=True)
+
+            # Generate filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            filename_stem = Path(original_filename).stem
+            uploaded_filename = f"{filename_stem}_uploaded-{timestamp}.bib"
+
+            # Save the uploaded file to project
+            uploaded_file_path = project_bib_dir / uploaded_filename
+            uploaded_file_path.write_bytes(file_content)
+
+            logger.info(
+                f"Saved uploaded file to project: {uploaded_file_path.relative_to(project.git_clone_path)}"
+            )
+
+        except Exception as e:
+            logger.warning(f"Failed to save uploaded file to project: {e}")
+            # Don't fail the upload if project save fails
 
     # Create enrichment job
     job = BibTeXEnrichmentJob.objects.create(
