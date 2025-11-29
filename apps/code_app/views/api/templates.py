@@ -75,11 +75,3 @@ class NotebookTemplatesAPI(NotebookAPIView):
         except Exception as e:
             logger.error(f"Error getting templates: {e}")
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
-
-
-# REST Framework API Views
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-# EOF

@@ -20,7 +20,7 @@ from ..views.directory_views import (
 from ..views.projects import (
     project_detail,
 )
-from ..views.api_views import (
+from ..views.api import (
     api_file_tree,
     api_concatenate_directory,
 )
