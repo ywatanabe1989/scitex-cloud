@@ -50,14 +50,8 @@ export async function autoDownloadBibtexFile(url: string): Promise<void> {
       console.log("[Auto-Download] ✓ Download completed");
     }, 100);
 
-    // Show success alert with filename and size
-    showAlert(
-      `✅ <strong>Download started!</strong><br><br>` +
-        `📄 File: <code>${filename}</code><br>` +
-        `📦 Size: ${fileSizeMB} MB<br><br>` +
-        `Check your browser's download folder.`,
-      "success",
-    );
+    // Success alert removed per user request
+    // The download will happen silently in the browser
   } catch (error: any) {
     console.error("[Auto-Download] ✗ Failed:", error);
 
