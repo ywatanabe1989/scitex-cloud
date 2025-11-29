@@ -77,9 +77,4 @@ class NotebookTemplatesAPI(NotebookAPIView):
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
-# REST Framework API Views
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
 # EOF

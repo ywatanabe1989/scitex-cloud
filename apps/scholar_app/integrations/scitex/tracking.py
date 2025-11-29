@@ -42,11 +42,4 @@ def track_search_query(
         logger.warning(f"Failed to track search query: {e}")
 
 
-# ============================================================================
-# Django View Functions
-# ============================================================================
-
-
-@require_http_methods(["GET"])
-
 # EOF

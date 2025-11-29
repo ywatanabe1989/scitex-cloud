@@ -174,7 +174,4 @@ def api_scitex_search(request):
         )
 
 
-@require_http_methods(["GET"])
-def api_scitex_search_single(request):
-
 # EOF
