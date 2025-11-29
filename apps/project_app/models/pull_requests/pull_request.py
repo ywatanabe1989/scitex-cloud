@@ -1,8 +1,5 @@
 """
-Pull Request models for GitHub-style code review and collaboration.
-
-Provides comprehensive PR functionality including reviews, inline comments,
-commit tracking, and merge strategies.
+Pull Request model - GitHub-style code review workflow.
 """
 
 from django.db import models
@@ -26,7 +23,7 @@ class PullRequest(models.Model):
 
     # Core fields
     project = models.ForeignKey(
-        "Project",
+        "project_app.Project",
         on_delete=models.CASCADE,
         related_name="pull_requests",
         help_text="Project this PR belongs to",
@@ -213,24 +210,19 @@ class PullRequest(models.Model):
         Returns:
             tuple: (can_merge: bool, reason: str)
         """
-        # Check if PR is open
         if not self.is_open:
             return False, "PR is not open"
 
-        # Check if user has permission
         if not self.project.can_edit(user):
             return False, "User does not have permission to merge"
 
-        # Check if PR has conflicts
         if self.has_conflicts:
             return False, "PR has merge conflicts"
 
-        # Check approval status
         approval_status = self.get_approval_status()
         if not approval_status["is_approved"]:
             return False, f"PR requires {self.required_approvals} approval(s)"
 
-        # Check if CI/CD passed
         if self.ci_status == "failure":
             return False, "CI/CD checks failed"
 
@@ -251,23 +243,15 @@ class PullRequest(models.Model):
         Returns:
             tuple: (success: bool, message: str)
         """
-        # Check if merge is allowed
         can_merge, reason = self.can_merge(user)
         if not can_merge:
             return False, reason
 
         # TODO: Implement actual git merge logic here
-        # This would use GitPython or subprocess to:
-        # 1. git checkout target_branch
-        # 2. git merge/squash/rebase source_branch
-        # 3. git push
-
-        # For now, just update the model
         self.state = "merged"
         self.merged_at = timezone.now()
         self.merged_by = user
         self.merge_strategy = strategy
-        # self.merge_commit_sha = <actual_commit_sha>
         self.save()
 
         return True, "PR merged successfully"
@@ -331,242 +315,3 @@ class PullRequest(models.Model):
                 "pr_number": self.number,
             },
         )
-
-
-class PullRequestReview(models.Model):
-    """
-    Model for PR reviews - allows reviewers to approve, request changes, or comment.
-    """
-
-    STATE_CHOICES = [
-        ("approved", "Approved"),
-        ("changes_requested", "Changes Requested"),
-        ("commented", "Commented"),
-    ]
-
-    pull_request = models.ForeignKey(
-        PullRequest,
-        on_delete=models.CASCADE,
-        related_name="reviews",
-        help_text="PR being reviewed",
-    )
-    reviewer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="pr_reviews",
-        help_text="User submitting the review",
-    )
-    state = models.CharField(
-        max_length=20, choices=STATE_CHOICES, help_text="Review state"
-    )
-    content = models.TextField(
-        blank=True, help_text="Review comments (supports Markdown)"
-    )
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-        indexes = [
-            models.Index(fields=["pull_request", "created_at"]),
-            models.Index(fields=["reviewer", "created_at"]),
-        ]
-        verbose_name = "Pull Request Review"
-        verbose_name_plural = "Pull Request Reviews"
-
-    def __str__(self):
-        return f"{self.reviewer.username} {self.state} PR #{self.pull_request.number}"
-
-
-class PullRequestComment(models.Model):
-    """
-    Model for PR comments - supports both general and inline code comments.
-    """
-
-    pull_request = models.ForeignKey(
-        PullRequest,
-        on_delete=models.CASCADE,
-        related_name="comments",
-        help_text="PR this comment belongs to",
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="pr_comments",
-        help_text="User who wrote the comment",
-    )
-    content = models.TextField(help_text="Comment content (supports Markdown)")
-
-    # Inline comment fields (optional - null for general comments)
-    file_path = models.CharField(
-        max_length=500, blank=True, help_text="File path for inline comments"
-    )
-    line_number = models.IntegerField(
-        null=True, blank=True, help_text="Line number for inline comments"
-    )
-    commit_sha = models.CharField(
-        max_length=40, blank=True, help_text="Commit SHA for inline comments"
-    )
-
-    # Comment threading
-    parent_comment = models.ForeignKey(
-        "self",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="replies",
-        help_text="Parent comment for threaded discussions",
-    )
-
-    # Metadata
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    edited = models.BooleanField(default=False)
-
-    # Review association
-    review = models.ForeignKey(
-        PullRequestReview,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="comments",
-        help_text="Review this comment is part of (optional)",
-    )
-
-    class Meta:
-        ordering = ["created_at"]
-        indexes = [
-            models.Index(fields=["pull_request", "created_at"]),
-            models.Index(fields=["author", "created_at"]),
-            models.Index(fields=["file_path", "line_number"]),
-        ]
-        verbose_name = "Pull Request Comment"
-        verbose_name_plural = "Pull Request Comments"
-
-    def __str__(self):
-        if self.file_path:
-            return f"Comment by {self.author.username} on {self.file_path}:{self.line_number}"
-        return f"Comment by {self.author.username} on PR #{self.pull_request.number}"
-
-    @property
-    def is_inline(self):
-        """Check if this is an inline code comment"""
-        return bool(self.file_path and self.line_number)
-
-    @property
-    def is_general(self):
-        """Check if this is a general comment"""
-        return not self.is_inline
-
-
-class PullRequestCommit(models.Model):
-    """
-    Model to track commits included in a PR.
-    """
-
-    pull_request = models.ForeignKey(
-        PullRequest,
-        on_delete=models.CASCADE,
-        related_name="commits",
-        help_text="PR this commit belongs to",
-    )
-    commit_hash = models.CharField(max_length=40, help_text="Git commit SHA")
-    commit_message = models.TextField(help_text="Commit message")
-    author_name = models.CharField(max_length=255, help_text="Git author name")
-    author_email = models.CharField(max_length=255, help_text="Git author email")
-    committed_at = models.DateTimeField(help_text="Git commit timestamp")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("pull_request", "commit_hash")
-        ordering = ["committed_at"]
-        indexes = [
-            models.Index(fields=["pull_request", "committed_at"]),
-            models.Index(fields=["commit_hash"]),
-        ]
-        verbose_name = "Pull Request Commit"
-        verbose_name_plural = "Pull Request Commits"
-
-    def __str__(self):
-        return f"{self.commit_hash[:7]} - {self.commit_message[:50]}"
-
-
-class PullRequestLabel(models.Model):
-    """
-    Model for PR labels (e.g., 'bug', 'enhancement', 'documentation').
-    """
-
-    project = models.ForeignKey(
-        "Project",
-        on_delete=models.CASCADE,
-        related_name="pr_labels",
-        help_text="Project this label belongs to",
-    )
-    name = models.CharField(
-        max_length=50, help_text="Label name (e.g., 'bug', 'enhancement')"
-    )
-    color = models.CharField(
-        max_length=7, default="#0969da", help_text="Label color (hex code)"
-    )
-    description = models.TextField(blank=True, help_text="Label description")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("project", "name")
-        ordering = ["name"]
-        verbose_name = "Pull Request Label"
-        verbose_name_plural = "Pull Request Labels"
-
-    def __str__(self):
-        return self.name
-
-
-class PullRequestEvent(models.Model):
-    """
-    Model to track PR events (opened, closed, merged, reviewed, etc.).
-    """
-
-    EVENT_CHOICES = [
-        ("opened", "Opened"),
-        ("closed", "Closed"),
-        ("reopened", "Reopened"),
-        ("merged", "Merged"),
-        ("reviewed", "Reviewed"),
-        ("comment", "Comment Added"),
-        ("commit", "Commit Added"),
-        ("label", "Label Changed"),
-        ("assignee", "Assignee Changed"),
-        ("reviewer", "Reviewer Changed"),
-    ]
-
-    pull_request = models.ForeignKey(
-        PullRequest,
-        on_delete=models.CASCADE,
-        related_name="events",
-        help_text="PR this event belongs to",
-    )
-    event_type = models.CharField(
-        max_length=20, choices=EVENT_CHOICES, help_text="Type of event"
-    )
-    actor = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="pr_events",
-        help_text="User who triggered the event",
-    )
-    metadata = models.JSONField(
-        default=dict, blank=True, help_text="Additional event metadata"
-    )
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-
-    class Meta:
-        ordering = ["created_at"]
-        indexes = [
-            models.Index(fields=["pull_request", "created_at"]),
-            models.Index(fields=["event_type", "created_at"]),
-        ]
-        verbose_name = "Pull Request Event"
-        verbose_name_plural = "Pull Request Events"
-
-    def __str__(self):
-        return f"{self.event_type} - PR #{self.pull_request.number} by {self.actor}"
