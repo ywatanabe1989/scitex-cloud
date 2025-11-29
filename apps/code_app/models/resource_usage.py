@@ -1,5 +1,7 @@
 """
-ResourceUsage model - Track resource usage for billing and monitoring.
+Resource Usage Model
+
+Track resource usage for billing and monitoring.
 """
 
 from django.db import models

@@ -1,23 +1,21 @@
 """
-Models package for SciTeX-Code application.
+Code App Models
 
-Refactored from monolithic code_models.py into focused model files:
-- execution.py: CodeExecutionJob model
-- analysis.py: DataAnalysisJob model
+Modular structure:
+- execution_job.py: CodeExecutionJob model
+- analysis_job.py: DataAnalysisJob model
 - notebook.py: Notebook model
 - library.py: CodeLibrary model
 - resource_usage.py: ResourceUsage model
-- service.py: ProjectService model
-- quota.py: UserQuota model
+- project_service.py: ProjectService model
 """
 
-from .execution import CodeExecutionJob
-from .analysis import DataAnalysisJob
+from .execution_job import CodeExecutionJob
+from .analysis_job import DataAnalysisJob
 from .notebook import Notebook
 from .library import CodeLibrary
 from .resource_usage import ResourceUsage
-from .service import ProjectService
-from .quota import UserQuota
+from .project_service import ProjectService
 
 __all__ = [
     "CodeExecutionJob",
@@ -26,5 +24,4 @@ __all__ = [
     "CodeLibrary",
     "ResourceUsage",
     "ProjectService",
-    "UserQuota",
 ]

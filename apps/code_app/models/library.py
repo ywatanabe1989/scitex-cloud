@@ -1,8 +1,11 @@
 """
-CodeLibrary model - Reusable code snippets and functions.
+Code Library Model
+
+Reusable code snippets and functions.
 """
 
 import uuid
+
 from django.db import models
 from django.contrib.auth.models import User
 

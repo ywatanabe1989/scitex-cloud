@@ -1,8 +1,11 @@
 """
-Notebook model - Jupyter notebook management.
+Notebook Model
+
+Jupyter notebook management.
 """
 
 import uuid
+
 from django.db import models
 from django.contrib.auth.models import User
 
