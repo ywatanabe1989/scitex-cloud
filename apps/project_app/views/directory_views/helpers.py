@@ -110,20 +110,20 @@ def _validate_path_security(full_path, project_path, username, slug):
         return redirect("user_projects:detail", username=username, slug=slug)
 
 
-def _build_file_breadcrumb(username, slug, file_path, project_name):
+def build_breadcrumbs(project, username, slug, file_path):
     """
     Build breadcrumb navigation for file view.
 
     Args:
+        project: Project instance
         username: Project owner username
         slug: Project slug
         file_path: Relative file path
-        project_name: Project name
 
     Returns:
         list: Breadcrumb items with name and url
     """
-    breadcrumbs = [{"name": project_name, "url": f"/{username}/{slug}/"}]
+    breadcrumbs = [{"name": project.name, "url": f"/{username}/{slug}/"}]
 
     path_parts = file_path.split("/")
     current_path = ""
@@ -138,6 +138,10 @@ def _build_file_breadcrumb(username, slug, file_path, project_name):
             breadcrumbs.append({"name": part, "url": None})
 
     return breadcrumbs
+
+
+# Alias for backward compatibility
+_build_file_breadcrumb = build_breadcrumbs
 
 
 def _build_directory_breadcrumb(username, slug, directory_path, project_name):
