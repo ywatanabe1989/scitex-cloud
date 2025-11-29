@@ -159,9 +159,30 @@ export class JobPollingManager {
     // Fetch and update URL count
     this.updateUrlCount(jobId);
 
+    // Refresh workspace tree and expand bib_files directory
+    this.refreshWorkspaceTree();
+
     // Notify callback
     if (this.onComplete) {
       this.onComplete(jobId);
+    }
+  }
+
+  /**
+   * Refresh workspace tree and expand bib_files directory
+   */
+  private async refreshWorkspaceTree(): Promise<void> {
+    try {
+      const tree = (window as any).scholarWorkspaceTree;
+      if (tree && typeof tree.refreshAndExpandPath === "function") {
+        console.log("[BibTeX] Refreshing workspace tree and expanding bib_files...");
+        await tree.refreshAndExpandPath("scitex/scholar/bib_files");
+      } else {
+        console.warn("[BibTeX] Workspace tree not available for refresh");
+      }
+    } catch (error) {
+      console.error("[BibTeX] Failed to refresh workspace tree:", error);
+      // Don't fail the completion if tree refresh fails
     }
   }
 

@@ -161,6 +161,9 @@
             });
             await tree.initialize();
 
+            // Expose tree globally for BibTeX enrichment to trigger refresh
+            window.scholarWorkspaceTree = tree;
+
             // Sidebar toggle
             const toggleBtn = document.getElementById('sidebar-toggle');
             const sidebar = document.getElementById('scholar-sidebar');

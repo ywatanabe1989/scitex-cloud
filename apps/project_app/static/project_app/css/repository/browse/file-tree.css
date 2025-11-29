@@ -105,9 +105,29 @@
 
 .file-tree-children {
   display: none;
+  position: relative;
 }
 
 .file-tree-children.expanded {
   display: block;
+  margin-left: 19px;
+  padding-left: 8px;
+  border-left: 1px dashed rgba(150, 150, 150, 0.35);
+  position: relative;
+}
+
+/* Horizontal connector from vertical guide to each item */
+.file-tree-children.expanded > .file-tree-item {
+  position: relative;
+}
+
+.file-tree-children.expanded > .file-tree-item::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  border-top: 1px dashed rgba(150, 150, 150, 0.35);
 }
 

@@ -145,7 +145,7 @@ export function buildTreeHTML(
   level: number = 0,
 ): string {
   let html = "";
-  const indent = level * 8; // Reduced from 16 to 8 for compact indentation
+  // No inline padding - indentation handled by CSS .file-tree-children.expanded
   const currentPath = window.location.pathname;
 
   items.forEach((item: TreeItem) => {
@@ -177,7 +177,8 @@ export function buildTreeHTML(
 
     if (item.type === "directory") {
       // FOLDER ROW - entire div is clickable to expand/collapse (except the folder name)
-      html += `<div class="file-tree-item file-tree-item--folder ${isActive ? "active" : ""}" style="padding-left: ${indent}px;" onclick="toggleFolder('${itemId}', event)">`;
+      // No inline padding-left - CSS handles indentation via .file-tree-children nesting
+      html += `<div class="file-tree-item file-tree-item--folder ${isActive ? "active" : ""}" onclick="toggleFolder('${itemId}', event)">`;
 
       // FOLDER ICON BUTTON - visual grouping of chevron and icon
       html += `<button type="button" class="folder-icon-button">`;
@@ -213,7 +214,8 @@ export function buildTreeHTML(
       }
     } else {
       // FILE - just a link
-      html += `<div class="file-tree-item file-tree-item--file ${isActive ? "active" : ""}" style="padding-left: ${indent}px;">`;
+      // No inline padding-left - CSS handles indentation via .file-tree-children nesting
+      html += `<div class="file-tree-item file-tree-item--file ${isActive ? "active" : ""}">`;
       html += `<a href="/${username}/${slug}/blob/${item.path}" class="file-tree-file">`;
       html += `<span class="file-tree-spacer"></span>`;
       html += `<span class="file-tree-icon">${icon}</span><span class="file-tree-file-name">${item.name}`;

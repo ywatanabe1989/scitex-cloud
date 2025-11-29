@@ -193,6 +193,33 @@ export class WorkspaceFilesTree {
     await this.loadTree();
   }
 
+  /**
+   * Refresh the tree and expand to show a specific path
+   * Useful for showing newly added files in a directory
+   */
+  async refreshAndExpandPath(path: string): Promise<void> {
+    await this.loadTree();
+
+    // Expand all parent directories
+    const parentPaths = this.getParentPaths(path);
+    parentPaths.forEach(parentPath => {
+      this.stateManager.expand(parentPath);
+    });
+
+    // Also expand the path itself if it's a directory
+    this.stateManager.expand(path);
+
+    // Re-render with expanded state
+    this.rerender();
+
+    // Scroll to show the expanded directory
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const element = this.container?.querySelector(`[data-path="${path}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
   private getParentPaths(path: string): string[] {
     const parts = path.split('/');
     const parents: string[] = [];
