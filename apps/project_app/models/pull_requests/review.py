@@ -18,7 +18,7 @@ class PullRequestReview(models.Model):
     ]
 
     pull_request = models.ForeignKey(
-        "pull_requests.PullRequest",
+        "project_app.PullRequest",
         on_delete=models.CASCADE,
         related_name="reviews",
         help_text="PR being reviewed",

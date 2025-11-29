@@ -25,7 +25,7 @@ class PullRequestEvent(models.Model):
     ]
 
     pull_request = models.ForeignKey(
-        "pull_requests.PullRequest",
+        "project_app.PullRequest",
         on_delete=models.CASCADE,
         related_name="events",
         help_text="PR this event belongs to",

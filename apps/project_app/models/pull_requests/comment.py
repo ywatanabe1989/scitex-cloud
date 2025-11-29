@@ -12,7 +12,7 @@ class PullRequestComment(models.Model):
     """
 
     pull_request = models.ForeignKey(
-        "pull_requests.PullRequest",
+        "project_app.PullRequest",
         on_delete=models.CASCADE,
         related_name="comments",
         help_text="PR this comment belongs to",
@@ -53,7 +53,7 @@ class PullRequestComment(models.Model):
 
     # Review association
     review = models.ForeignKey(
-        "pull_requests.PullRequestReview",
+        "project_app.PullRequestReview",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
