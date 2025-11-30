@@ -82,6 +82,7 @@
   --workspace-bg-secondary: #f3f4f6;  /* Medium gray - secondary panels */
   --workspace-bg-tertiary: #ebedef;   /* Subtle gray - hover states */
   --workspace-bg-elevated: #ffffff;   /* Pure white - elevated surfaces (stands out) */
+  --workspace-bg-monaco: #ffffff;     /* Monaco/VS Code editor background - matches terminal-bg */
   --workspace-border-subtle: #e0e4e8; /* Very subtle borders */
   --workspace-border-default: #b5c7d1; /* Default borders - increased contrast (was #d0d7de) */
   --workspace-border-hover: #8fa4b0;  /* Hover state - darker */
@@ -185,6 +186,7 @@
   --workspace-bg-secondary: #151515;  /* Very dark gray - secondary panels */
   --workspace-bg-tertiary: #1a1a1a;   /* Subtle lighter - hover states */
   --workspace-bg-elevated: #1f1f1f;   /* Slightly elevated surfaces */
+  --workspace-bg-monaco: #1e1e1e;     /* Monaco/VS Code editor background - matches terminal-bg */
   --workspace-border-subtle: #1a1a1a; /* Subtle borders between panels */
   --workspace-border-default: #3a3a3a; /* Default borders - increased contrast (was #252525) */
   --workspace-border-hover: #4a4a4a;  /* Hover state - slightly lighter gray */

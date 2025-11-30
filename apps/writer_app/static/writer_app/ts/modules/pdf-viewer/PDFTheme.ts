@@ -28,10 +28,10 @@ export class PDFTheme {
   }
 
   /**
-   * Get background color for page
+   * Get background color for page - uses Monaco background (#1e1e1e) for dark mode
    */
   getPageBackgroundColor(): string {
-    return this.colorMode === "dark" ? "#0d0d0d" : "white";
+    return this.colorMode === "dark" ? "#1e1e1e" : "white";
   }
 
   /**
