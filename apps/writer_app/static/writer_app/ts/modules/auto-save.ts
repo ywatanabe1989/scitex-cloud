@@ -135,7 +135,7 @@ export async function saveSections(
 
     const data = await response.json();
 
-    // Validate response
+    // Validate response format
     if (!isSaveSectionsResponse(data)) {
       console.error(
         "[Writer] Invalid save response format (missing fields):",
@@ -144,21 +144,23 @@ export async function saveSections(
       return;
     }
 
-    const validatedData = validateSaveSectionsResponse(data);
-    if (!validatedData) {
-      console.error("[Writer] Save response failed validation:", data);
+    // Validate response data (throws on error)
+    try {
+      validateSaveSectionsResponse(data);
+    } catch (validationError) {
+      console.error("[Writer] Save response failed validation:", validationError, data);
       return;
     }
 
-    if (validatedData.success) {
+    if (data.success) {
       console.log(
         `${userContext} [Writer] Sections saved successfully:`,
-        validatedData.saved_sections,
+        data.sections_saved,
       );
     } else {
       console.error(
         `${userContext} [Writer] Failed to save some sections:`,
-        validatedData.errors,
+        data.errors,
       );
     }
   } catch (error) {

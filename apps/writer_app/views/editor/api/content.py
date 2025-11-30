@@ -314,12 +314,100 @@ def save_sections_view(request, project_id):
         return JsonResponse(response.to_dict(), status=500)
 
 
+@api_login_optional
+@require_http_methods(["GET"])
+def read_tex_file_view(request, project_id):
+    """Read a .tex file directly from disk by path.
+
+    GET params:
+        path: File path relative to workspace (e.g., scitex/writer/01_manuscript/contents/methods.tex)
+
+    Returns:
+        JSON with file content
+    """
+    try:
+        from apps.project_app.models import Project
+        from ..auth_utils import get_user_for_request
+
+        # Get path from query params
+        file_path = request.GET.get("path")
+        if not file_path:
+            return JsonResponse(
+                {"success": False, "error": "Missing 'path' query parameter"},
+                status=400
+            )
+
+        # Get project
+        project = Project.objects.get(id=project_id)
+
+        # Get effective user (authenticated or visitor)
+        user, is_visitor = get_user_for_request(request, project_id)
+        if not user:
+            return JsonResponse(
+                {"success": False, "error": "Invalid session"}, status=403
+            )
+
+        # Get workspace path using get_local_path() method
+        workspace_path = project.get_local_path()
+        if not workspace_path:
+            return JsonResponse(
+                {"success": False, "error": "Project has no local path configured"},
+                status=400
+            )
+        full_path = workspace_path / file_path
+
+        # Security: Ensure path is within workspace
+        try:
+            full_path = full_path.resolve()
+            workspace_resolved = workspace_path.resolve()
+            if not str(full_path).startswith(str(workspace_resolved)):
+                return JsonResponse(
+                    {"success": False, "error": "Path outside workspace"},
+                    status=403
+                )
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": f"Invalid path: {e}"},
+                status=400
+            )
+
+        # Check file exists
+        if not full_path.exists():
+            return JsonResponse(
+                {"success": False, "error": f"File not found: {file_path}"},
+                status=404
+            )
+
+        # Read file content
+        try:
+            content = full_path.read_text(encoding="utf-8")
+            return JsonResponse({
+                "success": True,
+                "content": content,
+                "path": file_path,
+                "filename": full_path.name,
+            })
+        except Exception as e:
+            logger.error(f"Error reading file {file_path}: {e}")
+            return JsonResponse(
+                {"success": False, "error": f"Failed to read file: {e}"},
+                status=500
+            )
+
+    except Project.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Project not found"}, status=404
+        )
+    except Exception as e:
+        logger.error(f"Error in read_tex_file_view: {e}", exc_info=True)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
 # View aliases for backward compatibility
 section_history_view = section_view  # Temp stub
 section_diff_view = section_view  # Temp stub
 section_checkout_view = section_view  # Temp stub
 section_commit_view = section_view  # Temp stub
-read_tex_file_view = section_view  # Temp stub
 available_sections_view = section_view  # Temp stub
 presence_update_view = section_view  # Temp stub
 
