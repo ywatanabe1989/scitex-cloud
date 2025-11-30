@@ -1,12 +1,5 @@
 <!-- Main Editor -->
 <div class="writer-main" id="editor-main">
-    <!-- Sticky Toolbar -->
-    <div class="writer-toolbar-sticky">
-        <div class="toolbar-left">
-            <!-- Left toolbar items will be minimal -->
-        </div>
-
-    </div>
     <div class="writer-editor">
         <!-- Split View Only -->
         <div class="editor-content-wrapper">
@@ -95,6 +88,10 @@
                                 <option value="vs-dark" selected>Dark</option>
                             </select>
                         </div>
+                    </div>
+                    <!-- File Tabs (below toolbar, same as /code/ page) -->
+                    <div id="file-tabs" class="file-tabs">
+                        <button id="btn-new-file-tab" class="file-tabs-plus-btn" title="New file">+</button>
                     </div>
                     <!-- Monaco Editor Container (replaces textarea) -->
                     <div id="writer-monaco-editor" class="writer-monaco-editor"></div>

@@ -6,6 +6,8 @@
     <link rel="stylesheet"
           href="{% static 'shared/css/components/workspace-files-tree.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
+          href="{% static 'shared/css/components/file-tabs.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <link rel="stylesheet"
           href="{% static 'writer_app/css/editor/tex-view-main.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'writer_app/css/editor/index-editor-panels.css' %}?v={{ request.timestamp|default:'1' }}" />
@@ -43,6 +45,9 @@
           href="{% static 'writer_app/css/components/sidebar-controls.css' %}?v={{ request.timestamp|default:'1' }}" />
     <link rel="stylesheet"
           href="{% static 'writer_app/css/editor/main-editor-inline.css' %}?v={{ request.timestamp|default:'1' }}" />
+    <!-- File tabs CSS (same as /code/ page) -->
+    <link rel="stylesheet"
+          href="{% static 'writer_app/css/editor/file-tabs.css' %}?v={{ request.timestamp|default:'1' }}" />
 
     <!-- Panel-specific CSS - will be lazy-loaded when panels are opened -->
     <!-- Citations panel CSS loaded dynamically on first open -->
@@ -328,7 +333,10 @@
 
         <!-- Workspace Files Tree for Writer -->
         <script type="module">
-            import { WorkspaceFilesTree } from '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js?v={{ request.timestamp|default:"20251130" }}';
+            // Force reload: version timestamp
+            const wftVersion = Date.now();
+            const module = await import(`/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js?v=${wftVersion}`);
+            const WorkspaceFilesTree = module.WorkspaceFilesTree;
 
             // Store tree instance globally for editor to access
             let writerFileTree = null;
@@ -586,6 +594,13 @@
                 // Initialize Monaco editor
                 const writerEditor = await initializeWriterMonaco();
 
+                // ========================================
+                // File Tab Manager Initialization (same as /code/ page)
+                // ========================================
+                const { WriterFileTabManager } = await import('/static/writer_app/ts/modules/file-tabs/WriterFileTabManager.js');
+                const fileTabManager = new WriterFileTabManager();
+                window.writerFileTabManager = fileTabManager;
+
                 // Helper to update current file display
                 const updateCurrentFile = (path, icon = 'fa-file-alt') => {
                     if (currentFileNameEl) {
@@ -628,6 +643,11 @@
                                 // Mark file as target in tree
                                 if (writerFileTree) {
                                     writerFileTree.setTargetFile(path);
+                                }
+
+                                // Open file in tab manager (same as /code/ page)
+                                if (window.writerFileTabManager) {
+                                    window.writerFileTabManager.openFile(path);
                                 }
 
                                 // Store current file path for saving
@@ -682,6 +702,34 @@
                         console.error('[Writer] Failed to load file:', error);
                     }
                 };
+
+                // Set file tab manager callbacks (same as /code/ page pattern)
+                if (window.writerFileTabManager) {
+                    window.writerFileTabManager.setCallbacks(
+                        // onSwitch: Load the file when tab is clicked
+                        (path) => {
+                            console.log('[Writer] Tab switched to:', path);
+                            loadFileIntoEditor(path);
+                        },
+                        // onClose: Handle tab close (clear editor if no tabs left)
+                        (path) => {
+                            console.log('[Writer] Tab closed:', path);
+                            const openFiles = window.writerFileTabManager.getOpenFiles();
+                            if (openFiles.length === 0) {
+                                // Clear editor if no tabs
+                                if (window.writerMonacoEditor) {
+                                    window.writerMonacoEditor.setValue('% Select a file from the tree to start editing...');
+                                }
+                                window.writerCurrentFilePath = null;
+                            }
+                        },
+                        // onNew: Create new file (optional - show file dialog or create blank)
+                        () => {
+                            console.log('[Writer] New file requested');
+                            // Could show a modal to create new file
+                        }
+                    );
+                }
 
                 // Helper to show PDF in preview panel using PDF.js viewer (canvas-based)
                 const showPdfInPreview = (path) => {
@@ -795,11 +843,24 @@
                     }
                 };
 
-                if (fileTreeContainer && WRITER_CONFIG.projectOwner && WRITER_CONFIG.projectSlug) {
+                // Debug: Log WRITER_CONFIG values
+                console.log('[Writer] File tree init check:', {
+                    fileTreeContainer: !!fileTreeContainer,
+                    projectOwner: WRITER_CONFIG.projectOwner,
+                    projectSlug: WRITER_CONFIG.projectSlug,
+                    visitorUsername: WRITER_CONFIG.visitorUsername,
+                    username: WRITER_CONFIG.username
+                });
+
+                // Use projectOwner, or fall back to visitorUsername or username for visitors
+                const treeUsername = WRITER_CONFIG.projectOwner || WRITER_CONFIG.visitorUsername || WRITER_CONFIG.username;
+
+                if (fileTreeContainer && treeUsername && WRITER_CONFIG.projectSlug) {
+                    console.log('[Writer] Initializing file tree with username:', treeUsername, 'slug:', WRITER_CONFIG.projectSlug);
                     writerFileTree = new WorkspaceFilesTree({
                         mode: 'writer',
                         containerId: 'writer-file-tree',
-                        username: WRITER_CONFIG.projectOwner,
+                        username: treeUsername,
                         slug: WRITER_CONFIG.projectSlug,
                         showFolderActions: true,
                         showGitStatus: true,
