@@ -1,7 +1,7 @@
 /* Main workspace layout - 3 columns with resizers */
 .code-workspace {
   display: flex;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 60px);
   max-width: none;
   margin: 0;
   padding: 0;
