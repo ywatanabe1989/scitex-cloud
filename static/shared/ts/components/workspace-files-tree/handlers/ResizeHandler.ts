@@ -1,179 +1,125 @@
 /**
  * Resize Handler for WorkspaceFilesTree
- * Allows resizing the file tree height with Ctrl+drag (vertical)
+ * Allows resizing the file tree font/icon size with Ctrl+Wheel
  *
- * Usage: Hold Ctrl (or Cmd on Mac) and drag vertically to resize the tree height
+ * Usage: Hold Ctrl (or Cmd on Mac) and scroll mouse wheel to resize text/icons
+ *        Scroll up = larger, scroll down = smaller
+ *        (Same behavior as Monaco editor and PDF viewer)
  */
 
 console.log('[DEBUG] ResizeHandler.ts loaded');
 
-const STORAGE_KEY_PREFIX = 'scitex-tree-height-';
-const MIN_HEIGHT = 150;
-const MAX_HEIGHT = 800;
-const DEFAULT_HEIGHT = 400;
+const STORAGE_KEY_PREFIX = 'scitex-tree-font-size-';
+const MIN_FONT_SIZE = 10;
+const MAX_FONT_SIZE = 20;
+const DEFAULT_FONT_SIZE = 13;
+const WHEEL_SENSITIVITY = 0.5; // font size change per wheel delta unit
 
 export class ResizeHandler {
   private container: HTMLElement;
   private storageKey: string;
-  private isResizing = false;
-  private startY = 0;
-  private startHeight = 0;
+  private currentFontSize = DEFAULT_FONT_SIZE;
 
   // Bound handlers for proper cleanup
-  private boundMouseMove: (e: MouseEvent) => void;
-  private boundMouseUp: () => void;
-  private boundMouseDown: (e: MouseEvent) => void;
-  private boundContainerMouseMove: (e: MouseEvent) => void;
-  private boundContainerMouseLeave: () => void;
+  private boundWheel: (e: WheelEvent) => void;
 
   constructor(container: HTMLElement, mode: string) {
     this.container = container;
     this.storageKey = `${STORAGE_KEY_PREFIX}${mode}`;
 
     // Bind handlers
-    this.boundMouseMove = this.handleMouseMove.bind(this);
-    this.boundMouseUp = this.handleMouseUp.bind(this);
-    this.boundMouseDown = this.handleMouseDown.bind(this);
-    this.boundContainerMouseMove = this.handleContainerMouseMove.bind(this);
-    this.boundContainerMouseLeave = this.handleContainerMouseLeave.bind(this);
+    this.boundWheel = this.handleWheel.bind(this);
   }
 
   /**
    * Initialize the resize functionality
    */
   initialize(): void {
-    // Restore saved height
-    this.restoreHeight();
+    // Restore saved font size
+    this.restoreFontSize();
 
-    // Attach event listeners
-    this.container.addEventListener('mousedown', this.boundMouseDown);
-    this.container.addEventListener('mousemove', this.boundContainerMouseMove);
-    this.container.addEventListener('mouseleave', this.boundContainerMouseLeave);
+    // Attach wheel listener for Ctrl+Wheel zoom
+    this.container.addEventListener('wheel', this.boundWheel, { passive: false });
 
-    // Global listeners for tracking mouse during resize
-    document.addEventListener('mousemove', this.boundMouseMove);
-    document.addEventListener('mouseup', this.boundMouseUp);
-
-    console.log('[ResizeHandler] Initialized - Ctrl+drag to resize tree height');
+    console.log('[ResizeHandler] Initialized - Ctrl+Wheel to resize tree font size');
   }
 
   /**
    * Clean up event listeners
    */
   destroy(): void {
-    this.container.removeEventListener('mousedown', this.boundMouseDown);
-    this.container.removeEventListener('mousemove', this.boundContainerMouseMove);
-    this.container.removeEventListener('mouseleave', this.boundContainerMouseLeave);
-    document.removeEventListener('mousemove', this.boundMouseMove);
-    document.removeEventListener('mouseup', this.boundMouseUp);
+    this.container.removeEventListener('wheel', this.boundWheel);
   }
 
   /**
-   * Handle mousedown - start resize if Ctrl is held
+   * Handle wheel event - resize font if Ctrl is held
    */
-  private handleMouseDown(e: MouseEvent): void {
-    if (e.ctrlKey || e.metaKey) {
-      this.startResize(e);
-    }
-  }
+  private handleWheel(e: WheelEvent): void {
+    if (!e.ctrlKey && !e.metaKey) return;
 
-  /**
-   * Start resize operation
-   */
-  private startResize(e: MouseEvent): void {
-    this.isResizing = true;
-    this.startY = e.clientY;
-    this.startHeight = this.container.getBoundingClientRect().height;
-    document.body.style.cursor = 'row-resize';
-    document.body.style.userSelect = 'none';
+    // Prevent browser zoom
     e.preventDefault();
     e.stopPropagation();
-    console.log('[ResizeHandler] Resize started');
+
+    // Calculate new font size (scroll up = larger, scroll down = smaller)
+    // Note: deltaY is positive when scrolling down
+    const delta = -e.deltaY * WHEEL_SENSITIVITY * 0.01;
+    const newFontSize = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, this.currentFontSize + delta));
+
+    this.setFontSize(newFontSize);
+
+    // Save to localStorage (debounced effect - saves on each change)
+    localStorage.setItem(this.storageKey, this.currentFontSize.toString());
   }
 
   /**
-   * Handle mouse move during resize
+   * Set the font size for the tree
    */
-  private handleMouseMove(e: MouseEvent): void {
-    if (!this.isResizing) return;
+  private setFontSize(size: number): void {
+    this.currentFontSize = Math.round(size * 10) / 10; // Round to 1 decimal
+    this.container.style.fontSize = `${this.currentFontSize}px`;
 
-    const delta = e.clientY - this.startY;
-    const newHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, this.startHeight + delta));
-    this.setHeight(newHeight);
+    // Also scale icons proportionally using CSS variable
+    const iconSize = this.currentFontSize * 1.1; // Icons slightly larger than text
+    this.container.style.setProperty('--wft-icon-size', `${iconSize}px`);
   }
 
   /**
-   * Handle mouse up - end resize
+   * Restore saved font size from localStorage
    */
-  private handleMouseUp(): void {
-    if (this.isResizing) {
-      this.isResizing = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-
-      // Save height to localStorage
-      const height = this.container.getBoundingClientRect().height;
-      localStorage.setItem(this.storageKey, height.toString());
-      console.log('[ResizeHandler] Saved height:', height);
-    }
-  }
-
-  /**
-   * Handle mouse move on container - change cursor when Ctrl held
-   */
-  private handleContainerMouseMove(e: MouseEvent): void {
-    if (!this.isResizing && (e.ctrlKey || e.metaKey)) {
-      this.container.style.cursor = 'row-resize';
-    } else if (!this.isResizing) {
-      this.container.style.cursor = '';
-    }
-  }
-
-  /**
-   * Handle mouse leave - reset cursor
-   */
-  private handleContainerMouseLeave(): void {
-    if (!this.isResizing) {
-      this.container.style.cursor = '';
-    }
-  }
-
-  /**
-   * Set the container height
-   */
-  private setHeight(height: number): void {
-    this.container.style.height = `${height}px`;
-    this.container.style.maxHeight = `${height}px`;
-    this.container.style.minHeight = `${height}px`;
-  }
-
-  /**
-   * Restore saved height from localStorage
-   */
-  private restoreHeight(): void {
-    const savedHeight = localStorage.getItem(this.storageKey);
-    if (savedHeight) {
-      const height = parseInt(savedHeight, 10);
-      if (height >= MIN_HEIGHT && height <= MAX_HEIGHT) {
-        this.setHeight(height);
-        console.log('[ResizeHandler] Restored height:', height);
+  private restoreFontSize(): void {
+    const savedSize = localStorage.getItem(this.storageKey);
+    if (savedSize) {
+      const size = parseFloat(savedSize);
+      if (size >= MIN_FONT_SIZE && size <= MAX_FONT_SIZE) {
+        this.setFontSize(size);
+        console.log('[ResizeHandler] Restored font size:', size);
       }
+    } else {
+      this.setFontSize(DEFAULT_FONT_SIZE);
     }
   }
 
   /**
-   * Get current height
+   * Get current font size
    */
-  getHeight(): number {
-    return this.container.getBoundingClientRect().height;
+  getFontSize(): number {
+    return this.currentFontSize;
   }
 
   /**
-   * Set height programmatically
+   * Set font size programmatically
    */
-  setHeightProgrammatic(height: number): void {
-    const clampedHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, height));
-    this.setHeight(clampedHeight);
-    localStorage.setItem(this.storageKey, clampedHeight.toString());
+  setFontSizeProgrammatic(size: number): void {
+    const clampedSize = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, size));
+    this.setFontSize(clampedSize);
+    localStorage.setItem(this.storageKey, clampedSize.toString());
+  }
+
+  /**
+   * Reset to default font size
+   */
+  resetFontSize(): void {
+    this.setFontSizeProgrammatic(DEFAULT_FONT_SIZE);
   }
 }
