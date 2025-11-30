@@ -805,6 +805,7 @@ test-paper-project/
 .tmp_sync/
 demo/
 .tsbuild/
+.jsbuild/
 
 # TypeScript Compiled Output (auto-generated, do not commit)
 apps/*/static/*/js/

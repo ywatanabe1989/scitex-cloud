@@ -63,6 +63,8 @@ services:
       # Explicitly exclude generated files from host mount (performance)
       - /app/staticfiles
       - /app/.cache
+      # TypeScript compiled JS output - Docker only, never syncs to host
+      - /app/.jsbuild
     
     # Port mapping
     ports:

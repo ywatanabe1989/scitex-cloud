@@ -30,3 +30,8 @@
   outline: none !important;
 }
 
+/* Dark mode - use Monaco editor background color (#1e1e1e) */
+[data-theme="dark"] .text-preview {
+  background: var(--workspace-bg-monaco, #1e1e1e) !important;
+}
+
