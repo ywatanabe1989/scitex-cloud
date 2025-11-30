@@ -13,6 +13,7 @@
   overflow-x: hidden;
   height: 100%;
   user-select: none;
+  background-color: var(--workspace-bg-monaco, #1e1e1e);
 }
 
 /* Prevent flash during tree updates by using content-visibility */
@@ -295,22 +296,38 @@
   border-left-color: rgba(150, 150, 150, 0.45);
 }
 
-/* Folder action buttons */
+/* Folder action buttons - positioned below the item for better UX */
 .wft-folder-actions {
   display: none;
-  gap: 2px;
-  margin-left: auto;
+  gap: 4px;
+  position: absolute;
+  left: 80px;
+  top: 100%;
+  z-index: 10;
+  background: var(--workspace-bg-monaco, #1e1e1e);
+  padding: 4px 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 
 .wft-folder:hover .wft-folder-actions {
   display: flex;
 }
 
-/* File action buttons */
+/* File action buttons - positioned below the item for better UX */
 .wft-file-actions {
   display: none;
-  gap: 2px;
-  margin-left: auto;
+  gap: 4px;
+  position: absolute;
+  left: 80px;
+  top: 100%;
+  z-index: 10;
+  background: var(--workspace-bg-monaco, #1e1e1e);
+  padding: 4px 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 
 .wft-file:hover .wft-file-actions {
@@ -460,6 +477,15 @@
 }
 
 /* Light mode overrides */
+[data-theme="light"] .wft-folder-actions,
+[data-theme="light"] .wft-file-actions,
+.light .wft-folder-actions,
+.light .wft-file-actions {
+  background: var(--workspace-bg-monaco, #ffffff);
+  border-color: var(--workspace-border-default, #d0d7de);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 [data-theme="light"] .wft-name,
 .light .wft-name {
   color: var(--color-fg-default, #1f2328);

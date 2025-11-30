@@ -42,8 +42,8 @@ export class WorkspaceFilesTree {
       ...config,
     };
 
-    // Initialize core managers
-    this.stateManager = new TreeStateManager(config.username, config.slug);
+    // Initialize core managers with mode-specific state isolation
+    this.stateManager = new TreeStateManager(config.username, config.slug, config.mode);
     this.filter = new TreeFilter(config.mode, {
       allowedExtensions: config.allowedExtensions,
       disabledExtensions: config.disabledExtensions,
@@ -112,6 +112,18 @@ export class WorkspaceFilesTree {
 
       if (data.success) {
         this.treeData = data.tree;
+        // Debug: Log raw data to verify symlinks
+        console.log('[WFT] Tree data received - checking first few items for is_symlink property:');
+        const debugSymlinks = (items: TreeItem[], prefix = '', depth = 0) => {
+          if (depth > 2) return; // Limit depth
+          for (const item of items.slice(0, 3)) {
+            console.log(`[WFT] ${prefix}${item.name}: is_symlink=${item.is_symlink}, symlink_target=${item.symlink_target || 'N/A'}`);
+            if (item.children) {
+              debugSymlinks(item.children, `${prefix}${item.name}/`, depth + 1);
+            }
+          }
+        };
+        debugSymlinks(this.treeData);
         // Debug: Log symlinks in tree data
         const logSymlinks = (items: TreeItem[], prefix = '') => {
           for (const item of items) {

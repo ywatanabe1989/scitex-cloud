@@ -4,17 +4,20 @@
  * Syncs state across browser tabs
  */
 
-import type { TreeState } from './types.js';
+import type { TreeState, WorkspaceMode } from './types.js';
 
 const STORAGE_KEY_PREFIX = 'scitex_workspace_tree_';
 
 export class TreeStateManager {
   private projectKey: string;
+  private mode: WorkspaceMode;
   private state: TreeState;
   private listeners: Set<(state: TreeState) => void> = new Set();
 
-  constructor(username: string, slug: string) {
-    this.projectKey = `${STORAGE_KEY_PREFIX}${username}_${slug}`;
+  constructor(username: string, slug: string, mode: WorkspaceMode = 'all') {
+    // Include mode in the storage key to isolate state per module
+    this.mode = mode;
+    this.projectKey = `${STORAGE_KEY_PREFIX}${username}_${slug}_${mode}`;
     this.state = this.loadState();
     this.setupStorageListener();
   }
