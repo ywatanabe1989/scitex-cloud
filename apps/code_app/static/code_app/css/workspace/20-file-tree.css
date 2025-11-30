@@ -1,3 +1,11 @@
+/* File tree container - fill sidebar space */
+.file-tree-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--workspace-bg-monaco, #1e1e1e); /* Match tree background */
+}
+
 /* File tree spacer */
 .file-tree-spacer {
   width: 16px;

@@ -94,9 +94,31 @@ body::before {
    ========================= */
 
 /* Remove/reduce padding for Code/Vis/Writer pages to maximize workspace */
+body.workspace-page {
+  height: 100vh;  /* Use exact height instead of min-height for workspace pages */
+  max-height: 100vh;  /* Prevent growing beyond viewport */
+  overflow: hidden;  /* Prevent body scrolling - panels handle their own overflow */
+}
+
 body.workspace-page #main-content {
   padding-top: 0;
   padding-bottom: 0;
+  /* Make main-content fill remaining space for workspace pages */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;  /* Allow flexbox shrinking */
+}
+
+/* Workspace containers should fill available space */
+body.workspace-page #main-content .code-workspace,
+body.workspace-page #main-content .writer-workspace,
+body.workspace-page #main-content .scholar-workspace,
+body.workspace-page #main-content .vis-workspace,
+body.workspace-page #main-content .sigma-editor-container,
+body.workspace-page #main-content .editor-container {
+  flex: 1;
+  min-height: 0; /* Allow shrinking */
 }
 
 body.workspace-page .site-footer {

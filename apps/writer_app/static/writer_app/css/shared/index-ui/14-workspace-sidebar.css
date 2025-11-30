@@ -5,7 +5,7 @@
 
 .writer-workspace {
   display: flex;
-  height: var(--workspace-height, calc(100vh - 60px));
+  height: 100%; /* Fill parent container (flex: 1 from global-base.css) */
   overflow: hidden;
   background: var(--workspace-bg-primary, #0d0d0d);
   gap: 0; /* No margins between panes */
@@ -16,6 +16,8 @@
   min-width: 10px; /* Allow shrinking via resizer */
   background: var(--workspace-bg-primary, #0d0d0d);
   border-right: none; /* Resizer handles visual separation */
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease, min-width 0.2s ease;
@@ -71,6 +73,8 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  background: var(--workspace-bg-monaco, #1e1e1e); /* Match tree background */
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 
 .writer-workspace .writer-container {
@@ -113,8 +117,8 @@
   .writer-sidebar {
     position: absolute;
     left: 0;
-    top: var(--header-height, 60px);
-    height: var(--workspace-height, calc(100vh - 60px));
+    top: 0;
+    height: 100%;
     z-index: 100;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
   }
@@ -125,6 +129,6 @@
 
   .writer-workspace {
     flex-direction: column;
-    height: auto;
+    height: 100%;
   }
 }

@@ -12,7 +12,7 @@
 /* Editor panels layout */
 .writer-container {
   display: flex;
-  height: var(--workspace-height, calc(100vh - 60px));
+  height: 100%; /* Fill parent container (flex: 1 from global-base.css) */
   position: relative;
 }
 

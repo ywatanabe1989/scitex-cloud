@@ -3,6 +3,8 @@
   flex: 1;
   overflow: hidden;
   position: relative;
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
 }
 
 #monaco-editor {
@@ -34,5 +36,6 @@
   line-height: 1.5;
   cursor: text;
   user-select: text; /* Allow text selection */
+  min-height: 0; /* Allow proper flex sizing */
 }
 

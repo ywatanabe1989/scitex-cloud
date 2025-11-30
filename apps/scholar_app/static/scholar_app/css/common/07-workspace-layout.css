@@ -5,7 +5,7 @@
 
 .scholar-workspace {
   display: flex;
-  height: var(--workspace-height, calc(100vh - 60px)); /* Account for header */
+  height: 100%; /* Fill parent container (flex: 1 from global-base.css) */
   overflow: hidden;
   background: var(--workspace-bg-primary, #0d0d0d);
   gap: 0; /* No margins between panes */
@@ -17,6 +17,8 @@
   min-width: 10px;
   background: var(--workspace-bg-primary, #0d0d0d);
   border-right: none; /* Resizer handles visual separation */
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease, min-width 0.2s ease;
@@ -82,17 +84,21 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--terminal-bg, #1e1e1e);
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 
 /* Center panel: Main content */
 .scholar-main {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden; /* Prevent outer scrolling; children handle their own */
   padding: 0;
   background: var(--workspace-bg-primary, #0d0d0d);
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0; /* Allow shrinking in flex context */
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
 }
 
 .scholar-main .pane-header {
@@ -135,7 +141,10 @@
 .scholar-main .pane-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 0; /* Remove padding to maximize space; child containers handle padding */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow shrinking in flex context */
 }
 
 /* Right panel: Properties/details */
@@ -144,6 +153,8 @@
   min-width: 10px;
   background: var(--workspace-bg-primary, #0d0d0d);
   border-left: none; /* Resizer handles visual separation */
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease, min-width 0.2s ease;
@@ -205,6 +216,7 @@
   overflow-y: auto;
   padding: 16px;
   background: var(--workspace-bg-primary, #0d0d0d);
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 
 /* Remove default container styles inside scholar-main */
@@ -288,10 +300,11 @@
   border-radius: 0 !important;
 }
 
-/* Ensure no margins in pane content */
+/* Ensure no margins in pane content - flexbox already set above */
 .scholar-main .pane-content {
   padding: 0;
   margin: 0;
+  /* display: flex and flex-direction: column already set above */
 }
 
 /* Override container padding inside scholar-main */

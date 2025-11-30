@@ -14,6 +14,8 @@
   height: 100%;
   user-select: none;
   background-color: var(--workspace-bg-monaco, #1e1e1e);
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
 }
 
 /* Prevent flash during tree updates by using content-visibility */

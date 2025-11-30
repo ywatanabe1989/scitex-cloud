@@ -4,11 +4,14 @@
   flex-shrink: 0;
   background-color: var(--code-bg) !important;
   border-right: 1px solid var(--code-border);
+  border-bottom: 1px solid var(--workspace-border-default, #3a3a3a);
+  margin-bottom: 1px;
   border-radius: 0 !important;
   border-left: none;
   border-top: none;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden; /* Children handle overflow */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Dark mode: unified background with editor and terminal */
