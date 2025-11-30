@@ -16,6 +16,7 @@ import { EventHandlers } from './handlers/EventHandlers.js';
 import { DragDropHandlers } from './handlers/DragDropHandlers.js';
 import { KeyboardHandlers } from './handlers/KeyboardHandlers.js';
 import { FileActions } from './handlers/FileActions.js';
+import { ResizeHandler } from './handlers/ResizeHandler.js';
 
 console.log('[DEBUG] WorkspaceFilesTree component loaded (orchestrator pattern)');
 
@@ -30,6 +31,7 @@ export class WorkspaceFilesTree {
   private dragDropHandlers: DragDropHandlers;
   private keyboardHandlers: KeyboardHandlers | null = null;
   private fileActions: FileActions;
+  private resizeHandler: ResizeHandler | null = null;
   private treeData: TreeItem[] = [];
   private filteredTreeData: TreeItem[] = [];
   private isLoading = false;
@@ -98,6 +100,10 @@ export class WorkspaceFilesTree {
       this.container.classList.add(this.config.className);
     }
     this.container.classList.add('workspace-files-tree');
+
+    // Initialize resize handler (Ctrl+drag to resize tree height)
+    this.resizeHandler = new ResizeHandler(this.container, this.config.mode);
+    this.resizeHandler.initialize();
 
     await this.loadTree();
   }
