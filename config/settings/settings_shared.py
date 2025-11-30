@@ -75,7 +75,7 @@ def discover_local_apps():
 # ---------------------------------------
 # Metadata
 # ---------------------------------------
-SCITEX_CLOUD_VERSION = "0.4.2-alpha"
+SCITEX_CLOUD_VERSION = "0.4.4-alpha"
 
 # ---------------------------------------
 # Visitor Pool Configuration
@@ -96,6 +96,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
+    # TypeScript compiled JS output (Docker-only, see tsconfig/post-build.js)
+    # Maps: .jsbuild/{app_name}/js/* -> /static/{app_name}/js/*
+    BASE_DIR / ".jsbuild",
 ]
 
 # Media files

@@ -23,11 +23,11 @@
         </div>
         <div class="stats-box">
             <div class="stat-item">
-                <span class="stat-number">970+</span>
+                <span class="stat-number">1470+</span>
                 <span class="stat-label">Total Commits</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">6</span>
+                <span class="stat-number">7</span>
                 <span class="stat-label">Months of Development</span>
             </div>
             <div class="stat-item">
@@ -48,8 +48,48 @@
         </div>
         <div class="release-month">
             <div class="month-header">
-                <h2>November 2025 — v0.4.3</h2>
+                <h2>December 2025 — v0.4.4-alpha</h2>
                 <span class="month-badge">Latest Release</span>
+            </div>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <h3>🖱️ File Tree Ctrl+Wheel Zoom</h3>
+                    <p>
+                        Added Ctrl+Wheel zoom for file tree text and icons, matching Monaco editor
+                        and PDF viewer behavior. Font size persists per workspace mode in localStorage.
+                        Scroll up to enlarge, scroll down to shrink (10px-20px range).
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>🏠 Landing Page Display Fix</h3>
+                    <p>
+                        Fixed landing page being constrained by workspace CSS rules. Landing page
+                        now properly allows scrolling and full-width content display instead of
+                        being locked to viewport height.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>📝 Writer API & Auto-Save Fixes</h3>
+                    <p>
+                        Fixed read-tex-file API returning 500 error by properly implementing
+                        the endpoint. Fixed auto-save validation false positives where successful
+                        saves were incorrectly reported as failures.
+                    </p>
+                </li>
+                <li class="feature-item">
+                    <h3>🗂️ FileTreeSetup Modularization</h3>
+                    <p>
+                        Refactored FileTreeSetup into modular handler architecture with separate
+                        ResizeHandler, EventHandlers, and FileActions modules for better
+                        maintainability and code organization.
+                    </p>
+                </li>
+            </ul>
+        </div>
+        <div class="release-month">
+            <div class="month-header">
+                <h2>November 2025 — v0.4.3-alpha</h2>
+                <span class="month-badge">Database Clarity</span>
             </div>
             <ul class="feature-list">
                 <li class="feature-item">
@@ -537,6 +577,14 @@
         commits: 12,
         cumulative: 972,
         milestone: "Database Renaming (v0.4.3-alpha)",
+      },
+      { date: "2025-11-29", commits: 8, cumulative: 980, milestone: null },
+      { date: "2025-11-30", commits: 15, cumulative: 995, milestone: null },
+      {
+        date: "2025-12-01",
+        commits: 6,
+        cumulative: 1001,
+        milestone: "File Tree Zoom (v0.4.4-alpha)",
       },
     ];
 
