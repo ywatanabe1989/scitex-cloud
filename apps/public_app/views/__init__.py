@@ -18,7 +18,7 @@ Exports all view functions for URL routing.
 from .landing import index, premium_subscription
 
 # Information pages
-from .pages import about, publications, donate, fundraising, contributors
+from .pages import about, publications, donate, fundraising, pricing, contributors
 
 # Legal pages
 from .legal import contact, privacy_policy, terms_of_use, cookie_policy
@@ -77,6 +77,7 @@ __all__ = [
     "publications",
     "donate",
     "fundraising",
+    "pricing",
     "contributors",
     # Legal
     "contact",

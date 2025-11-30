@@ -153,6 +153,11 @@ def fundraising(request):
     return render(request, "public_app/pages/fundraising.html")
 
 
+def pricing(request):
+    """SciTeX pricing page - subscription plans and feature comparison."""
+    return render(request, "public_app/pages/pricing.html")
+
+
 def contributors(request):
     """Contributors page - show SciTeX team and contributors."""
     from ..models import Contributor
