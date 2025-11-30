@@ -13,14 +13,18 @@ logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["GET"])
-def sections_config_view(request):
+def sections_config_view(request, project_id=None):
     """Return hierarchical sections configuration dynamically from filesystem.
 
     Scans the actual project directory to find available sections,
     excluding symlinks and system files.
 
+    Args:
+        request: HTTP request
+        project_id: (optional) Project ID from URL path
+
     Query params:
-        - project_id: (optional) Project ID to load sections from
+        - project_id: (optional) Project ID to load sections from (fallback)
 
     Returns:
         JSON with hierarchical section structure based on actual files
@@ -29,8 +33,9 @@ def sections_config_view(request):
         from .....services import WriterService
         from apps.project_app.models import Project
 
-        # Get project - try from query param, session, or user's default
-        project_id = request.GET.get("project_id")
+        # Get project - try from URL param, query param, session, or user's default
+        if not project_id:
+            project_id = request.GET.get("project_id")
         if not project_id and request.user.is_authenticated:
             project_id = request.session.get("current_project_id")
             if not project_id:
