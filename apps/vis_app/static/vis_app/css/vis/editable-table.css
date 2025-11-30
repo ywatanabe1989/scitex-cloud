@@ -25,7 +25,7 @@
 
 .editable-table td:hover,
 .editable-table th:hover {
-    background-color: var(--sigma-bg-hover) !important;
+    background-color: var(--vis-bg-hover) !important;
 }
 
 /* Selected cells (not editing) */
@@ -79,7 +79,7 @@
 
 /* Cell in edit mode */
 .editable-table [contenteditable="true"] {
-    background-color: var(--sigma-bg-primary) !important;
+    background-color: var(--vis-bg-primary) !important;
     color: var(--text-primary) !important;
     box-shadow: inset 0 0 0 1px rgba(74, 155, 126, 0.5);
     z-index: 2;
@@ -92,7 +92,7 @@
 /* Header cells in editable table */
 .editable-table th[contenteditable="true"] {
     font-weight: 600;
-    background: var(--sigma-bg-secondary);
+    background: var(--vis-bg-secondary);
 }
 
 .editable-table th[contenteditable="true"]:focus {
@@ -117,7 +117,7 @@
 }
 
 .editable-table .row-number:hover {
-    background: var(--sigma-bg-hover) !important;
+    background: var(--vis-bg-hover) !important;
 }
 
 .editable-table th[data-col] {
@@ -131,7 +131,7 @@
 .btn-delete-row {
     padding: 4px 8px;
     border: 1px solid var(--workspace-border-default);
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     color: var(--text-primary);
     border-radius: 4px;
     cursor: pointer;

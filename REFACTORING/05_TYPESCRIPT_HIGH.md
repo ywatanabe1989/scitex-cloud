@@ -16,7 +16,7 @@ Split large active TypeScript files into smaller, focused modules.
 | apps/writer_app/static/writer_app/ts/modules/pdf-preview.ts            | 617   | HIGH     |
 | apps/public_app/static/public_app/ts/tools/plot-viewer.ts              | 593   | HIGH     |
 | apps/project_app/static/project_app/ts/repository/admin_maintenance.ts | 592   | HIGH     |
-| apps/vis_app/static/vis_app/ts/sigma-editor.ts                         | 546   | MEDIUM   |
+| apps/vis_app/static/vis_app/ts/vis-editor.ts                         | 546   | MEDIUM   |
 | apps/writer_app/static/writer_app/ts/utils/section-dropdown.ts         | 539   | MEDIUM   |
 | static/shared/ts/collaboration/writer-collaboration.ts                 | 534   | MEDIUM   |
 | apps/writer_app/static/writer_app/ts/modules/editor-controls.ts        | 524   | MEDIUM   |
@@ -83,11 +83,11 @@ apps/project_app/static/project_app/ts/repository/admin/
 
 ---
 
-## Task 5.4: Refactor sigma-editor.ts (546 lines)
+## Task 5.4: Refactor vis-editor.ts (546 lines)
 
 ### Target Structure
 ```
-apps/vis_app/static/vis_app/ts/sigma/
+apps/vis_app/static/vis_app/ts/vis/
 ├── index.ts
 ├── SigmaEditor.ts       # Main class
 ├── graph.ts             # Graph operations
@@ -137,4 +137,3 @@ npx tsc --noEmit
 - No TypeScript errors
 - Browser console clean
 
-<!-- EOF -->

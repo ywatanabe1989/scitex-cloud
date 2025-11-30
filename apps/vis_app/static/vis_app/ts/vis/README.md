@@ -3,7 +3,7 @@
 ## Current Status
 
 ### ✅ Completed
-- Created module directory structure (`apps/vis_app/static/vis_app/ts/sigma/`)
+- Created module directory structure (`apps/vis_app/static/vis_app/ts/vis/`)
 - Created `types.ts` with all interfaces, type definitions, and constants
 - Created `index.ts` for centralized exports
 - Created modularization plan
@@ -12,17 +12,17 @@
 - Creating manager module skeletons
 
 ### ⏳ Pending
-- Extract RulersManager code from sigma-editor.ts
-- Extract CanvasManager code from sigma-editor.ts
-- Extract DataTableManager code from sigma-editor.ts
-- Extract PropertiesManager code from sigma-editor.ts
-- Extract UIManager code from sigma-editor.ts
-- Refactor main sigma-editor.ts to use modules
+- Extract RulersManager code from vis-editor.ts
+- Extract CanvasManager code from vis-editor.ts
+- Extract DataTableManager code from vis-editor.ts
+- Extract PropertiesManager code from vis-editor.ts
+- Extract UIManager code from vis-editor.ts
+- Refactor main vis-editor.ts to use modules
 
 ## Module Structure
 
 ```
-apps/vis_app/static/vis_app/ts/sigma/
+apps/vis_app/static/vis_app/ts/vis/
 ├── README.md                   # This file
 ├── MODULARIZATION_PLAN.md      # Detailed plan
 ├── types.ts                    # ✓ Type definitions and interfaces
@@ -35,7 +35,7 @@ apps/vis_app/static/vis_app/ts/sigma/
 ```
 
 ## File Sizes
-- **Original**: `sigma-editor.ts` (3,284 lines)
+- **Original**: `vis-editor.ts` (3,284 lines)
 - **Target**: Split into ~6 modules of ~500-600 lines each
 
 ## Next Steps

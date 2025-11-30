@@ -94,7 +94,7 @@ This document describes the development environment hot reload architecture for 
 **Log Signature**:
 ```
 # No special log - just HTTP GET requests for page reload
-2025-11-20 08:47:49,416 [INFO] django.channels.server: HTTP GET /vis/sigma/ 200
+2025-11-20 08:47:49,416 [INFO] django.channels.server: HTTP GET /vis/vis/ 200
 ```
 
 ### 2. TypeScript Changes (.ts)
@@ -471,4 +471,3 @@ docker logs scitex-cloud-dev-django-1 | grep "visitor pool already initialized"
 - TypeScript: (tsc watch mode)
 - Docker: (WSL2 backend)
 
-<!-- EOF -->

@@ -5,7 +5,7 @@
     display: flex;
     align-items: center;
     gap: 0;
-    background: var(--sigma-bg-secondary);
+    background: var(--vis-bg-secondary);
     border-bottom: 1px solid var(--workspace-border-muted);
     padding: 0;
     height: 32px;
@@ -46,7 +46,7 @@
 }
 
 .data-tab:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     color: var(--text-primary);
 }
 
@@ -126,7 +126,7 @@
 }
 
 .data-tab-new:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     color: var(--text-primary);
 }
 
@@ -165,7 +165,7 @@
 
 /* Header cells */
 .data-table th {
-    background: var(--sigma-bg-secondary);
+    background: var(--vis-bg-secondary);
     font-weight: 600;
     position: sticky;
     top: 0;
@@ -174,7 +174,7 @@
 
 /* Data cells hover */
 .data-table td:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
 }
 
 /* Row hover */

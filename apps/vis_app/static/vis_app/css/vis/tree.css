@@ -32,7 +32,7 @@
 }
 
 .tree-item-header:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
 }
 
 .tree-item-header:hover .tree-item-actions {
@@ -203,7 +203,7 @@
 }
 
 .tree-group-header:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
 }
 
 .tree-group-children {

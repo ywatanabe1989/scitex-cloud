@@ -456,7 +456,7 @@ export class RulersManager {
      * Update transform on the entire rulers area (rulers + canvas together)
      */
     public updateRulersAreaTransform(): void {
-        const rulersArea = document.querySelector('.sigma-rulers-area') as HTMLElement;
+        const rulersArea = document.querySelector('.vis-rulers-area') as HTMLElement;
         if (rulersArea) {
             rulersArea.style.transform = `translate(${this.canvasPanOffset.x}px, ${this.canvasPanOffset.y}px) scale(${this.canvasZoomLevel})`;
             rulersArea.style.transformOrigin = 'top left';

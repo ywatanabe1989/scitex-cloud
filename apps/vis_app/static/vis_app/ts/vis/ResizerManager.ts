@@ -190,8 +190,8 @@ export class ResizerManager {
         // Affected panels: Project, Data Table, Canvas (all must stay >= 10px)
         this.registerResizer({
             resizerId: 'sidebar-resizer',
-            targetPanel: '.sigma-sidebar',
-            affectedPanels: ['.sigma-sidebar', '#data-pane', '#canvas-pane'],
+            targetPanel: '.vis-sidebar',
+            affectedPanels: ['.vis-sidebar', '#data-pane', '#canvas-pane'],
             minWidth: 10,
             maxWidth: Infinity,
             resizeTarget: 'left'
@@ -212,8 +212,8 @@ export class ResizerManager {
         // Affected panels: Workspace (including Data + Canvas), Properties
         this.registerResizer({
             resizerId: 'workspace-resizer',
-            targetPanel: '.sigma-properties',
-            affectedPanels: ['.sigma-workspace', '.sigma-properties'],
+            targetPanel: '.vis-properties',
+            affectedPanels: ['.vis-workspace', '.vis-properties'],
             minWidth: 10,
             maxWidth: Infinity,
             resizeTarget: 'right'

@@ -2,9 +2,9 @@
    RIGHT PROPERTIES PANEL
    ======================================================================== */
 
-.sigma-properties {
-    background: var(--sigma-bg-secondary);
-    border-left: 1px solid var(--sigma-border);
+.vis-properties {
+    background: var(--vis-bg-secondary);
+    border-left: 1px solid var(--vis-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -15,7 +15,7 @@
 }
 
 /* Dark mode: unified background with workspace modules */
-[data-theme="dark"] .sigma-properties {
+[data-theme="dark"] .vis-properties {
     background: var(--workspace-bg-primary) !important;
     border-left-color: var(--workspace-border-default);
 }
@@ -29,8 +29,8 @@
     height: 50px;
     flex-shrink: 0;
     box-sizing: border-box;
-    background: var(--sigma-bg-secondary);
-    border-bottom: 1px solid var(--sigma-border);
+    background: var(--vis-bg-secondary);
+    border-bottom: 1px solid var(--vis-border);
 }
 
 /* Dark mode: consistent header background */
@@ -63,7 +63,7 @@
 }
 
 .properties-toggle-btn:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     color: var(--text-primary);
 }
 

@@ -36,7 +36,7 @@
 - [ ] pip install scitex
   - [ ] import scitex.plt
   - [ ] import scitex.vis
-  - [ ] http:127.0.0.1:8000/vis/sigma/
+  - [ ] http:127.0.0.1:8000/vis/vis/
 - [ ] Reproducibility
   - [ ] Metadata Embedded
   - [ ] CSV Created
@@ -228,4 +228,3 @@ graph TB
 ```
 </details>
 
-<!-- EOF -->

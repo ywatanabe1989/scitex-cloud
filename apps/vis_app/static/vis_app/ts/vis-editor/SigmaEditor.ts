@@ -211,7 +211,7 @@ export class SigmaEditor {
      * Update rulers area transform
      */
     private updateRulersAreaTransform(): void {
-        const rulersArea = document.querySelector('.sigma-rulers-area') as HTMLElement;
+        const rulersArea = document.querySelector('.vis-rulers-area') as HTMLElement;
         if (!rulersArea) return;
 
         const zoom = this.canvasManager.getCanvasZoomLevel();

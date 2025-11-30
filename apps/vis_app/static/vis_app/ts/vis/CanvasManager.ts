@@ -54,9 +54,9 @@ export class CanvasManager {
         const startTime = performance.now();
         console.log('[CanvasManager] Starting canvas initialization...');
 
-        const canvasElement = document.getElementById('sigma-canvas') as HTMLCanvasElement;
+        const canvasElement = document.getElementById('vis-canvas') as HTMLCanvasElement;
         if (!canvasElement) {
-            console.error('[CanvasManager] Canvas element #sigma-canvas not found in DOM');
+            console.error('[CanvasManager] Canvas element #vis-canvas not found in DOM');
             return;
         }
 
@@ -76,7 +76,7 @@ export class CanvasManager {
 
         try {
             // Initialize canvas with correct theme from the start
-            this.canvas = new fabric.Canvas('sigma-canvas', {
+            this.canvas = new fabric.Canvas('vis-canvas', {
                 width: defaultWidth,
                 height: defaultHeight,
                 backgroundColor: initialBgColor,
@@ -367,7 +367,7 @@ export class CanvasManager {
         if (!this.canvas) return;
 
         // Keep Fabric.js canvas at identity transform
-        // All zoom/pan is handled by CSS transform on .sigma-rulers-area parent
+        // All zoom/pan is handled by CSS transform on .vis-rulers-area parent
         this.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
         this.canvas.renderAll();
     }

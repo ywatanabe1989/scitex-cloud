@@ -21,7 +21,7 @@ export class PanelControls {
      */
     public initSidebarToggle(): void {
         const toggleBtn = document.getElementById('sidebar-toggle');
-        const main = document.querySelector('.sigma-main');
+        const main = document.querySelector('.vis-main');
         const icon = toggleBtn?.querySelector('i');
 
         toggleBtn?.addEventListener('click', () => {
@@ -44,7 +44,7 @@ export class PanelControls {
      */
     public initPropertiesToggle(): void {
         const toggleBtn = document.getElementById('properties-toggle');
-        const main = document.querySelector('.sigma-main');
+        const main = document.querySelector('.vis-main');
         const icon = toggleBtn?.querySelector('i');
 
         toggleBtn?.addEventListener('click', () => {
@@ -81,7 +81,7 @@ export class PanelControls {
      */
     public setSidebarCollapsed(collapsed: boolean): void {
         this.isSidebarCollapsed = collapsed;
-        const main = document.querySelector('.sigma-main');
+        const main = document.querySelector('.vis-main');
         const toggleBtn = document.getElementById('sidebar-toggle');
         const icon = toggleBtn?.querySelector('i');
 
@@ -98,7 +98,7 @@ export class PanelControls {
      */
     public setPropertiesCollapsed(collapsed: boolean): void {
         this.isPropertiesCollapsed = collapsed;
-        const main = document.querySelector('.sigma-main');
+        const main = document.querySelector('.vis-main');
         const toggleBtn = document.getElementById('properties-toggle');
         const icon = toggleBtn?.querySelector('i');
 

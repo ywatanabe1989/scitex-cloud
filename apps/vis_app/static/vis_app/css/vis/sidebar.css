@@ -2,9 +2,9 @@
    LEFT SIDEBAR - PROJECT NAVIGATOR
    ======================================================================== */
 
-.sigma-sidebar {
-    background: var(--sigma-bg-secondary);
-    border-right: 1px solid var(--sigma-border);
+.vis-sidebar {
+    background: var(--vis-bg-secondary);
+    border-right: 1px solid var(--vis-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -15,7 +15,7 @@
 }
 
 /* Dark mode: unified background with workspace modules */
-[data-theme="dark"] .sigma-sidebar {
+[data-theme="dark"] .vis-sidebar {
     background: var(--workspace-bg-primary) !important;
     border-right-color: var(--workspace-border-default);
 }
@@ -29,8 +29,8 @@
     height: 50px;
     flex-shrink: 0;
     box-sizing: border-box;
-    background: var(--sigma-bg-secondary);
-    border-bottom: 1px solid var(--sigma-border);
+    background: var(--vis-bg-secondary);
+    border-bottom: 1px solid var(--vis-border);
 }
 
 /* Dark mode: consistent header background */
@@ -68,7 +68,7 @@
 }
 
 .sidebar-toggle-btn:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     color: var(--text-primary);
 }
 
@@ -102,7 +102,7 @@
 }
 
 .tree-section-header:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
 }
 
 .tree-section:first-child .tree-section-header {
@@ -123,7 +123,7 @@
 /* Hover removed from .tree-item - now on .tree-item-header */
 
 .tree-item.active {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     font-weight: 600;
 }
 

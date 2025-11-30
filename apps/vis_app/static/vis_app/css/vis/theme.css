@@ -7,7 +7,7 @@
 }
 
 [data-theme="dark"] .ribbon-tab.active {
-    background: var(--sigma-bg-secondary);
+    background: var(--vis-bg-secondary);
 }
 
 [data-theme="dark"] .ribbon-btn {
@@ -16,7 +16,7 @@
 }
 
 [data-theme="dark"] .ribbon-btn:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     border-color: var(--status-success);
 }
 
@@ -25,17 +25,17 @@
    ======================================================================== */
 
 @media (max-width: 1200px) {
-    .sigma-main {
+    .vis-main {
         grid-template-columns: 200px 1fr 280px;
     }
 }
 
 @media (max-width: 992px) {
-    .sigma-main {
+    .vis-main {
         grid-template-columns: 0 1fr 280px;
     }
 
-    .sigma-sidebar {
+    .vis-sidebar {
         position: absolute;
         left: 0;
         top: 0;
@@ -55,11 +55,11 @@
         flex-wrap: wrap;
     }
 
-    .sigma-main {
+    .vis-main {
         grid-template-columns: 0 1fr 0;
     }
 
-    .sigma-properties {
+    .vis-properties {
         position: absolute;
         right: 0;
         top: 0;

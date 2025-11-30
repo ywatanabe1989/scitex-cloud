@@ -5,7 +5,7 @@
 
 export class TreeState {
     private treeContainer: HTMLElement | null = null;
-    private readonly STORAGE_KEY = 'sigma-tree-expanded-state';
+    private readonly STORAGE_KEY = 'vis-tree-expanded-state';
 
     constructor(treeContainer: HTMLElement | null) {
         this.treeContainer = treeContainer;

@@ -259,7 +259,7 @@ Sun Nov 23 06:19:58 PM AEDT 2025
 [0;31m     🔥 2 CRITICAL (>2048 lines)[0m
 [0;36m     Worst: views.py (4421 lines, 17x threshold)[0m
 [0;33m   CSS: 21 files (>512 lines)[0m
-[0;36m     Worst: sigma.css (1728 lines, 3x threshold)[0m
+[0;36m     Worst: vis.css (1728 lines, 3x threshold)[0m
 [0;33m   HTML: 3 files (>1024 lines)[0m
 [0;36m     Worst: plot-viewer.html (1179 lines, 1x threshold)[0m
 
@@ -312,7 +312,7 @@ Sun Nov 23 06:19:58 PM AEDT 2025
     728 lines: apps/writer_app/tasks/indexer.py
 
 [0;33mCSS files (>512 lines):[0m
-   1728 lines: apps/vis_app/static/vis_app/css/sigma.css
+   1728 lines: apps/vis_app/static/vis_app/css/vis.css
    1693 lines: apps/writer_app/static/writer_app/css/editor/tex-view-main.css
    1281 lines: static/shared/css/components/header.css
    1202 lines: apps/project_app/static/project_app/css/repository/browse.css
@@ -385,10 +385,10 @@ Please keep on working on the refactoring task, following
     - /ui/UIComponents.ts
   3. vis_app: Massive cleanup
     - Removed editor.ts (7,630 lines!)
-    - Removed sigma-editor_monolithic_keep.ts (3,284 lines)
+    - Removed vis-editor_monolithic_keep.ts (3,284 lines)
     - Split DataTableManager (1,591 → 7 modules in /data-table/)
     - Split UIManager (979 → 6 modules in /ui/)
-    - New tree structure in /sigma/tree/
+    - New tree structure in /vis/tree/
 
   ✅ Legacy Cleanup
 
@@ -415,7 +415,7 @@ Please keep on working on the refactoring task, following
   ├── sections/        ← New (unstaged)
   └── ui/              ← New (unstaged)
 
-  apps/vis_app/static/vis_app/ts/sigma/tree/
+  apps/vis_app/static/vis_app/ts/vis/tree/
   ├── TreeBuilder.ts
   ├── TreeInteraction.ts
   └── TreeState.ts
@@ -1051,7 +1051,7 @@ python3: can't open file '.scratch_temp.py': [Errno 2] No such file or directory
 #### 1. /vis/ Icon Size Improvements
 - [x] Increased plot type button icons from 18px → 22px
 - [x] Increased ribbon plot type icons from 20px → 24px
-- [x] Files modified: `apps/vis_app/static/vis_app/css/sigma.css`
+- [x] Files modified: `apps/vis_app/static/vis_app/css/vis.css`
 
 #### 2. /writer/ PDF Preview Auto-Start
 - [x] Added automatic initial PDF compilation when content loads

@@ -15,7 +15,7 @@
 .data-table-container::-webkit-scrollbar-track,
 .properties-content::-webkit-scrollbar-track,
 .pane-content::-webkit-scrollbar-track {
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     border-radius: 10px;
     margin: 2px;
 }
@@ -26,7 +26,7 @@
 .pane-content::-webkit-scrollbar-thumb {
     background: var(--workspace-border-default);
     border-radius: 10px;
-    border: 2px solid var(--sigma-bg-primary);  /* Thin border - more area for grabbing */
+    border: 2px solid var(--vis-bg-primary);  /* Thin border - more area for grabbing */
     min-height: 50px;  /* Larger minimum thumb size */
     min-width: 50px;  /* For horizontal scrollbars */
 }
@@ -53,7 +53,7 @@
 .properties-content,
 .pane-content {
     scrollbar-width: auto;  /* Use wider scrollbars instead of thin */
-    scrollbar-color: var(--workspace-border-default) var(--sigma-bg-primary);
+    scrollbar-color: var(--workspace-border-default) var(--vis-bg-primary);
 }
 
 /* Corner where vertical and horizontal scrollbars meet */
@@ -61,5 +61,5 @@
 .data-table-container::-webkit-scrollbar-corner,
 .properties-content::-webkit-scrollbar-corner,
 .pane-content::-webkit-scrollbar-corner {
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
 }

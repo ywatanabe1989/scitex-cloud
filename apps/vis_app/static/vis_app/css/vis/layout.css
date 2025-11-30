@@ -2,28 +2,28 @@
    MAIN CONTENT AREA
    ======================================================================== */
 
-.sigma-main {
+.vis-main {
     grid-row: 2;
     display: flex;
     flex-direction: row;
     gap: 0;
     overflow: hidden;
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     min-height: 0;  /* Critical: allow flexbox/grid shrinking to fit viewport */
 }
 
 /* Dark mode: unified background */
-[data-theme="dark"] .sigma-main {
+[data-theme="dark"] .vis-main {
     background: var(--workspace-bg-primary) !important;
 }
 
 /* Collapsed states */
-.sigma-main.sidebar-collapsed .sigma-sidebar {
+.vis-main.sidebar-collapsed .vis-sidebar {
     width: 0;
     min-width: 0;
 }
 
-.sigma-main.properties-collapsed .sigma-properties {
+.vis-main.properties-collapsed .vis-properties {
     width: 0;
     min-width: 0;
 }

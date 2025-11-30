@@ -6,35 +6,35 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}">
 <!-- Sigma Editor CSS Modules (refactored from monolithic sigma.css) -->
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/variables.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/layout.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/ribbon.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/sidebar.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/workspace.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/properties-panel.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/status-bar.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/theme.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/split-view.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/data-table.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/controls.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/drag-drop.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/editable-table.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/resize-handles.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/tree.css' %}">
-<link rel="stylesheet" href="{% static 'vis_app/css/sigma/scrollbars.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/variables.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/layout.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/ribbon.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/sidebar.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/workspace.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/properties-panel.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/status-bar.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/theme.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/split-view.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/data-table.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/controls.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/drag-drop.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/editable-table.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/resize-handles.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/tree.css' %}">
+<link rel="stylesheet" href="{% static 'vis_app/css/vis/scrollbars.css' %}">
 <link rel="stylesheet" href="{% static 'vis_app/css/editor-inline.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="sigma-editor-container"{% if current_project %} data-project-owner="{{ current_project.owner.username }}" data-project-slug="{{ current_project.slug }}" data-workspace-tree-url="/{{ current_project.owner.username }}/{{ current_project.slug }}/api/file-tree/"{% endif %}>
+<div class="vis-editor-container"{% if current_project %} data-project-owner="{{ current_project.owner.username }}" data-project-slug="{{ current_project.slug }}" data-workspace-tree-url="/{{ current_project.owner.username }}/{{ current_project.slug }}/api/file-tree/"{% endif %}>
 
 
     <!-- ========================================================================
          MAIN CONTENT AREA
          ======================================================================== -->
-    <div class="sigma-main">
+    <div class="vis-main">
         <!-- LEFT SIDEBAR - PROJECT NAVIGATOR -->
-        <div class="sigma-sidebar">
+        <div class="vis-sidebar">
             <div class="sidebar-header">
                 <h5><i class="fas fa-folder-open"></i> Files</h5>
                 <button class="sidebar-toggle-btn" id="sidebar-toggle">
@@ -58,7 +58,7 @@
         <div class="panel-resizer" id="sidebar-resizer"></div>
 
         <!-- CENTER WORKSPACE -->
-        <div class="sigma-workspace">
+        <div class="vis-workspace">
             <!-- Split View: Data Table + Canvas -->
             <div class="workspace-split-view">
                 <!-- Left: Data Table -->
@@ -173,7 +173,7 @@
                     </div>
                     <div class="pane-content canvas-content">
                         <!-- Rulers Area: 3x3 CSS Grid layout (like vis app) -->
-                        <div class="sigma-rulers-area" id="rulers-area">
+                        <div class="vis-rulers-area" id="rulers-area">
                             <!-- Top-left corner -->
                             <div class="ruler-corner ruler-corner-tl"></div>
                             <!-- Top ruler -->
@@ -184,8 +184,8 @@
                             <!-- Left ruler -->
                             <svg class="ruler ruler-vertical ruler-left" id="ruler-v"></svg>
                             <!-- Canvas container -->
-                            <div class="sigma-canvas-container" id="canvas-container">
-                                <canvas id="sigma-canvas"></canvas>
+                            <div class="vis-canvas-container" id="canvas-container">
+                                <canvas id="vis-canvas"></canvas>
                             </div>
                             <!-- Right ruler -->
                             <svg class="ruler ruler-vertical ruler-right" id="ruler-r"></svg>
@@ -211,7 +211,7 @@
         <div class="panel-resizer" id="workspace-resizer"></div>
 
         <!-- RIGHT PROPERTIES PANEL (改善 3: Tabbed) -->
-        <div class="sigma-properties">
+        <div class="vis-properties">
             <div class="properties-header">
                 <h4>
                     <i class="fas fa-sliders-h"></i>
@@ -635,5 +635,5 @@
 <!-- Fabric.js for canvas manipulation (like vis app) -->
 <script type="module" src="{% static 'vis_app/ts/editor-inline.js' %}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
-<script type="module" src="{% static 'vis_app/js/sigma-editor.js' %}"></script>
+<script type="module" src="{% static 'vis_app/js/vis-editor.js' %}"></script>
 {% endblock %}

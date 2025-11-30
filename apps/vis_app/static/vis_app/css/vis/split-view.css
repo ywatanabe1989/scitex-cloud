@@ -8,7 +8,7 @@
     align-items: center;
     gap: 6px;
     padding: 10px 16px;
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     border-bottom: 1px solid var(--workspace-border-default);
     flex-wrap: wrap;
 }
@@ -26,7 +26,7 @@
     align-items: center;
     gap: 4px;
     padding: 8px 14px;
-    background: var(--sigma-bg-secondary);
+    background: var(--vis-bg-secondary);
     border: 2px solid var(--workspace-border-default);
     border-radius: 6px;
     color: var(--text-primary);
@@ -37,7 +37,7 @@
 }
 
 .plot-type-btn:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     border-color: var(--status-success);
     transform: translateY(-1px);
 }
@@ -82,8 +82,8 @@
     flex-shrink: 0;
     min-width: 10px;
     min-height: 0;  /* Allow flexbox shrinking */
-    background: var(--sigma-bg-secondary);
-    border-right: 1px solid var(--sigma-border);
+    background: var(--vis-bg-secondary);
+    border-right: 1px solid var(--vis-border);
 }
 
 /* Dark mode: consistent split pane background */
@@ -94,7 +94,7 @@
 
 .split-pane-right {
     flex: 1;
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     position: relative;
     min-width: 10px;
     min-height: 0;  /* Allow flexbox shrinking */
@@ -117,8 +117,8 @@
     height: 50px;
     flex-shrink: 0;
     box-sizing: border-box;
-    background: var(--sigma-bg-secondary);
-    border-bottom: 1px solid var(--sigma-border);
+    background: var(--vis-bg-secondary);
+    border-bottom: 1px solid var(--vis-border);
 }
 
 /* Dark mode: consistent header background */
@@ -156,7 +156,7 @@
     padding: 6px 10px;
     min-width: 34px;
     height: 34px;
-    background: var(--sigma-bg-secondary);
+    background: var(--vis-bg-secondary);
     border: 1px solid var(--workspace-border-default);
     border-radius: 4px;
     color: var(--text-primary);
@@ -169,7 +169,7 @@
 }
 
 .pane-header-btn:hover {
-    background: var(--sigma-bg-hover);
+    background: var(--vis-bg-hover);
     border-color: var(--workspace-icon-hover);
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(5, 150, 105, 0.15);
@@ -214,7 +214,7 @@
     top: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     border: 1px solid var(--workspace-border-default);
     border-radius: 6px;
     padding: 8px 12px;
@@ -238,7 +238,7 @@
 .plot-preview-popup {
     position: fixed;
     z-index: 10000;
-    background: var(--sigma-bg-primary);
+    background: var(--vis-bg-primary);
     border: 1px solid var(--workspace-border-default);
     border-radius: 8px;
     padding: 8px;

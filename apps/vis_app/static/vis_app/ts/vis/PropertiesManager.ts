@@ -164,7 +164,7 @@ export class PropertiesManager {
      * Set properties panel collapsed state
      */
     public setPropertiesCollapsed(collapsed: boolean): void {
-        const propertiesPanel = document.querySelector('.sigma-properties');
+        const propertiesPanel = document.querySelector('.vis-properties');
         if (propertiesPanel) {
             if (collapsed) {
                 propertiesPanel.classList.add('collapsed');
@@ -178,7 +178,7 @@ export class PropertiesManager {
      * Toggle properties panel visibility
      */
     public togglePropertiesPanel(): void {
-        const propertiesPanel = document.querySelector('.sigma-properties');
+        const propertiesPanel = document.querySelector('.vis-properties');
         if (propertiesPanel) {
             const isCollapsed = propertiesPanel.classList.contains('collapsed');
             this.setPropertiesCollapsed(!isCollapsed);

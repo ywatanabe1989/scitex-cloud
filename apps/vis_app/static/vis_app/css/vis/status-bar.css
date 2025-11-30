@@ -2,20 +2,20 @@
    BOTTOM STATUS BAR
    ======================================================================== */
 
-.sigma-status-bar {
+.vis-status-bar {
     grid-row: 3;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 6px 16px;
-    background: var(--sigma-bg-secondary);
-    border-top: 1px solid var(--sigma-border);
+    background: var(--vis-bg-secondary);
+    border-top: 1px solid var(--vis-border);
     font-size: 12px;
-    color: var(--sigma-text-muted);
+    color: var(--vis-text-muted);
 }
 
 /* Dark mode: consistent status bar */
-[data-theme="dark"] .sigma-status-bar {
+[data-theme="dark"] .vis-status-bar {
     background: var(--workspace-bg-secondary) !important;
     border-top-color: var(--workspace-border-default);
 }

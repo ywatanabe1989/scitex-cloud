@@ -16,7 +16,7 @@ declare global {
 // This will be populated by inline template data
 // The values will be set in the template via data attributes
 export function initProjectContext(): void {
-    const editorContainer = document.querySelector('.sigma-editor-container');
+    const editorContainer = document.querySelector('.vis-editor-container');
     if (editorContainer) {
         const projectOwner = editorContainer.getAttribute('data-project-owner');
         const projectSlug = editorContainer.getAttribute('data-project-slug');
