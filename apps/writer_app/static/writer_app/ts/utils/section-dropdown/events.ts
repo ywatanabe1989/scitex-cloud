@@ -220,9 +220,18 @@ export function setupSectionEvents(
         // Close dropdown
         dropdownContainer.style.display = "none";
 
-        // Save selected section
+        // Save selected section - both globally and per-doctype
         statePersistence.saveSection(sectionId);
-        console.log("[Writer] Saved section to persistence:", sectionId);
+
+        // Extract doctype from sectionId (format: doctype/section_name)
+        const doctypeMatch = sectionId.match(/^(manuscript|supplementary|revision|shared)\//);
+        if (doctypeMatch) {
+          const doctype = doctypeMatch[1];
+          statePersistence.saveSectionForDoctype(doctype, sectionId);
+          console.log("[Writer] Saved section for doctype:", doctype, "->", sectionId);
+        } else {
+          console.log("[Writer] Saved section to persistence:", sectionId);
+        }
 
         // Trigger callback
         onFileSelectCallback(sectionId, sectionName);

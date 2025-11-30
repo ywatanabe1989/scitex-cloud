@@ -298,18 +298,19 @@
   border-left-color: rgba(150, 150, 150, 0.45);
 }
 
-/* Folder action buttons - positioned below the item for better UX */
+/* Folder action buttons - positioned at right side of the row */
 .wft-folder-actions {
   display: none;
   gap: 4px;
   position: absolute;
-  left: 80px;
-  top: 100%;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 10;
   background: var(--workspace-bg-monaco, #1e1e1e);
-  padding: 4px 6px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 2px 4px;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 
@@ -317,18 +318,19 @@
   display: flex;
 }
 
-/* File action buttons - positioned below the item for better UX */
+/* File action buttons - positioned at right side of the row */
 .wft-file-actions {
   display: none;
   gap: 4px;
   position: absolute;
-  left: 80px;
-  top: 100%;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 10;
   background: var(--workspace-bg-monaco, #1e1e1e);
-  padding: 4px 6px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 2px 4px;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--workspace-border-default, #3a3a3a);
 }
 

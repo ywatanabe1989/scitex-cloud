@@ -10,6 +10,7 @@ import {
   switchSection,
   handleDocTypeSwitch,
   populateSectionDropdownDirect,
+  syncDropdownsFromPath,
 } from "../../utils/index.js";
 import { loadTexFile } from "../files/FileLoader.js";
 import { initializeWriterFilter } from "../../modules/writer-file-filter.js";
@@ -65,32 +66,38 @@ export class FileTreeSetup {
         sectionId,
       );
 
-      // Check if this is a known section ID pattern or a file path
-      // Section IDs follow: {docType}/{sectionName}
+      // Check if this is a section ID pattern (doctype/section format) or a file path
+      // Section IDs follow: {docType}/{sectionName} where doctype is manuscript|supplementary|revision
       // File paths have .tex extension or are in shared/* directories
       const sectionPattern =
-        /^(manuscript|supplementary|revision)\/(abstract|introduction|methods|results|discussion|content|figures|tables|response|changes|compiled_pdf|compiled_tex)$/;
-      const isKnownSection = sectionPattern.test(sectionId);
+        /^(manuscript|supplementary|revision)\/([a-z_]+)$/;
+      const sectionMatch = sectionId.match(sectionPattern);
 
-      if (isKnownSection) {
+      if (sectionMatch) {
         // It's a section ID - switch section and load corresponding .tex file
+        const docType = sectionMatch[1];
+        const sectionNameParsed = sectionMatch[2];
+
         console.log(
           "[FileTreeSetup] Detected section ID, switching section:",
           sectionId,
+          "docType:",
+          docType,
+          "section:",
+          sectionNameParsed,
         );
-
-        // Parse section ID to get doctype and section name
-        const [docType, sectionName] = sectionId.split("/");
 
         // Skip loading .tex file for compiled sections (they show PDF directly)
         const isCompiledSection =
-          sectionName === "compiled_pdf" || sectionName === "compiled_tex";
+          sectionNameParsed === "compiled_pdf" || sectionNameParsed === "compiled_tex";
+
+        let texFilePath: string | null = null;
 
         if (!isCompiledSection && this.config.projectId) {
           // Get the expected .tex file path
           const { getWriterFilter } = await import("../../modules/writer-file-filter.js");
           const filter = getWriterFilter();
-          const texFilePath = filter.getExpectedFilePath(docType, sectionName);
+          texFilePath = filter.getExpectedFilePath(docType, sectionNameParsed);
           console.log(
             "[FileTreeSetup] Loading .tex file for section:",
             texFilePath,
@@ -98,6 +105,13 @@ export class FileTreeSetup {
 
           // Load the .tex file content
           loadTexFile(texFilePath, this.editor);
+
+          // Expand file tree to show the corresponding file
+          const filesTree = (window as any).writerFileTree;
+          if (filesTree && filesTree.expandPath) {
+            console.log("[FileTreeSetup] Expanding file tree to:", texFilePath);
+            filesTree.expandPath(texFilePath);
+          }
         }
 
         // Also switch section for state management
@@ -115,6 +129,13 @@ export class FileTreeSetup {
           sectionId,
         );
         loadTexFile(sectionId, this.editor);
+
+        // Expand file tree to show the file
+        const filesTree = (window as any).writerFileTree;
+        if (filesTree && filesTree.expandPath) {
+          console.log("[FileTreeSetup] Expanding file tree to:", sectionId);
+          filesTree.expandPath(sectionId);
+        }
       } else {
         // Fallback: try as section first, then as file
         console.log(
@@ -193,10 +214,13 @@ export class FileTreeSetup {
     // Enhanced file select handler that updates section filter and switches panel
     const enhancedFileSelectHandler = (path: string, item: any): void => {
       const fileName = path.split('/').pop() || '';
-      console.log("[FileTreeSetup] File selected:", path, fileName);
+      console.log("[FileTreeSetup] File selected from tree:", path, fileName);
 
-      // If it's a .tex file, extract section from path and update filter
+      // If it's a .tex file, sync dropdowns and update filter
       if (path.endsWith(".tex")) {
+        // Sync dropdowns first (updates doctype and section dropdowns visually)
+        syncDropdownsFromPath(path);
+
         const section = writerFilter.extractSectionFromPath(path);
         if (section) {
           console.log("[FileTreeSetup] Extracted section from file path:", section);
@@ -221,6 +245,21 @@ export class FileTreeSetup {
         // Just set up the refresh button and doctype handlers
         const filesTree = existingTree;
         this.setupTreeEventHandlers(filesTree, writerFilter, docTypeSelector);
+
+        // Focus on the doctype directory (expand it, collapse siblings)
+        const initialDoctypeFolder = this.getDoctypeFolder(currentDoctype);
+        if (filesTree.focusDirectory) {
+          console.log("[FileTreeSetup] Focusing on doctype folder:", initialDoctypeFolder);
+          filesTree.focusDirectory(initialDoctypeFolder);
+        }
+
+        // Still need to populate section dropdown
+        await populateSectionDropdownDirect(
+          currentDoctype,
+          onFileSelectHandler,
+          this.compilationManager,
+          this.state,
+        );
         return;
       }
 
@@ -246,7 +285,22 @@ export class FileTreeSetup {
       // Store reference globally for other components
       (window as any).writerFileTree = filesTree;
 
+      // Focus on the doctype directory (expand it, collapse siblings)
+      const initialDoctypeFolder = this.getDoctypeFolder(currentDoctype);
+      if (filesTree.focusDirectory) {
+        console.log("[FileTreeSetup] Focusing on doctype folder:", initialDoctypeFolder);
+        filesTree.focusDirectory(initialDoctypeFolder);
+      }
+
       console.log("[FileTreeSetup] WorkspaceFilesTree initialized successfully");
+
+      // Populate section dropdown (must be done even when file tree is present)
+      await populateSectionDropdownDirect(
+        currentDoctype,
+        onFileSelectHandler,
+        this.compilationManager,
+        this.state,
+      );
 
       // Setup refresh button
       const refreshBtn = document.getElementById("refresh-files-btn");
@@ -291,21 +345,11 @@ export class FileTreeSetup {
               newDocType,
             );
 
-            // Focus on the doctype directory in the tree
-            // For supplementary: fold everything except 02_supplementary
-            // For revision: fold everything except 03_revision
-            let doctypeFolder = '';
-            if (newDocType === 'manuscript') {
-              doctypeFolder = 'scitex/writer/01_manuscript';
-            } else if (newDocType === 'supplementary') {
-              doctypeFolder = 'scitex/writer/02_supplementary';
-            } else if (newDocType === 'revision') {
-              doctypeFolder = 'scitex/writer/03_revision';
-            }
-
-            if (doctypeFolder && filesTree.expandPath) {
+            // Focus on the selected doctype directory (expand it, collapse siblings)
+            const doctypeFolder = this.getDoctypeFolder(newDocType);
+            if (doctypeFolder && filesTree.focusDirectory) {
               console.log("[FileTreeSetup] Focusing on doctype folder:", doctypeFolder);
-              filesTree.expandPath(doctypeFolder);
+              filesTree.focusDirectory(doctypeFolder);
             }
           }
         });
@@ -347,19 +391,11 @@ export class FileTreeSetup {
           this.pdfPreviewManager.setDocType(newDocType);
           handleDocTypeSwitch(this.editor, this.sectionsManager, this.state, newDocType);
 
-          // Focus on the doctype directory in the tree
-          let doctypeFolder = '';
-          if (newDocType === 'manuscript') {
-            doctypeFolder = 'scitex/writer/01_manuscript';
-          } else if (newDocType === 'supplementary') {
-            doctypeFolder = 'scitex/writer/02_supplementary';
-          } else if (newDocType === 'revision') {
-            doctypeFolder = 'scitex/writer/03_revision';
-          }
-
-          if (doctypeFolder && filesTree.expandPath) {
+          // Focus on the selected doctype directory (expand it, collapse siblings)
+          const doctypeFolder = this.getDoctypeFolder(newDocType);
+          if (doctypeFolder && filesTree.focusDirectory) {
             console.log("[FileTreeSetup] Focusing on doctype folder:", doctypeFolder);
-            filesTree.expandPath(doctypeFolder);
+            filesTree.focusDirectory(doctypeFolder);
           }
         }
       });
@@ -440,5 +476,20 @@ export class FileTreeSetup {
       });
       console.log("[FileTreeSetup] Doc type change handler attached");
     }
+  }
+
+  /**
+   * Map doctype to folder path (writer-specific logic)
+   * @param doctype - manuscript, supplementary, revision, or shared
+   * @returns Folder path like 'scitex/writer/01_manuscript'
+   */
+  private getDoctypeFolder(doctype: string): string {
+    const doctypeFolderMap: Record<string, string> = {
+      'manuscript': 'scitex/writer/01_manuscript',
+      'supplementary': 'scitex/writer/02_supplementary',
+      'revision': 'scitex/writer/03_revision',
+      'shared': 'scitex/writer/00_shared',
+    };
+    return doctypeFolderMap[doctype] || 'scitex/writer/01_manuscript';
   }
 }

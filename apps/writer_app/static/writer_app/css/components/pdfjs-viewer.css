@@ -34,7 +34,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #525659;
+  background: var(--workspace-bg-monaco, #ffffff);
 }
 
 [data-theme="dark"] .pdfjs-scroll-container {
@@ -47,7 +47,7 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #525659;
+  background: var(--workspace-bg-monaco, #ffffff);
   padding: 0; /* No padding - PDF fills entire space */
 }
 
@@ -143,7 +143,7 @@
   height: 100%;
   overflow-y: scroll; /* Always show scrollbar to make width predictable */
   overflow-x: hidden;
-  background: #525659;
+  background: var(--workspace-bg-monaco, #ffffff);
   padding: 0; /* No padding - PDF fills entire space */
   position: relative;
 }
@@ -176,7 +176,8 @@
 }
 
 /* Dark mode background for pdfjs-viewer - matches Monaco/VS Code background */
-[data-theme="dark"].pdfjs-viewer {
+[data-theme="dark"] .pdfjs-viewer,
+.pdfjs-viewer[data-theme="dark"] {
   background: var(--workspace-bg-monaco, #1e1e1e);
 }
 

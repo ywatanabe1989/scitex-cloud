@@ -138,10 +138,14 @@ export async function populateSectionDropdownDirect(
     // Setup drag and drop for section reordering
     setupDragAndDrop(dropdownContainer, sections);
 
-    // Set initial selection - restore saved section or use first section
+    // Set initial selection - restore saved section for this doctype or use first section
     if (sections.length > 0) {
-      // Try to restore saved section
-      const savedSectionId = statePersistence.getSavedSection();
+      // Try to restore saved section for this specific doctype first
+      let savedSectionId = statePersistence.getSavedSectionForDoctype(docType);
+      // Fall back to global saved section if no doctype-specific one
+      if (!savedSectionId) {
+        savedSectionId = statePersistence.getSavedSection();
+      }
       let selectedSection = sections[0];
       let selectedIndex = 0;
 
@@ -150,7 +154,7 @@ export async function populateSectionDropdownDirect(
         if (savedIndex >= 0) {
           selectedSection = sections[savedIndex];
           selectedIndex = savedIndex;
-          console.log("[Writer] Restored saved section:", savedSectionId);
+          console.log("[Writer] Restored saved section for", docType + ":", savedSectionId);
         }
       }
 
@@ -177,7 +181,7 @@ export async function populateSectionDropdownDirect(
 }
 
 /**
- * Synchronize dropdown selection with current section
+ * Synchronize dropdown selection with current section (legacy)
  *
  * @param sectionId - Section ID to sync
  */
@@ -187,5 +191,95 @@ export function syncDropdownToSection(sectionId: string): void {
   ) as HTMLSelectElement;
   if (dropdown) {
     dropdown.value = sectionId;
+  }
+}
+
+/**
+ * Synchronize all dropdowns from a file path
+ * Called when user clicks on a file in the tree
+ *
+ * @param path - File path like "scitex/writer/01_manuscript/contents/abstract.tex"
+ */
+export function syncDropdownsFromPath(path: string): void {
+  console.log("[SectionDropdown] Syncing dropdowns from path:", path);
+
+  // Extract doctype from path
+  let doctype: string | null = null;
+  if (path.includes("01_manuscript") || path.includes("/manuscript/")) {
+    doctype = "manuscript";
+  } else if (path.includes("02_supplementary") || path.includes("/supplementary/")) {
+    doctype = "supplementary";
+  } else if (path.includes("03_revision") || path.includes("/revision/")) {
+    doctype = "revision";
+  } else if (path.includes("00_shared") || path.includes("/shared/")) {
+    doctype = "shared";
+  }
+
+  // Extract section name from filename
+  const parts = path.split("/");
+  const fileName = parts[parts.length - 1];
+  let sectionName: string | null = null;
+
+  if (fileName.endsWith(".tex")) {
+    sectionName = fileName.replace(".tex", "").replace(/^\d+_/, "");
+  }
+
+  console.log("[SectionDropdown] Extracted doctype:", doctype, "section:", sectionName);
+
+  // Update doctype dropdown
+  if (doctype) {
+    const doctypeSelector = document.getElementById("doctype-selector") as HTMLSelectElement;
+    if (doctypeSelector && doctypeSelector.value !== doctype) {
+      doctypeSelector.value = doctype;
+      console.log("[SectionDropdown] Updated doctype selector to:", doctype);
+      // Note: This won't trigger the change event, so section dropdown needs manual sync
+    }
+  }
+
+  // Build section ID
+  const sectionId = doctype && sectionName ? `${doctype}/${sectionName}` : null;
+
+  if (sectionId) {
+    // Update section dropdown visually
+    const dropdownContainer = document.getElementById("section-selector-dropdown");
+    const selectorText = document.getElementById("section-selector-text");
+
+    if (dropdownContainer && selectorText) {
+      // Find matching section item
+      const sectionItems = dropdownContainer.querySelectorAll(".section-item");
+      let found = false;
+
+      sectionItems.forEach((item, index) => {
+        const itemSectionId = (item as HTMLElement).dataset.sectionId;
+
+        if (itemSectionId === sectionId) {
+          // Mark this as active
+          sectionItems.forEach(si => si.classList.remove("active"));
+          item.classList.add("active");
+
+          // Update display text
+          const itemName = item.querySelector(".section-item-name")?.textContent || sectionName;
+          const pageNum = index + 1;
+          selectorText.textContent = `${pageNum}. ${itemName}`;
+
+          found = true;
+          console.log("[SectionDropdown] Selected section item:", sectionId, "index:", index);
+        }
+      });
+
+      if (!found) {
+        console.log("[SectionDropdown] Section not found in dropdown:", sectionId);
+        // Still update the text to show the file being edited
+        if (sectionName) {
+          selectorText.textContent = sectionName.replace(/_/g, " ");
+        }
+      }
+    }
+
+    // Save to persistence
+    statePersistence.saveSection(sectionId);
+    if (doctype) {
+      statePersistence.saveSectionForDoctype(doctype, sectionId);
+    }
   }
 }

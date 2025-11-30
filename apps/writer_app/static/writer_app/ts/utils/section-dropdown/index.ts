@@ -6,6 +6,7 @@
 export {
   populateSectionDropdownDirect,
   syncDropdownToSection,
+  syncDropdownsFromPath,
 } from "./SectionDropdown.js";
 
 export { handleDocTypeSwitch } from "./navigation.js";

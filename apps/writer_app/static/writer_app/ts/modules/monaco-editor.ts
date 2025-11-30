@@ -189,12 +189,14 @@ export class EnhancedEditor {
     const monaco = (window as any).monaco;
 
     // Setup event listeners and actions
+    // Pass a getter function for the callback so it can be set after initialization
     setupMonacoEditorListeners(
       this.monacoEditor,
       monaco,
-      this.onChangeCallback,
+      undefined, // Don't pass direct callback
       this.cursorManager.getCurrentSectionId(),
-      (sectionId: string) => this.cursorManager.saveCursorPosition(this.monacoEditor, sectionId)
+      (sectionId: string) => this.cursorManager.saveCursorPosition(this.monacoEditor, sectionId),
+      () => this.onChangeCallback // Getter function for late binding
     );
 
     // Setup drag-and-drop for citation insertion

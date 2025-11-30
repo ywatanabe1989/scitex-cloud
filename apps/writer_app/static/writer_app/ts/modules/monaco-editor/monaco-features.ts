@@ -15,17 +15,20 @@ export function setupMonacoEditorListeners(
   monaco: any,
   onChangeCallback?: (content: string, wordCount: number) => void,
   currentSectionId?: string,
-  saveCursorPositionFn?: (sectionId: string) => void
+  saveCursorPositionFn?: (sectionId: string) => void,
+  getOnChangeCallback?: () => ((content: string, wordCount: number) => void) | undefined
 ): void {
   if (!monacoEditor) return;
 
-  // Track changes
+  // Track changes - use getter function if provided, otherwise fall back to direct callback
   monacoEditor.onDidChangeModelContent(() => {
     const content = monacoEditor.getValue();
     const wordCount = countWords(content);
 
-    if (onChangeCallback) {
-      onChangeCallback(content, wordCount);
+    // Get callback at call time (allows late binding)
+    const callback = getOnChangeCallback ? getOnChangeCallback() : onChangeCallback;
+    if (callback) {
+      callback(content, wordCount);
     }
   });
 

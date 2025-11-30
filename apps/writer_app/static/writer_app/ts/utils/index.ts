@@ -93,6 +93,7 @@ export {
 export {
   populateSectionDropdownDirect,
   syncDropdownToSection,
+  syncDropdownsFromPath,
   handleDocTypeSwitch,
   toggleSectionVisibility,
 } from "./section-dropdown/index.js";

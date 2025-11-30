@@ -465,6 +465,98 @@ export class WorkspaceFilesTree {
     }
   }
 
+  /**
+   * Expand tree to show a specific path (without refreshing from server)
+   * Expands all parent directories and scrolls the file into view
+   * @param path - Full path to the file/directory to reveal
+   */
+  async expandPath(path: string): Promise<void> {
+    // Expand all parent directories
+    const parentPaths = this.getParentPaths(path);
+    parentPaths.forEach(parentPath => {
+      this.stateManager.expand(parentPath);
+    });
+
+    // Re-render with expanded state
+    this.rerender();
+
+    // Scroll to show the target element
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const element = this.container?.querySelector(`[data-path="${path}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Also mark as selected
+      this.stateManager.setSelected(path);
+      this.updateSelectionClasses(path);
+    }
+  }
+
+  /**
+   * Focus on a directory by expanding it and collapsing its siblings
+   * Useful for doctype switching where you want to focus on one directory
+   * @param targetPath - Path to the directory to focus on
+   * @param collapseOthersAtLevel - If true, collapse sibling directories at the same level
+   */
+  async focusDirectory(targetPath: string, collapseOthersAtLevel: boolean = true): Promise<void> {
+    console.log(`[WorkspaceFilesTree] Focusing on directory: ${targetPath}`);
+
+    // Expand parent paths to make target visible
+    const parentPaths = this.getParentPaths(targetPath);
+    parentPaths.forEach(parentPath => {
+      this.stateManager.expand(parentPath);
+    });
+
+    // Expand the target directory itself
+    this.stateManager.expand(targetPath);
+
+    // Collapse sibling directories at the same level
+    if (collapseOthersAtLevel) {
+      const parentPath = parentPaths[parentPaths.length - 1] || '';
+      const siblings = this.getSiblingDirectories(targetPath, parentPath);
+      siblings.forEach(siblingPath => {
+        if (siblingPath !== targetPath) {
+          this.stateManager.collapse(siblingPath);
+        }
+      });
+    }
+
+    // Re-render with updated state
+    this.rerender();
+
+    // Scroll to show the target directory
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const element = this.container?.querySelector(`[data-path="${targetPath}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  /**
+   * Get sibling directories at the same level as the target
+   */
+  private getSiblingDirectories(targetPath: string, parentPath: string): string[] {
+    const siblings: string[] = [];
+
+    const searchInItems = (items: TreeItem[], currentParentPath: string): void => {
+      for (const item of items) {
+        if (item.type === 'directory') {
+          // Check if this item is at the same level as target (same parent)
+          const itemParent = this.getParentPaths(item.path).pop() || '';
+          if (itemParent === parentPath) {
+            siblings.push(item.path);
+          }
+          // Continue searching in children
+          if (item.children) {
+            searchInItems(item.children, item.path);
+          }
+        }
+      }
+    };
+
+    searchInItems(this.treeData, '');
+    return siblings;
+  }
+
   private getParentPaths(path: string): string[] {
     const parts = path.split('/');
     const parents: string[] = [];
