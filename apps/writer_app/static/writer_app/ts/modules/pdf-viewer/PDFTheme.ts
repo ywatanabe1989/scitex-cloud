@@ -31,7 +31,7 @@ export class PDFTheme {
    * Get background color for page
    */
   getPageBackgroundColor(): string {
-    return this.colorMode === "dark" ? "#1a1a1a" : "white";
+    return this.colorMode === "dark" ? "#1a2332" : "white";
   }
 
   /**

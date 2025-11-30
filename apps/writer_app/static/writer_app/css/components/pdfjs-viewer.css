@@ -37,6 +37,10 @@
   background: #525659;
 }
 
+[data-theme="dark"] .pdfjs-scroll-container {
+  background: #1a2332;
+}
+
 /* Pages container - scrollable area */
 .pdfjs-pages-container {
   width: 100%;
@@ -45,6 +49,10 @@
   overflow-x: hidden;
   background: #525659;
   padding: 0; /* No padding - PDF fills entire space */
+}
+
+[data-theme="dark"] .pdfjs-pages-container {
+  background: #1a2332;
 }
 
 /* Individual page container */
@@ -140,6 +148,8 @@
   position: relative;
 }
 
+/* Dark mode handled by [data-theme="dark"].pdfjs-viewer below */
+
 /* Theme-responsive scrollbar for pdfjs-viewer */
 .pdfjs-viewer::-webkit-scrollbar {
   width: 12px;
@@ -165,9 +175,9 @@
   scrollbar-color: var(--workspace-border-default) var(--workspace-bg-secondary);
 }
 
-/* Dark mode background for pdfjs-viewer */
+/* Dark mode background for pdfjs-viewer - matches Monaco editor scitex-dark theme */
 [data-theme="dark"].pdfjs-viewer {
-  background: #2b2b2b;
+  background: #1a2332;
 }
 
 /* Text Layer Styles for Text Selection */
