@@ -5,7 +5,7 @@
 
 .scholar-workspace {
   display: flex;
-  height: calc(100vh - 60px); /* Account for header */
+  height: var(--workspace-height, calc(100vh - 60px)); /* Account for header */
   overflow: hidden;
   background: var(--workspace-bg-primary, #0d0d0d);
   gap: 0; /* No margins between panes */

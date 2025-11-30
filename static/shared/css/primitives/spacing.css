@@ -13,6 +13,11 @@
   --container-width: 90%;
   --container-max-width: 1400px;
 
+  /* Header & Workspace Layout */
+  --header-height: 60px;
+  --workspace-height: calc(100vh - var(--header-height));
+  --workspace-height-dynamic: calc(100dvh - var(--header-height)); /* For mobile browsers */
+
   /* Border Radius Scale */
   --radius-none: 0;
   --radius-xs: 2px;

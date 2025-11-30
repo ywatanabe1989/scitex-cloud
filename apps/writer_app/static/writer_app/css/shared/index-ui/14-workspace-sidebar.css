@@ -5,7 +5,7 @@
 
 .writer-workspace {
   display: flex;
-  height: calc(100vh - 60px);
+  height: var(--workspace-height, calc(100vh - 60px));
   overflow: hidden;
   background: var(--workspace-bg-primary, #0d0d0d);
   gap: 0; /* No margins between panes */
@@ -113,8 +113,8 @@
   .writer-sidebar {
     position: absolute;
     left: 0;
-    top: 60px;
-    height: calc(100vh - 60px);
+    top: var(--header-height, 60px);
+    height: var(--workspace-height, calc(100vh - 60px));
     z-index: 100;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
   }

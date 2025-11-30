@@ -12,7 +12,7 @@
 /* Editor panels layout */
 .writer-container {
   display: flex;
-  height: calc(100vh - 60px);
+  height: var(--workspace-height, calc(100vh - 60px));
   position: relative;
 }
 
