@@ -202,7 +202,7 @@ export class UIManager {
     // ========================================
 
     private initPanelResizers(): void {
-        // Initialize all sigma editor panel resizers
+        // Initialize all vis editor panel resizers
         this.resizerManager.initializeSigmaResizers();
         console.log('[UIManager] Panel resizers initialized via ResizerManager');
     }

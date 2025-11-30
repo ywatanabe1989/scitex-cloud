@@ -15,7 +15,7 @@ import {
     UIManager,
     DataTabManager,
     CanvasTabManager,
-} from '../sigma/index.js';
+} from '../vis/index.js';
 
 import { setupGraphOperations } from './graph.js';
 import { setupLayoutAlgorithms } from './layout.js';

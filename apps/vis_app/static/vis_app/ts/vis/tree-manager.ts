@@ -57,11 +57,11 @@ export class TreeManager {
     // ========================================
 
     public selectItem(item: HTMLElement): void {
-        this.treeInteraction.selectItem(item);
+        this.treeInteraction?.selectItem(item);
     }
 
     public selectItemById(itemId: string): void {
-        this.treeInteraction.selectItemById(itemId);
+        this.treeInteraction?.selectItemById(itemId);
     }
 
     // ========================================
@@ -69,15 +69,15 @@ export class TreeManager {
     // ========================================
 
     public expandAll(): void {
-        this.treeState.expandAll();
+        this.treeState?.expandAll();
     }
 
     public collapseAll(): void {
-        this.treeState.collapseAll();
+        this.treeState?.collapseAll();
     }
 
     public clearSavedState(): void {
-        this.treeState.clearSavedState();
+        this.treeState?.clearSavedState();
     }
 
     // ========================================
@@ -85,6 +85,6 @@ export class TreeManager {
     // ========================================
 
     public buildTree(figures: Figure[]): void {
-        this.treeBuilder.buildTree(figures);
+        this.treeBuilder?.buildTree(figures);
     }
 }

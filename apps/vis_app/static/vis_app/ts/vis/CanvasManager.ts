@@ -111,8 +111,8 @@ export class CanvasManager {
 
         // Use pre-rendered static SVG files for maximum performance
         const gridUrl = isDark
-            ? '/static/vis_app/img/sigma/grid-dark.svg'
-            : '/static/vis_app/img/sigma/grid-light.svg';
+            ? '/static/vis_app/img/vis/grid-dark.svg'
+            : '/static/vis_app/img/vis/grid-light.svg';
 
         // Load as Fabric.js background image
         fabric.Image.fromURL(gridUrl, (img: any) => {

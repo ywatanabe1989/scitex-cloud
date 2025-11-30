@@ -7,7 +7,7 @@
  * - Data preparation for plots
  */
 
-import type { DataTableManager, PropertiesManager } from '../sigma/index.js';
+import type { DataTableManager, PropertiesManager } from '../vis/index.js';
 
 export interface GraphOperations {
     renderPlot(plotType: string): any;

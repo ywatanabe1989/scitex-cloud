@@ -39,7 +39,7 @@ export function initializeSigmaEditor(): void {
 
         // Expose to window for external access
         const managers = editorInstance.getManagers();
-        (window as any).sigmaEditor = {
+        (window as any).visEditor = {
             instance: editorInstance,
             updateCanvasTheme: (isDark: boolean) => editorInstance.updateCanvasTheme(isDark),
             importFile: (file: File) => managers.dataTableManager.handleFileImport(file),
