@@ -1,9 +1,11 @@
 /**
  * File Tree Setup Module
  * Handles file tree and section dropdown initialization
+ *
+ * Uses the shared WorkspaceFilesTree component with writer-specific configuration
+ * for consistency with other modules (vis, scholar, code).
  */
 
-import { FileTreeManager } from "../../modules/index.js";
 import {
   switchSection,
   handleDocTypeSwitch,
@@ -12,6 +14,11 @@ import {
 import { loadTexFile } from "../files/FileLoader.js";
 import { initializeWriterFilter } from "../../modules/writer-file-filter.js";
 import { PanelSwitcher } from "../ui/PanelSwitcher.js";
+
+// Type for WorkspaceFilesTree (loaded dynamically)
+interface WorkspaceFilesTreeType {
+  new (config: any): any;
+}
 
 export class FileTreeSetup {
   private config: any;
@@ -129,9 +136,12 @@ export class FileTreeSetup {
       this.config.projectId !== null &&
       this.config.projectId !== undefined
     ) {
-      const fileTreeContainer = document.getElementById("tex-files-list");
+      const fileTreeContainer = document.getElementById("writer-file-tree");
       if (fileTreeContainer) {
-        this.setupWithFileTree(fileTreeContainer, onFileSelectHandler);
+        // setupWithFileTree is async but we don't need to await here
+        this.setupWithFileTree(fileTreeContainer, onFileSelectHandler).catch((error) => {
+          console.error("[FileTreeSetup] Failed to setup file tree:", error);
+        });
       } else {
         this.setupWithoutFileTree(onFileSelectHandler);
       }
@@ -150,12 +160,12 @@ export class FileTreeSetup {
   }
 
   /**
-   * Setup with file tree container
+   * Setup with file tree container using shared WorkspaceFilesTree component
    */
-  private setupWithFileTree(
+  private async setupWithFileTree(
     fileTreeContainer: HTMLElement,
     onFileSelectHandler: (sectionId: string, sectionName: string) => void,
-  ): void {
+  ): Promise<void> {
     // Restore saved doctype
     const savedDoctype = this.statePersistence.getSavedDoctype();
     const docTypeSelector = document.getElementById(
@@ -171,13 +181,23 @@ export class FileTreeSetup {
     const writerFilter = initializeWriterFilter(currentDoctype, null);
     console.log("[FileTreeSetup] Initialized writer filter with doctype:", currentDoctype);
 
+    // Get project owner and slug from config
+    const projectOwner = this.config.projectOwner || this.config.visitorUsername || this.config.username;
+    const projectSlug = this.config.projectSlug;
+
+    if (!projectOwner || !projectSlug) {
+      console.warn("[FileTreeSetup] Missing project owner or slug, skipping file tree");
+      return;
+    }
+
     // Enhanced file select handler that updates section filter and switches panel
-    const enhancedFileSelectHandler = (sectionId: string, sectionName: string): void => {
-      console.log("[FileTreeSetup] File selected:", sectionId, sectionName);
+    const enhancedFileSelectHandler = (path: string, item: any): void => {
+      const fileName = path.split('/').pop() || '';
+      console.log("[FileTreeSetup] File selected:", path, fileName);
 
       // If it's a .tex file, extract section from path and update filter
-      if (sectionId.endsWith(".tex")) {
-        const section = writerFilter.extractSectionFromPath(sectionId);
+      if (path.endsWith(".tex")) {
+        const section = writerFilter.extractSectionFromPath(path);
         if (section) {
           console.log("[FileTreeSetup] Extracted section from file path:", section);
           writerFilter.setSection(section);
@@ -185,129 +205,161 @@ export class FileTreeSetup {
           // Auto-switch panel based on section
           const currentDoctype = writerFilter.getState().doctype;
           this.panelSwitcher.autoSwitchForSection(section, currentDoctype);
-
-          // Update section dropdown to match
-          const sectionDropdown = document.getElementById("texfile-selector") as HTMLSelectElement;
-          if (sectionDropdown) {
-            // Find matching option by section name
-            const options = Array.from(sectionDropdown.options);
-            const matchingOption = options.find(opt => {
-              const optionSection = writerFilter.extractSectionFromPath(opt.value);
-              return optionSection === section;
-            });
-            if (matchingOption) {
-              sectionDropdown.value = matchingOption.value;
-            }
-          }
         }
       }
 
-      // Call original handler
-      onFileSelectHandler(sectionId, sectionName);
+      // Call original handler with path and filename
+      onFileSelectHandler(path, fileName);
     };
 
-    const fileTreeManager = new FileTreeManager({
-      projectId: this.config.projectId,
-      container: fileTreeContainer,
-      texFileDropdownId: "texfile-selector",
-      onFileSelect: enhancedFileSelectHandler,
-    });
+    try {
+      // Check if WorkspaceFilesTree is already initialized by inline script
+      // If so, we just need to set up the additional event handlers
+      const existingTree = (window as any).writerFileTree;
+      if (existingTree) {
+        console.log("[FileTreeSetup] WorkspaceFilesTree already initialized by inline script, skipping duplicate initialization");
+        // Just set up the refresh button and doctype handlers
+        const filesTree = existingTree;
+        this.setupTreeEventHandlers(filesTree, writerFilter, docTypeSelector);
+        return;
+      }
 
-    // Load file tree
-    fileTreeManager.load().catch((error) => {
-      console.warn("[FileTreeSetup] Failed to load file tree:", error);
-    });
+      // Dynamically import the shared WorkspaceFilesTree component
+      const module = await import("/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js") as any;
+      const WorkspaceFilesTree: WorkspaceFilesTreeType = module.WorkspaceFilesTree;
 
+      // Create the tree with writer-specific configuration
+      const filesTree = new WorkspaceFilesTree({
+        mode: 'writer',
+        containerId: 'writer-file-tree',
+        username: projectOwner,
+        slug: projectSlug,
+        showFolderActions: true,
+        showGitStatus: true,
+        allowedExtensions: ['.tex', '.bib', '.cls', '.sty', '.pdf', '.csv', '.xlsx', '.xls', '.png', '.jpg', '.jpeg', '.svg', '.eps', '.bbl', '.bst'],
+        onFileSelect: enhancedFileSelectHandler,
+      });
+
+      // Initialize the tree
+      await filesTree.initialize();
+
+      // Store reference globally for other components
+      (window as any).writerFileTree = filesTree;
+
+      console.log("[FileTreeSetup] WorkspaceFilesTree initialized successfully");
+
+      // Setup refresh button
+      const refreshBtn = document.getElementById("refresh-files-btn");
+      if (refreshBtn) {
+        refreshBtn.addEventListener("click", () => {
+          filesTree.refresh();
+        });
+      }
+
+      // Listen to document type changes (with file tree)
+      if (docTypeSelector) {
+        docTypeSelector.addEventListener("change", (e) => {
+          const newDocType = (e.target as HTMLSelectElement).value;
+          console.log(
+            "[FileTreeSetup] Document type changed to:",
+            newDocType,
+          );
+          if (this.editor && this.state.currentSection) {
+            // Save current section before switching
+            const currentContent = this.editor.getContent();
+            this.sectionsManager.setContent(
+              this.state.currentSection,
+              currentContent,
+            );
+            // Update state with new document type
+            this.state.currentDocType = newDocType;
+            // Save doctype to persistence
+            this.statePersistence.saveDoctype(newDocType);
+            console.log(
+              "[FileTreeSetup] Saved doctype to persistence:",
+              newDocType,
+            );
+            // Update filter with new doctype
+            writerFilter.setDoctype(newDocType);
+            // Update PDF preview manager to use the new document type
+            this.pdfPreviewManager.setDocType(newDocType);
+            // Switch to first section of the new document type
+            handleDocTypeSwitch(
+              this.editor,
+              this.sectionsManager,
+              this.state,
+              newDocType,
+            );
+
+            // Focus on the doctype directory in the tree
+            // For supplementary: fold everything except 02_supplementary
+            // For revision: fold everything except 03_revision
+            let doctypeFolder = '';
+            if (newDocType === 'manuscript') {
+              doctypeFolder = 'scitex/writer/01_manuscript';
+            } else if (newDocType === 'supplementary') {
+              doctypeFolder = 'scitex/writer/02_supplementary';
+            } else if (newDocType === 'revision') {
+              doctypeFolder = 'scitex/writer/03_revision';
+            }
+
+            if (doctypeFolder && filesTree.expandPath) {
+              console.log("[FileTreeSetup] Focusing on doctype folder:", doctypeFolder);
+              filesTree.expandPath(doctypeFolder);
+            }
+          }
+        });
+      }
+
+    } catch (error) {
+      console.error("[FileTreeSetup] Failed to initialize WorkspaceFilesTree:", error);
+    }
+  }
+
+  /**
+   * Setup event handlers for an existing tree instance
+   */
+  private setupTreeEventHandlers(
+    filesTree: any,
+    writerFilter: any,
+    docTypeSelector: HTMLSelectElement | null
+  ): void {
     // Setup refresh button
     const refreshBtn = document.getElementById("refresh-files-btn");
     if (refreshBtn) {
       refreshBtn.addEventListener("click", () => {
-        fileTreeManager.refresh();
+        filesTree.refresh();
       });
     }
 
-    // Listen to section dropdown changes
-    const sectionDropdown = document.getElementById("texfile-selector") as HTMLSelectElement;
-    if (sectionDropdown) {
-      sectionDropdown.addEventListener("change", (e) => {
-        const selectedValue = (e.target as HTMLSelectElement).value;
-        console.log("[FileTreeSetup] Section dropdown changed to:", selectedValue);
-
-        // Extract section from selected value and update filter
-        if (selectedValue.endsWith(".tex")) {
-          const section = writerFilter.extractSectionFromPath(selectedValue);
-          if (section) {
-            console.log("[FileTreeSetup] Updating filter with section:", section);
-            fileTreeManager.updateForSection(section);
-
-            // Auto-switch panel based on section
-            const currentDoctype = writerFilter.getState().doctype;
-            this.panelSwitcher.autoSwitchForSection(section, currentDoctype);
-
-            // Focus on the section file in the tree
-            // Fold everything except the path to this file and scroll to it
-            const expectedPath = writerFilter.getExpectedFilePath(currentDoctype, section);
-            console.log("[FileTreeSetup] Focusing on expected path:", expectedPath);
-            fileTreeManager.foldExceptTarget(expectedPath);
-            fileTreeManager.focusOnTarget(expectedPath);
-          }
-        }
-      });
-    }
-
-    // Listen to document type changes (with file tree)
+    // Listen to document type changes
     if (docTypeSelector) {
       docTypeSelector.addEventListener("change", (e) => {
         const newDocType = (e.target as HTMLSelectElement).value;
-        console.log(
-          "[FileTreeSetup] Document type changed to:",
-          newDocType,
-        );
+        console.log("[FileTreeSetup] Document type changed to:", newDocType);
+
         if (this.editor && this.state.currentSection) {
-          // Save current section before switching
           const currentContent = this.editor.getContent();
-          this.sectionsManager.setContent(
-            this.state.currentSection,
-            currentContent,
-          );
-          // Update state with new document type
+          this.sectionsManager.setContent(this.state.currentSection, currentContent);
           this.state.currentDocType = newDocType;
-          // Save doctype to persistence
           this.statePersistence.saveDoctype(newDocType);
-          console.log(
-            "[FileTreeSetup] Saved doctype to persistence:",
-            newDocType,
-          );
-          // Update filter with new doctype
           writerFilter.setDoctype(newDocType);
-          // Update section dropdown for the new document type
-          fileTreeManager.updateForDocType(newDocType);
-          // Update PDF preview manager to use the new document type
           this.pdfPreviewManager.setDocType(newDocType);
-          // Switch to first section of the new document type
-          handleDocTypeSwitch(
-            this.editor,
-            this.sectionsManager,
-            this.state,
-            newDocType,
-          );
+          handleDocTypeSwitch(this.editor, this.sectionsManager, this.state, newDocType);
 
           // Focus on the doctype directory in the tree
-          // For supplementary: fold everything except 02_supplementary
-          // For revision: fold everything except 03_revision
           let doctypeFolder = '';
           if (newDocType === 'manuscript') {
-            doctypeFolder = '01_manuscript';
+            doctypeFolder = 'scitex/writer/01_manuscript';
           } else if (newDocType === 'supplementary') {
-            doctypeFolder = '02_supplementary';
+            doctypeFolder = 'scitex/writer/02_supplementary';
           } else if (newDocType === 'revision') {
-            doctypeFolder = '03_revision';
+            doctypeFolder = 'scitex/writer/03_revision';
           }
 
-          if (doctypeFolder) {
+          if (doctypeFolder && filesTree.expandPath) {
             console.log("[FileTreeSetup] Focusing on doctype folder:", doctypeFolder);
-            fileTreeManager.foldExceptTarget(doctypeFolder);
-            fileTreeManager.focusOnTarget(doctypeFolder, true);
+            filesTree.expandPath(doctypeFolder);
           }
         }
       });

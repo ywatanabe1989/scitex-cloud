@@ -122,6 +122,16 @@ export async function switchSection(
   state.currentSection = sectionId;
   console.log("[Writer] Switching to section:", sectionId);
 
+  // Open section in file tab manager (mimic /code/ page behavior)
+  const fileTabManager = (window as any).writerFileTabManager;
+  if (fileTabManager) {
+    // Extract section name for display (e.g., "manuscript/abstract" -> "Abstract")
+    const parts = sectionId.split("/");
+    const sectionName = parts.length > 1 ? parts[1] : sectionId;
+    const displayName = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
+    fileTabManager.openFile(sectionId, displayName);
+  }
+
   updateSectionUI(sectionId);
   syncDropdownToSection(sectionId);
 

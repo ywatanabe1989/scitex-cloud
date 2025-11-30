@@ -8,7 +8,6 @@ console.log(
   "[DEBUG] /home/ywatanabe/proj/scitex-cloud/apps/writer_app/static/writer_app/ts/writer/inline-script/writer-app-init.ts loaded"
 );
 
-import { WorkspaceFilesTree } from "@/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js";
 import {
   doctypeToDirectory,
   isNonEditableFile,
@@ -28,6 +27,7 @@ import {
   setupTreeFilterObserver,
 } from "../tree/index.js";
 import { initSidebarResizer } from "../ui/sidebar-resizer.js";
+import { WriterTabManager } from "../tabs/WriterTabManager.js";
 
 // Get WRITER_CONFIG from window
 declare global {
@@ -48,11 +48,14 @@ declare global {
     monacoEditor: any;
     monaco: any;
     pdfViewerInstance: any;
+    writerTabManager: WriterTabManager | null;
+    switchRightPanel?: (panel: string) => void;
   }
 }
 
 // State
 let writerFileTree: any = null;
+let writerTabManager: WriterTabManager | null = null;
 
 /**
  * Get DOM elements
@@ -262,11 +265,14 @@ export const initWriterApp = async (): Promise<void> => {
     return;
   }
 
+  // Dynamic import for WorkspaceFilesTree (using absolute URL path)
+  const { WorkspaceFilesTree } = await import("/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js");
+
   // Initialize file tree
-  writerFileTree = new WorkspaceFilesTree(elements.fileTreeContainer, {
-    projectId: window.WRITER_CONFIG.projectId,
-    projectOwner: window.WRITER_CONFIG.projectOwner || "",
-    projectSlug: window.WRITER_CONFIG.projectSlug,
+  writerFileTree = new WorkspaceFilesTree({
+    containerId: "writer-file-tree",
+    username: window.WRITER_CONFIG.projectOwner || "",
+    slug: window.WRITER_CONFIG.projectSlug,
     mode: "writer",
     onFileSelect: (path: string) => {
       console.log("[Writer] File selected:", path);

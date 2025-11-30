@@ -72,3 +72,7 @@ export { initWriterApp } from "./inline-script/index.js";
 
 // Sidebar resizer
 export { initSidebarResizer, getSidebarWidth, setSidebarWidth } from "./ui/sidebar-resizer.js";
+
+// Tab management
+export { WriterTabManager } from "./tabs/index.js";
+export type { WriterTabManagerOptions } from "./tabs/index.js";
