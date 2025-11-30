@@ -136,8 +136,9 @@ body.scholar-page .scholar-properties .properties-header {
 }
 
 body.scholar-page .scholar-sidebar .sidebar-content,
+body.scholar-page .scholar-sidebar #file-tree,
 body.scholar-page .scholar-properties .properties-content {
-  background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
+  background: var(--workspace-bg-monaco, #1e1e1e) !important;
 }
 
 /* Pane content no padding for full bleed */

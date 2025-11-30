@@ -81,7 +81,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--workspace-bg-primary, #0d0d0d);
+  background: var(--terminal-bg, #1e1e1e);
 }
 
 /* Center panel: Main content */
