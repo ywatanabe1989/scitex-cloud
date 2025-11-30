@@ -32,6 +32,6 @@
         {% include 'global_base_partials/global_footer.html' %}
         {% include 'global_base_partials/global_body_scripts.html' %}
         {% block extra_js %}{% endblock %}
-        {% django_browser_reload_script %}
+        {% if debug %}{% django_browser_reload_script %}{% endif %}
     </body>
 </html>
