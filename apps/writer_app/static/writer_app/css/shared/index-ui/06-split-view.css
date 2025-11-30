@@ -9,7 +9,7 @@
   padding: 0; /* No padding - panels fill entire space */
   height: 100%;
   overflow: hidden;
-  background: var(--workspace-bg-primary, #0d0d0d);
+  /* Background is set in 10-dark-mode.css to match workspace theme */
 }
 
 .split-view .latex-panel,
@@ -17,7 +17,7 @@
   min-width: 0;
   height: 100%;
   box-shadow: none; /* No box shadow - flat workspace design */
-  background: var(--workspace-bg-primary, #0d0d0d);
+  /* Background is set in 10-dark-mode.css to match workspace theme */
   flex: 1;
 }
 

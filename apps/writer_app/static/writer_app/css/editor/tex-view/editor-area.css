@@ -3,7 +3,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--workspace-bg-primary);
+  /* Background is set in 10-dark-mode.css to match workspace theme */
   overflow: visible; /* Allow Monaco suggestions to overflow */
 }
 

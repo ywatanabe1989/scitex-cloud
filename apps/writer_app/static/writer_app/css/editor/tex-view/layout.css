@@ -78,7 +78,7 @@
   height: calc(100vh - 50px);
   width: 100%;
   overflow: hidden;
-  background: var(--workspace-bg-primary);
+  /* Background is set in 10-dark-mode.css to match workspace theme */
 }
 
 /* Main Container - fills remaining space after sidebar */
