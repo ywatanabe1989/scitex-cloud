@@ -4,6 +4,12 @@
  */
 
 import { LANGUAGE_MAP, type EditorConfig, type OpenFile } from "../core/types.js";
+import {
+  initializeMonacoThemes,
+  setupMonacoThemeObserver,
+  getThemeForMode,
+  getCurrentThemeMode,
+} from "/static/shared/js/monaco/MonacoTheme.js";
 
 export class MonacoManager {
   private editor: any = null;
@@ -25,7 +31,7 @@ export class MonacoManager {
 
   /**
    * Update Monaco editor theme when global theme changes
-   * This syncs Monaco with the global site theme
+   * This syncs Monaco with the global site theme using shared SciTeX themes
    */
   updateTheme(theme: string): void {
     if (!this.editor) {
@@ -39,7 +45,8 @@ export class MonacoManager {
       return;
     }
 
-    const monacoTheme = theme === "dark" ? "vs-dark" : "vs";
+    // Use SciTeX themes for consistency across modules
+    const monacoTheme = getThemeForMode(theme as "dark" | "light");
     this.editor.updateOptions({ theme: monacoTheme });
 
     // Sync localStorage to match global theme
@@ -66,9 +73,10 @@ export class MonacoManager {
       return;
     }
 
-    // Get current theme from editor
+    // Get current theme from editor and toggle between SciTeX themes
     const currentTheme = this.editor.getOption(monaco.editor.EditorOption.theme);
-    const newTheme = currentTheme === "vs-dark" ? "vs" : "vs-dark";
+    const isDark = currentTheme === "scitex-dark" || currentTheme === "vs-dark";
+    const newTheme = isDark ? "scitex-light" : "scitex-dark";
 
     // Update editor theme
     this.editor.updateOptions({ theme: newTheme });
@@ -99,9 +107,10 @@ export class MonacoManager {
     const themeIcon = toggleBtn?.querySelector(".theme-icon");
 
     if (themeIcon) {
-      themeIcon.textContent = theme === "vs-dark" ? "🌙" : "☀️";
+      const isDark = theme === "scitex-dark" || theme === "vs-dark";
+      themeIcon.textContent = isDark ? "🌙" : "☀️";
       toggleBtn?.setAttribute("title",
-        theme === "vs-dark" ? "Switch to light theme" : "Switch to dark theme"
+        isDark ? "Switch to light theme" : "Switch to dark theme"
       );
     }
   }
@@ -147,9 +156,12 @@ export class MonacoManager {
       welcomeScreen.style.display = "none";
     }
 
-    // Load saved theme preference or use default
+    // Initialize shared SciTeX themes
+    initializeMonacoThemes(monaco);
+
+    // Load saved theme preference or use SciTeX theme based on site theme
     const savedTheme = localStorage.getItem("monaco-editor-theme");
-    const initialTheme = savedTheme || (document.documentElement.getAttribute("data-theme") === "dark" ? "vs-dark" : "vs");
+    const initialTheme = savedTheme || getThemeForMode(getCurrentThemeMode());
 
     // Create Monaco editor
     this.editor = monaco.editor.create(container, {
