@@ -16,10 +16,16 @@ const DEFAULT_WIDTH = 280;
  * Initialize the sidebar resizer
  */
 export const initSidebarResizer = (): void => {
+  console.log("[SidebarResizer] Initializing...");
   const resizer = document.getElementById("sidebar-resizer");
   const sidebar = document.getElementById("writer-sidebar");
 
-  if (!resizer || !sidebar) return;
+  console.log("[SidebarResizer] Elements found:", { resizer: !!resizer, sidebar: !!sidebar });
+
+  if (!resizer || !sidebar) {
+    console.warn("[SidebarResizer] Required elements not found, skipping initialization");
+    return;
+  }
 
   let isResizing = false;
   let startX = 0;
@@ -83,3 +89,12 @@ export const setSidebarWidth = (width: number): void => {
   sidebar.style.width = `${clampedWidth}px`;
   localStorage.setItem(STORAGE_KEY, clampedWidth.toString());
 };
+
+// Auto-initialize when DOM is ready
+// This ensures the resizer works even if initSidebarResizer() is not explicitly called
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initSidebarResizer);
+} else {
+  // DOM already loaded, initialize immediately
+  initSidebarResizer();
+}

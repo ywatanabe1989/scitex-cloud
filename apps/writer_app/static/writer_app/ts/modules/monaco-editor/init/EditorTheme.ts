@@ -27,8 +27,9 @@ export function defineScitexTheme(monaco: any): void {
       { token: "operator.latex", foreground: "D4D4D4" },          // & ~ ^ _
     ],
     colors: {
-      "editor.background": "#1a2332",
-      "editor.lineHighlightBackground": "#1a2332",
+      // Match Code page dark mode: workspace-bg-primary is #0d0d0d
+      "editor.background": "#0d0d0d",
+      "editor.lineHighlightBackground": "#151515",
       "editorLineNumber.foreground": "#6c8ba0",
       "editorLineNumber.activeForeground": "#b5c7d1",
       "editor.selectionBackground": "#34495e",

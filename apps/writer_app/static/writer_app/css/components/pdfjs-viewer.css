@@ -38,7 +38,7 @@
 }
 
 [data-theme="dark"] .pdfjs-scroll-container {
-  background: #1a2332;
+  background: #0d0d0d;
 }
 
 /* Pages container - scrollable area */
@@ -52,7 +52,7 @@
 }
 
 [data-theme="dark"] .pdfjs-pages-container {
-  background: #1a2332;
+  background: #0d0d0d;
 }
 
 /* Individual page container */
@@ -175,9 +175,9 @@
   scrollbar-color: var(--workspace-border-default) var(--workspace-bg-secondary);
 }
 
-/* Dark mode background for pdfjs-viewer - matches Monaco editor scitex-dark theme */
+/* Dark mode background for pdfjs-viewer - matches Code page workspace-bg-primary */
 [data-theme="dark"].pdfjs-viewer {
-  background: #1a2332;
+  background: #0d0d0d;
 }
 
 /* Text Layer Styles for Text Selection */

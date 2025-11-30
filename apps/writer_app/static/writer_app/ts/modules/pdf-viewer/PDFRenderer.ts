@@ -80,7 +80,7 @@ export class PDFRenderer {
       pageContainer.dataset.pageNum = String(pageNum);
       pageContainer.style.cssText = `
         margin: ${pageNum === 1 ? "0" : "0.5rem 0 0 0"};
-        background: ${this.colorMode === "dark" ? "#1a2332" : "white"};
+        background: ${this.colorMode === "dark" ? "#0d0d0d" : "white"};
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         position: relative;
         width: ${displayViewport.width}px;
