@@ -6,8 +6,10 @@
 }
 
 .bibtex-enrichment-container {
-    padding: 1.5rem;
+    padding: 1rem;
     height: 100%;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
     background: var(--workspace-bg-primary, #0d0d0d);
 }
@@ -15,6 +17,27 @@
 .bibtex-main-area {
     max-width: 100%;
     margin: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.bibtex-main-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.bibtex-card--upload {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.bibtex-card--upload form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Cards */
@@ -50,8 +73,8 @@
 
 /* Drop Zone */
 .bibtex-dropzone {
-    margin: 1.25rem;
-    padding: 2.5rem 2rem;
+    margin: 1.25rem 1.25rem 0 1.25rem;  /* Match asta-tooltip-container horizontal margins, no bottom margin */
+    padding: 3rem 2rem;
     border: 2px dashed var(--success-color, #3fb950);
     border-radius: 0;
     text-align: center;
@@ -59,6 +82,12 @@
     transition: all 0.2s ease;
     background: var(--workspace-bg-primary, #0d0d0d);
     position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
 }
 
 .bibtex-dropzone:hover {
@@ -72,14 +101,14 @@
 }
 
 .bibtex-dropzone__icon {
-    font-size: 2.5rem;
+    font-size: 4rem;
     color: var(--workspace-icon-muted, #6b7280);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .bibtex-dropzone__title {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.5rem;
     font-weight: 600;
     color: var(--text-primary, #f0f3f6);
 }
@@ -87,7 +116,8 @@
 .bibtex-dropzone__subtitle {
     margin: 0;
     color: var(--text-muted, #768390);
-    font-size: 0.95rem;
+    font-size: 1rem;
+    max-width: 400px;
 }
 
 .bibtex-dropzone__subtitle strong {
@@ -136,17 +166,20 @@
 .bibtex-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    padding: 1.25rem;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
     border-top: 1px solid var(--border-default, #30363d);
+    flex-shrink: 0;
 }
 
 .bibtex-actions .btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
+    padding: 0.5rem 1rem;
     font-weight: 500;
+    font-size: 0.9rem;
 }
 
 #openUrlsMainBtn {
@@ -500,9 +533,17 @@
 
 [data-theme="light"] .bibtex-dropzone {
     background: #f6f8fa;
-    border-color: #d0d7de;
+    border-color: var(--status-success, #2ea043);
 }
 
 [data-theme="light"] .bibtex-save-path {
     background: rgba(210, 153, 34, 0.1);
+}
+
+[data-theme="light"] .bibtex-progress__bar {
+    background: var(--workspace-border-default, #d0d7de);
+}
+
+[data-theme="light"] .bibtex-progress__fill {
+    background: var(--status-success, #2ea043);
 }

@@ -11,8 +11,6 @@
                 <form id="bibtexEnrichmentForm" method="post" action="{% url 'scholar_app:bibtex_upload' %}" enctype="multipart/form-data">
                     {% csrf_token %}
 
-                    {% include "scholar_app/search_partials/asta_tooltip.html" %}
-
                     <!-- Drop Zone -->
                     <div id="dropZone" class="bibtex-dropzone">
                         <i class="fas fa-cloud-upload-alt bibtex-dropzone__icon"></i>
@@ -25,6 +23,8 @@
                         </div>
                         <input type="file" name="bibtex_file" id="bibtexFileInput" accept=".bib" required class="bibtex-dropzone__input">
                     </div>
+
+                    {% include "scholar_app/search_partials/asta_tooltip.html" %}
 
                     <!-- Action Buttons -->
                     <div class="bibtex-actions">
@@ -43,45 +43,14 @@
                     </div>
 
                     <!-- Hidden fields -->
-                    {% if user.is_authenticated and user_projects %}
-                    <input type="hidden" name="project_id" id="projectSelector" value="{% if current_project %}{{ current_project.id }}{% endif %}">
+                    {% if current_project %}
+                    <input type="hidden" name="project_id" id="projectSelector" value="{{ current_project.id }}">
                     {% endif %}
                     <input type="hidden" name="num_workers" value="4">
                 </form>
             </div>
 
-            <!-- Running Indicator (shown when processing) -->
-            <div id="enrichmentRunningIndicator" class="bibtex-card bibtex-card--running hidden">
-                <div class="bibtex-running__header">
-                    <div class="green-pulse-dot"></div>
-                    <div class="bibtex-running__info">
-                        <h4><i class="fas fa-magic"></i> Enrichment in Progress</h4>
-                        <p>Processing your BibTeX file... This may take a few moments.</p>
-                    </div>
-                </div>
-                <div class="bibtex-progress">
-                    <div class="bibtex-progress__bar">
-                        <div id="enrichmentProgressBar" class="bibtex-progress__fill"></div>
-                    </div>
-                    <div class="bibtex-progress__labels">
-                        <span id="progressPercent">0%</span>
-                        <span id="progressStatus">Initializing...</span>
-                    </div>
-                </div>
-                <div class="bibtex-running__log">
-                    <div class="bibtex-running__log-header">
-                        <span>Processing Log</span>
-                        <button onclick="toggleProcessingLogVisibility()" class="btn-icon">
-                            <i class="fas fa-chevron-down" id="logToggleIcon"></i>
-                        </button>
-                    </div>
-                    <div id="enrichmentProcessingLog" class="terminal-log terminal-log--medium terminal-log--processing">
-                        Initializing enrichment process...
-                    </div>
-                </div>
-            </div>
         </div>
-        <!-- Status tiles moved to right panel (status_tiles.html) -->
     </div>
 </div>
 

@@ -11,7 +11,7 @@
  * - code: Full development - all files
  */
 
-import type { TreeItem, WorkspaceMode } from './types.js';
+import type { TreeItem, WorkspaceMode } from '../types.js';
 
 /**
  * Configuration for file extensions visible in each mode
@@ -164,6 +164,13 @@ export const HIDDEN_FOLDERS: Record<WorkspaceMode, string[]> = {
     '__pycache__',
     '.venv',
     'build',
+    // Hide system directories not relevant to document editing
+    'ai',
+    'config',
+    'docs',
+    'requirements',
+    'scripts',
+    'tests',
   ],
 
   code: [
@@ -337,6 +344,7 @@ export const WRITER_DOCTYPE_DIRECTORIES: Record<string, string[]> = {
   manuscript: ['scitex/writer/01_manuscript', '01_manuscript'],
   supplementary: ['scitex/writer/02_supplementary', '02_supplementary'],
   revision: ['scitex/writer/03_revision', '03_revision'],
+  shared: ['scitex/writer/00_shared', '00_shared'],
 };
 
 /**
@@ -354,8 +362,8 @@ export function createWriterDoctypeFilter(doctype: string | null = null): (node:
     if (doctype && WRITER_DOCTYPE_DIRECTORIES[doctype]) {
       const allowedDirs = WRITER_DOCTYPE_DIRECTORIES[doctype];
 
-      // Shared directory is always allowed
-      const sharedDirs = ['scitex/writer/shared', 'shared'];
+      // Shared directory (00_shared) is always allowed alongside the selected doctype
+      const sharedDirs = ['scitex/writer/00_shared', '00_shared', 'scitex/writer/shared', 'shared'];
       const allAllowedDirs = [...allowedDirs, ...sharedDirs];
 
       // Check if path is within allowed directories

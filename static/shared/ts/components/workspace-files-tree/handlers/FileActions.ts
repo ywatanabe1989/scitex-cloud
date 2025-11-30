@@ -105,4 +105,151 @@ export class FileActions {
       console.error('[FileActions] Error renaming file:', error);
     }
   }
+
+  async deleteFile(path: string): Promise<void> {
+    // No confirmation - delete directly (files can be recovered via git)
+    try {
+      const response = await fetch(`/${this.config.username}/${this.config.slug}/api/files/delete/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.getCsrfToken(),
+        },
+        body: JSON.stringify({ path }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('[FileActions] File deleted:', path);
+        this.emitEvent('file-delete', { path });
+        this.rerender();
+      } else {
+        console.error('[FileActions] Delete failed:', data.error);
+        alert(`Failed to delete file: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('[FileActions] Error deleting file:', error);
+      alert('Error deleting file. Please try again.');
+    }
+  }
+
+  async createNewFile(folderPath: string): Promise<void> {
+    const fileName = prompt('Enter new file name:');
+    if (!fileName || !fileName.trim()) {
+      return;
+    }
+
+    const newPath = folderPath ? `${folderPath}/${fileName.trim()}` : fileName.trim();
+
+    try {
+      const response = await fetch(`/${this.config.username}/${this.config.slug}/api/files/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.getCsrfToken(),
+        },
+        body: JSON.stringify({ path: newPath, type: 'file' }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('[FileActions] File created:', newPath);
+        this.emitEvent('file-create', { path: newPath, type: 'file' });
+        // Expand the parent folder
+        this.stateManager.expand(folderPath);
+        this.rerender();
+      } else {
+        console.error('[FileActions] Create file failed:', data.error);
+        alert(`Failed to create file: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('[FileActions] Error creating file:', error);
+      alert('Error creating file. Please try again.');
+    }
+  }
+
+  async createNewFolder(folderPath: string): Promise<void> {
+    const folderName = prompt('Enter new folder name:');
+    if (!folderName || !folderName.trim()) {
+      return;
+    }
+
+    const newPath = folderPath ? `${folderPath}/${folderName.trim()}` : folderName.trim();
+
+    try {
+      const response = await fetch(`/${this.config.username}/${this.config.slug}/api/files/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.getCsrfToken(),
+        },
+        body: JSON.stringify({ path: newPath, type: 'directory' }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('[FileActions] Folder created:', newPath);
+        this.emitEvent('folder-create', { path: newPath, type: 'directory' });
+        // Expand the parent folder
+        this.stateManager.expand(folderPath);
+        this.rerender();
+      } else {
+        console.error('[FileActions] Create folder failed:', data.error);
+        alert(`Failed to create folder: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('[FileActions] Error creating folder:', error);
+      alert('Error creating folder. Please try again.');
+    }
+  }
+
+  async copyFile(path: string): Promise<void> {
+    const item = this.findItem(path);
+    if (!item) return;
+
+    // Generate copy name: file.txt -> file_copy.txt or folder -> folder_copy
+    const parts = item.name.split('.');
+    let copyName: string;
+    if (parts.length > 1 && item.type === 'file') {
+      const ext = parts.pop();
+      copyName = `${parts.join('.')}_copy.${ext}`;
+    } else {
+      copyName = `${item.name}_copy`;
+    }
+
+    const newName = prompt('Enter name for copy:', copyName);
+    if (!newName || !newName.trim()) {
+      return;
+    }
+
+    // Get parent directory
+    const pathParts = path.split('/');
+    pathParts.pop();
+    const parentPath = pathParts.join('/');
+    const newPath = parentPath ? `${parentPath}/${newName.trim()}` : newName.trim();
+
+    try {
+      const response = await fetch(`/${this.config.username}/${this.config.slug}/api/files/copy/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.getCsrfToken(),
+        },
+        body: JSON.stringify({ source_path: path, dest_path: newPath }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        console.log('[FileActions] File copied:', path, '->', newPath);
+        this.emitEvent('file-copy', { sourcePath: path, destPath: newPath });
+        this.rerender();
+      } else {
+        console.error('[FileActions] Copy failed:', data.error);
+        alert(`Failed to copy: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('[FileActions] Error copying file:', error);
+      alert('Error copying file. Please try again.');
+    }
+  }
 }

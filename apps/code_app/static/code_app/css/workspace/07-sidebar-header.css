@@ -1,18 +1,44 @@
 /* Sidebar header - sleek professional design */
-.sidebar-header {
+.code-sidebar .sidebar-header {
   padding: 0 16px;
   margin-top: 0 !important;
-  background: var(--code-bg);
+  background: var(--workspace-bg-secondary);
   border-top: 1px solid var(--workspace-border-default);
   border-bottom: 1px solid var(--workspace-border-default);
   height: 48px;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="dark"] .sidebar-header {
-  background: var(--workspace-bg-secondary) !important;
+.code-sidebar .sidebar-header h5 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #d4e1e8);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.code-sidebar .sidebar-header h5 i {
+  color: var(--workspace-icon-primary, #059669);
+}
+
+.code-sidebar .sidebar-toggle {
+  background: none !important;
+  border: none !important;
+  padding: 4px 8px !important;
+  color: var(--workspace-icon-secondary, #6b7280) !important;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.code-sidebar .sidebar-toggle:hover {
+  background: var(--workspace-bg-tertiary, #1a1a1a) !important;
+  color: var(--workspace-icon-primary, #059669) !important;
 }
 

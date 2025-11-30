@@ -97,9 +97,17 @@
     display: none;
 }
 
-/* Panel Header Template (Hidden) */
-.panel-header-template {
-    display: none;
+/* Panel Header Template (Hidden) - Higher specificity to override .preview-panel .panel-header */
+.panel-header.panel-header-template,
+.preview-panel .panel-header-template,
+.right-panel-view .panel-header-template,
+.panel-header-template,
+#pdf-panel-header,
+#citations-panel-header,
+#figures-panel-header,
+#tables-panel-header,
+#history-panel-header {
+    display: none !important;
 }
 
 /* Compile Button Toolbar (Hidden) */

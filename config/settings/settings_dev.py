@@ -70,8 +70,22 @@ SCITEX_WRITER_TEMPLATE_TAG = os.getenv("SCITEX_WRITER_TEMPLATE_TAG", None)
 SECRET_KEY = os.getenv("SCITEX_CLOUD_DJANGO_SECRET_KEY")
 ALLOWED_HOSTS = os.getenv(
     "SCITEX_CLOUD_ALLOWED_HOSTS",
-    "localhost,127.0.0.1,0.0.0.0,172.19.33.56,[::1],testserver",
+    "localhost,127.0.0.1,0.0.0.0,[::1],testserver",
 ).split(",")
+
+# Add WSL2 dynamic IP support (172.x.x.x range)
+# This allows access from any WSL2 IP which can change on restart
+import socket
+try:
+    wsl_ip = socket.gethostbyname(socket.gethostname())
+    if wsl_ip not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(wsl_ip)
+except Exception:
+    pass
+
+# Also allow any 172.x.x.x IP for WSL2 flexibility in development
+ALLOWED_HOSTS.append(".172.19.33.56")  # Specific WSL2 IP
+ALLOWED_HOSTS.append("*")  # Allow all hosts in development
 
 
 # Hot reload settings

@@ -2,24 +2,26 @@
 <link rel="stylesheet" href="{% static 'scholar_app/css/bibtex/bibtex-status-tiles.css' %}?v={{ request.timestamp|default:'1' }}" />
 <!-- BibTeX Status Tiles - For Right Panel -->
 <div class="bibtex-status-tiles">
-    <!-- Progress Tile -->
-    <div class="bibtex-tile bibtex-tile--expanded" data-panel="progress">
-        <div class="bibtex-tile__header" onclick="toggleBibtexPanel(this)">
+    <!-- Enrichment Progress Tile (always visible, shows status) -->
+    <div id="enrichmentRunningIndicator" class="bibtex-tile bibtex-tile--expanded" data-panel="enrichment-progress">
+        <div class="bibtex-tile__header">
             <div class="bibtex-tile__title">
-                <i class="fas fa-tasks"></i> Progress
+                <div id="progressPulseDot" class="green-pulse-dot" style="display: none;"></div>
+                <i class="fas fa-magic"></i> Enrichment
             </div>
-            <i class="fas fa-chevron-down bibtex-tile__toggle"></i>
         </div>
         <div class="bibtex-tile__content">
-            <div class="bibtex-tile__log-header">
-                <span>Log</span>
-                <button id="copyBibtexLogBtn" class="btn btn-outline-secondary btn-sm" title="Copy log">
-                    <i class="fas fa-copy"></i>
-                </button>
+            <div class="bibtex-progress">
+                <div class="bibtex-progress__bar">
+                    <div id="enrichmentProgressBar" class="bibtex-progress__fill"></div>
+                </div>
+                <div class="bibtex-progress__labels">
+                    <span id="progressPercent">0%</span>
+                    <span id="progressStatus">Waiting for upload...</span>
+                </div>
             </div>
-            <div id="processingLog" class="terminal-log terminal-log--medium terminal-log--processing">
-                Initializing...
-            </div>
+            <div id="enrichmentProcessingLog" class="terminal-log terminal-log--medium terminal-log--processing">Ready to enrich your BibTeX file.
+Upload a .bib file to start enrichment.</div>
         </div>
     </div>
 
@@ -38,39 +40,6 @@
             <div id="noRecentJobsMessage" class="bibtex-empty-state">
                 <i class="fas fa-inbox"></i>
                 <p>No recent jobs yet</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Server Status Tile -->
-    <div class="bibtex-tile bibtex-tile--expanded" data-panel="server-status">
-        <div class="bibtex-tile__header" onclick="toggleBibtexPanel(this)">
-            <div class="bibtex-tile__title">
-                <i class="fas fa-server"></i> Server Status
-            </div>
-            <i class="fas fa-chevron-down bibtex-tile__toggle"></i>
-        </div>
-        <div class="bibtex-tile__content">
-            <span id="resourceRefreshTime" class="bibtex-refresh-time">Loading...</span>
-            <div class="bibtex-status-grid">
-                <div class="bibtex-status-item">
-                    <div class="bibtex-status-item__label">Active</div>
-                    <div class="bibtex-status-item__value bibtex-status-item__value--active">
-                        <span id="activeJobsCount">0</span>
-                    </div>
-                </div>
-                <div class="bibtex-status-item">
-                    <div class="bibtex-status-item__label">Queued</div>
-                    <div class="bibtex-status-item__value bibtex-status-item__value--queued">
-                        <span id="queuedJobsCount">0</span>
-                    </div>
-                </div>
-            </div>
-            <div id="activeJobsList" class="hidden">
-                <div id="activeJobsContent"></div>
-            </div>
-            <div id="queuedJobsList" class="hidden">
-                <div id="queuedJobsContent"></div>
             </div>
         </div>
     </div>

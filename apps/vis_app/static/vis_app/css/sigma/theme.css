@@ -12,7 +12,7 @@
 
 [data-theme="dark"] .ribbon-btn {
     background: var(--workspace-bg-tertiary);
-    border-color: var(--workspace-border-muted);
+    border-color: var(--workspace-border-default);
 }
 
 [data-theme="dark"] .ribbon-btn:hover {

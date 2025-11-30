@@ -9,7 +9,7 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--workspace-border-default);
-  background: var(--bg-page);
+  /* background removed - let Monaco use its native vs-dark/vs theme background */
 }
 
 .preview-panel {
@@ -82,6 +82,7 @@
 /* Text Preview */
 .text-preview {
   flex: 1;
+  min-height: 0; /* Allow flex shrinking */
   padding: 0; /* No padding - let PDF viewer fill entire space */
   overflow-y: auto;
   font-size: 14px;
@@ -154,12 +155,18 @@
   gap: 0;
 }
 
-.split-view > * {
+.split-view > .latex-panel,
+.split-view > .preview-panel {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: visible; /* Changed from hidden to visible to allow Monaco suggestions to overflow */
+}
+
+/* Resizer should not flex-grow - fixed width handled by panel-resizer.css */
+.split-view > .panel-resizer {
+  flex: 0 0 1px;
 }
 
 /* Compilation Output */

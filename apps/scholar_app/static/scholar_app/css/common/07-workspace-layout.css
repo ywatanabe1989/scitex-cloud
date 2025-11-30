@@ -16,7 +16,7 @@
   width: 250px;
   min-width: 10px;
   background: var(--workspace-bg-primary, #0d0d0d);
-  border-right: 1px solid var(--workspace-border-default, #3a3a3a);
+  border-right: none; /* Resizer handles visual separation */
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease, min-width 0.2s ease;
@@ -143,7 +143,7 @@
   width: 320px;
   min-width: 10px;
   background: var(--workspace-bg-primary, #0d0d0d);
-  border-left: 1px solid var(--workspace-border-default, #3a3a3a);
+  border-left: none; /* Resizer handles visual separation */
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease, min-width 0.2s ease;
@@ -233,7 +233,6 @@
 
 [data-theme="light"] .scholar-sidebar {
   background: var(--workspace-bg-primary, #f3f4f6);
-  border-right-color: var(--workspace-border-default, #b5c7d1);
 }
 
 [data-theme="light"] .scholar-sidebar .sidebar-header {
@@ -256,7 +255,6 @@
 
 [data-theme="light"] .scholar-properties {
   background: var(--workspace-bg-primary, #f3f4f6);
-  border-left-color: var(--workspace-border-default, #b5c7d1);
 }
 
 [data-theme="light"] .scholar-properties .properties-header {

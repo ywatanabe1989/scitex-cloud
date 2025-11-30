@@ -8,13 +8,13 @@
   width: 100%;
   background: var(--bg-page);
   border: 1px solid var(--border-default);
-  border-radius: 6px;
-  padding: 6px 36px 6px 32px;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xs) 36px var(--spacing-xs) 32px;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: var(--base-font-size);
   line-height: 20px;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all var(--transition-normal) ease;
+  box-shadow: var(--shadow-xs);
 }
 
 .header-search input:focus {
@@ -65,22 +65,20 @@
 /* Search Shortcut Badge - GitHub style */
 .search-shortcut-badge {
   position: absolute;
-  right: 8px;
+  right: var(--spacing-sm);
   top: 50%;
   transform: translateY(-50%);
-  padding: 1px 6px;
-  font-size: 12px;
+  padding: 1px var(--spacing-xs);
+  font-size: var(--small-font-size);
   font-weight: 600;
-  font-family:
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
-    monospace;
+  font-family: var(--mono-font-family);
   color: var(--text-secondary);
   background: transparent;
   border: 1px solid var(--border-default);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   pointer-events: none;
   opacity: 0.6;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--transition-normal) ease;
   line-height: 16px;
   min-width: 20px;
   text-align: center;

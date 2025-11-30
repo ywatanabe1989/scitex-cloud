@@ -70,6 +70,22 @@ export const DENY_DIRECTORIES: Record<WorkspaceMode, string[]> = {
     'venv',
     'build',
     'dist',
+    // Hide system directories not relevant to document editing
+    'ai',
+    'config',
+    'docs',
+    'requirements',
+    'scripts',
+    'tests',
+    'texts',  // Pre-generated placeholder texts
+    // Hide non-content directories within doctype folders
+    'archive',
+    'figures',
+    'latex_styles',
+    'tables',
+    'wordcounts',
+    'logs',
+    'output',
   ],
 
   code: [

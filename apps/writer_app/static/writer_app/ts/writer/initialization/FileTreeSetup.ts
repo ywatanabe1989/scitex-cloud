@@ -47,10 +47,10 @@ export class FileTreeSetup {
    */
   setup(): void {
     // Define shared section/file selection callback
-    const onFileSelectHandler = (
+    const onFileSelectHandler = async (
       sectionId: string,
       sectionName: string,
-    ): void => {
+    ): Promise<void> => {
       console.log(
         "[FileTreeSetup] File/section selected:",
         sectionName,
@@ -66,16 +66,40 @@ export class FileTreeSetup {
       const isKnownSection = sectionPattern.test(sectionId);
 
       if (isKnownSection) {
-        // It's a section ID - switch section
+        // It's a section ID - switch section and load corresponding .tex file
         console.log(
           "[FileTreeSetup] Detected section ID, switching section:",
           sectionId,
         );
+
+        // Parse section ID to get doctype and section name
+        const [docType, sectionName] = sectionId.split("/");
+
+        // Skip loading .tex file for compiled sections (they show PDF directly)
+        const isCompiledSection =
+          sectionName === "compiled_pdf" || sectionName === "compiled_tex";
+
+        if (!isCompiledSection && this.config.projectId) {
+          // Get the expected .tex file path
+          const { getWriterFilter } = await import("../../modules/writer-file-filter.js");
+          const filter = getWriterFilter();
+          const texFilePath = filter.getExpectedFilePath(docType, sectionName);
+          console.log(
+            "[FileTreeSetup] Loading .tex file for section:",
+            texFilePath,
+          );
+
+          // Load the .tex file content
+          loadTexFile(texFilePath, this.editor);
+        }
+
+        // Also switch section for state management
         switchSection(
           this.editor,
           this.sectionsManager,
           this.state,
           sectionId,
+          this.pdfPreviewManager,
         );
       } else if (sectionId.endsWith(".tex")) {
         // It's a file path - load from disk
@@ -95,6 +119,7 @@ export class FileTreeSetup {
           this.sectionsManager,
           this.state,
           sectionId,
+          this.pdfPreviewManager,
         );
       }
     };

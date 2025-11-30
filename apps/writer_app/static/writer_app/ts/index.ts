@@ -271,11 +271,11 @@ function finalizeEditorSetup(
 }
 
 /**
- * Restore saved pane state from URL parameters or local storage
+ * Restore saved pane state from URL hash, query parameters, or local storage
  */
 function restorePaneState(): void {
   try {
-    const urlParams = new URLSearchParams(window.location.search);
+    const validPanels = ['pdf', 'citations', 'figures', 'tables', 'history', 'collaboration'];
     const paneMap: Record<string, string> = {
       pdf: 'pdf',
       citations: 'citations',
@@ -285,21 +285,38 @@ function restorePaneState(): void {
       collaboration: 'collaboration',
     };
 
-    // Check URL parameters (highest priority)
-    let targetPane: string | null = urlParams.get('panel');
+    let targetPane: string | null = null;
+
+    // Priority 1: Check URL hash (e.g., /writer/#pdf)
+    const hash = window.location.hash.slice(1); // Remove #
+    if (hash && validPanels.includes(hash)) {
+      targetPane = hash;
+      console.log(`[Writer] Found panel from hash: ${targetPane}`);
+    }
+
+    // Priority 2: Check URL query parameters
     if (!targetPane) {
-      // Check shorthand parameters
-      for (const [param, pane] of Object.entries(paneMap)) {
-        if (urlParams.has(param)) {
-          targetPane = pane;
-          break;
+      const urlParams = new URLSearchParams(window.location.search);
+      targetPane = urlParams.get('panel');
+      if (!targetPane) {
+        // Check shorthand parameters
+        for (const [param, pane] of Object.entries(paneMap)) {
+          if (urlParams.has(param)) {
+            targetPane = pane;
+            break;
+          }
         }
       }
     }
 
-    // Fallback to saved state
+    // Priority 3: Fallback to saved state
     if (!targetPane) {
       targetPane = statePersistence.getSavedActivePane();
+    }
+
+    // Priority 4: Default to PDF if nothing else
+    if (!targetPane) {
+      targetPane = 'pdf';
     }
 
     // Switch to target pane

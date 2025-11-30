@@ -27,7 +27,7 @@
     gap: 4px;
     padding: 8px 14px;
     background: var(--sigma-bg-secondary);
-    border: 2px solid var(--workspace-border-muted);
+    border: 2px solid var(--workspace-border-default);
     border-radius: 6px;
     color: var(--text-primary);
     font-size: 11px;
@@ -151,7 +151,7 @@
     min-width: 34px;
     height: 34px;
     background: var(--sigma-bg-secondary);
-    border: 1px solid var(--workspace-border-muted);
+    border: 1px solid var(--workspace-border-default);
     border-radius: 4px;
     color: var(--text-primary);
     font-size: 12px;
@@ -186,7 +186,7 @@
 .pane-header-btn.active {
     background: var(--status-success-bg);
     color: var(--status-success);
-    border-color: var(--workspace-border-muted);
+    border-color: var(--workspace-border-default);
 }
 
 /* Plot type buttons - larger and more distinctive */

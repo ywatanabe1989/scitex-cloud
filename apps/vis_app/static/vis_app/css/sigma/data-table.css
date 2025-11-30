@@ -136,3 +136,58 @@
     color: var(--status-warning);
 }
 
+/* ========================================
+   DATA TABLE STYLING
+   ======================================== */
+
+/* Data table container */
+.data-table-container {
+    overflow: auto;
+    height: 100%;
+}
+
+/* Main data table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+/* Table cells with borders */
+.data-table th,
+.data-table td {
+    border: 1px solid var(--workspace-border-default);
+    padding: 6px 8px;
+    text-align: left;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+/* Header cells */
+.data-table th {
+    background: var(--sigma-bg-secondary);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Data cells hover */
+.data-table td:hover {
+    background: var(--sigma-bg-hover);
+}
+
+/* Row hover */
+.data-table tbody tr:hover {
+    background: rgba(74, 155, 126, 0.05);
+}
+
+/* Alternating row colors (optional subtle effect) */
+.data-table tbody tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .data-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+

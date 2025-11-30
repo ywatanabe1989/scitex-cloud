@@ -85,10 +85,39 @@ function showNoJobsMessage(): void {
 }
 
 /**
+ * Deduplicate jobs by filename, keeping the most recent one
+ */
+function deduplicateJobs(jobs: RecentJob[]): RecentJob[] {
+  const jobsByFilename = new Map<string, RecentJob>();
+
+  for (const job of jobs) {
+    const filename = job.original_filename;
+    const existing = jobsByFilename.get(filename);
+
+    if (!existing) {
+      jobsByFilename.set(filename, job);
+    } else {
+      // Keep the most recent job (compare by created_at or id)
+      const existingDate = existing.created_at ? new Date(existing.created_at).getTime() : 0;
+      const currentDate = job.created_at ? new Date(job.created_at).getTime() : 0;
+
+      if (currentDate > existingDate) {
+        jobsByFilename.set(filename, job);
+      }
+    }
+  }
+
+  return Array.from(jobsByFilename.values());
+}
+
+/**
  * Render recent jobs as compact cards
  */
 function renderRecentJobs(jobs: RecentJob[], container: HTMLElement): void {
-  container.innerHTML = jobs
+  // Deduplicate jobs by filename, keeping only the most recent
+  const uniqueJobs = deduplicateJobs(jobs);
+
+  container.innerHTML = uniqueJobs
     .map((job) => buildJobCard(job))
     .join("");
 }
@@ -292,10 +321,14 @@ export async function deleteJob(jobId: string): Promise<void> {
     });
 
     if (response.ok) {
+      // Show success alert
+      showAlert("Job deleted successfully", "success");
       // Reload recent jobs
       await loadRecentJobs();
     } else {
-      showAlert("Failed to delete job", "error");
+      const data = await response.json().catch(() => ({}));
+      const errorMsg = data.error || "Failed to delete job";
+      showAlert(errorMsg, "error");
     }
   } catch (error) {
     console.error("Error deleting job:", error);

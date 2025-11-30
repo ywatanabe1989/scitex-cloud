@@ -27,6 +27,10 @@ from ..views.api import (
 from ..views.repository.api import (
     api_git_status,
     api_initialize_scitex_structure,
+    api_file_create,
+    api_file_delete,
+    api_file_rename,
+    api_file_copy,
 )
 
 # Note: slug and username are passed via kwargs from parent URL pattern
@@ -48,6 +52,11 @@ urlpatterns = [
         api_concatenate_directory,
         name="api_concatenate",
     ),
+    # File CRUD operations API
+    path("api/files/create/", api_file_create, name="api_file_create"),
+    path("api/files/delete/", api_file_delete, name="api_file_delete"),
+    path("api/files/rename/", api_file_rename, name="api_file_rename"),
+    path("api/files/copy/", api_file_copy, name="api_file_copy"),
     # File viewer - GitHub-style /blob/ for viewing files
     # /<username>/<slug>/blob/<file-path> - default view
     # /<username>/<slug>/blob/<file-path>?mode=edit - edit mode

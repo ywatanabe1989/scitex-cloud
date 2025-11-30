@@ -31,14 +31,14 @@
 /* Modal Content */
 .scitex-modal-content {
   background: var(--bg-page);
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
   max-width: 480px;
   width: 90%;
   max-height: 90vh;
   overflow: hidden;
   transform: scale(0.9);
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-slow) ease;
   display: flex;
   flex-direction: column;
 }
@@ -94,8 +94,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: background 0.2s ease;
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-normal) ease;
 }
 
 .scitex-modal-close:hover {
@@ -145,13 +145,13 @@
 
 /* Modal Buttons */
 .scitex-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  font-size: var(--base-font-size);
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal) ease;
 }
 
 /* Equal width buttons in modal footer */

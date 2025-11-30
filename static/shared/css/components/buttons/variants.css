@@ -89,34 +89,36 @@
 /* Success Button */
 .btn-success {
   background-color: var(--success-color);
-  color: white;
+  color: var(--text-inverse);
   border: none;
 }
 
 .btn-success:hover,
 .btn-success:focus {
-  background-color: #3a8066;
-  color: white;
+  background-color: var(--_success);
+  filter: brightness(0.85);
+  color: var(--text-inverse);
 }
 
 /* Warning Button */
 .btn-warning {
   background-color: var(--warning-color);
-  color: white;
+  color: var(--text-inverse);
   border: none;
 }
 
 .btn-warning:hover,
 .btn-warning:focus {
-  background-color: #a07a55;
-  color: white;
+  background-color: var(--warning-color);
+  filter: brightness(0.85);
+  color: var(--text-inverse);
 }
 
 /* Danger/Error Button */
 .btn-error,
 .btn-danger {
   background-color: var(--error-color);
-  color: white;
+  color: var(--text-inverse);
   border: none;
 }
 
@@ -124,21 +126,23 @@
 .btn-error:focus,
 .btn-danger:hover,
 .btn-danger:focus {
-  background-color: #8f5f5f;
-  color: white;
+  background-color: var(--error-color);
+  filter: brightness(0.85);
+  color: var(--text-inverse);
 }
 
 /* Info Button */
 .btn-info {
   background-color: var(--info-color);
-  color: white;
+  color: var(--text-inverse);
   border: none;
 }
 
 .btn-info:hover,
 .btn-info:focus {
-  background-color: #577399;
-  color: white;
+  background-color: var(--info-color);
+  filter: brightness(0.85);
+  color: var(--text-inverse);
 }
 
 /* =========================================

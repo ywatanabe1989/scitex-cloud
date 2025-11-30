@@ -35,6 +35,42 @@ export class EventHandlerSetup {
     this.setupPreviewHandlers();
     this.setupAutoFullCompile();
     this.setupFileTreeLoader();
+    this.setupExistingPDFLoader();
+  }
+
+  /**
+   * Setup handler for loading existing PDF on page start
+   */
+  private setupExistingPDFLoader(): void {
+    window.addEventListener("writer:loadExistingPDF", (event: any) => {
+      const { url } = event.detail;
+      console.log("[EventHandlerSetup] Loading existing PDF:", url);
+
+      const textPreview = document.getElementById("text-preview");
+      if (!textPreview) {
+        console.warn("[EventHandlerSetup] text-preview element not found");
+        return;
+      }
+
+      // Display the PDF using PDF.js canvas (same approach as PDFViewer)
+      textPreview.innerHTML = `
+        <div class="pdf-preview-container" style="height: 100%; width: 100%;">
+          <div class="pdf-preview-viewer" id="pdf-viewer-pane" style="height: 100%; width: 100%;">
+            <iframe
+              src="${url}#toolbar=0&navpanes=0&scrollbar=1&view=FitW&zoom=page-width"
+              type="application/pdf"
+              width="100%"
+              height="100%"
+              title="PDF Preview"
+              frameborder="0"
+              style="display: block;">
+            </iframe>
+          </div>
+        </div>
+      `;
+      console.log("[EventHandlerSetup] ✓ Existing PDF loaded in preview");
+    });
+    console.log("[EventHandlerSetup] ✓ Existing PDF loader attached");
   }
 
   /**

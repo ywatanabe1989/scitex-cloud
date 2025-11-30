@@ -330,6 +330,11 @@ urlpatterns = [
         name="bibtex_cancel_job",
     ),
     path(
+        "api/bibtex/job/<uuid:job_id>/delete/",
+        bibtex_views.bibtex_delete_job,
+        name="bibtex_delete_job",
+    ),
+    path(
         "api/bibtex/job/<uuid:job_id>/save-to-project/",
         bibtex_views.bibtex_save_to_project,
         name="bibtex_save_to_project",

@@ -18,7 +18,7 @@ export function createMonacoEditor(
   const savedTheme = localStorage.getItem("monaco-editor-theme-writer");
   const isDarkMode =
     document.documentElement.getAttribute("data-theme") === "dark";
-  const initialTheme = savedTheme || (isDarkMode ? "vs-dark" : "vs");
+  const initialTheme = savedTheme || (isDarkMode ? "scitex-dark" : "scitex-light");
 
   const editor = monaco.editor.create(container, {
     value: initialValue,
@@ -88,9 +88,10 @@ export function createMonacoEditor(
     const toggleBtn = document.getElementById("monaco-theme-toggle");
     const themeIcon = toggleBtn?.querySelector(".theme-icon");
     if (themeIcon) {
-      themeIcon.textContent = initialTheme === "vs-dark" ? "🌙" : "☀️";
+      const isDark = initialTheme === "scitex-dark" || initialTheme === "vs-dark";
+      themeIcon.textContent = isDark ? "🌙" : "☀️";
       toggleBtn?.setAttribute("title",
-        initialTheme === "vs-dark" ? "Switch to light editor theme" : "Switch to dark editor theme"
+        isDark ? "Switch to light editor theme" : "Switch to dark editor theme"
       );
     }
   }, 100);

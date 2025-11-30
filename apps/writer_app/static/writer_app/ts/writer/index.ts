@@ -51,3 +51,24 @@ export {
   handleDownloadSectionPDF,
   setPdfPreviewManager as setDownloadPdfPreviewManager,
 } from "./downloads/DownloadHandlers.js";
+
+// Config modules
+export * from "./config/index.js";
+
+// Tree integration modules
+export * from "./tree/index.js";
+
+// Section extraction
+export {
+  extractSectionsFromTree,
+  updateDoctypeSectionsFromTree,
+  getSectionsForDoctype,
+  setSectionsForDoctype,
+} from "./sections/section-extraction.js";
+export type { Section } from "./sections/section-extraction.js";
+
+// Inline script replacement (writer app init)
+export { initWriterApp } from "./inline-script/index.js";
+
+// Sidebar resizer
+export { initSidebarResizer, getSidebarWidth, setSidebarWidth } from "./ui/sidebar-resizer.js";

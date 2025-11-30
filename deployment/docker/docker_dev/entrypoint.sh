@@ -77,38 +77,41 @@ add_insufficient_python_packages() {
 add_insufficient_python_packages
 
 # ============================================
-# TypeScript Watch Mode (First Start Only)
+# TypeScript Watch Mode (Always ensure running)
 # ============================================
-# TypeScript watcher persists across hot-reload restarts
-if [ ! -f "$MIGRATION_SENTINEL" ]; then
-    start_typescript_build_watcher() {
-        if [ -d "/app/tsconfig" ] && [ -f "/app/tsconfig/package.json" ]; then
-            echo_info "Starting TypeScript watch mode for ALL apps..."
-            cd /app/tsconfig || return 0
-
-            # Check if node_modules exists
-            if [ ! -d "node_modules" ]; then
-                echo_warning "Installing Node dependencies..."
-                npm install --silent 2>&1 | grep -v "npm WARN" || true
-            fi
-
-            # Start unified TypeScript compiler in watch mode for ALL apps (background)
-            nohup npm run build:all:watch \
-                > /app/logs/tsc-watch-all.log 2>&1 &
-            TSC_ALL_PID=$!
-            echo_success "TypeScript watch (ALL apps) started (PID: $TSC_ALL_PID)"
-            echo "   Watching: static/ts/**, apps/*/static/*/ts/**"
-            echo "   Log: tail -f /app/logs/tsc-watch-all.log"
-
-            cd /app || return 0
-        else
-            echo_warning "/app/tsconfig not found - skipping TypeScript watch mode"
+# TypeScript watcher must be started/restarted on every container start
+# because nohup processes don't survive container restarts
+start_typescript_build_watcher() {
+    if [ -d "/app/tsconfig" ] && [ -f "/app/tsconfig/package.json" ]; then
+        # Check if tsc is already running
+        if pgrep -f "tsc.*--watch" > /dev/null 2>&1; then
+            echo_info "TypeScript watcher already running"
+            return 0
         fi
-    }
-    start_typescript_build_watcher
-else
-    echo_info "Hot-reload restart - TypeScript watcher already running"
-fi
+
+        echo_info "Starting TypeScript watch mode for ALL apps..."
+        cd /app/tsconfig || return 0
+
+        # Check if node_modules exists
+        if [ ! -d "node_modules" ]; then
+            echo_warning "Installing Node dependencies..."
+            npm install --silent 2>&1 | grep -v "npm WARN" || true
+        fi
+
+        # Start unified TypeScript compiler in watch mode for ALL apps (background)
+        nohup npm run build:all:watch \
+            > /app/logs/tsc-watch-all.log 2>&1 &
+        TSC_ALL_PID=$!
+        echo_success "TypeScript watch (ALL apps) started (PID: $TSC_ALL_PID)"
+        echo "   Watching: static/ts/**, apps/*/static/*/ts/**"
+        echo "   Log: tail -f /app/logs/tsc-watch-all.log"
+
+        cd /app || return 0
+    else
+        echo_warning "/app/tsconfig not found - skipping TypeScript watch mode"
+    fi
+}
+start_typescript_build_watcher
 
 # ============================================
 # Database & Django Setup

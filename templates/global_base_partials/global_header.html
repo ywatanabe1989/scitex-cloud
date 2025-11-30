@@ -409,6 +409,13 @@
                     data-tooltip="Refresh page (Ctrl+Shift+R)">
                 <i class="fas fa-sync-alt"></i>
             </button>
+            <!-- Clear LocalStorage Button -->
+            <button id="clear-localstorage-btn"
+                    class="theme-toggle"
+                    data-tooltip="Clear localStorage cache"
+                    onclick="if(confirm('Clear all localStorage? This will reset theme preferences and cached data.')) { localStorage.clear(); location.reload(); }">
+                <i class="fas fa-eraser"></i>
+            </button>
             <!-- Server Status with live health indicator -->
             <a href="/server-status/"
                id="server-status-btn"

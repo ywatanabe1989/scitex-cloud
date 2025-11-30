@@ -44,7 +44,7 @@
 }
 
 .preview-panel {
-  width: 400px;
+  /* width: 400px; -- REMOVED: conflicts with flex sizing in split-view.css */
   background-color: white;
   border-left: 1px solid var(--workspace-border-default);
   display: flex;

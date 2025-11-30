@@ -15,16 +15,58 @@
   user-select: none;
 }
 
+/* Prevent flash during tree updates by using content-visibility */
+.wft-tree {
+  contain: layout style;
+}
+
 /* Tree Item Base */
 .wft-item {
   display: flex;
   align-items: center;
-  padding: 4px 8px;
+  padding: 4px 8px 4px 14px;  /* Extra left padding for git gutter */
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.1s ease;
   gap: 4px;
   min-height: 26px;
+  position: relative;
+}
+
+/* Git Gutter - Left side indicator with symbols */
+.wft-git-gutter {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+/* Added - Green (+) */
+.wft-git-gutter.git-added {
+  color: var(--color-success-fg, #3fb950);
+}
+
+/* Modified - Yellow/Orange (~) */
+.wft-git-gutter.git-modified {
+  color: var(--color-attention-fg, #d29922);
+}
+
+/* Deleted - Red (-) */
+.wft-git-gutter.git-deleted {
+  color: var(--color-danger-fg, #f85149);
+}
+
+/* Untracked - Gray (?) */
+.wft-git-gutter.git-untracked {
+  color: var(--color-fg-muted, #768390);
 }
 
 .wft-item:hover {
@@ -45,12 +87,28 @@
   cursor: pointer;
 }
 
-.wft-file.selected {
+.wft-file.selected,
+.wft-folder.selected {
   background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.15));
 }
 
-.wft-file.selected:hover {
+.wft-file.selected:hover,
+.wft-folder.selected:hover {
   background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.2));
+}
+
+/* Currently active/editing file - stronger highlight */
+.wft-file.active,
+.wft-file.editing {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.2));
+  font-weight: 500;
+}
+
+/* Focus highlight for folders */
+.wft-folder.focused {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.1));
+  outline: 1px solid var(--color-accent-fg, rgba(47, 129, 247, 0.5));
+  outline-offset: -1px;
 }
 
 .wft-file.disabled {
@@ -147,16 +205,9 @@
   flex-shrink: 0;
 }
 
-/* Target file indicator badge */
+/* Target file indicator badge - hidden for cleaner UI */
 .wft-target-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 6px;
-  font-size: 10px;
-  color: var(--color-success-fg, #3fb950);
-  flex-shrink: 0;
-  animation: pulse 2s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes pulse {
@@ -164,18 +215,18 @@
   50% { opacity: 0.5; }
 }
 
+/* Target file - subtle highlight without border */
 .wft-file.target {
-  border-left: 2px solid var(--color-success-fg, #3fb950);
-  padding-left: 6px;
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.15));
 }
 
 /* Dark mode adjustments */
 [data-theme="dark"] .wft-target-badge {
-  color: #58a6ff;
+  display: none;
 }
 
 [data-theme="dark"] .wft-file.target {
-  border-left-color: #58a6ff;
+  background-color: rgba(47, 129, 247, 0.15);
 }
 
 /* Children container with indent guides */
@@ -255,6 +306,17 @@
   display: flex;
 }
 
+/* File action buttons */
+.wft-file-actions {
+  display: none;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.wft-file:hover .wft-file-actions {
+  display: flex;
+}
+
 .wft-action-btn {
   display: flex;
   align-items: center;
@@ -275,15 +337,104 @@
   color: var(--color-fg-default, #e6edf3);
 }
 
-.wft-action-btn i:first-child {
-  font-size: 12px;
+/* Delete button - larger size and danger color */
+.wft-action-btn.wft-action-delete {
+  width: 24px;
+  height: 24px;
+  color: var(--color-danger-fg, #f85149);
 }
 
-.wft-action-btn i:last-child {
+.wft-action-btn.wft-action-delete i,
+.wft-action-btn.wft-action-delete i:first-child {
+  font-size: 14px !important;
+}
+
+/* Delete button - stronger red on hover */
+.wft-action-btn.wft-action-delete:hover {
+  background-color: rgba(248, 81, 73, 0.2);
+  color: var(--color-danger-emphasis, #da3633);
+}
+
+/* Folder action buttons - larger size */
+.wft-folder-actions .wft-action-btn {
+  width: 22px;
+  height: 22px;
+}
+
+.wft-folder-actions .wft-action-btn i:first-child {
+  font-size: 12px !important;
+}
+
+.wft-folder-actions .wft-action-btn i:last-child {
   font-size: 7px;
   position: absolute;
   bottom: 2px;
   right: 2px;
+}
+
+/* File action buttons - consistent size */
+.wft-file-actions .wft-action-btn {
+  width: 20px;
+  height: 20px;
+}
+
+.wft-file-actions .wft-action-btn i {
+  font-size: 11px !important;
+}
+
+/* CRUD operation colors for folder actions */
+/* New file - Blue (document creation) */
+.wft-action-btn[data-action="new-file"],
+.wft-action-btn[title="New file"] {
+  color: var(--color-accent-fg, #58a6ff);
+}
+
+.wft-action-btn[data-action="new-file"]:hover,
+.wft-action-btn[title="New file"]:hover {
+  background-color: rgba(88, 166, 255, 0.2);
+  color: var(--color-accent-emphasis, #1f6feb);
+}
+
+/* New folder - Green (folder creation) */
+.wft-action-btn[data-action="new-folder"],
+.wft-action-btn[title="New folder"] {
+  color: var(--color-success-fg, #3fb950);
+}
+
+.wft-action-btn[data-action="new-folder"]:hover,
+.wft-action-btn[title="New folder"]:hover {
+  background-color: rgba(63, 185, 80, 0.2);
+  color: var(--color-success-emphasis, #2ea043);
+}
+
+/* Copy/Duplicate - Cyan */
+.wft-action-btn.wft-action-copy,
+.wft-action-btn[title*="Copy"],
+.wft-action-btn[title*="Duplicate"] {
+  color: var(--color-done-fg, #a371f7);
+}
+
+.wft-action-btn.wft-action-copy:hover,
+.wft-action-btn[title*="Copy"]:hover,
+.wft-action-btn[title*="Duplicate"]:hover {
+  background-color: rgba(163, 113, 247, 0.2);
+  color: var(--color-done-emphasis, #8957e5);
+}
+
+/* Rename/Edit - Yellow/Orange */
+.wft-action-btn.wft-action-rename,
+.wft-action-btn.wft-action-edit,
+.wft-action-btn[title*="Rename"],
+.wft-action-btn[title*="Edit"] {
+  color: var(--color-attention-fg, #d29922);
+}
+
+.wft-action-btn.wft-action-rename:hover,
+.wft-action-btn.wft-action-edit:hover,
+.wft-action-btn[title*="Rename"]:hover,
+.wft-action-btn[title*="Edit"]:hover {
+  background-color: rgba(210, 153, 34, 0.2);
+  color: var(--color-attention-emphasis, #bf8700);
 }
 
 /* Error state */
@@ -325,8 +476,16 @@
 }
 
 [data-theme="light"] .wft-file.selected,
-.light .wft-file.selected {
+[data-theme="light"] .wft-folder.selected,
+.light .wft-file.selected,
+.light .wft-folder.selected {
   background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.1));
+}
+
+[data-theme="light"] .wft-folder.focused,
+.light .wft-folder.focused {
+  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.08));
+  outline-color: var(--color-accent-fg, rgba(47, 129, 247, 0.4));
 }
 
 /* Scrollbar styling */
@@ -353,19 +512,10 @@
   outline-offset: -2px;
 }
 
-/* Highlight animation for focus target */
+/* Highlight animation for focus target - completely disabled for smoother UX */
+/* This class is added/removed by TreeNavigation.ts when focusing on a file */
 .wft-item.wft-highlight {
-  background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.3)) !important;
-  transition: background-color 0.3s ease;
-}
-
-@keyframes wft-highlight-pulse {
-  0%, 100% {
-    background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.3));
-  }
-  50% {
-    background-color: var(--color-accent-subtle, rgba(47, 129, 247, 0.5));
-  }
+  /* No visual change at all - eliminates all flashing */
 }
 
 /* Drag-and-drop styles */

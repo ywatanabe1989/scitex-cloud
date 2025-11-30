@@ -1,22 +1,23 @@
 /* =========================================
    SPLIT VIEW CONTAINER
+   (Aligned with Scholar/Code/Vis patterns - no gap/padding)
    ========================================= */
 
 .split-view {
   display: flex;
-  gap: 1.875rem;
-  padding: 1.25rem;
-  height: calc(100% - 60px);
+  gap: 0; /* No gap - resizer handles separation */
+  padding: 0; /* No padding - panels fill entire space */
+  height: 100%;
   overflow: hidden;
-  background: var(--bg-muted) !important;
+  background: var(--workspace-bg-primary, #0d0d0d);
 }
 
 .split-view .latex-panel,
 .split-view .preview-panel {
   min-width: 0;
   height: 100%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background: var(--bg-page) !important;
+  box-shadow: none; /* No box shadow - flat workspace design */
+  background: var(--workspace-bg-primary, #0d0d0d);
   flex: 1;
 }
 

@@ -30,8 +30,8 @@
 }
 
 .badge.bg-warning {
-  background-color: #ffc107 !important;
-  color: #000 !important;
+  background-color: var(--warning-color, #ffc107) !important;
+  color: var(--warning-text, var(--color-fg-default)) !important;
 }
 
 .open-access {
@@ -119,35 +119,35 @@
 }
 
 .badge-chip.badge-success {
-  background: rgba(40, 167, 69, 0.1);
-  color: #28a745;
+  background: var(--color-success-subtle, rgba(40, 167, 69, 0.1));
+  color: var(--success-color, var(--status-success, #28a745));
   border: 1px solid rgba(40, 167, 69, 0.2);
 }
 
 .badge-chip.badge-success:hover {
-  background: rgba(40, 167, 69, 0.15);
+  background: var(--color-success-subtle, rgba(40, 167, 69, 0.15));
   border-color: rgba(40, 167, 69, 0.3);
 }
 
 .badge-chip.badge-info {
-  background: rgba(23, 162, 184, 0.1);
-  color: #17a2b8;
+  background: var(--color-info-subtle, rgba(23, 162, 184, 0.1));
+  color: var(--info-color, var(--status-info, #17a2b8));
   border: 1px solid rgba(23, 162, 184, 0.2);
 }
 
 .badge-chip.badge-info:hover {
-  background: rgba(23, 162, 184, 0.15);
+  background: var(--color-info-subtle, rgba(23, 162, 184, 0.15));
   border-color: rgba(23, 162, 184, 0.3);
 }
 
 .badge-chip.badge-secondary {
-  background: rgba(108, 117, 125, 0.1);
-  color: #6c757d;
+  background: var(--color-neutral-subtle, rgba(108, 117, 125, 0.1));
+  color: var(--color-fg-muted, #6c757d);
   border: 1px solid rgba(108, 117, 125, 0.2);
 }
 
 .badge-chip.badge-secondary:hover {
-  background: rgba(108, 117, 125, 0.15);
+  background: var(--color-neutral-subtle, rgba(108, 117, 125, 0.15));
   border-color: rgba(108, 117, 125, 0.3);
 }
 

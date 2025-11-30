@@ -285,7 +285,7 @@
     width: 100%;
     padding: 8px;
     background: var(--sigma-bg-primary);
-    border: 1px solid var(--workspace-border-muted);
+    border: 1px solid var(--workspace-border-default);
     border-radius: 4px;
     color: var(--text-primary);
     font-size: 13px;
@@ -302,7 +302,7 @@
     height: 36px;
     padding: 4px;
     background: var(--sigma-bg-primary);
-    border: 1px solid var(--workspace-border-muted);
+    border: 1px solid var(--workspace-border-default);
     border-radius: 4px;
     cursor: pointer;
 }

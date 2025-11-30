@@ -9,6 +9,7 @@ import { initializeCollaboratorsPanel } from "../../collaboration-panel.js";
 
 export class PanelSwitcher {
   private loadedCSS: Set<string> = new Set();
+  private validPanels = ['pdf', 'citations', 'figures', 'tables', 'history', 'collaboration'];
 
   constructor() {
     // Track loaded CSS to avoid duplicates
@@ -16,6 +17,67 @@ export class PanelSwitcher {
       (window as any).loadedPanelCSS = this.loadedCSS;
     } else {
       this.loadedCSS = (window as any).loadedPanelCSS;
+    }
+
+    // Setup hash change listener
+    this.setupHashChangeListener();
+
+    // Handle initial hash on page load
+    this.handleInitialHash();
+  }
+
+  /**
+   * Setup hash change event listener for URL-based panel navigation
+   */
+  private setupHashChangeListener(): void {
+    window.addEventListener('hashchange', () => {
+      const panel = this.getPanelFromHash();
+      if (panel) {
+        console.log('[PanelSwitcher] Hash changed, switching to:', panel);
+        this.switchPanel(panel as any);
+      }
+    });
+  }
+
+  /**
+   * Handle initial hash on page load
+   */
+  private handleInitialHash(): void {
+    // Defer to allow DOM to be ready
+    setTimeout(() => {
+      const panel = this.getPanelFromHash();
+      if (panel) {
+        console.log('[PanelSwitcher] Initial hash detected, switching to:', panel);
+        this.switchPanel(panel as any);
+      }
+    }, 100);
+  }
+
+  /**
+   * Get panel name from URL hash
+   */
+  private getPanelFromHash(): string | null {
+    const hash = window.location.hash.slice(1); // Remove #
+    if (hash && this.validPanels.includes(hash)) {
+      return hash;
+    }
+    return null;
+  }
+
+  /**
+   * Update URL hash to reflect current panel
+   */
+  private updateUrlHash(panel: string): void {
+    // Only update if it's a valid panel and different from current
+    if (this.validPanels.includes(panel)) {
+      const currentHash = window.location.hash.slice(1);
+      if (currentHash !== panel) {
+        // Use replaceState to avoid adding to browser history for every switch
+        const url = new URL(window.location.href);
+        url.hash = panel;
+        history.replaceState(null, '', url.toString());
+        console.log('[PanelSwitcher] URL hash updated to:', panel);
+      }
     }
   }
 
@@ -96,6 +158,9 @@ export class PanelSwitcher {
   switchPanel(
     view: "pdf" | "citations" | "figures" | "tables" | "history" | "collaboration",
   ): void {
+    // Update URL hash to reflect current panel
+    this.updateUrlHash(view);
+
     const pdfView = document.getElementById("pdf-view");
     const citationsView = document.getElementById("citations-view");
     const figuresView = document.getElementById("figures-view");
@@ -148,16 +213,19 @@ export class PanelSwitcher {
       return;
     }
 
-    // Hide all views first
-    pdfView.style.display = "none";
-    citationsView.style.display = "none";
-    figuresView.style.display = "none";
-    tablesView.style.display = "none";
+    // Hide all views first - remove display style to let CSS control layout
+    pdfView.removeAttribute("style");
+    pdfView.setAttribute("hidden", "");
+    citationsView.removeAttribute("style");
+    citationsView.setAttribute("hidden", "");
+    figuresView.removeAttribute("style");
+    figuresView.setAttribute("hidden", "");
+    tablesView.removeAttribute("style");
     tablesView.setAttribute("hidden", "");
-    historyView.style.display = "none";
+    historyView.removeAttribute("style");
     historyView.setAttribute("hidden", "");
     if (collaborationView) {
-      collaborationView.style.display = "none";
+      collaborationView.removeAttribute("style");
       collaborationView.setAttribute("hidden", "");
     }
 
@@ -219,10 +287,10 @@ export class PanelSwitcher {
       }
     }
 
-    // Show selected view and update states
+    // Show selected view and update states - use hidden attribute, let CSS handle display
     if (view === "citations") {
       this.loadPanelCSS("citations").then(() => {
-        citationsView.style.display = "flex";
+        citationsView.removeAttribute("hidden");
         if (previewPanel) {
           previewPanel.classList.add("showing-citations");
         }
@@ -241,7 +309,7 @@ export class PanelSwitcher {
       });
     } else if (view === "figures") {
       this.loadPanelCSS("figures").then(() => {
-        figuresView.style.display = "flex";
+        figuresView.removeAttribute("hidden");
         if (previewPanel) {
           previewPanel.classList.add("showing-figures");
         }
@@ -258,7 +326,6 @@ export class PanelSwitcher {
     } else if (view === "tables") {
       this.loadPanelCSS("tables").then(() => {
         tablesView.removeAttribute("hidden");
-        tablesView.style.display = "flex";
         if (previewPanel) {
           previewPanel.classList.add("showing-tables");
         }
@@ -275,7 +342,6 @@ export class PanelSwitcher {
     } else if (view === "history") {
       this.loadPanelCSS("history").then(() => {
         historyView.removeAttribute("hidden");
-        historyView.style.display = "flex";
         if (previewPanel) {
           previewPanel.classList.add("showing-history");
         }
@@ -305,7 +371,6 @@ export class PanelSwitcher {
       this.loadPanelCSS("collaboration").then(() => {
         if (collaborationView) {
           collaborationView.removeAttribute("hidden");
-          collaborationView.style.display = "flex";
           if (previewPanel) {
             previewPanel.classList.add("showing-collaboration");
           }
@@ -320,8 +385,8 @@ export class PanelSwitcher {
         }
       });
     } else {
-      // Default to PDF view
-      pdfView.style.display = "flex";
+      // Default to PDF view - remove hidden attribute, let CSS handle display: flex
+      pdfView.removeAttribute("hidden");
       if (previewPanel) {
         previewPanel.classList.add("showing-pdf");
       }

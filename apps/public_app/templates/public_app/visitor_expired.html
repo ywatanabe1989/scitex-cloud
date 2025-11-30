@@ -20,12 +20,6 @@ Your visitor session has expired. Sign up to save your work or start a new sessi
     font-size: 5rem;
     color: var(--status-warning);
     margin-bottom: 2rem;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
 }
 
 .expired-title {
@@ -87,95 +81,140 @@ Your visitor session has expired. Sign up to save your work or start a new sessi
 
 .expired-actions {
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-width: 500px;
+    flex-direction: row;
+    gap: 1.25rem;
+    max-width: 900px;
     margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+    .expired-actions {
+        flex-direction: column;
+    }
+}
+
 .expired-action-card {
+    position: relative;
     background: var(--bg-surface);
-    border: 2px solid var(--border-default);
-    border-radius: 12px;
-    padding: 2rem;
-    transition: all 0.3s ease;
+    border: 1px solid var(--border-default);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: 1;
+}
+
+.expired-action-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.expired-action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+    border-color: var(--text-muted);
     text-decoration: none;
     color: inherit;
 }
 
-.expired-action-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-    border-color: var(--workspace-icon-primary);
+.expired-action-card:hover::before {
+    opacity: 1;
 }
 
-.expired-action-card.primary {
-    background: linear-gradient(135deg, var(--workspace-icon-primary) 0%, rgba(5, 150, 105, 0.9) 100%);
-    border-color: var(--workspace-icon-primary);
+.expired-action-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+}
+
+.expired-action-card:hover .expired-action-icon {
+    transform: scale(1.05);
+}
+
+.expired-action-card.primary .expired-action-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.expired-action-card.primary:hover {
-    box-shadow: 0 12px 24px rgba(5, 150, 105, 0.4);
+.expired-action-card.secondary .expired-action-icon {
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+}
+
+.expired-action-content {
+    flex: 1;
+    text-align: left;
 }
 
 .expired-action-card h3 {
-    font-size: 1.4rem;
+    font-size: 1.15rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.35rem 0;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
+}
+
+.expired-action-card.primary h3 {
+    color: #10b981;
 }
 
 .expired-action-card p {
     margin: 0;
-    opacity: 0.9;
-}
-
-.expired-action-card.primary p {
-    opacity: 1;
-}
-
-.session-details {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-top: 3rem;
-}
-
-.session-details h4 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-}
-
-.session-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.session-detail-item {
-    text-align: left;
-}
-
-.session-detail-label {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.expired-action-arrow {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    transition: transform 0.25s ease, color 0.25s ease;
+    opacity: 0.5;
+}
+
+.expired-action-card:hover .expired-action-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+    color: var(--text-primary);
+}
+
+.expired-action-card.primary:hover .expired-action-arrow {
+    color: #10b981;
+}
+
+.expired-action-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
 }
 
-.session-detail-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
 </style>
 {% endblock %}
 
@@ -219,52 +258,35 @@ Your visitor session has expired. Sign up to save your work or start a new sessi
     <div class="expired-actions">
         <!-- Primary Action: Sign Up -->
         <a href="{% url 'auth_app:signup' %}" class="expired-action-card primary">
-            <h3>
+            <div class="expired-action-icon">
                 <i class="fas fa-user-plus"></i>
-                Save Your Work - Sign Up Free
-            </h3>
-            <p>
-                Create a free account to get unlimited sessions and permanent workspace storage.
-                Never lose your work again!
-            </p>
+            </div>
+            <div class="expired-action-content">
+                <h3>
+                    Save Your Work
+                    <span class="expired-action-badge">Free</span>
+                </h3>
+                <p>
+                    Create an account for unlimited sessions and permanent storage.
+                </p>
+            </div>
+            <i class="fas fa-arrow-right expired-action-arrow"></i>
         </a>
 
         <!-- Secondary Action: New Session -->
-        <a href="{% url 'public_app:visitor_restart' %}" class="expired-action-card">
-            <h3>
+        <a href="{% url 'public_app:visitor_restart' %}" class="expired-action-card secondary">
+            <div class="expired-action-icon">
                 <i class="fas fa-redo"></i>
-                Start a New Visitor Session
-            </h3>
-            <p>
-                Get another 60-minute session to continue exploring SciTeX Cloud.
-                Available if slots are free.
-            </p>
+            </div>
+            <div class="expired-action-content">
+                <h3>Start New Session</h3>
+                <p>
+                    Get another 60-minute session to explore SciTeX Cloud.
+                </p>
+            </div>
+            <i class="fas fa-arrow-right expired-action-arrow"></i>
         </a>
     </div>
 
-    <!-- Session Details -->
-    {% if visitor_number or expired_at %}
-    <div class="session-details">
-        <h4><i class="fas fa-chart-bar"></i> Session Details</h4>
-        <div class="session-details-grid">
-            {% if visitor_number %}
-            <div class="session-detail-item">
-                <div class="session-detail-label">Visitor ID</div>
-                <div class="session-detail-value">visitor-{{ visitor_number|stringformat:"03d" }}</div>
-            </div>
-            {% endif %}
-            {% if expired_at %}
-            <div class="session-detail-item">
-                <div class="session-detail-label">Expired At</div>
-                <div class="session-detail-value">{{ expired_at|date:"Y-m-d H:i" }}</div>
-            </div>
-            {% endif %}
-            <div class="session-detail-item">
-                <div class="session-detail-label">Session Duration</div>
-                <div class="session-detail-value">60 minutes</div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

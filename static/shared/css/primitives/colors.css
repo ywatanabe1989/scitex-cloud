@@ -64,6 +64,7 @@
   ); /* Medium for secondary text (was 03, now richer) */
   --text-muted: var(--_scitex-04); /* Light for muted text */
   --text-inverse: var(--_white);
+  --text-color: var(--text-primary); /* Alias for legacy compatibility */
 
   /* Background - Professional warm tones */
   --bg-page: var(--_warm-white); /* Soft warm off-white (was pure white) */
@@ -168,6 +169,7 @@
   --text-secondary: var(--_scitex-05);
   --text-muted: var(--_scitex-04);
   --text-inverse: var(--_scitex-01);
+  --text-color: var(--text-primary); /* Alias for legacy compatibility */
 
   /* Background - flip to dark */
   --bg-page: #0f1419;

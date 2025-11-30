@@ -1,13 +1,13 @@
-/* ASTA Tooltip Component - Workspace Colors */
+/* ASTA Tooltip Component - Responsive Colors */
 
 .asta-tooltip-container {
-    background: #151515;
-    border-left: 4px solid #6ba89a;
+    background: var(--color-canvas-subtle, var(--workspace-bg-secondary));
+    border-left: 4px solid var(--scitex-color-03, var(--workspace-icon-primary));
     border-radius: 0;
     padding: 1rem 1.25rem;
-    margin: 1.25rem 1.25rem 1.5rem 1.25rem;
-    border: 1px solid #3a3a3a;
-    border-left: 4px solid #6ba89a;
+    margin: 1.25rem;  /* Uniform margins on all sides */
+    border: 1px solid var(--color-border-default);
+    border-left: 4px solid var(--scitex-color-03, var(--workspace-icon-primary));
 }
 
 .asta-tooltip-content {
@@ -17,7 +17,7 @@
 }
 
 .asta-tooltip-icon {
-    color: #6ba89a;
+    color: var(--scitex-color-03, var(--workspace-icon-primary));
     font-size: 1.5rem;
 }
 
@@ -26,7 +26,7 @@
 }
 
 .asta-tooltip-title {
-    color: #f0f3f6;
+    color: var(--color-fg-default, var(--text-primary));
     font-weight: 600;
     margin-bottom: 0.5rem;
     font-size: 0.95rem;
@@ -36,12 +36,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    color: #768390;
+    color: var(--color-fg-muted, var(--text-muted));
     font-size: 0.9rem;
 }
 
 .asta-tooltip-options a {
-    color: #6ba89a;
+    color: var(--scitex-color-03, var(--workspace-icon-primary));
     font-weight: 600;
     text-decoration: underline;
 }
@@ -54,19 +54,19 @@
 
 .asta-generate-prompt-btn {
     white-space: nowrap;
-    border-color: #6ba89a;
-    color: #6ba89a;
+    border-color: var(--scitex-color-03, var(--workspace-icon-primary));
+    color: var(--scitex-color-03, var(--workspace-icon-primary));
 }
 
 .asta-tooltip-footer {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #3a3a3a;
+    border-top: 1px solid var(--color-border-default);
     font-size: 0.85rem;
-    color: #768390;
+    color: var(--color-fg-muted, var(--text-muted));
 }
 
 .asta-tooltip-footer a {
-    color: #6ba89a;
+    color: var(--scitex-color-03, var(--workspace-icon-primary));
     text-decoration: underline;
 }

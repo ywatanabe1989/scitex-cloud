@@ -50,6 +50,13 @@ export async function loadTexFile(
       editor.setContent(data.content);
       console.log("[FileLoader] File content set in editor");
       showToast(`Loaded: ${filePath}`, "success");
+
+      // Dispatch event to trigger PDF preview compilation
+      window.dispatchEvent(
+        new CustomEvent("writer:fileContentLoaded", {
+          detail: { path: filePath, content: data.content },
+        }),
+      );
     } else {
       console.error("[FileLoader] Invalid response format:", data);
       showToast("Failed to load file: invalid response", "error");

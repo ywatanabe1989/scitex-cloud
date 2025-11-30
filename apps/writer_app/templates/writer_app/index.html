@@ -51,6 +51,9 @@
     <!-- Collaboration panel CSS loaded dynamically on first open -->
     <!-- History panel CSS loaded dynamically on first open -->
 
+    <!-- Monaco Editor CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css" />
+
     {% include "writer_app/index_partials/codemirror_css.html" %}
 {% endblock %}
 {% block writer_content %}
@@ -136,42 +139,27 @@
             <!-- Left sidebar: File tree -->
             <aside class="writer-sidebar" id="writer-sidebar">
                 <div class="sidebar-header">
-                    <div class="sidebar-header-content">
-                        <h5><i class="fas fa-folder-open"></i> Files</h5>
-                        <!-- Doc Type / Section Selectors -->
-                        <div class="doctype-section-selectors">
-                            <!-- Doc Type Selector -->
-                            <div class="selector-group">
-                                <label for="doctype-selector">
-                                    <i class="fas fa-file-alt"></i> Document
-                                </label>
-                                <select id="doctype-selector" class="form-select form-select-sm">
-                                    <option value="shared">Shared</option>
-                                    <option value="manuscript" selected>Manuscript</option>
-                                    <option value="supplementary">Supplementary</option>
-                                    <option value="revision">Revision</option>
-                                </select>
+                    <div class="sidebar-header-content sidebar-header-compact">
+                        <!-- Left: Icon -->
+                        <i class="fas fa-folder-open sidebar-icon"></i>
+                        <!-- Center: Doctype -->
+                        <select id="doctype-selector" class="form-select form-select-sm sidebar-select">
+                            <option value="shared">Shared</option>
+                            <option value="manuscript" selected>Manuscript</option>
+                            <option value="supplementary">Supplementary</option>
+                            <option value="revision">Revision</option>
+                        </select>
+                        <!-- Right: Section (wrapped for dropdown positioning) -->
+                        <div class="section-selector-wrapper">
+                            <button id="section-selector-toggle" class="section-selector-btn" type="button">
+                                <span id="section-selector-text">Loading...</span>
+                                <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                                    <path d="M4 6l4 4 4-4H4z"/>
+                                </svg>
+                            </button>
+                            <div id="section-selector-dropdown" class="section-selector-dropdown">
+                                <!-- Sections will be populated here -->
                             </div>
-                            <!-- Section Selector -->
-                            <div class="selector-group">
-                                <label for="section-selector-toggle">
-                                    <i class="fas fa-file-code"></i> Section
-                                </label>
-                                <div class="custom-section-selector">
-                                    <button id="section-selector-toggle" class="section-selector-btn" type="button">
-                                        <span id="section-selector-text">Loading...</span>
-                                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-                                            <path d="M4 6l4 4 4-4H4z"/>
-                                        </svg>
-                                    </button>
-                                    <div id="section-selector-dropdown" class="section-selector-dropdown">
-                                        <!-- Sections will be populated here -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="sidebar-header-hint" title="Click to select editable files">
-                            <i class="fas fa-info-circle"></i> .tex, .bib, .pdf, .png, .jpg, .csv
                         </div>
                     </div>
                 </div>
@@ -282,22 +270,321 @@
         <!-- TypeScript-compiled Writer Application Bundle -->
         <script type="module"
                 src="{% static 'writer_app/js/index.js' %}?v={{ build_id|default:'dev' }}"></script>
-        <!-- Real-Time Collaboration Script (TypeScript-compiled ES6 module) -->
+        <!-- Real-Time Collaboration Script - temporarily disabled (file not found)
         <script type="module"
                 src="{% static 'shared/js/collaboration/writer/index.js' %}?v={{ build_id|default:'dev' }}"></script>
+        -->
         {% if project %}
+        <!-- Fallback Panel Switcher (in case TypeScript module hasn't loaded yet) -->
+        <script>
+            // Define switchRightPanel early so onclick handlers work immediately
+            // This will be overridden by the TypeScript module when it loads
+            if (typeof window.switchRightPanel !== 'function') {
+                window.switchRightPanel = function(view) {
+                    console.log('[Writer] switchRightPanel called (inline fallback):', view);
+
+                    const views = ['pdf', 'citations', 'figures', 'tables', 'history', 'collaboration'];
+                    const viewElements = {
+                        pdf: document.getElementById('pdf-view'),
+                        citations: document.getElementById('citations-view'),
+                        figures: document.getElementById('figures-view'),
+                        tables: document.getElementById('tables-view'),
+                        history: document.getElementById('history-view'),
+                        collaboration: document.getElementById('collaboration-view')
+                    };
+
+                    // Hide all views
+                    views.forEach(v => {
+                        const el = viewElements[v];
+                        if (el) el.hidden = true;
+                    });
+
+                    // Show selected view
+                    const targetView = viewElements[view];
+                    if (targetView) {
+                        targetView.hidden = false;
+                        console.log('[Writer] Switched to', view, 'panel');
+                    }
+
+                    // Update button states
+                    document.querySelectorAll('.view-switch-btn').forEach(btn => {
+                        const btnView = btn.getAttribute('onclick')?.match(/switchRightPanel\('(\w+)'\)/)?.[1];
+                        if (btnView === view) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+
+                    // Update shared header
+                    const sharedHeader = document.getElementById('right-panel-header');
+                    const targetHeader = document.getElementById(view + '-panel-header');
+                    if (sharedHeader && targetHeader) {
+                        sharedHeader.innerHTML = targetHeader.innerHTML;
+                    }
+                };
+            }
+        </script>
+
         <!-- Workspace Files Tree for Writer -->
         <script type="module">
-            import { WorkspaceFilesTree } from '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js';
+            import { WorkspaceFilesTree } from '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js?v={{ request.timestamp|default:"20251130" }}';
 
             // Store tree instance globally for editor to access
             let writerFileTree = null;
+
+            // ========================================
+            // Doctype and Section Configuration (global)
+            // ========================================
+
+            // Mapping: doctype -> directory path
+            const doctypeToDirectory = {
+                'shared': 'scitex/writer/00_shared',
+                'manuscript': 'scitex/writer/01_manuscript',
+                'supplementary': 'scitex/writer/02_supplementary',
+                'revision': 'scitex/writer/03_revision'
+            };
+
+            // Mapping: doctype -> available sections (fallback when tree not loaded)
+            // These will be overridden by dynamic sections from the file tree
+            let doctypeSections = {
+                'shared': [],
+                'manuscript': [],
+                'supplementary': [],
+                'revision': []
+            };
+
+            // Files to skip when building section list
+            const skipFiles = ['wordcount.tex', 'shared.tex', 'base.tex', 'main.tex'];
+
+            // Directories to skip when looking for sections (non-content directories)
+            const skipDirs = ['figures', 'tables', 'latex_styles', 'archive', 'output', 'wordcounts', 'logs'];
+
+            // Non-editable files (view-only, no preview compilation)
+            const nonEditableFiles = [
+                // Full manuscripts
+                'manuscript.tex', 'supplementary.tex', 'revision.tex',
+                // Diff manuscripts
+                'manuscript_diff.tex', 'supplementary_diff.tex', 'revision_diff.tex',
+                // System files
+                'base.tex', 'wordcount.tex', 'main.tex', 'shared.tex'
+            ];
+
+            // Check if a file is non-editable
+            const isNonEditableFile = (path) => {
+                const fileName = path.split('/').pop();
+                return nonEditableFiles.includes(fileName);
+            };
+
+            // Extract sections from file tree data for a specific doctype
+            const extractSectionsFromTree = (treeData, doctype) => {
+                const dirPath = doctypeToDirectory[doctype];
+                if (!dirPath || !treeData) return [];
+
+                const sections = [];
+
+                // Find the doctype directory in tree
+                const findDir = (items, targetPath) => {
+                    for (const item of items) {
+                        if (item.path === targetPath) return item;
+                        if (item.children) {
+                            const found = findDir(item.children, targetPath);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
+                };
+
+                const doctypeDir = findDir(treeData, dirPath);
+                if (!doctypeDir || !doctypeDir.children) return sections;
+
+                if (doctype === 'shared') {
+                    // For shared: get .tex files directly in 00_shared (not in subdirs)
+                    for (const item of doctypeDir.children) {
+                        if (item.type === 'file' && item.name.endsWith('.tex') && !skipFiles.includes(item.name.toLowerCase())) {
+                            const label = item.name.replace('.tex', '')
+                                .split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                            sections.push({
+                                id: item.name.replace('.tex', ''),
+                                label: label,
+                                file: item.name,
+                                path: item.path
+                            });
+                        }
+                    }
+                } else {
+                    // For manuscript/supplementary/revision: get .tex files directly in contents/ (not in subdirs)
+                    const contentsDir = doctypeDir.children.find(c => c.name === 'contents' && c.type === 'directory');
+                    if (contentsDir && contentsDir.children) {
+                        for (const item of contentsDir.children) {
+                            // Only include direct .tex files, not subdirectories
+                            if (item.type === 'file' && item.name.endsWith('.tex') && !skipFiles.includes(item.name.toLowerCase())) {
+                                const label = item.name.replace('.tex', '')
+                                    .split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                sections.push({
+                                    id: item.name.replace('.tex', ''),
+                                    label: label,
+                                    file: `contents/${item.name}`,
+                                    path: item.path
+                                });
+                            }
+                        }
+                    }
+
+                    // For revision doctype, also include editor/ and reviewer*/ subdirectories
+                    if (doctype === 'revision' && contentsDir && contentsDir.children) {
+                        for (const subdir of contentsDir.children) {
+                            if (subdir.type === 'directory' && (subdir.name === 'editor' || subdir.name.match(/^reviewer\d*$/))) {
+                                if (subdir.children) {
+                                    for (const item of subdir.children) {
+                                        if (item.type === 'file' && item.name.endsWith('.tex') && !skipFiles.includes(item.name.toLowerCase())) {
+                                            const label = `${subdir.name}/${item.name.replace('.tex', '')}`
+                                                .split(/[_\/]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                            sections.push({
+                                                id: `${subdir.name}_${item.name.replace('.tex', '')}`,
+                                                label: label,
+                                                file: `contents/${subdir.name}/${item.name}`,
+                                                path: item.path
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                console.log(`[Writer] Extracted ${sections.length} sections for ${doctype}:`, sections.map(s => s.label));
+                return sections;
+            };
+
+            // Update doctypeSections from tree data
+            const updateDoctypeSectionsFromTree = (treeData) => {
+                for (const doctype of Object.keys(doctypeToDirectory)) {
+                    const sections = extractSectionsFromTree(treeData, doctype);
+                    if (sections.length > 0) {
+                        doctypeSections[doctype] = sections;
+                    }
+                }
+            };
+
+            let currentDoctype = 'manuscript';
+            let currentSectionIndex = 0;
 
             document.addEventListener('DOMContentLoaded', async () => {
                 const fileTreeContainer = document.getElementById('writer-file-tree');
                 const currentFileNameEl = document.getElementById('current-file-name');
                 const currentFileDisplayEl = document.getElementById('current-file-display');
                 const previewPanel = document.getElementById('text-preview');
+                const doctypeSelector = document.getElementById('doctype-selector');
+                const sectionSelectorBtn = document.getElementById('section-selector-toggle');
+                const sectionSelectorText = document.getElementById('section-selector-text');
+                const sectionDropdown = document.getElementById('section-selector-dropdown');
+
+                // Initialize from dropdown value
+                currentDoctype = doctypeSelector?.value || 'manuscript';
+
+                // ========================================
+                // Monaco Editor Initialization (using SharedMonacoEditor)
+                // ========================================
+                const initializeWriterMonaco = async () => {
+                    // Import SharedMonacoEditor dynamically
+                    const { SharedMonacoEditor } = await import('/static/shared/ts/components/monaco-editor/SharedMonacoEditor.js');
+
+                    // Create shared Monaco editor instance
+                    const sharedEditor = new SharedMonacoEditor({
+                        containerId: 'writer-monaco-editor',
+                        language: 'latex',
+                        value: '% Select a file from the tree to start editing...',
+                        minimap: false,
+                        fontSize: 14,
+                        tabSize: 2,
+                        storageKeyPrefix: 'writer',
+                    });
+
+                    // Initialize and get the editor
+                    const editor = await sharedEditor.initialize();
+
+                    if (!editor) {
+                        console.warn('[Writer Monaco] Failed to initialize editor');
+                        return null;
+                    }
+
+                    // Register LaTeX language if not already registered
+                    const monaco = sharedEditor.getMonaco();
+                    if (monaco && !monaco.languages.getLanguages().some(lang => lang.id === 'latex')) {
+                        monaco.languages.register({ id: 'latex' });
+
+                        // Set tokenizer for syntax highlighting
+                        monaco.languages.setMonarchTokensProvider('latex', {
+                            tokenizer: {
+                                root: [
+                                    // Comments
+                                    [/%.*$/, 'comment.latex'],
+                                    // Display math mode $$...$$
+                                    [/\$\$/, { token: 'string.math.latex', next: '@displayMath' }],
+                                    // Inline math mode $...$
+                                    [/\$/, { token: 'string.math.latex', next: '@inlineMath' }],
+                                    // Begin/end environments
+                                    [/\\(begin|end)\{/, { token: 'keyword.control.latex', next: '@environment' }],
+                                    // Commands with arguments
+                                    [/\\[a-zA-Z@]+\*?/, 'keyword.latex'],
+                                    // Braces
+                                    [/[{}]/, 'delimiter.bracket.latex'],
+                                    // Brackets
+                                    [/[\[\]]/, 'delimiter.square.latex'],
+                                ],
+                                displayMath: [
+                                    [/\$\$/, { token: 'string.math.latex', next: '@pop' }],
+                                    [/[^$]+/, 'string.math.latex'],
+                                ],
+                                inlineMath: [
+                                    [/\$/, { token: 'string.math.latex', next: '@pop' }],
+                                    [/[^$]+/, 'string.math.latex'],
+                                ],
+                                environment: [
+                                    [/\}/, { token: 'keyword.control.latex', next: '@pop' }],
+                                    [/[^}]+/, 'variable.name.latex'],
+                                ],
+                            },
+                        });
+                    }
+
+                    // Store editor globally
+                    window.writerMonacoEditor = editor;
+                    window.monacoEditor = editor; // Compatibility alias
+                    window.sharedMonacoEditor = sharedEditor; // Store shared instance
+
+                    console.log('[Writer Monaco] Editor created via SharedMonacoEditor');
+
+                    // Add Ctrl+S save handler
+                    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+                        console.log('[Writer Monaco] Ctrl+S pressed - triggering save');
+                        window.dispatchEvent(new CustomEvent('writer:requestSave'));
+                    });
+
+                    // Font size control
+                    const fontSizeSelect = document.getElementById('font-size-select');
+                    if (fontSizeSelect) {
+                        fontSizeSelect.addEventListener('change', (e) => {
+                            const size = parseInt(e.target.value);
+                            editor.updateOptions({ fontSize: size });
+                        });
+                    }
+
+                    // Theme toggle - use sharedEditor method
+                    const themeToggle = document.getElementById('monaco-theme-toggle');
+                    if (themeToggle) {
+                        themeToggle.addEventListener('click', () => {
+                            sharedEditor.toggleTheme();
+                        });
+                    }
+
+                    return editor;
+                };
+
+                // Initialize Monaco editor
+                const writerEditor = await initializeWriterMonaco();
 
                 // Helper to update current file display
                 const updateCurrentFile = (path, icon = 'fa-file-alt') => {
@@ -319,8 +606,18 @@
                     try {
                         console.log('[Writer] Loading file:', path);
 
+                        // Check if file is non-editable
+                        const readOnly = isNonEditableFile(path);
+                        if (readOnly) {
+                            console.log('[Writer] File is non-editable (read-only):', path);
+                        }
+
                         // Use the same API endpoint as /code/ app
-                        const projectId = {{ project.id }};
+                        const projectId = WRITER_CONFIG.projectId;
+                        if (!projectId) {
+                            console.error('[Writer] No project ID available');
+                            return;
+                        }
                         const response = await fetch(`/code/api/file-content/${encodeURIComponent(path)}?project_id=${projectId}`);
 
                         if (response.ok) {
@@ -332,9 +629,44 @@
                                 if (writerFileTree) {
                                     writerFileTree.setTargetFile(path);
                                 }
-                                // Dispatch event with file content
+
+                                // Store current file path for saving
+                                window.writerCurrentFilePath = path;
+
+                                // Prioritize Monaco editor
+                                if (window.writerMonacoEditor) {
+                                    window.writerMonacoEditor.setValue(data.content);
+                                    window.writerMonacoEditor.updateOptions({ readOnly: readOnly });
+
+                                    // Detect language from file extension
+                                    const ext = path.split('.').pop()?.toLowerCase();
+                                    let language = 'latex';
+                                    if (ext === 'bib' || ext === 'bbl') language = 'bibtex';
+                                    else if (ext === 'cls' || ext === 'sty') language = 'latex';
+                                    else if (ext === 'json') language = 'json';
+                                    else if (ext === 'yaml' || ext === 'yml') language = 'yaml';
+
+                                    // Set language model
+                                    const model = window.writerMonacoEditor.getModel();
+                                    if (model) {
+                                        window.monaco.editor.setModelLanguage(model, language);
+                                    }
+
+                                    console.log('[Writer] Content loaded into Monaco editor (language:', language, ', readOnly:', readOnly, ')');
+                                } else {
+                                    // Fallback to textarea
+                                    const textarea = document.getElementById('latex-editor-textarea');
+                                    if (textarea) {
+                                        textarea.style.display = 'block';
+                                        textarea.value = data.content;
+                                        textarea.readOnly = readOnly;
+                                        console.log('[Writer] Content loaded into textarea fallback (readOnly:', readOnly, ')');
+                                    }
+                                }
+
+                                // Dispatch event with file content (for any listeners)
                                 const event = new CustomEvent('writer:fileContentLoaded', {
-                                    detail: { path, content: data.content }
+                                    detail: { path, content: data.content, readOnly }
                                 });
                                 console.log('[Writer] Dispatching writer:fileContentLoaded event');
                                 window.dispatchEvent(event);
@@ -351,22 +683,35 @@
                     }
                 };
 
-                // Helper to show PDF in preview panel
+                // Helper to show PDF in preview panel using PDF.js viewer (canvas-based)
                 const showPdfInPreview = (path) => {
-                    if (previewPanel) {
-                        const pdfUrl = `/{{ project.owner.username }}/{{ project.slug }}/files/${path}`;
-                        previewPanel.innerHTML = `
-                            <div class="pdfjs-viewer">
-                                <iframe src="${pdfUrl}"></iframe>
-                            </div>
-                        `;
+                    if (previewPanel && WRITER_CONFIG.projectOwner && WRITER_CONFIG.projectSlug) {
+                        const pdfUrl = `/${WRITER_CONFIG.projectOwner}/${WRITER_CONFIG.projectSlug}/blob/${path}?mode=raw`;
+                        console.log('[Writer] showPdfInPreview:', pdfUrl);
+
+                        // Wait for PDF.js viewer to initialize, then load PDF
+                        const loadPdfWithViewer = (retries = 50) => {
+                            const viewer = window.pdfViewerInstance;
+                            if (viewer && typeof viewer.loadPDF === 'function') {
+                                console.log('[Writer] Loading PDF via PDF.js canvas viewer');
+                                viewer.loadPDF(pdfUrl);
+                            } else if (retries > 0) {
+                                // PDF.js viewer not ready yet, retry after 100ms (total 5 seconds max)
+                                setTimeout(() => loadPdfWithViewer(retries - 1), 100);
+                            } else {
+                                // PDF.js viewer failed to initialize - show placeholder
+                                console.warn('[Writer] PDF.js viewer not ready after 5 seconds, showing placeholder');
+                                showPdfPlaceholder();
+                            }
+                        };
+                        loadPdfWithViewer();
                     }
                 };
 
                 // Helper to show image in preview panel
                 const showImageInPreview = (path) => {
-                    if (previewPanel) {
-                        const imageUrl = `/{{ project.owner.username }}/{{ project.slug }}/files/${path}`;
+                    if (previewPanel && WRITER_CONFIG.projectOwner && WRITER_CONFIG.projectSlug) {
+                        const imageUrl = `/${WRITER_CONFIG.projectOwner}/${WRITER_CONFIG.projectSlug}/blob/${path}?mode=raw`;
                         previewPanel.innerHTML = `
                             <div class="image-preview-container">
                                 <img src="${imageUrl}" alt="${path}">
@@ -375,41 +720,512 @@
                     }
                 };
 
-                if (fileTreeContainer) {
+                // ========================================
+                // PDF Preview Function (defined early for hoisting)
+                // ========================================
+                const showPdfPlaceholder = () => {
+                    if (previewPanel) {
+                        previewPanel.innerHTML = `
+                            <div class="preview-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted);">
+                                <div style="text-align: center;">
+                                    <i class="fas fa-file-pdf" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                    <p>PDF Preview</p>
+                                    <p style="font-size: 0.85rem; opacity: 0.7;">Compile document to generate PDF</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                };
+
+                const showExistingPdfPreview = async () => {
+                    if (!previewPanel) return;
+
+                    // Determine PDF path based on current doctype
+                    const dirPath = doctypeToDirectory[currentDoctype];
+                    if (!dirPath) {
+                        showPdfPlaceholder();
+                        return;
+                    }
+
+                    // PDF naming convention: manuscript.pdf, supplementary.pdf, etc.
+                    const doctypeName = currentDoctype === 'shared' ? 'shared' : currentDoctype;
+                    const pdfPath = `${dirPath}/${doctypeName}.pdf`;
+                    const pdfUrl = `/${WRITER_CONFIG.projectOwner}/${WRITER_CONFIG.projectSlug}/blob/${pdfPath}?mode=raw`;
+
+                    console.log('[Writer] Checking for existing PDF:', pdfUrl);
+
+                    try {
+                        // Check if PDF exists using HEAD request
+                        const response = await fetch(pdfUrl, {
+                            method: 'HEAD',
+                            redirect: 'follow' // Follow redirects to check actual file
+                        });
+
+                        // Check if response is ok and either has pdf content-type or ends with .pdf
+                        const contentType = response.headers.get('content-type') || '';
+                        const isPdf = response.ok && (contentType.includes('pdf') || pdfPath.endsWith('.pdf'));
+                        if (isPdf) {
+                            // PDF exists - use PDF.js viewer (canvas-based rendering)
+                            console.log('[Writer] PDF found, displaying via PDF.js:', pdfUrl);
+
+                            // Wait for pdfViewerInstance to be initialized (set by ComponentInitializer)
+                            const waitForPdfViewer = (retries = 50) => {
+                                const pdfViewerInstance = window.pdfViewerInstance;
+                                if (pdfViewerInstance && typeof pdfViewerInstance.loadPDF === 'function') {
+                                    console.log('[Writer] Loading PDF via PDF.js canvas viewer');
+                                    pdfViewerInstance.loadPDF(pdfUrl);
+                                } else if (retries > 0) {
+                                    // Retry after 100ms (total 5 seconds max wait)
+                                    setTimeout(() => waitForPdfViewer(retries - 1), 100);
+                                } else {
+                                    // PDF.js viewer failed to initialize - show placeholder instead of error
+                                    console.warn('[Writer] PDF.js viewer not ready after 5 seconds, showing placeholder');
+                                    showPdfPlaceholder();
+                                }
+                            };
+                            waitForPdfViewer();
+                        } else {
+                            // PDF doesn't exist or redirect occurred
+                            console.log('[Writer] PDF not found or redirect, showing placeholder');
+                            showPdfPlaceholder();
+                        }
+                    } catch (error) {
+                        console.log('[Writer] Error checking PDF:', error);
+                        showPdfPlaceholder();
+                    }
+                };
+
+                if (fileTreeContainer && WRITER_CONFIG.projectOwner && WRITER_CONFIG.projectSlug) {
                     writerFileTree = new WorkspaceFilesTree({
                         mode: 'writer',
                         containerId: 'writer-file-tree',
-                        username: '{{ project.owner.username }}',
-                        slug: '{{ project.slug }}',
-                        showFolderActions: false,
+                        username: WRITER_CONFIG.projectOwner,
+                        slug: WRITER_CONFIG.projectSlug,
+                        showFolderActions: true,
                         showGitStatus: true,
                         allowedExtensions: ['.tex', '.bib', '.cls', '.sty', '.pdf', '.csv', '.xlsx', '.xls', '.png', '.jpg', '.jpeg', '.svg', '.eps', '.bbl', '.bst'],
                         onFileSelect: (path, item) => {
-                            console.log('[Writer] File selected:', path);
+                            console.log('[Writer] File selected from tree:', path);
                             const ext = path.split('.').pop()?.toLowerCase();
+                            const fileName = path.split('/').pop();
+
+                            // Sync dropdowns based on selected file path
+                            syncDropdownsFromPath(path);
+
+                            // Define special files that need special handling
+                            const fullManuscriptFiles = ['manuscript.tex', 'supplementary.tex', 'revision.tex'];
+                            const diffFiles = fileName ? fileName.endsWith('_diff.tex') : false;
+                            const systemFiles = ['base.tex', 'wordcount.tex', 'shared.tex', 'main.tex'];
+                            const isReadOnly = fullManuscriptFiles.includes(fileName) || diffFiles || systemFiles.includes(fileName);
 
                             if (ext === 'tex') {
                                 updateCurrentFile(path, 'fa-file-code');
-                                loadFileIntoEditor(path);
+
+                                // Determine if this is a figures or tables section
+                                const isFiguresSection = path.includes('/figures/') || path.includes('/contents/figures');
+                                const isTablesSection = path.includes('/tables/') || path.includes('/contents/tables');
+
+                                // Handle full manuscript and diff files - show PDF instead of compiling
+                                if (fullManuscriptFiles.includes(fileName) || diffFiles) {
+                                    // Determine corresponding PDF path
+                                    const pdfFileName = fileName.replace('.tex', '.pdf');
+                                    const dirPath = path.substring(0, path.lastIndexOf('/'));
+                                    const pdfPath = `${dirPath}/${pdfFileName}`;
+                                    console.log('[Writer] Special file detected, showing PDF:', pdfPath);
+
+                                    // Load file into editor (read-only mode will be handled by editor)
+                                    loadFileIntoEditor(path);
+
+                                    // Show corresponding PDF in preview
+                                    showPdfInPreview(pdfPath);
+
+                                    // Switch to PDF panel
+                                    if (typeof switchRightPanel === 'function') {
+                                        switchRightPanel('pdf');
+                                    }
+
+                                    // Dispatch event to set editor to read-only
+                                    window.dispatchEvent(new CustomEvent('writer:setEditorReadOnly', {
+                                        detail: { readOnly: true, reason: 'full-manuscript' }
+                                    }));
+                                } else if (systemFiles.includes(fileName)) {
+                                    // System files - load but don't compile, set read-only
+                                    loadFileIntoEditor(path);
+                                    window.dispatchEvent(new CustomEvent('writer:setEditorReadOnly', {
+                                        detail: { readOnly: true, reason: 'system-file' }
+                                    }));
+                                } else {
+                                    // Regular .tex files - allow editing and preview compilation
+                                    loadFileIntoEditor(path);
+                                    window.dispatchEvent(new CustomEvent('writer:setEditorReadOnly', {
+                                        detail: { readOnly: false }
+                                    }));
+
+                                    // Auto-switch right panel based on section type
+                                    if (typeof switchRightPanel === 'function') {
+                                        if (isFiguresSection) {
+                                            switchRightPanel('figures');
+                                        } else if (isTablesSection) {
+                                            switchRightPanel('tables');
+                                        } else {
+                                            // Default to PDF panel for regular .tex files
+                                            switchRightPanel('pdf');
+                                        }
+                                    }
+                                }
                             } else if (ext === 'bib' || ext === 'bbl' || ext === 'bst') {
                                 updateCurrentFile(path, 'fa-book');
                                 loadFileIntoEditor(path);
+                                // Switch to citations panel for bibliography files
+                                if (typeof switchRightPanel === 'function') {
+                                    switchRightPanel('citations');
+                                }
                             } else if (ext === 'pdf') {
                                 updateCurrentFile(path, 'fa-file-pdf');
                                 showPdfInPreview(path);
+                                // Switch to PDF panel
+                                if (typeof switchRightPanel === 'function') {
+                                    switchRightPanel('pdf');
+                                }
                             } else if (['png', 'jpg', 'jpeg', 'svg', 'eps'].includes(ext)) {
                                 updateCurrentFile(path, 'fa-image');
                                 showImageInPreview(path);
+                                // Switch to figures panel for image files
+                                if (typeof switchRightPanel === 'function') {
+                                    switchRightPanel('figures');
+                                }
                             } else if (['csv', 'xlsx', 'xls'].includes(ext)) {
                                 updateCurrentFile(path, 'fa-table');
                                 window.dispatchEvent(new CustomEvent('writer:loadDataFile', { detail: { path } }));
+                                // Switch to tables panel for data files
+                                if (typeof switchRightPanel === 'function') {
+                                    switchRightPanel('tables');
+                                }
                             }
                         }
                     });
+
+                    // ========================================
+                    // CENTRALIZED SYNCHRONIZATION
+                    // All four elements must stay in sync:
+                    // 1. Doctype dropdown
+                    // 2. Section dropdown
+                    // 3. Tree selection
+                    // 4. Editor content + PDF preview
+                    // ========================================
+
+                    // Sync ALL elements from a file path (triggered when user clicks in tree)
+                    const syncAllFromPath = (path) => {
+                        console.log('[Writer] === SYNC FROM PATH ===', path);
+
+                        // 1. Determine doctype from path
+                        let detectedDoctype = null;
+                        for (const [doctype, dirPath] of Object.entries(doctypeToDirectory)) {
+                            if (path.startsWith(dirPath + '/') || path === dirPath) {
+                                detectedDoctype = doctype;
+                                break;
+                            }
+                        }
+
+                        // 2. Update doctype dropdown if changed
+                        if (detectedDoctype && detectedDoctype !== currentDoctype) {
+                            console.log('[Writer] Updating doctype to:', detectedDoctype);
+                            currentDoctype = detectedDoctype;
+                            if (doctypeSelector) {
+                                doctypeSelector.value = detectedDoctype;
+                            }
+                            // Update section options for new doctype (without triggering file load)
+                            updateSectionOptionsOnly(detectedDoctype);
+                            filterFileTreeDOM(detectedDoctype);
+                        }
+
+                        // 3. Detect and update section dropdown
+                        const sections = doctypeSections[currentDoctype] || [];
+                        const fileName = path.split('/').pop();
+                        let foundSection = false;
+                        for (let i = 0; i < sections.length; i++) {
+                            // Match by full path (from dynamic loading) or by filename (legacy)
+                            if (sections[i].path === path || sections[i].file.endsWith(fileName)) {
+                                currentSectionIndex = i;
+                                updateSectionButtonText(sections[i], i);
+                                foundSection = true;
+                                console.log('[Writer] Detected section:', sections[i].label);
+                                break;
+                            }
+                        }
+
+                        // 4. Update tree visual selection (file was clicked, so it should already be selected by WorkspaceFilesTree)
+                        // But ensure we mark it with our custom selection state too
+                        const treeContainer = document.getElementById('writer-file-tree');
+                        if (treeContainer) {
+                            treeContainer.querySelectorAll('.wft-item.active').forEach(el => {
+                                el.classList.remove('active');
+                            });
+                            const fileEl = treeContainer.querySelector(`[data-path="${path}"]`);
+                            if (fileEl) {
+                                fileEl.classList.add('active');
+                            }
+                        }
+
+                        // 5. Show PDF for current doctype
+                        showExistingPdfPreview();
+                    };
+
+                    // Update section options WITHOUT loading a file (for sync purposes)
+                    const updateSectionOptionsOnly = (doctype) => {
+                        const sections = doctypeSections[doctype] || [];
+                        if (sectionDropdown) {
+                            sectionDropdown.innerHTML = sections.map((sec, idx) =>
+                                `<div class="section-option" data-index="${idx}" data-id="${sec.id}">${idx + 1}. ${sec.label}</div>`
+                            ).join('');
+
+                            // Add click handlers
+                            sectionDropdown.querySelectorAll('.section-option').forEach(opt => {
+                                opt.addEventListener('click', () => {
+                                    const idx = parseInt(opt.dataset.index);
+                                    selectSection(idx);
+                                    sectionDropdown.classList.remove('open');
+                                });
+                            });
+                        }
+                    };
+
+                    // Legacy function for backward compatibility
+                    const syncDropdownsFromPath = syncAllFromPath;
                     await writerFileTree.initialize();
+
+                    // Extract sections from tree data AFTER tree is loaded
+                    const treeData = writerFileTree.getTreeData();
+                    if (treeData && treeData.length > 0) {
+                        updateDoctypeSectionsFromTree(treeData);
+                        console.log('[Writer] Sections populated from tree data');
+                    }
 
                     // Make tree globally accessible for editor/other components
                     window.writerFileTree = writerFileTree;
+
+                    // ========================================
+                    // Doctype and Section Selector Functions
+                    // ========================================
+
+                    // Update section dropdown options based on doctype (and reset to first section)
+                    const updateSectionOptions = (doctype) => {
+                        // Update dropdown options
+                        updateSectionOptionsOnly(doctype);
+
+                        // Reset to first section
+                        const sections = doctypeSections[doctype] || [];
+                        if (sections.length > 0) {
+                            currentSectionIndex = 0;
+                            updateSectionButtonText(sections[0], 0);
+                        }
+                    };
+
+                    // Update section button text
+                    const updateSectionButtonText = (section, idx) => {
+                        if (sectionSelectorText) {
+                            sectionSelectorText.textContent = `${idx + 1}. ${section.label}`;
+                        }
+                    };
+
+                    // Select a section and open the corresponding file
+                    // SYNC PRIORITY: Dropdown -> Tree -> Editor + PDF
+                    const selectSection = (idx) => {
+                        const sections = doctypeSections[currentDoctype] || [];
+                        if (idx >= 0 && idx < sections.length) {
+                            currentSectionIndex = idx;
+                            const section = sections[idx];
+
+                            // 1. UPDATE DROPDOWN - Update section button text
+                            updateSectionButtonText(section, idx);
+
+                            // Build the file path - use section.path if available (from dynamic loading),
+                            // otherwise construct from doctype directory + file
+                            const dirPath = doctypeToDirectory[currentDoctype];
+                            const filePath = section.path || `${dirPath}/${section.file}`;
+                            console.log('[Writer] === SECTION SELECTED (Dropdown -> Tree -> Editor) ===');
+                            console.log('[Writer] Doctype:', currentDoctype, '| Section:', section.label, '| Path:', filePath);
+
+                            // 2. UPDATE TREE - Use setTargetFile which:
+                            //    - Updates internal state (target paths)
+                            //    - Re-renders tree (applies .target class to the file)
+                            //    - Scrolls to the file
+                            //    NOTE: Do NOT manually add CSS classes - let the tree component handle it
+                            if (writerFileTree) {
+                                writerFileTree.setTargetFile(filePath);
+                                console.log('[Writer] Tree target updated via setTargetFile');
+                            }
+
+                            // 3. UPDATE EDITOR - Load file content
+                            loadFileIntoEditor(filePath);
+
+                            // 4. UPDATE PDF PREVIEW - Show compiled PDF for this doctype
+                            showExistingPdfPreview();
+                        }
+                    };
+
+                    // Filter file tree DOM to show only specified directory
+                    const filterFileTreeDOM = (doctype) => {
+                        const dirPath = doctypeToDirectory[doctype];
+                        if (!dirPath) return;
+
+                        const treeContainer = document.getElementById('writer-file-tree');
+                        if (!treeContainer) return;
+
+                        // Get the target directory name (e.g., "00_shared", "01_manuscript")
+                        const targetDirName = dirPath.split('/').pop();
+
+                        // Doctype directories (root level under scitex/writer)
+                        const doctypeDirs = ['00_shared', '01_manuscript', '02_supplementary', '03_revision'];
+
+                        // System directories that should always be hidden
+                        const systemDirs = ['ai', 'config', 'docs', 'requirements', 'scripts', 'tests', 'texts'];
+
+                        // Hide/show items under scitex/writer
+                        const allItems = treeContainer.querySelectorAll('.wft-item');
+                        allItems.forEach(item => {
+                            const path = item.getAttribute('data-path') || '';
+                            const pathParts = path.split('/');
+                            const folderName = pathParts[pathParts.length - 1];
+
+                            // Check if this is a direct child of scitex/writer
+                            if (path.startsWith('scitex/writer/') && pathParts.length === 3) {
+                                // This is a top-level directory under scitex/writer
+
+                                // Hide system directories
+                                if (systemDirs.includes(folderName)) {
+                                    item.style.display = 'none';
+                                    // Also hide the children container if it exists
+                                    const childrenContainer = item.nextElementSibling;
+                                    if (childrenContainer && childrenContainer.classList.contains('wft-children')) {
+                                        childrenContainer.style.display = 'none';
+                                    }
+                                    return;
+                                }
+
+                                // For doctype directories, show ONLY the selected one
+                                // (00_shared only shown when "shared" doctype is selected)
+                                if (doctypeDirs.includes(folderName)) {
+                                    const shouldShow = folderName === targetDirName;
+                                    item.style.display = shouldShow ? '' : 'none';
+                                    // Also hide/show the children container
+                                    const childrenContainer = item.nextElementSibling;
+                                    if (childrenContainer && childrenContainer.classList.contains('wft-children')) {
+                                        childrenContainer.style.display = shouldShow ? '' : 'none';
+                                    }
+                                }
+                            }
+                        });
+
+                        console.log('[Writer] File tree filtered to show only:', targetDirName);
+                    };
+
+                    // Handle doctype change
+                    const handleDoctypeChange = (doctype) => {
+                        console.log('[Writer] Doctype changed to:', doctype);
+                        currentDoctype = doctype;
+
+                        // Update section options first
+                        updateSectionOptions(doctype);
+
+                        // Filter the file tree DOM
+                        filterFileTreeDOM(doctype);
+
+                        // Expand the target directory
+                        const dirPath = doctypeToDirectory[doctype];
+                        if (writerFileTree && dirPath) {
+                            writerFileTree.refreshAndExpandPath(dirPath);
+                        }
+
+                        // Auto-select first section (which will open the file)
+                        selectSection(0);
+
+                        // Update PDF preview for this doctype
+                        showExistingPdfPreview();
+                    };
+
+                    // Attach event listeners
+                    if (doctypeSelector) {
+                        doctypeSelector.addEventListener('change', (e) => {
+                            handleDoctypeChange(e.target.value);
+                        });
+                    }
+
+                    if (sectionSelectorBtn && sectionDropdown) {
+                        sectionSelectorBtn.addEventListener('click', () => {
+                            sectionDropdown.classList.toggle('open');
+                        });
+
+                        // Close dropdown when clicking outside
+                        document.addEventListener('click', (e) => {
+                            if (!sectionSelectorBtn.contains(e.target) && !sectionDropdown.contains(e.target)) {
+                                sectionDropdown.classList.remove('open');
+                            }
+                        });
+                    }
+
+                    // Initialize with current doctype
+                    updateSectionOptions(currentDoctype);
+
+                    // Re-apply filter when tree DOM changes (e.g., after expand/collapse)
+                    const treeContainer = document.getElementById('writer-file-tree');
+                    if (treeContainer) {
+                        const observer = new MutationObserver(() => {
+                            // Debounce the filter application
+                            clearTimeout(window._filterDebounce);
+                            window._filterDebounce = setTimeout(() => {
+                                filterFileTreeDOM(currentDoctype);
+                            }, 50);
+                        });
+                        observer.observe(treeContainer, { childList: true, subtree: true });
+                    }
+
+                    // Wait for tree to have content before initial filtering
+                    const waitForTreeAndFilter = () => {
+                        const tree = document.querySelector('#writer-file-tree .wft-tree');
+                        if (tree && tree.children.length > 0) {
+                            console.log('[Writer] Tree loaded, applying initial filtering');
+                            handleDoctypeChange(currentDoctype);
+                        } else {
+                            console.log('[Writer] Waiting for tree to load...');
+                            setTimeout(waitForTreeAndFilter, 100);
+                        }
+                    };
+
+                    // Initial setup after tree loads
+                    waitForTreeAndFilter();
+
+                    // Show PDF preview after TypeScript modules are fully loaded
+                    // Wait for pdfViewerInstance to be available (set by ComponentInitializer)
+                    const waitForPdfViewerAndShow = (retries = 30) => {
+                        if (window.pdfViewerInstance) {
+                            console.log('[Writer] PDF.js viewer ready, showing existing PDF');
+                            showExistingPdfPreview();
+                        } else if (retries > 0) {
+                            // Wait 200ms and retry (total 6 seconds max)
+                            setTimeout(() => waitForPdfViewerAndShow(retries - 1), 200);
+                        } else {
+                            console.warn('[Writer] PDF.js viewer not initialized after 6 seconds, showing placeholder');
+                            showPdfPlaceholder();
+                        }
+                    };
+                    // Start waiting after 500ms initial delay
+                    setTimeout(waitForPdfViewerAndShow, 500);
+
+                    // Initialize right panel header (copy PDF header template to shared header)
+                    const initRightPanelHeader = () => {
+                        const sharedHeader = document.getElementById('right-panel-header');
+                        const pdfHeader = document.getElementById('pdf-panel-header');
+                        if (sharedHeader && pdfHeader) {
+                            sharedHeader.innerHTML = pdfHeader.innerHTML;
+                            console.log('[Writer] Initialized right panel header with PDF controls');
+                        }
+                    };
+                    setTimeout(initRightPanelHeader, 100);
+
+                    // ========================================
+                    // End Doctype/Section Selector Integration
+                    // ========================================
 
                     // Sidebar resizer
                     const resizer = document.getElementById('sidebar-resizer');

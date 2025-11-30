@@ -36,6 +36,13 @@
   flex: 1;
 }
 
+/* Compact layout - single horizontal row */
+.writer-sidebar .sidebar-header-content.sidebar-header-compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .writer-sidebar .sidebar-header h5 {
   margin: 0;
   font-size: 0.9rem;

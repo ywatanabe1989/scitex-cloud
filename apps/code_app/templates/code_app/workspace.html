@@ -171,39 +171,10 @@
       <!-- Left Sidebar: File Tree -->
       <aside id="code-sidebar" class="code-sidebar repo-sidebar">
         <div class="sidebar-header">
-          {% if current_project %}
-            {% if current_project.owner.username|slice:":8" == "visitor-" %}
-              <!-- Visitor: Show non-clickable project name with signup prompt -->
-              <div class="sidebar-title-link sidebar-title-visitor">
-                <div class="sidebar-visitor-project">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                    <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
-                  </svg>
-                  <span>{{ current_project.name }}</span>
-                </div>
-                <a href="/accounts/signup/" class="sidebar-signup-link">
-                  Create account to save files →
-                </a>
-              </div>
-            {% else %}
-              <!-- Authenticated user: Show clickable link -->
-              <a href="/{{ current_project.owner.username }}/{{ current_project.slug }}/"
-                 class="sidebar-title-link sidebar-title-auth"
-                 title="{{ current_project.name }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                  <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
-                </svg>
-                <span>{{ current_project.name }}</span>
-              </a>
-            {% endif %}
-          {% else %}
-            <div class="sidebar-title-link">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
-                <path fill="currentColor" d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75Z"></path>
-              </svg>
-              <span>No Project Selected</span>
-            </div>
-          {% endif %}
+          <h5><i class="fas fa-folder-open"></i> Files</h5>
+          <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+            <i class="fas fa-chevron-left"></i>
+          </button>
         </div>
       <div id="file-tree" class="file-tree-container">
         <div class="tree-loading">

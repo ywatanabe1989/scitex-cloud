@@ -203,16 +203,19 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
     return;
   }
 
-  // Hide all views first
-  pdfView.style.display = "none";
-  citationsView.style.display = "none";
-  figuresView.style.display = "none";
-  tablesView.style.display = "none";
+  // Hide all views first - remove display style to let CSS control layout
+  pdfView.removeAttribute("style");
+  pdfView.setAttribute("hidden", "");
+  citationsView.removeAttribute("style");
+  citationsView.setAttribute("hidden", "");
+  figuresView.removeAttribute("style");
+  figuresView.setAttribute("hidden", "");
+  tablesView.removeAttribute("style");
   tablesView.setAttribute("hidden", "");
-  historyView.style.display = "none";
+  historyView.removeAttribute("style");
   historyView.setAttribute("hidden", "");
   if (collaborationView) {
-    collaborationView.style.display = "none";
+    collaborationView.removeAttribute("style");
     collaborationView.setAttribute("hidden", "");
   }
 
@@ -262,11 +265,11 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
     }
   }
 
-  // Show selected view and update states
+  // Show selected view and update states - use hidden attribute, let CSS handle display
   if (view === "citations") {
     // Lazy load CSS first, then show panel
     loadPanelCSS("citations").then(() => {
-      citationsView.style.display = "flex";
+      citationsView.removeAttribute("hidden");
       if (previewPanel) {
         previewPanel.classList.add("showing-citations");
       }
@@ -283,7 +286,7 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
   } else if (view === "figures") {
     // Lazy load CSS first, then show panel
     loadPanelCSS("figures").then(() => {
-      figuresView.style.display = "flex";
+      figuresView.removeAttribute("hidden");
       if (previewPanel) {
         previewPanel.classList.add("showing-figures");
       }
@@ -301,7 +304,6 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
     // Lazy load CSS first, then show panel
     loadPanelCSS("tables").then(() => {
       tablesView.removeAttribute("hidden");
-      tablesView.style.display = "flex";
       if (previewPanel) {
         previewPanel.classList.add("showing-tables");
       }
@@ -319,7 +321,6 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
     // Lazy load CSS first, then show panel
     loadPanelCSS("history").then(() => {
       historyView.removeAttribute("hidden");
-      historyView.style.display = "flex";
       if (previewPanel) {
         previewPanel.classList.add("showing-history");
       }
@@ -345,7 +346,6 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
     loadPanelCSS("collaboration").then(() => {
       if (collaborationView) {
         collaborationView.removeAttribute("hidden");
-        collaborationView.style.display = "flex";
         if (previewPanel) {
           previewPanel.classList.add("showing-collaboration");
         }
@@ -360,8 +360,8 @@ export function switchRightPanel(view: "pdf" | "citations" | "figures" | "tables
       }
     });
   } else {
-    // Default to PDF view
-    pdfView.style.display = "flex";
+    // Default to PDF view - remove hidden attribute, let CSS handle display: flex
+    pdfView.removeAttribute("hidden");
     if (previewPanel) {
       previewPanel.classList.add("showing-pdf");
     }

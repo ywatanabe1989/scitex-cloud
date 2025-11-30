@@ -19,7 +19,7 @@
     gap: 0;
     background: var(--sigma-bg-secondary);
     padding: 0 16px;
-    border-right: 1px solid var(--workspace-border-muted);
+    border-right: 1px solid var(--workspace-border-default);
 }
 
 .ribbon-tab {
@@ -106,7 +106,7 @@
     gap: 4px;
     padding: 8px 12px;
     background: var(--sigma-bg-secondary);
-    border: 1px solid var(--workspace-border-muted);
+    border: 1px solid var(--workspace-border-default);
     border-radius: 6px;
     color: var(--text-primary);
     font-size: 11px;
@@ -165,7 +165,7 @@
 /* Ribbon Separator */
 .ribbon-separator {
     width: 1px;
-    background: var(--workspace-border-muted);
+    background: var(--workspace-border-default);
     margin: 0 12px;
 }
 

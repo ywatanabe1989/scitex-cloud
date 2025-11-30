@@ -9,6 +9,7 @@ Handle BibTeX file upload and start enrichment job.
 """
 
 import logging
+import hashlib
 from pathlib import Path
 from django.shortcuts import redirect
 from django.contrib import messages
@@ -156,13 +157,21 @@ def bibtex_upload(request):
     browser_mode = request.POST.get("browser_mode", "stealth")
     use_cache = request.POST.get("use_cache", "on") == "on"
 
-    # Get project if specified (only for authenticated users)
+    # Get project if specified (for authenticated users or visitors with assigned project)
     project = None
-    if project_id and is_authenticated:
+    if project_id:
         from apps.project_app.models import Project
 
         try:
-            project = Project.objects.get(id=project_id, owner=user)
+            if is_authenticated:
+                # Authenticated user - must own the project
+                project = Project.objects.get(id=project_id, owner=user)
+            else:
+                # Visitor user - check if this is their assigned project from pool
+                from apps.project_app.services.visitor_pool import VisitorPool
+                visitor_project_id = request.session.get(VisitorPool.SESSION_KEY_PROJECT_ID)
+                if visitor_project_id and str(visitor_project_id) == str(project_id):
+                    project = Project.objects.get(id=project_id)
         except Project.DoesNotExist:
             if api_authenticated:
                 return JsonResponse(
@@ -178,6 +187,44 @@ def bibtex_upload(request):
         user_identifier = f"visitor_{request.session.session_key}"
 
     file_content = bibtex_file.read()
+
+    # Compute content hash for deduplication
+    content_hash = hashlib.sha256(file_content).hexdigest()
+
+    # Check for duplicate: same user + same content hash + completed job
+    if is_authenticated:
+        existing_completed = BibTeXEnrichmentJob.objects.filter(
+            user=user,
+            content_hash=content_hash,
+            status="completed",
+        ).order_by("-completed_at").first()
+    else:
+        existing_completed = BibTeXEnrichmentJob.objects.filter(
+            session_key=request.session.session_key,
+            content_hash=content_hash,
+            status="completed",
+        ).order_by("-completed_at").first() if request.session.session_key else None
+
+    if existing_completed:
+        # Return cached result instead of re-processing
+        if api_authenticated or request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {
+                    "success": True,
+                    "cached": True,
+                    "job_id": str(existing_completed.id),
+                    "status": "completed",
+                    "message": "This file was already enriched. Returning cached result.",
+                    "api_endpoints": {
+                        "status": f"/scholar/api/bibtex/job/{existing_completed.id}/status/",
+                        "download": f"/scholar/api/bibtex/job/{existing_completed.id}/download/",
+                        "papers": f"/scholar/api/bibtex/job/{existing_completed.id}/papers/",
+                    },
+                }
+            )
+        messages.info(request, "This file was already enriched. Returning cached result.")
+        return redirect("scholar_app:bibtex_job_detail", job_id=existing_completed.id)
+
     file_path = default_storage.save(
         f"bibtex_uploads/{user_identifier}/{bibtex_file.name}",
         ContentFile(file_content),
@@ -219,6 +266,7 @@ def bibtex_upload(request):
         session_key=request.session.session_key if not is_authenticated else None,
         input_file=file_path,
         original_filename=original_filename,
+        content_hash=content_hash,
         project_name=project_name,
         project=project,
         num_workers=num_workers,

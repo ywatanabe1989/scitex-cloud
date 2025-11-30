@@ -10,7 +10,7 @@ import { registerLatexLanguage } from "./LanguageRegistration.js";
 import { registerLatexCompletionProvider } from "./CompletionProvider.js";
 import { registerCitationCompletionProvider } from "./CitationCompletion.js";
 import { registerCitationHoverProvider } from "./CitationHover.js";
-import { defineScitexTheme, setupThemeObserver } from "./EditorTheme.js";
+import { defineScitexTheme, defineScitexLightTheme, setupThemeObserver } from "./EditorTheme.js";
 import { createMonacoEditor } from "./EditorFactory.js";
 
 // Re-export all functions for backward compatibility
@@ -20,6 +20,7 @@ export {
   registerCitationCompletionProvider,
   registerCitationHoverProvider,
   defineScitexTheme,
+  defineScitexLightTheme,
   setupThemeObserver,
   createMonacoEditor,
 };
@@ -48,6 +49,7 @@ export function initializeMonacoEditor(
 
   // Step 4: Define custom themes
   defineScitexTheme(monaco);
+  defineScitexLightTheme(monaco);
 
   // Step 5: Setup theme observer for auto-switching
   setupThemeObserver(monaco);

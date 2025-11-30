@@ -7,7 +7,9 @@
     <!-- Hero gradients CSS -->
     <link rel="stylesheet" href="{% static 'shared/css/components/hero.css' %}" />
     <!-- Workspace files tree CSS -->
-    <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}" />
+    <link rel="stylesheet" href="{% static 'shared/css/components/workspace-files-tree.css' %}?v=20251130b" />
+    <!-- Panel resizer CSS -->
+    <link rel="stylesheet" href="{% static 'shared/css/components/panel-resizer.css' %}" />
     <!-- App-specific CSS - Modular common styles -->
     <link rel="stylesheet" href="{% static 'scholar_app/css/common/01-workspace-colors.css' %}?v=1764328804" />
     <link rel="stylesheet" href="{% static 'scholar_app/css/common/02-layout-system.css' %}?v=1764328804" />
@@ -16,48 +18,48 @@
     <link rel="stylesheet" href="{% static 'scholar_app/css/common/05-utilities.css' %}?v=1764328804" />
     <link rel="stylesheet" href="{% static 'scholar_app/css/common/06-ui-components.css' %}?v=1764328804" />
     <link rel="stylesheet" href="{% static 'scholar_app/css/common/07-workspace-layout.css' %}?v=1764328804" />
-    <!-- FORCE workspace colors - inline override -->
+    <!-- Workspace colors - responsive to theme -->
     <style>
-    /* FORCE dark workspace colors - highest priority */
+    /* Scholar workspace colors - uses CSS variables for theme responsiveness */
     body.scholar-page,
     body.workspace-page.scholar-page,
     .scholar-page {
-        background: #0d0d0d !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
     }
     body.scholar-page #main-content,
     body.scholar-page .scholar-workspace {
-        background: #0d0d0d !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
     }
     .scholar-sidebar,
     .scholar-main,
     .scholar-properties {
-        background: #0d0d0d !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
     }
     .scholar-sidebar .sidebar-header,
     .scholar-main .pane-header,
     .scholar-properties .properties-header {
-        background: #151515 !important;
-        border-color: #3a3a3a !important;
+        background: var(--workspace-bg-secondary, var(--color-canvas-subtle)) !important;
+        border-color: var(--color-border-default) !important;
     }
     .scholar-sidebar .sidebar-content,
     .scholar-main .pane-content,
     .scholar-properties .properties-content {
-        background: #0d0d0d !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
     }
     .bibtex-card,
     .bibtex-tile {
-        background: #151515 !important;
-        border-color: #3a3a3a !important;
+        background: var(--workspace-bg-secondary, var(--color-canvas-subtle)) !important;
+        border-color: var(--color-border-default) !important;
         border-radius: 0 !important;
     }
     .bibtex-card__header,
     .bibtex-tile__header {
-        background: #1a1a1a !important;
-        border-color: #3a3a3a !important;
+        background: var(--workspace-bg-tertiary, var(--color-canvas-inset)) !important;
+        border-color: var(--color-border-default) !important;
     }
     .bibtex-dropzone {
-        background: #0d0d0d !important;
-        border-color: #3a3a3a !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
+        border-color: var(--color-border-default) !important;
         border-radius: 0 !important;
     }
     .bibtex-tile__title i,
@@ -65,14 +67,14 @@
     .pane-header h5 i,
     .properties-header h5 i,
     .sidebar-header h5 i {
-        color: #6ba89a !important;
+        color: var(--scitex-color-03, var(--workspace-icon-primary)) !important;
     }
     .bibtex-status-item {
-        background: #0d0d0d !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
         border-radius: 0 !important;
     }
     .terminal-log {
-        background: #0d0d0d !important;
+        background: var(--workspace-bg-primary, var(--color-canvas-default)) !important;
         border-radius: 0 !important;
     }
     /* Hide footer on scholar workspace */
@@ -103,6 +105,8 @@
                 {% endif %}
             </div>
         </aside>
+        <!-- Sidebar resizer -->
+        <div class="panel-resizer" id="sidebar-resizer"></div>
         <!-- Main content area -->
         <main class="scholar-main">
             <div class="pane-header">
@@ -115,6 +119,8 @@
                 {% block search_content %}{% endblock %}
             </div>
         </main>
+        <!-- Main resizer -->
+        <div class="panel-resizer" id="main-resizer"></div>
         <!-- Right properties panel -->
         <aside class="scholar-properties" id="scholar-properties">
             <div class="properties-header">
@@ -135,6 +141,8 @@
 
 {% block extra_js %}
     {{ block.super }}
+    <!-- Panel resizer manager -->
+    <script src="{% static 'scholar_app/js/scholar-resizer-manager.js' %}"></script>
     {% if current_project %}
     <script type="module">
         // Initialize WorkspaceFilesTree for scholar mode
@@ -146,7 +154,7 @@
                 containerId: 'file-tree',
                 username: '{{ current_project.owner.username }}',
                 slug: '{{ current_project.slug }}',
-                showFolderActions: false,
+                showFolderActions: true,
                 showGitStatus: false,
                 onFileSelect: (path, item) => {
                     console.log('[Scholar] File selected:', path);

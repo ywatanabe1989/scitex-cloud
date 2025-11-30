@@ -100,7 +100,7 @@
     min-width: 16px;
     height: 16px;
     padding: 0 4px;
-    background: var(--workspace-border-muted);
+    background: var(--workspace-border-default);
     border-radius: 8px;
     font-size: 10px;
     font-weight: 600;
@@ -156,7 +156,7 @@
 .tree-add-btn {
     padding: 2px 6px;
     background: transparent;
-    border: 1px solid var(--workspace-border-muted);
+    border: 1px solid var(--workspace-border-default);
     border-radius: 3px;
     cursor: pointer;
     color: var(--text-muted);

@@ -50,6 +50,13 @@ class BibTeXEnrichmentJob(models.Model):
         null=True,
         help_text="Original filename before upload",
     )
+    content_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text="SHA-256 hash of input file content for deduplication",
+        db_index=True,
+    )
     project_name = models.CharField(
         max_length=200,
         blank=True,

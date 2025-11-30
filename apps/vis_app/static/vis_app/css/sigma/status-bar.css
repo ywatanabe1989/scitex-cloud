@@ -35,6 +35,6 @@
 }
 
 .status-separator {
-    color: var(--workspace-border-muted);
+    color: var(--workspace-border-default);
 }
 

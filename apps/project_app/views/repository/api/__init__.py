@@ -24,6 +24,14 @@ from .git_status import api_git_status
 # SciTeX initialization
 from .scitex import api_initialize_scitex_structure
 
+# File CRUD operations
+from .file_operations import (
+    api_file_create,
+    api_file_delete,
+    api_file_rename,
+    api_file_copy,
+)
+
 # Repository health management
 from .repository_health import (
     api_repository_health,
@@ -46,6 +54,11 @@ __all__ = [
     "api_concatenate_directory",
     "api_git_status",
     "api_initialize_scitex_structure",
+    # File CRUD
+    "api_file_create",
+    "api_file_delete",
+    "api_file_rename",
+    "api_file_copy",
     # Repository health
     "api_repository_health",
     "api_repository_cleanup",

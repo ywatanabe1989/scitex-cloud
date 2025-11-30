@@ -80,8 +80,8 @@ export class TreeRenderer {
     node: FileTreeNode,
     level: number = 0
   ): HTMLElement {
-    // Check if file should be hidden
-    if (node.type === "file" && this.filter.shouldHideFile(node.path)) {
+    // Check if file or directory should be hidden based on doctype filter
+    if (this.filter.shouldHideFile(node.path)) {
       const li = document.createElement("li");
       li.style.display = "none";
       return li;

@@ -254,8 +254,9 @@ html.writer-page {
 }
 
 /* Preview panel - professional styling */
+/* Note: width is controlled by flex in split-view.css, not fixed width */
 .preview-panel {
-  width: 400px;
+  /* width: 400px; -- REMOVED: conflicts with flex sizing in split-view.css */
   background-color: var(--writer-toolbar-bg);
   border-left: 1px solid var(--writer-border);
   display: flex;

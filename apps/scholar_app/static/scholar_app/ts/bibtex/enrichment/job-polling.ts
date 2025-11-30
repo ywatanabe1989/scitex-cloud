@@ -57,9 +57,18 @@ export class JobPollingManager {
     jobId: string,
     attempts: number = 0,
   ): Promise<void> {
-    // Show enrichment running indicator on first call
+    // Show running state on first call
     if (attempts === 0) {
-      setElementVisibility("enrichmentRunningIndicator", true);
+      // Show pulsing dot
+      const pulseDot = document.getElementById("progressPulseDot");
+      if (pulseDot) pulseDot.style.display = "inline-block";
+
+      // Update subtitle
+      const subtitle = document.getElementById("progressSubtitle");
+      if (subtitle) subtitle.textContent = "Processing your BibTeX file...";
+
+      // Update status text
+      updateElementText("progressStatus", "Starting enrichment...");
     }
 
     if (attempts > this.maxAttempts) {
@@ -150,8 +159,16 @@ export class JobPollingManager {
   private handleCompletion(jobId: string): void {
     console.log("[BibTeX] Job completed! Setting up download...");
 
-    // Hide running indicator
-    setElementVisibility("enrichmentRunningIndicator", false);
+    // Hide pulsing dot
+    const pulseDot = document.getElementById("progressPulseDot");
+    if (pulseDot) pulseDot.style.display = "none";
+
+    // Update subtitle to show completion
+    const subtitle = document.getElementById("progressSubtitle");
+    if (subtitle) subtitle.textContent = "Enrichment complete!";
+
+    // Update status
+    updateElementText("progressStatus", "Done");
 
     // Enable action buttons
     this.enableActionButtons(jobId);

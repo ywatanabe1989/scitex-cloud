@@ -94,32 +94,76 @@ export class WriterFileFilter {
     }
 
     /**
-     * Check if a file path should be hidden completely
-     * Based on doctype - only show files from selected doctype directory
+     * Get current doctype
+     */
+    public get currentDocType(): string {
+        return this.state.doctype;
+    }
+
+    /**
+     * Update filter with new doctype and section
+     */
+    public updateFilter(doctype: string, section: string | null): void {
+        this.state.doctype = doctype as WriterFilterState['doctype'];
+        this.state.section = section;
+        this.notifyChange();
+    }
+
+    // System directories that should always be hidden from light users
+    private readonly hiddenSystemDirectories = [
+        'ai',
+        'config',
+        'docs',
+        'requirements',
+        'scripts',
+        'tests',
+        'texts',
+    ];
+
+    /**
+     * Check if a file or directory path should be hidden completely
+     * Based on doctype - only show selected doctype directory and 00_shared
+     * Handles paths with scitex/writer/ prefix
      */
     public shouldHideFile(path: string): boolean {
-        // Don't hide directories
-        if (!path.includes('.')) {
-            return false;
-        }
-
-        // Shared files are always visible
-        if (path.startsWith('shared/')) {
-            return false;
-        }
-
-        // Check if file is in the current doctype directory
         const doctype = this.state.doctype;
 
-        if (doctype === 'manuscript') {
-            // Show files in root or manuscript directory
-            return path.startsWith('supplementary/') || path.startsWith('revision/');
-        } else if (doctype === 'supplementary') {
-            return !path.startsWith('supplementary/') && !path.startsWith('shared/');
-        } else if (doctype === 'revision') {
-            return !path.startsWith('revision/') && !path.startsWith('shared/');
+        // Normalize path - remove scitex/writer/ prefix if present
+        let normalizedPath = path;
+        if (path.startsWith('scitex/writer/')) {
+            normalizedPath = path.replace('scitex/writer/', '');
         }
 
+        // Always show scitex directory (parent) and non-writer subdirectories
+        if (path === 'scitex' || path === 'scitex/writer') {
+            return false;
+        }
+
+        // Hide system directories not relevant to document editing
+        for (const hiddenDir of this.hiddenSystemDirectories) {
+            if (normalizedPath === hiddenDir || normalizedPath.startsWith(hiddenDir + '/')) {
+                return true;
+            }
+        }
+
+        // Always show 00_shared directory
+        if (normalizedPath.startsWith('00_shared') || normalizedPath.startsWith('shared/')) {
+            return false;
+        }
+
+        // Hide directories that don't match current doctype
+        // Check for top-level directories like 01_manuscript, 02_supplementary, 03_revision
+        if (normalizedPath.startsWith('01_manuscript')) {
+            return doctype !== 'manuscript';
+        }
+        if (normalizedPath.startsWith('02_supplementary')) {
+            return doctype !== 'supplementary';
+        }
+        if (normalizedPath.startsWith('03_revision')) {
+            return doctype !== 'revision';
+        }
+
+        // For files in root (not in any doctype dir), keep visible
         return false;
     }
 
@@ -260,21 +304,28 @@ export class WriterFileFilter {
 
     /**
      * Get the expected file path for a given doctype and section
+     * File structure: scitex/writer/{doctype_dir}/contents/{section}.tex
+     * Example: scitex/writer/01_manuscript/contents/abstract.tex
+     * Example: scitex/writer/02_supplementary/contents/methods.tex
      */
     public getExpectedFilePath(doctype: string, section: string): string {
-        const doctypeDir = doctype === 'manuscript' ? '' : `${doctype}/`;
+        // Map doctype to directory name
+        const doctypeDirMap: Record<string, string> = {
+            'manuscript': '01_manuscript',
+            'supplementary': '02_supplementary',
+            'revision': '03_revision',
+            'shared': '00_shared',
+        };
 
-        // Common section filename patterns
-        const patterns = [
-            `${doctypeDir}${section}.tex`,
-            `${doctypeDir}01_${section}.tex`,
-            `${doctypeDir}02_${section}.tex`,
-            `${doctypeDir}03_${section}.tex`,
-            `${doctypeDir}04_${section}.tex`,
-            `${doctypeDir}05_${section}.tex`,
-        ];
+        const doctypeDir = doctypeDirMap[doctype] || '01_manuscript';
 
-        return patterns[0]; // Return the most likely pattern
+        // For shared, files are directly in the directory
+        if (doctype === 'shared') {
+            return `scitex/writer/00_shared/${section}.tex`;
+        }
+
+        // Standard structure: scitex/writer/{doctype_dir}/contents/{section}.tex
+        return `scitex/writer/${doctypeDir}/contents/${section}.tex`;
     }
 
     /**

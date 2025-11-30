@@ -141,24 +141,39 @@ def bibtex_job_papers(request, job_id):
 
 @require_http_methods(["GET"])
 def bibtex_recent_jobs(request):
-    """API endpoint to get user's recent jobs with summary (visitor allowed)."""
+    """API endpoint to get user's recent jobs with summary (visitor allowed).
+
+    Deduplicates by content_hash, showing only the most recent job per unique file.
+    """
 
     # Get recent jobs
     if request.user.is_authenticated:
-        jobs = (
+        all_jobs = (
             BibTeXEnrichmentJob.objects.filter(user=request.user)
             .select_related("project")
-            .order_by("-created_at")[:10]
+            .order_by("-created_at")
         )
     else:
         # For visitor users, get jobs by session key
-        jobs = (
+        all_jobs = (
             BibTeXEnrichmentJob.objects.filter(
                 session_key=request.session.session_key
-            ).order_by("-created_at")[:10]
+            ).order_by("-created_at")
             if request.session.session_key
             else BibTeXEnrichmentJob.objects.none()
         )
+
+    # Deduplicate: keep only the most recent job per content_hash
+    seen_hashes = set()
+    jobs = []
+    for job in all_jobs:
+        # Use content_hash for deduplication, fallback to job id if no hash
+        job_key = job.content_hash or str(job.id)
+        if job_key not in seen_hashes:
+            seen_hashes.add(job_key)
+            jobs.append(job)
+            if len(jobs) >= 10:
+                break
 
     jobs_data = []
     for job in jobs:

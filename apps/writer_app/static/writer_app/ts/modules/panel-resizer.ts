@@ -39,13 +39,15 @@ export class PanelResizer {
     if (!this.resizer) return;
 
     // Force resizer to be visible (CSS might be overridden by other stylesheets)
+    // Use 4px to match Scholar pattern (transparent by default, visible on hover)
     this.resizer.style.width = "4px";
     this.resizer.style.minWidth = "4px";
     this.resizer.style.maxWidth = "4px";
     this.resizer.style.height = "100%";
     this.resizer.style.flexShrink = "0";
     this.resizer.style.flexGrow = "0";
-    console.log("[PanelResizer] Forced resizer dimensions via JS (4px)");
+    this.resizer.style.background = "transparent";
+    console.log("[PanelResizer] Forced resizer dimensions via JS (4px, transparent)");
 
     this.resizer.addEventListener("mousedown", (e) => this.handleMouseDown(e), {
       capture: true,

@@ -98,3 +98,15 @@ export const MODE_FILTERS: Record<WorkspaceMode, Partial<FilterConfig>> = {
     hiddenPatterns: [],
   },
 };
+
+/**
+ * Default paths to expand when tree loads for each mode
+ * These will be expanded automatically on first load (before any user state is stored)
+ */
+export const DEFAULT_EXPAND_PATHS: Record<WorkspaceMode, string[]> = {
+  code: ['scripts'],
+  vis: ['scitex', 'scitex/vis'],
+  writer: ['scitex', 'scitex/writer', 'scitex/writer/01_manuscript'],
+  scholar: ['scitex', 'scitex/scholar', 'scitex/scholar/bib_files'],
+  all: [],
+};

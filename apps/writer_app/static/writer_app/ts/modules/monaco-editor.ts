@@ -467,7 +467,9 @@ export class EnhancedEditor {
 
     // Get current theme from editor
     const currentTheme = this.monacoEditor.getOption(monaco.editor.EditorOption.theme);
-    const newTheme = currentTheme === "vs-dark" ? "vs" : "vs-dark";
+    // Toggle between scitex themes (with fallback for legacy vs-dark/vs)
+    const isDark = currentTheme === "scitex-dark" || currentTheme === "vs-dark";
+    const newTheme = isDark ? "scitex-light" : "scitex-dark";
 
     // Update editor theme
     this.monacoEditor.updateOptions({ theme: newTheme });
@@ -500,9 +502,10 @@ export class EnhancedEditor {
     const themeIcon = toggleBtn?.querySelector(".theme-icon");
 
     if (themeIcon) {
-      themeIcon.textContent = theme === "vs-dark" ? "🌙" : "☀️";
+      const isDark = theme === "scitex-dark" || theme === "vs-dark";
+      themeIcon.textContent = isDark ? "🌙" : "☀️";
       toggleBtn?.setAttribute("title",
-        theme === "vs-dark" ? "Switch to light editor theme" : "Switch to dark editor theme"
+        isDark ? "Switch to light editor theme" : "Switch to dark editor theme"
       );
     }
   }

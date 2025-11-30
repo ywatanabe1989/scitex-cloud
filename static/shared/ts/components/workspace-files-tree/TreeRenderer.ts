@@ -22,7 +22,7 @@ export class TreeRenderer {
   /** Render the entire tree */
   render(items: TreeItem[]): string {
     const filteredItems = this.filter.filterTree(items);
-    return this.renderItems(filteredItems, 0);
+    return `<div class="wft-tree">${this.renderItems(filteredItems, 0)}</div>`;
   }
 
   /** Render tree items recursively */
@@ -53,6 +53,9 @@ export class TreeRenderer {
                      data-path="${this.escapeAttr(item.path)}"
                      draggable="true"
                      style="padding-left: ${indent}px;">`;
+
+    // Git gutter (left-side indicator)
+    html += this.renderGitGutter(item.git_status);
 
     // Folder toggle button
     html += `<button type="button" class="wft-folder-toggle" data-action="toggle" data-path="${this.escapeAttr(item.path)}">`;
@@ -112,6 +115,9 @@ export class TreeRenderer {
                      draggable="true"
                      style="padding-left: ${indent}px;">`;
 
+    // Git gutter (left-side indicator)
+    html += this.renderGitGutter(item.git_status);
+
     html += `<span class="wft-spacer"></span>`;
     html += `<span class="wft-icon">${icon}</span>`;
     html += `<span class="wft-name">${this.escapeHtml(item.name)}`;
@@ -131,9 +137,53 @@ export class TreeRenderer {
       html += this.renderGitStatus(item.git_status);
     }
 
+    // File actions (delete button)
+    if (this.config.showFolderActions) {
+      html += this.renderFileActions(item.path);
+    }
+
     html += `</div>`;
 
     return html;
+  }
+
+  /** Render file action buttons */
+  private renderFileActions(path: string): string {
+    return `<span class="wft-file-actions">
+      <button class="wft-action-btn wft-action-rename" data-action="rename" data-path="${this.escapeAttr(path)}" title="Rename">
+        <i class="fas fa-pen"></i>
+      </button>
+      <button class="wft-action-btn wft-action-copy" data-action="copy" data-path="${this.escapeAttr(path)}" title="Duplicate">
+        <i class="fas fa-copy"></i>
+      </button>
+      <button class="wft-action-btn wft-action-delete" data-action="delete" data-path="${this.escapeAttr(path)}" title="Delete">
+        <i class="fas fa-trash"></i>
+      </button>
+    </span>`;
+  }
+
+  /** Render git gutter mark (left-side indicator like editor gutters) */
+  private renderGitGutter(status: { status: string; staged: boolean } | undefined): string {
+    if (!status || !this.config.showGitStatus) {
+      return '';
+    }
+
+    // Map git status to gutter class and symbol
+    const gutterConfig: Record<string, { class: string; symbol: string; title: string }> = {
+      'M': { class: 'git-modified', symbol: '~', title: 'Modified' },
+      'A': { class: 'git-added', symbol: '+', title: 'Added' },
+      'D': { class: 'git-deleted', symbol: '-', title: 'Deleted' },
+      '??': { class: 'git-untracked', symbol: '?', title: 'Untracked' },
+      'R': { class: 'git-added', symbol: '+', title: 'Renamed' },
+      'C': { class: 'git-added', symbol: '+', title: 'Copied' },
+    };
+
+    const config = gutterConfig[status.status];
+    if (!config) {
+      return '';
+    }
+
+    return `<span class="wft-git-gutter ${config.class}" title="${config.title}">${config.symbol}</span>`;
   }
 
   /** Render git status badge */
@@ -171,6 +221,15 @@ export class TreeRenderer {
       </button>
       <button class="wft-action-btn" data-action="new-folder" data-path="${this.escapeAttr(path)}" title="New folder">
         <i class="fas fa-folder"></i><i class="fas fa-plus"></i>
+      </button>
+      <button class="wft-action-btn wft-action-rename" data-action="rename" data-path="${this.escapeAttr(path)}" title="Rename">
+        <i class="fas fa-pen"></i>
+      </button>
+      <button class="wft-action-btn wft-action-copy" data-action="copy" data-path="${this.escapeAttr(path)}" title="Duplicate">
+        <i class="fas fa-copy"></i>
+      </button>
+      <button class="wft-action-btn wft-action-delete" data-action="delete" data-path="${this.escapeAttr(path)}" title="Delete">
+        <i class="fas fa-trash"></i>
       </button>
     </span>`;
   }

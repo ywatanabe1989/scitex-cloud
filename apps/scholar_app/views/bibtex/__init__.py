@@ -23,6 +23,7 @@ from .export import bibtex_get_urls, bibtex_save_to_project
 from .diff import bibtex_job_diff
 from .resource import bibtex_resource_status
 from .cancel import bibtex_cancel_job
+from .delete import bibtex_delete_job
 from .utils import process_bibtex_job
 
 __all__ = [
@@ -51,6 +52,8 @@ __all__ = [
     "bibtex_resource_status",
     # Cancel
     "bibtex_cancel_job",
+    # Delete
+    "bibtex_delete_job",
     # Utils
     "process_bibtex_job",
 ]

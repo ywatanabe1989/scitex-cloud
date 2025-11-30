@@ -42,7 +42,21 @@ export function setupCompilationListeners(
       (window as any).showToast || ((msg: string) => console.log(msg));
     showToastFn("Compilation completed successfully");
     if (pdfUrl) {
-      openPDF(pdfUrl);
+      // Display PDF in the preview pane using PDF.js viewer
+      // The PDFPreviewManager's EventHandler already sets up displayPdf,
+      // but it gets overwritten by this callback. So we need to display
+      // the PDF in the preview pane here instead of opening a new window.
+      const pdfViewerInstance = (window as any).pdfViewerInstance;
+      if (pdfViewerInstance && typeof pdfViewerInstance.loadPDF === "function") {
+        console.log("[Compilation] Displaying PDF in preview pane:", pdfUrl);
+        pdfViewerInstance.loadPDF(pdfUrl);
+      } else {
+        // Fallback: dispatch event to load PDF
+        console.log("[Compilation] Dispatching loadExistingPDF event:", pdfUrl);
+        window.dispatchEvent(
+          new CustomEvent("writer:loadExistingPDF", { detail: { url: pdfUrl } })
+        );
+      }
     }
   });
 
@@ -53,17 +67,6 @@ export function setupCompilationListeners(
   });
 }
 
-/**
- * Open PDF in new window
- */
-function openPDF(url: string): void {
-  const pdfWindow = window.open(url, "_blank");
-  if (!pdfWindow) {
-    const showToastFn =
-      (window as any).showToast || ((msg: string) => console.warn(msg));
-    showToastFn("Failed to open PDF. Please check popup blocker settings.");
-  }
-}
 
 /**
  * Handle full manuscript compilation (no content sent - uses workspace)

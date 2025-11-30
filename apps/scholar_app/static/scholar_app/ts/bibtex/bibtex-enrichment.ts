@@ -103,7 +103,7 @@ class BibtexEnrichmentOrchestrator {
 
     const uploadUrl =
       window.SCHOLAR_CONFIG?.urls?.bibtexUpload ||
-      "/scholar/api/bibtex/upload/";
+      "/scholar/bibtex/upload/";
 
     try {
       const response = await fetch(uploadUrl, {
@@ -124,9 +124,17 @@ class BibtexEnrichmentOrchestrator {
       const data = await response.json();
 
       if (data.success && data.job_id) {
-        // Start polling for job status
-        this.jobPollingManager.pollJobStatus(data.job_id);
         window.currentBibtexJobId = data.job_id;
+
+        if (data.cached) {
+          // Show cached result notification
+          showAlert(data.message || "Using cached enrichment result", "info");
+          // Skip polling, job is already completed - enable buttons
+          this.handleJobCompletion(data.job_id);
+        } else {
+          // Start polling for job status
+          this.jobPollingManager.pollJobStatus(data.job_id);
+        }
       } else {
         alert("Error: " + (data.error || "Failed to start enrichment"));
         resetBibtexForm();
@@ -204,7 +212,51 @@ class BibtexEnrichmentOrchestrator {
   private handleJobCompletion(jobId: string): void {
     console.log("[Orchestrator] Job completed:", jobId);
 
-    // Auto-download removed - user can manually download using the Download button
+    // Enable action buttons for completed job
+    this.enableActionButtonsForJob(jobId);
+  }
+
+  /**
+   * Enable action buttons for a completed job (used for cached results)
+   */
+  private enableActionButtonsForJob(jobId: string): void {
+    // Show that job is ready
+    const runningIndicator = document.getElementById("enrichmentRunningIndicator");
+    if (runningIndicator) {
+      runningIndicator.style.display = "none";
+    }
+
+    // Enable buttons
+    const buttons = ["downloadBtn", "saveToProjectBtn", "viewChangesBtn", "openUrlsMainBtn"];
+    buttons.forEach(id => {
+      const btn = document.getElementById(id) as HTMLButtonElement | null;
+      if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+      }
+    });
+
+    // Update URL count
+    this.updateUrlCountForJob(jobId);
+  }
+
+  /**
+   * Update URL count for job
+   */
+  private async updateUrlCountForJob(jobId: string): Promise<void> {
+    try {
+      const response = await fetch(`/scholar/api/bibtex/job/${jobId}/urls/`);
+      const urlData = await response.json();
+      const count = urlData.total_urls || 0;
+
+      const urlButtonText = document.getElementById("urlButtonText");
+      if (urlButtonText && count > 0) {
+        urlButtonText.textContent = `Open All ${count} URLs`;
+      }
+    } catch (error) {
+      console.error("[BibTeX] Failed to fetch URL count:", error);
+    }
   }
 
   /**

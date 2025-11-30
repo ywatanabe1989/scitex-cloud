@@ -34,12 +34,9 @@ interface WorkspaceFilesTree {
 // Dynamically import the shared WorkspaceFilesTree component at runtime
 // Using Function constructor to avoid TypeScript module resolution issues
 async function loadWorkspaceFilesTree(): Promise<{ WorkspaceFilesTree: new (config: any) => WorkspaceFilesTree }> {
-  // Get the WorkspaceFilesTree URL from the data attribute injected by Django template
-  const projectData = document.getElementById('project-data');
-  const treeUrl = projectData?.getAttribute('data-workspace-tree-url') || '/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js';
-
-  // @ts-ignore - Runtime dynamic import from Django-injected URL
-  const module = await (Function(`return import("${treeUrl}")`)());
+  // Import the shared WorkspaceFilesTree component from static path
+  // @ts-ignore - Runtime dynamic import
+  const module = await (Function('return import("/static/shared/js/components/workspace-files-tree/WorkspaceFilesTree.js")')());
   return module;
 }
 
