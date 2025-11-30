@@ -6,6 +6,83 @@
 
 # SciTeX Test Suite
 
+## Currently Implemented Tests
+
+### API Tests (31 tests)
+
+**Auth API** (`tests/api/auth/test_auth_api.py`)
+- Check available username
+- Check taken username
+- Check invalid username
+- Check empty username
+- Get theme (unauthenticated)
+- Save theme (authenticated)
+- Save invalid theme
+- Get authenticated accounts
+- Login with valid credentials
+- Login with invalid credentials
+- Login without CSRF
+- Logout clears session
+- Logout unauthenticated
+- Resend OTP requires auth
+- Verify email invalid code
+- Forgot password valid email
+- Forgot password invalid email
+
+**Project API** (`tests/api/project/test_project_api.py`)
+- Check available project name
+- Check invalid project name
+- Check name with special chars
+- List projects (authenticated)
+- List projects (unauthenticated)
+- Create project (authenticated)
+- Create project (unauthenticated)
+- Create project duplicate name
+- Get file tree (authenticated)
+- Get file tree (unauthenticated public)
+- Git status (authenticated)
+- Repository health check
+- Check permissions (owner)
+- Check permissions (unauthenticated)
+
+### E2E Tests (35 tests)
+
+**Login** (`tests/e2e/auth/test_login.py`)
+- Login page loads
+- Login page has signup link
+- Login page has forgot password link
+- Login with valid credentials
+- Login redirects to home
+- Login with wrong password
+- Login with nonexistent user
+- Login with empty fields
+- Logout clears session
+- Logout redirects to public page
+- Authenticated user stays logged in
+- Accessing signin while logged in redirects
+
+**Signup** (`tests/e2e/auth/test_signup.py`)
+- Signup page loads
+- Signup page has required fields
+- Signup page has login link
+- Signup rejects invalid email
+- Signup rejects weak password
+- Signup rejects mismatched passwords
+- Signup rejects short username
+- Signup rejects existing username
+- Signup form clears on focus
+- Username check API exists
+
+**Password Reset** (`tests/e2e/auth/test_password_reset.py`)
+- Reset page loads
+- Reset page has email field
+- Reset page has login link
+- Reset with valid email submits
+- Reset with invalid email shows error
+- Reset with empty email shows error
+
+---
+
 ## Directory Structure
 
 ```
