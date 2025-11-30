@@ -38,10 +38,28 @@
 }
 
 /* Main Container - Grid Layout */
+/* Force workspace-page constraints for vis app - ensure viewport containment */
+body.workspace-page.vis-workspace {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+}
+
+body.workspace-page.vis-workspace #main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .sigma-editor-container {
     display: grid;
-    grid-template-rows: auto 1fr auto;
-    height: 100vh;
+    grid-template-rows: auto minmax(0, 1fr) auto;  /* minmax(0, 1fr) prevents content from expanding grid */
+    height: 100%; /* Fill parent container (flex: 1 from global-base.css) */
+    max-height: calc(100vh - 65px); /* Constrain to viewport minus header */
     background: var(--sigma-bg-primary);
     color: var(--sigma-text-primary);
     overflow: hidden;

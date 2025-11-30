@@ -66,6 +66,7 @@
     flex: 1;
     display: flex;
     overflow: hidden;
+    min-height: 0;  /* Allow flexbox shrinking to fit viewport */
 }
 
 .split-pane {
@@ -73,12 +74,14 @@
     flex-direction: column;
     overflow: hidden;
     margin-top: 0;  /* Remove any top margin */
+    min-height: 0;  /* Allow flexbox shrinking */
 }
 
 .split-pane-left {
     width: 400px;
     flex-shrink: 0;
     min-width: 10px;
+    min-height: 0;  /* Allow flexbox shrinking */
     background: var(--sigma-bg-secondary);
     border-right: 1px solid var(--sigma-border);
 }
@@ -94,6 +97,9 @@
     background: var(--sigma-bg-primary);
     position: relative;
     min-width: 10px;
+    min-height: 0;  /* Allow flexbox shrinking */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Dark mode: consistent split pane background */
@@ -283,5 +289,6 @@
     overflow: hidden; /* Changed from auto to hidden for proper flexbox sizing */
     display: flex;
     flex-direction: column;
+    min-height: 0;  /* Allow flexbox shrinking */
 }
 

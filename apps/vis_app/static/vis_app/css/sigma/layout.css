@@ -9,6 +9,7 @@
     gap: 0;
     overflow: hidden;
     background: var(--sigma-bg-primary);
+    min-height: 0;  /* Critical: allow flexbox/grid shrinking to fit viewport */
 }
 
 /* Dark mode: unified background */

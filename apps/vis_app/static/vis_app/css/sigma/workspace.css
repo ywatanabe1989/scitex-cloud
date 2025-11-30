@@ -9,6 +9,7 @@
     overflow: hidden;
     flex: 1;
     min-width: 10px;
+    min-height: 0;  /* Allow flexbox shrinking to fit viewport */
 }
 
 /* Dark mode: unified background */
@@ -102,7 +103,7 @@
     overflow-y: auto;
     overflow-x: auto;
     position: relative;  /* Required for absolute positioning of selection overlay */
-    height: 100%; /* Ensure full height usage */
+    min-height: 0;  /* Allow flexbox shrinking - critical for containing within viewport */
 }
 
 /* Editable Data Table Styles - Performance optimized with CSS classes */
